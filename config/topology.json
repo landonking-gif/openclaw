@@ -12,7 +12,9 @@
     "memory-service":    {"port": 18820, "entrypoint": "main:app"},
     "orchestrator-api":  {"port": 18830, "entrypoint": "main:app"},
     "ralph":             {"port": 18840, "entrypoint": "ralph:app"},
-    "knowledge-bridge":  {"port": 18850, "entrypoint": "main:app"}
+    "knowledge-bridge":  {"port": 18850, "entrypoint": "main:app"},
+    "agent-registry":    {"port": 18860, "entrypoint": "main:app"},
+    "notification":      {"port": 18870, "entrypoint": "main:app"}
   },
 
   "agents": {

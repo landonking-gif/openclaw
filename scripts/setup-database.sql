@@ -148,3 +148,55 @@ CREATE INDEX IF NOT EXISTS idx_approval_status ON approval_requests(status);
 CREATE INDEX IF NOT EXISTS idx_approval_requester ON approval_requests(requester);
 CREATE INDEX IF NOT EXISTS idx_summary_agent ON session_summaries(agent_name);
 CREATE INDEX IF NOT EXISTS idx_summary_project ON session_summaries(project_id);
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- New tables for agent-registry, notification, and token budget
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Agent registry snapshots (for persistence across restarts)
+CREATE TABLE IF NOT EXISTS agent_registry (
+    id              SERIAL PRIMARY KEY,
+    name            TEXT UNIQUE NOT NULL,
+    port            INTEGER NOT NULL,
+    role            TEXT NOT NULL,         -- king, manager, worker
+    model           TEXT DEFAULT '',
+    capabilities    JSONB DEFAULT '[]'::jsonb,
+    manager         TEXT,
+    metadata        JSONB DEFAULT '{}'::jsonb,
+    registered_at   TIMESTAMPTZ DEFAULT NOW(),
+    last_heartbeat  TIMESTAMPTZ DEFAULT NOW(),
+    status          TEXT DEFAULT 'online'
+);
+
+-- Notification log
+CREATE TABLE IF NOT EXISTS notifications (
+    id              SERIAL PRIMARY KEY,
+    notif_id        TEXT UNIQUE NOT NULL,
+    recipient       TEXT NOT NULL,
+    subject         TEXT NOT NULL,
+    source          TEXT DEFAULT 'system',
+    priority        TEXT DEFAULT 'normal',
+    success         BOOLEAN NOT NULL,
+    error           TEXT,
+    sent_at         TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Token / cost budget tracking (daily granularity)
+CREATE TABLE IF NOT EXISTS token_budget (
+    id              SERIAL PRIMARY KEY,
+    date            DATE NOT NULL,
+    agent_name      TEXT NOT NULL,
+    model           TEXT DEFAULT '',
+    input_tokens    INTEGER DEFAULT 0,
+    output_tokens   INTEGER DEFAULT 0,
+    cost_usd        REAL DEFAULT 0.0,
+    updated_at      TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(date, agent_name, model)
+);
+
+CREATE INDEX IF NOT EXISTS idx_registry_role ON agent_registry(role);
+CREATE INDEX IF NOT EXISTS idx_registry_status ON agent_registry(status);
+CREATE INDEX IF NOT EXISTS idx_notif_source ON notifications(source);
+CREATE INDEX IF NOT EXISTS idx_notif_sent ON notifications(sent_at);
+CREATE INDEX IF NOT EXISTS idx_budget_date ON token_budget(date);
+CREATE INDEX IF NOT EXISTS idx_budget_agent ON token_budget(agent_name);

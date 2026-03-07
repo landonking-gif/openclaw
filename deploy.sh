@@ -59,6 +59,8 @@ SERVICE_DEFS=(
     "orchestrator-api:${ORCHESTRATOR_API_PORT:-18830}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${ORCHESTRATOR_API_PORT:-18830}"
     "ralph:${RALPH_PORT:-18840}:$PYTHON -m uvicorn ralph:app --host 127.0.0.1 --port ${RALPH_PORT:-18840}"
     "knowledge-bridge:${KNOWLEDGE_BRIDGE_PORT:-18850}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${KNOWLEDGE_BRIDGE_PORT:-18850}"
+    "agent-registry:${AGENT_REGISTRY_PORT:-18860}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${AGENT_REGISTRY_PORT:-18860}"
+    "notification:${NOTIFICATION_PORT:-18870}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${NOTIFICATION_PORT:-18870}"
 )
 
 # ── Colors ────────────────────────────────────────────────────────────────────

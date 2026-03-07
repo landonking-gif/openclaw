@@ -18,11 +18,15 @@ Port: 18840
 
 import os
 import json
+import sys
 import uuid
 import logging
 from datetime import datetime, timezone
 from typing import Optional
 from enum import Enum
+
+# Add shared utilities to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -113,6 +117,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+try:
+    from shared.logging_middleware import StructuredLoggingMiddleware
+    app.add_middleware(StructuredLoggingMiddleware, service_name="ralph")
+except ImportError:
+    pass
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 

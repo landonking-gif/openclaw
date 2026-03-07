@@ -1,33 +1,40 @@
 """
-Orchestrator API — Meta-Orchestrator Planner Gateway
-=====================================================
+Orchestrator API — Intelligent Meta-Orchestrator
+=================================================
 
-This is NOT a simple classifier/router. It is the MAIN LARGE-SCALE PLANNER.
+The Meta-Orchestrator is an **intelligent AI** that thinks, reasons, and
+converses with the user. It uses Kimi K2.5 via NVIDIA API to understand
+requests, formulate solutions, and only delegates to manager agents when
+actual work needs to be executed — treating delegation as tool calls,
+not as the primary function.
 
 Workflow:
-1. Receives complex tasks from King AI or external requests
-2. Analyzes the task to understand ALL its dimensions
-3. Creates a comprehensive plan with sub-tasks
-4. Routes ONLY relevant sub-tasks to the correct manager agents
-5. Tracks workflow progress and synthesizes final results
-
-Example: "Research best improvements, implement them, and send me an email"
-→ Gamma-Manager gets: "Research best improvements to the program"
-→ Beta-Manager gets: "Implement the top improvements identified by research"
-→ Alpha-Manager gets: "Draft and send an email summarizing proposed changes"
+1. Receives a message from the user via /chat
+2. THINKS about the problem using its own LLM intelligence
+3. Responds directly with analysis, solutions, plans, or conversation
+4. IF real work needs doing → delegates to managers as tool calls
+5. Synthesizes results from delegated work back into conversation
 
 Port: 18830
 """
 
 import os
 import json
+import sys
 import uuid
 import asyncio
 import logging
+import re
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 from enum import Enum
 
+# Add shared utilities to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import yaml
+from openai import AsyncOpenAI
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -93,6 +100,125 @@ MANAGER_POOLS = {
     },
 }
 
+# ── LLM Configuration ──────────────────────────────────────────────────────
+
+NVAPI_KEY = os.getenv("NVAPI_KIMI_KEY_1", "")
+LLM_MODEL = "moonshotai/kimi-k2.5"
+LLM_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+llm_client = AsyncOpenAI(
+    base_url=LLM_BASE_URL,
+    api_key=NVAPI_KEY,
+)
+
+SYSTEM_PROMPT = """You are the Meta-Orchestrator of the OpenClaw Army — a 16-agent AI system owned by Landon King. You are the supreme intelligence at the top of the hierarchy.
+
+You are NOT a router. You are a brilliant, all-knowing AI that THINKS FIRST, then acts. When the user sends you a message:
+
+1. THINK deeply about the problem. Analyze it from multiple angles.
+2. RESPOND with your own intelligence — give your analysis, solution, plan, or answer.
+3. ONLY delegate to your managers when real execution work is needed.
+
+You have THREE manager agents you can delegate to when actual work needs doing:
+
+- **Alpha Manager** (general-purpose): Writing, email drafting, summarization, Mac automation, communication, formatting, templates, reports.
+- **Beta Manager** (software engineering): Coding, implementation, debugging, testing, deployment, Python, JavaScript, Bash, infrastructure, refactoring.
+- **Gamma Manager** (research & analysis): Web search, document analysis, data synthesis, fact-checking, benchmarks, investigation, comparison, evaluation.
+
+Each manager has 4 specialized workers under them (12 workers total).
+
+IMPORTANT RULES:
+- Be conversational and direct. You are an intelligent being, not a dispatch system.
+- If the user asks a question you can answer from your own knowledge — ANSWER IT DIRECTLY. Don't delegate.
+- If the user needs real work done (write code, research something online, send an email) — THEN create a delegation plan alongside your response.
+- Always explain your thinking. Show the user you understand the full picture.
+- When you do delegate, explain WHY you're delegating and what each manager will do.
+- You speak as the commander of this army — confident, knowledgeable, decisive.
+- Keep responses focused and useful. No filler.
+
+The current date is {date}.
+The owner is Landon King.
+"""
+
+# Conversation history per session (in-memory)
+_chat_sessions: dict[str, list[dict]] = {}
+
+# Tool definitions for the LLM to call managers
+MANAGER_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "delegate_to_alpha",
+            "description": "Delegate a task to Alpha Manager for general-purpose work: writing, email, summarization, documentation, communication, Mac automation, formatting.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "description": "Clear, specific task description for Alpha Manager to execute."
+                    },
+                    "priority": {
+                        "type": "integer",
+                        "description": "Priority 1-5 (1=highest). Default 2.",
+                        "default": 2
+                    }
+                },
+                "required": ["task"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "delegate_to_beta",
+            "description": "Delegate a task to Beta Manager for software engineering: coding, implementation, debugging, testing, deployment, refactoring, infrastructure.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "description": "Clear, specific technical task description for Beta Manager to execute."
+                    },
+                    "priority": {
+                        "type": "integer",
+                        "description": "Priority 1-5 (1=highest). Default 2.",
+                        "default": 2
+                    }
+                },
+                "required": ["task"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "delegate_to_gamma",
+            "description": "Delegate a task to Gamma Manager for research and analysis: web search, document analysis, data synthesis, fact-checking, investigation, comparison, evaluation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "description": "Clear, specific research/analysis task for Gamma Manager to execute."
+                    },
+                    "priority": {
+                        "type": "integer",
+                        "description": "Priority 1-5 (1=highest). Default 2.",
+                        "default": 2
+                    }
+                },
+                "required": ["task"]
+            }
+        }
+    },
+]
+
+TOOL_TO_MANAGER = {
+    "delegate_to_alpha": "alpha-manager",
+    "delegate_to_beta": "beta-manager",
+    "delegate_to_gamma": "gamma-manager",
+}
+
 # ── Logging ─────────────────────────────────────────────────────────────────
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [orchestrator] %(message)s")
@@ -144,6 +270,10 @@ class DispatchRequest(BaseModel):
     workflow_id: str
     subtask_id: Optional[str] = None  # If None, dispatch all ready subtasks
 
+class ChatMessage(BaseModel):
+    message: str
+    session_id: Optional[str] = None  # Reuse session for conversation continuity
+
 # ── State ───────────────────────────────────────────────────────────────────
 
 workflows: dict[str, WorkflowPlan] = {}
@@ -152,9 +282,9 @@ ws_subscribers: list[WebSocket] = []
 # ── App ─────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="OpenClaw Army — Meta-Orchestrator Planner",
-    description="Large-scale task planner that decomposes complex tasks and distributes to relevant managers.",
-    version="1.0.0",
+    title="OpenClaw Army — Intelligent Meta-Orchestrator",
+    description="An intelligent AI that thinks, converses, and delegates to managers as tool calls when real work is needed.",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -163,6 +293,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+try:
+    from shared.logging_middleware import StructuredLoggingMiddleware
+    app.add_middleware(StructuredLoggingMiddleware, service_name="orchestrator-api")
+except ImportError:
+    pass
 
 # ── Helper Functions ────────────────────────────────────────────────────────
 
@@ -450,6 +586,147 @@ async def log_to_memory(content: str, category: str = "orchestrator"):
         pass  # Non-critical
 
 
+async def call_llm(session_id: str, user_message: str) -> dict:
+    """
+    Core LLM conversation loop. Sends message to Kimi K2.5, processes
+    tool calls (delegations to managers), and returns the response.
+    """
+    # Get or create session history
+    if session_id not in _chat_sessions:
+        _chat_sessions[session_id] = []
+    history = _chat_sessions[session_id]
+
+    # Build messages with system prompt
+    today = datetime.now(timezone.utc).strftime("%B %d, %Y")
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT.format(date=today)},
+        *history,
+        {"role": "user", "content": user_message},
+    ]
+
+    # Call the LLM with tool definitions
+    try:
+        response = await llm_client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=messages,
+            tools=MANAGER_TOOLS,
+            tool_choice="auto",
+            temperature=0.7,
+            max_tokens=2048,
+        )
+    except Exception as e:
+        log.error(f"LLM call failed: {e}")
+        return {
+            "response": f"I'm having trouble connecting to my reasoning engine right now. Error: {str(e)[:200]}",
+            "delegations": [],
+            "session_id": session_id,
+        }
+
+    choice = response.choices[0]
+    assistant_msg = choice.message
+
+    # Process any tool calls (delegations to managers)
+    delegations = []
+    if assistant_msg.tool_calls:
+        for tc in assistant_msg.tool_calls:
+            fn_name = tc.function.name
+            try:
+                fn_args = json.loads(tc.function.arguments)
+            except json.JSONDecodeError:
+                fn_args = {"task": tc.function.arguments}
+
+            manager = TOOL_TO_MANAGER.get(fn_name)
+            if manager:
+                task_desc = fn_args.get("task", "")
+                priority = fn_args.get("priority", 2)
+
+                # Create a workflow plan for this delegation
+                plan = WorkflowPlan(
+                    original_task=task_desc,
+                    analysis=f"Delegated by Meta-Orchestrator to {manager}",
+                    status=TaskStatus.PENDING,
+                    requester="orchestrator",
+                )
+                plan.subtasks.append(SubTask(
+                    description=task_desc,
+                    assigned_to=manager,
+                    priority=priority,
+                ))
+                workflows[plan.id] = plan
+
+                # Dispatch immediately
+                subtask = plan.subtasks[0]
+                dispatched = await dispatch_to_manager(manager, subtask, plan.id)
+
+                delegations.append({
+                    "manager": manager,
+                    "task": task_desc,
+                    "priority": priority,
+                    "workflow_id": plan.id,
+                    "dispatched": dispatched,
+                })
+
+                await notify_ws({
+                    "event": "delegation",
+                    "manager": manager,
+                    "task": task_desc[:100],
+                    "workflow_id": plan.id,
+                    "dispatched": dispatched,
+                })
+
+    # Extract the text response
+    text_response = assistant_msg.content or ""
+
+    # If the LLM made tool calls but gave no text, make a follow-up call
+    # so the user gets a real response alongside the delegations
+    if not text_response and delegations:
+        # Build tool results to feed back
+        tool_messages = []
+        tool_messages.append({"role": "assistant", "content": None, "tool_calls": [
+            {"id": tc.id, "type": "function", "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+            for tc in assistant_msg.tool_calls
+        ]})
+        for i, tc in enumerate(assistant_msg.tool_calls):
+            d = delegations[i] if i < len(delegations) else {}
+            tool_messages.append({
+                "role": "tool",
+                "tool_call_id": tc.id,
+                "content": json.dumps({
+                    "status": "dispatched" if d.get("dispatched") else "queued",
+                    "manager": d.get("manager", "unknown"),
+                    "workflow_id": d.get("workflow_id", ""),
+                }),
+            })
+
+        try:
+            followup = await llm_client.chat.completions.create(
+                model=LLM_MODEL,
+                messages=messages + tool_messages,
+                temperature=0.7,
+                max_tokens=1024,
+            )
+            text_response = followup.choices[0].message.content or ""
+        except Exception:
+            # Fallback — construct summary ourselves
+            parts = ["I've dispatched the following to my team:"]
+            for d in delegations:
+                status = "✓ dispatched" if d["dispatched"] else "queued"
+                parts.append(f"  → **{d['manager']}**: {d['task']} ({status})")
+            text_response = "\n".join(parts)
+
+    # Save to conversation history (keep last 20 exchanges to stay within context)
+    history.append({"role": "user", "content": user_message})
+    history.append({"role": "assistant", "content": text_response})
+    if len(history) > 40:  # 20 exchanges = 40 messages
+        history[:] = history[-40:]
+
+    return {
+        "response": text_response,
+        "delegations": delegations,
+        "session_id": session_id,
+    }
+
+
 # ── API Endpoints ───────────────────────────────────────────────────────────
 
 @app.get("/health")
@@ -459,7 +736,38 @@ async def health():
         "service": "orchestrator-api",
         "active_workflows": len([w for w in workflows.values() if w.status in (TaskStatus.PLANNING, TaskStatus.RUNNING, TaskStatus.WAITING)]),
         "total_workflows": len(workflows),
+        "active_chat_sessions": len(_chat_sessions),
     }
+
+
+@app.post("/chat")
+async def chat(req: ChatMessage):
+    """
+    THE CORE ENDPOINT — Talk to the Meta-Orchestrator.
+
+    The orchestrator THINKS about your message using its own intelligence (Kimi K2.5),
+    responds conversationally, and delegates to managers only when real work is needed.
+    Delegation happens as tool calls — the orchestrator decides when and what to delegate.
+    """
+    session_id = req.session_id or str(uuid.uuid4())[:12]
+    log.info(f"Chat [{session_id}]: {req.message[:100]}...")
+
+    result = await call_llm(session_id, req.message)
+
+    # Log to memory service
+    await log_to_memory(
+        f"Chat [{session_id}]: User: {req.message[:200]}\n"
+        f"Orchestrator: {result['response'][:200]}\n"
+        f"Delegations: {len(result['delegations'])}"
+    )
+
+    await notify_ws({
+        "event": "chat_response",
+        "session_id": session_id,
+        "delegations": len(result["delegations"]),
+    })
+
+    return result
 
 
 @app.post("/plan")
@@ -715,6 +1023,120 @@ async def agent_status(agent_name: str):
         return {"agent": agent_name, "status": "unreachable", "port": port, "error": str(e)}
 
 
+# ── YAML Workflow Engine ────────────────────────────────────────────────────
+# Allows defining reusable workflow manifests in YAML with steps, dependencies,
+# assignments, and provenance tracking.
+
+WORKFLOWS_DIR = Path(ARMY_HOME) / "config" / "workflows"
+
+class WorkflowManifestStep(BaseModel):
+    id: str
+    name: str
+    assigned_to: str  # manager name
+    description: str = ""
+    depends_on: list[str] = Field(default_factory=list)
+    timeout_sec: int = 300
+    retry: int = 0
+
+class WorkflowManifest(BaseModel):
+    name: str
+    description: str = ""
+    version: str = "1.0"
+    steps: list[WorkflowManifestStep] = Field(default_factory=list)
+
+class ProvenanceEntry(BaseModel):
+    timestamp: str
+    step_id: str
+    event: str  # started, completed, failed, retried
+    agent: str
+    detail: str = ""
+
+# In-memory manifest cache
+_manifest_cache: dict[str, WorkflowManifest] = {}
+
+
+def _load_manifests():
+    """Load all YAML workflow manifests from config/workflows/."""
+    _manifest_cache.clear()
+    if not WORKFLOWS_DIR.exists():
+        return
+    for f in WORKFLOWS_DIR.glob("*.yaml"):
+        try:
+            data = yaml.safe_load(f.read_text())
+            manifest = WorkflowManifest(**data)
+            _manifest_cache[manifest.name] = manifest
+            log.info(f"Loaded workflow manifest: {manifest.name} ({len(manifest.steps)} steps)")
+        except Exception as e:
+            log.warning(f"Failed to load manifest {f.name}: {e}")
+    for f in WORKFLOWS_DIR.glob("*.yml"):
+        try:
+            data = yaml.safe_load(f.read_text())
+            manifest = WorkflowManifest(**data)
+            _manifest_cache[manifest.name] = manifest
+        except Exception:
+            pass
+
+
+@app.get("/workflows/manifests")
+async def list_manifests():
+    """List all available YAML workflow manifests."""
+    _load_manifests()
+    return {
+        "total": len(_manifest_cache),
+        "manifests": [
+            {"name": m.name, "description": m.description, "version": m.version, "steps": len(m.steps)}
+            for m in _manifest_cache.values()
+        ],
+    }
+
+
+@app.post("/workflows/run/{manifest_name}")
+async def run_manifest(manifest_name: str, context: Optional[str] = None):
+    """Instantiate a YAML workflow manifest as a live WorkflowPlan."""
+    _load_manifests()
+    manifest = _manifest_cache.get(manifest_name)
+    if not manifest:
+        raise HTTPException(404, f"Manifest '{manifest_name}' not found")
+
+    plan = WorkflowPlan(
+        original_task=f"[manifest:{manifest_name}] {manifest.description}",
+        analysis=f"Running workflow manifest '{manifest_name}' v{manifest.version} with {len(manifest.steps)} steps.",
+        status=TaskStatus.PENDING,
+    )
+
+    # Convert manifest steps to subtasks
+    step_id_map: dict[str, str] = {}  # manifest step id -> subtask id
+    for step in manifest.steps:
+        st = SubTask(
+            description=f"{step.name}: {step.description}" if step.description else step.name,
+            assigned_to=step.assigned_to,
+            depends_on=[],
+            priority=1,
+        )
+        step_id_map[step.id] = st.id
+        plan.subtasks.append(st)
+
+    # Resolve dependencies using ID mapping
+    for i, step in enumerate(manifest.steps):
+        for dep_step_id in step.depends_on:
+            if dep_step_id in step_id_map:
+                plan.subtasks[i].depends_on.append(step_id_map[dep_step_id])
+
+    workflows[plan.id] = plan
+
+    await log_to_memory(
+        f"Started manifest workflow '{manifest_name}' as plan {plan.id} "
+        f"with {len(plan.subtasks)} steps."
+    )
+
+    return {
+        "workflow_id": plan.id,
+        "manifest": manifest_name,
+        "steps": len(plan.subtasks),
+        "status": plan.status,
+    }
+
+
 # ── WebSocket for real-time workflow updates ────────────────────────────────
 
 @app.websocket("/ws")
@@ -740,6 +1162,8 @@ async def startup():
     log.info(f"Orchestrator API starting on port {ORCHESTRATOR_PORT}")
     log.info(f"Configured agents: {list(AGENT_PORTS.keys())}")
     log.info(f"Manager pools: {list(MANAGER_POOLS.keys())}")
+    _load_manifests()
+    log.info(f"Loaded {len(_manifest_cache)} workflow manifests")
 
 
 # ── Entry Point ─────────────────────────────────────────────────────────────

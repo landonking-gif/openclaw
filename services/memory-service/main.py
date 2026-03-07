@@ -11,10 +11,15 @@ Tier 3: ChromaDB + PostgreSQL (semantic long-term memory with decay)
 import hashlib
 import logging
 import os
+import re
+import sys
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
+# Add shared utilities to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import asyncpg
 import redis.asyncio as aioredis
@@ -40,6 +45,82 @@ MAX_TIER2_SUMMARIES = 20
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
 logger = logging.getLogger("memory-service")
+
+# ── PII Redaction ─────────────────────────────────────────────────────────────
+PII_ENABLED = os.getenv("PII_REDACTION_ENABLED", "true").lower() in ("true", "1", "yes")
+
+_PII_PATTERNS = [
+    # Email addresses
+    (re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'), '[EMAIL_REDACTED]'),
+    # Phone numbers (US formats)
+    (re.compile(r'\b(?:\+1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'), '[PHONE_REDACTED]'),
+    # SSN
+    (re.compile(r'\b\d{3}-\d{2}-\d{4}\b'), '[SSN_REDACTED]'),
+    # Credit card numbers (basic)
+    (re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'), '[CC_REDACTED]'),
+    # IP addresses (v4)
+    (re.compile(r'\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b'), '[IP_REDACTED]'),
+    # API keys / tokens (long hex or base64 strings that look like secrets)
+    (re.compile(r'\b(?:nvapi-|sk-|key-|token-)[A-Za-z0-9_-]{20,}\b'), '[API_KEY_REDACTED]'),
+]
+
+
+def redact_pii(text: str) -> str:
+    """Remove PII patterns from text before storage."""
+    if not PII_ENABLED or not text:
+        return text
+    for pattern, replacement in _PII_PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+# ── Token Budget Tracker ──────────────────────────────────────────────────────
+DAILY_BUDGET = float(os.getenv("DAILY_BUDGET", "10.00"))
+MONTHLY_BUDGET = float(os.getenv("MONTHLY_BUDGET", "100.00"))
+DAILY_WARN = float(os.getenv("DAILY_WARN", "8.00"))
+MONTHLY_WARN = float(os.getenv("MONTHLY_WARN", "80.00"))
+
+_token_usage: Dict[str, Dict[str, float]] = {}  # date -> {agent: cost}
+
+
+def track_token_cost(agent_name: str, cost: float):
+    """Track token cost for budget enforcement."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if today not in _token_usage:
+        _token_usage[today] = {}
+    _token_usage[today][agent_name] = _token_usage[today].get(agent_name, 0.0) + cost
+
+
+def get_daily_spend() -> float:
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return sum(_token_usage.get(today, {}).values())
+
+
+def get_monthly_spend() -> float:
+    month_prefix = datetime.now(timezone.utc).strftime("%Y-%m")
+    total = 0.0
+    for date, agents in _token_usage.items():
+        if date.startswith(month_prefix):
+            total += sum(agents.values())
+    return total
+
+
+def check_budget() -> Dict[str, Any]:
+    daily = get_daily_spend()
+    monthly = get_monthly_spend()
+    return {
+        "daily_spend": daily,
+        "daily_budget": DAILY_BUDGET,
+        "daily_remaining": DAILY_BUDGET - daily,
+        "daily_warning": daily >= DAILY_WARN,
+        "daily_exceeded": daily >= DAILY_BUDGET,
+        "monthly_spend": monthly,
+        "monthly_budget": MONTHLY_BUDGET,
+        "monthly_remaining": MONTHLY_BUDGET - monthly,
+        "monthly_warning": monthly >= MONTHLY_WARN,
+        "monthly_exceeded": monthly >= MONTHLY_BUDGET,
+    }
+
 
 # ── Models ────────────────────────────────────────────────────────────────────
 class MemoryCommitRequest(BaseModel):
@@ -104,6 +185,12 @@ class CompactRequest(BaseModel):
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(title="OpenClaw Army Memory Service", version="1.0.0")
+
+try:
+    from shared.logging_middleware import StructuredLoggingMiddleware
+    app.add_middleware(StructuredLoggingMiddleware, service_name="memory-service")
+except ImportError:
+    pass
 
 # Globals (initialized in lifespan)
 pg_pool: Optional[asyncpg.Pool] = None
@@ -184,7 +271,29 @@ async def health():
 
     all_healthy = all(v == "healthy" for k, v in deps.items() if not k.endswith("_count") and k != "chromadb")
     chromadb_ok = deps.get("chromadb") in ("healthy", "unavailable")
-    return {"status": "healthy" if (all_healthy and chromadb_ok) else "degraded", "service": "memory-service", "dependencies": deps}
+    return {
+        "status": "healthy" if (all_healthy and chromadb_ok) else "degraded",
+        "service": "memory-service",
+        "dependencies": deps,
+        "pii_redaction": PII_ENABLED,
+        "budget": check_budget(),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BUDGET
+# ═══════════════════════════════════════════════════════════════════════════════
+@app.get("/budget")
+async def budget_status():
+    """Get current token budget status."""
+    return check_budget()
+
+
+@app.post("/budget/track")
+async def budget_track(agent_name: str, cost: float):
+    """Track token cost for an agent."""
+    track_token_cost(agent_name, cost)
+    return {"tracked": True, "agent": agent_name, "cost": cost, "budget": check_budget()}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -195,6 +304,7 @@ async def tier1_add(msg: Tier1Message):
     """Add a message to Tier 1 recent memory (Redis sliding window)."""
     if not redis_client:
         raise HTTPException(503, "Redis not available")
+    msg.content = redact_pii(msg.content)
     key = f"tier1:{msg.agent_name}:{msg.session_id or 'default'}"
     import json
     entry = json.dumps({
@@ -301,6 +411,7 @@ async def memory_commit(req: MemoryCommitRequest):
     """Commit an artifact to long-term memory (Tier 3)."""
     if not pg_pool:
         raise HTTPException(503, "PostgreSQL not available")
+    req.content = redact_pii(req.content)
     artifact_id = f"art-{uuid4().hex[:12]}"
     content_hash = _hash(req.content)
 

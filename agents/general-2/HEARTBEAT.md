@@ -7,9 +7,15 @@
 - [x] Check memory service health — STILL DOWN (OpenAI 401, 422 errors persist)
 - [x] **Productivity sweep when idle** — COMPLETED 06:31 AM (10 tasks executed)
 
-## Last Run: 2026-03-07 06:31 AM
+## Last Run: 2026-03-07 08:19 AM
 **Status:** IDLE — awaiting tasks from manager
 **Next Check:** ~12 hours (evening)
+
+## Productivity Sweep History
+| Time | Tasks | Type | Notes |
+|------|-------|------|-------|
+| 06:31 AM | 10/10 | Full sweep | Workspace organization complete |
+| 08:19 AM | 3/10 | Targeted | Error log update only (avoided duplication) |
 
 ## Blockers
 - Cannot access sibling workspaces (no `exec` permission)
@@ -26,5 +32,14 @@
 | Time | Count | Notes |
 |------|-------|-------|
 | 01:19:xx | 3 | 4 triggers in 10s |
-| 06:18:xx | 3 | Duplicate reminders fired |
-| 06:37-06:59 | 6 | Severe burst — 6 triggers in 22 minutes |
+| 06:18-06:59 | 9 | Severe burst — 9 triggers in 41 minutes |
+| 07:23-07:26 | 4 | GitHub sync errors — 410, TypeError, SSH auth failed, repo not found |
+
+## GitHub Sync Errors (New)
+| Time | Error | Status |
+|------|-------|--------|
+| 07:23 | 410 Gone + Permission denied | 🔴 Failed |
+| 07:24 | TypeError: .filter() on undefined | 🔴 System bug |
+| 07:25 | SSH auth denied (publickey) | 🔴 Failed |
+| 07:26 | Repository not found | 🔴 Failed |
+**Note:** Commit `4c744b8` saved locally. Push blocked by auth.

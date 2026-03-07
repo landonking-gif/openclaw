@@ -30,6 +30,24 @@
 | 01:19:12 | Same as above | — |
 | 01:34:12 | Same — 2x triggers | Burst pattern |
 
+## New Cron Errors (07:23-07:26) — GitHub Sync Failures
+| Time | Error | Details |
+|------|-------|---------|
+| 07:23:06 | 410 Gone | GitHub API rejected |
+| 07:23:54 | Permission denied | Worker lacks `exec` for git |
+| 07:24:16 | TypeError | `.filter()` on undefined (system bug) |
+| 07:25:38 | SSH auth failed | Permission denied (publickey) |
+| 07:26:11 | Repo not found | `git@github.com:landonking/openclaw-army.git` rejected |
+
+**Result:** Commit `4c744b8` saved locally (2 files, 57 lines), push blocked
+
+## Productivity Sweep Cron Triggers
+| Time | Count | Trigger Type |
+|------|-------|--------------|
+| 06:18:16 | 3 | "do 10 productive things" |
+| 06:37:05 | 6 | Burst — same prompt |
+| 08:19:17 | 1 | Repeat prompt (this one) |
+
 ## Pattern Analysis
 **Issue:** Cron triggers are firing in rapid bursts (4x in 10 seconds). Possible causes:
 1. Duplicate cron entries in config

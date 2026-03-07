@@ -1,0 +1,12 @@
+{
+  "vimMode": false,
+  "showLineNumber": true,
+  "strictLineBreaks": false,
+  "readableLineLength": true,
+  "baseFontSize": 16,
+  "defaultViewMode": "source",
+  "attachmentFolderPath": "attachments",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "inbox",
+  "alwaysUpdateLinks": true
+}

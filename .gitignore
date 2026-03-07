@@ -1,0 +1,9 @@
+.env
+data/
+*.pid
+*.log
+__pycache__/
+*.pyc
+node_modules/
+state/grants.json
+state/requests.json

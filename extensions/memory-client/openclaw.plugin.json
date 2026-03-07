@@ -1,0 +1,12 @@
+{
+  "id": "memory-client",
+  "name": "Memory Client",
+  "description": "Provides memory tools (commit, query, diary, reflect) to OpenClaw agents. Connects to the Memory Service on port 18820.",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "memoryServiceUrl": { "type": "string", "default": "http://localhost:18820" },
+      "autoCommitThreshold": { "type": "number", "default": 200, "description": "Auto-commit responses longer than this many chars" }
+    }
+  }
+}

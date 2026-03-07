@@ -1,0 +1,13 @@
+{
+  "id": "cost-tracker",
+  "name": "Cost Tracker",
+  "description": "Tracks LLM token usage and enforces budget limits across the agent army. Uses Redis for real-time counters.",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "dailyBudget":   { "type": "number", "default": 10.0 },
+      "monthlyBudget": { "type": "number", "default": 100.0 },
+      "redisUrl":      { "type": "string", "default": "redis://localhost:6379/0" }
+    }
+  }
+}

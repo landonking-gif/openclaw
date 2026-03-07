@@ -1509,3 +1509,72 @@
 {"timestamp":"2026-03-07T10:14:30.528Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":362,"error":null}
 {"timestamp":"2026-03-07T10:14:32.564Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:14:32.564Z"}}
 {"timestamp":"2026-03-07T10:14:32.567Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:14:32.919Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:14:32.952Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":419,"error":null}
+{"timestamp":"2026-03-07T10:14:34.816Z","agent":"general-4","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:14:34.887Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:14:34.927Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":214,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:14:44.950Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:14:44.950Z"}}
+{"timestamp":"2026-03-07T10:14:44.951Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:14:46.055Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:14:46.070Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1954,"error":null}
+{"timestamp":"2026-03-07T10:14:46.100Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-07T10:14:46.100Z"}}
+{"timestamp":"2026-03-07T10:14:46.100Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:14:53.803Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:14:53.869Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":7788,"error":null}
+{"timestamp":"2026-03-07T10:14:54.831Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-07T10:14:54.877Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","durationMs":236,"error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-07T10:14:56.963Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-07T10:14:56.963Z"}}
+{"timestamp":"2026-03-07T10:14:56.967Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:14:58.131Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:14:58.196Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1690,"error":null}
+{"timestamp":"2026-03-07T10:15:00.540Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"assess_risk","error":null}
+{"timestamp":"2026-03-07T10:15:00.567Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"assess_risk","durationMs":238,"error":null}
+{"timestamp":"2026-03-07T10:15:01.511Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-07T10:15:01.564Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","durationMs":530,"error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-07T10:15:10.012Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:10.012Z"}}
+{"timestamp":"2026-03-07T10:15:10.016Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:10.501Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:10.524Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":677,"error":null}
+{"timestamp":"2026-03-07T10:15:10.555Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-07T10:15:10.555Z"}}
+{"timestamp":"2026-03-07T10:15:10.557Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:11.064Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:11.097Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":560,"error":null}
+{"timestamp":"2026-03-07T10:15:17.504Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:17.504Z"}}
+{"timestamp":"2026-03-07T10:15:17.505Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:17.693Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:17.716Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":310,"error":null}
+{"timestamp":"2026-03-07T10:15:21.162Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:21.162Z"}}
+{"timestamp":"2026-03-07T10:15:21.164Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:21.287Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:21.298Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":209,"error":null}
+{"timestamp":"2026-03-07T10:15:23.194Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:23.194Z"}}
+{"timestamp":"2026-03-07T10:15:23.194Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:23.278Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:23.291Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":114,"error":null}
+{"timestamp":"2026-03-07T10:15:28.159Z","agent":"general-4","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-07T10:15:28.623Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-07T10:15:28.635Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":582,"error":null}
+{"timestamp":"2026-03-07T10:15:28.645Z","agent":"general-4","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status","security":"allowlist"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:28.664Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:28.675Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":35,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:34.131Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-07T10:15:34.508Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-07T10:15:34.596Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","durationMs":2425,"error":null}
+{"timestamp":"2026-03-07T10:15:34.679Z","agent":"general-4","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git add -A && git commit -m \"Cron sync: version save $(date -u +%Y-%m-%d_%H:%M:%SZ)\" && git push origin main","security":"full"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:34.699Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:34.702Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":53,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-07T10:15:44.199Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"subagents"}
+{"timestamp":"2026-03-07T10:15:44.255Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"subagents","error":null}
+{"timestamp":"2026-03-07T10:15:44.265Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"subagents","durationMs":138,"error":null}
+{"timestamp":"2026-03-07T10:15:44.506Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"list_elevation_requests","error":null}
+{"timestamp":"2026-03-07T10:15:44.509Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"list_elevation_requests","durationMs":242,"error":null}
+{"timestamp":"2026-03-07T10:15:44.538Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"check_budget"}
+{"timestamp":"2026-03-07T10:15:44.538Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"check_budget","error":null}
+{"timestamp":"2026-03-07T10:15:44.541Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"check_budget","durationMs":31,"error":null}
+{"timestamp":"2026-03-07T10:15:51.825Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:51.825Z"}}
+{"timestamp":"2026-03-07T10:15:51.826Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-07T10:15:52.399Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-07T10:15:52.416Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":830,"error":null}
+{"timestamp":"2026-03-07T10:15:52.455Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-07T10:15:52.455Z"}}
+{"timestamp":"2026-03-07T10:15:52.455Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

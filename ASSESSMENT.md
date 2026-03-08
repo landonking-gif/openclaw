@@ -283,6 +283,42 @@ To fulfill the "empower it to fix itself" requirement, the following were implem
 
 ---
 
+## Self-Healing Capabilities (Added Post-Assessment)
+
+**Date:** March 8, 2026 — Phase 2 update after self-healing rewrite
+
+The system was audited and found to have **cosmetic** self-healing — detection only, no action. A comprehensive rewrite was performed:
+
+### What Was Implemented
+
+| Capability | Before | After |
+|-----------|--------|-------|
+| **Manager restart** | Manual only (told humans to restart) | `subprocess.Popen` auto-restart with config repair, env vars, profile isolation |
+| **Dispatch failure recovery** | Error returned to user | Auto-heal → restart dead manager → retry dispatch → return result seamlessly |
+| **Watchdog behavior** | Logged warnings | Auto-restarts managers after 2 consecutive health check failures |
+| **LLM self-awareness** | No knowledge of self-heal tools | 3 callable tools: `run_self_heal`, `run_diagnostic`, `query_failure_patterns` |
+| **Failure pattern learning** | None | JSONL persistence + Counter-based analysis with recommendations |
+| **Auth token refresh** | Stale tokens after restart | `_refresh_agent_token()` reloads from agent config post-restart |
+| **Config auto-repair** | Manual fix required | Removes invalid `loadPaths` and `permission-broker` from global config before restart |
+
+### End-to-End Verified
+
+**Test performed:** Beta-manager was killed → coding task sent requiring beta → dispatch failed → auto-heal detected beta down → `_restart_manager("beta-manager")` called → process spawned with correct env vars → token refreshed → dispatch retried → **task completed successfully** → `reverser.py` created on Desktop with clean code.
+
+**User experience:** Seamless. The user received their file as if nothing went wrong. The entire heal-restart-retry cycle was invisible.
+
+### What It Still Cannot Do
+
+| Limitation | Impact | Mitigation |
+|-----------|--------|------------|
+| **Cannot modify its own source code** | Can't add new tools or change behavior at runtime | Would require code-generation + hot-reload pipeline |
+| **Cannot update its own SYSTEM_PROMPT** | Self-knowledge is static until redeployed | Could add a `/update-prompt` endpoint but risks instability |
+| **Cannot add new agents dynamically** | Limited to the 16 pre-configured agents | Would need dynamic agent provisioning |
+| **Cannot learn across restarts** | Failure patterns lost if orchestrator restarts (JSONL persists but must be re-read) | Consider SQLite for durable pattern storage |
+| **Cannot self-diagnose LLM quality degradation** | If the model starts producing worse output, it won't notice | Would need output quality scoring |
+
+---
+
 ## Recommendations for Further Improvement
 
 ### Short-term (Days)
@@ -292,14 +328,15 @@ To fulfill the "empower it to fix itself" requirement, the following were implem
 
 ### Medium-term (Weeks)
 4. **Add automated test regression suite** — Run the 100-test suite on a schedule (daily/weekly) to catch regressions
-5. **Implement manager auto-restart** — The self-heal endpoint currently detects dead managers but can't restart them; add subprocess spawning
-6. **Add delegation retry with fallback** — If alpha-manager times out, automatically try beta or gamma
+5. ~~**Implement manager auto-restart**~~ — ✅ **DONE.** Subprocess-based restart with config repair, env var injection, and token refresh
+6. ~~**Add delegation retry with fallback**~~ — ✅ **DONE.** Auto-heal → restart → retry loop on dispatch failure
 
 ### Long-term (Months)
 7. **Multi-model support** — Allow different models for different task types (fast model for simple Q&A, powerful model for complex tasks)
 8. **Persistent memory across sessions** — Use the memory-service (port 18820) to remember user preferences and past interactions
 9. **Web search integration** — Give Gamma Manager actual web browsing capability for real-time research
 10. **Dashboard monitoring** — Surface the diagnostic/self-heal endpoints in the dashboard UI with auto-refresh
+11. **Self-modification pipeline** — Allow the LLM to propose code changes to its own orchestrator, review them, and hot-reload
 
 ---
 
@@ -329,10 +366,12 @@ The "trust but verify" approach was critical. Several initial "failures" turned 
 
 ## Conclusion
 
-The OpenClaw Army system is a **capable, honest, and well-architected** multi-agent system. Its 98% pass rate across diverse task categories demonstrates strong foundational abilities in knowledge, code generation, writing, delegation, and ethical behavior.
+The OpenClaw Army system is a **capable, honest, self-healing, and well-architected** multi-agent system. Its 98% pass rate across diverse task categories demonstrates strong foundational abilities in knowledge, code generation, writing, delegation, and ethical behavior.
 
 The primary limitation is **infrastructure throughput** — not intelligence. The free NVIDIA API tier creates a 30-60s bottleneck per LLM call that compounds across the delegation chain. With a paid API tier and streaming responses, the system would likely achieve 100% on all tests.
 
-The system has been empowered to heal itself through the self-heal endpoint, background watchdog, API key rotation, and comprehensive honesty rules. It can detect and report its own failures rather than hiding them — the most important capability for a production AI system.
+The system has been empowered with **real self-healing**: it can detect dead managers, restart them via subprocess with correct configuration and environment, refresh authentication tokens, and transparently retry failed operations — all without human intervention. If a manager dies mid-request, the user gets their result anyway. The background watchdog provides proactive monitoring, and the failure pattern tracker enables the LLM to make informed decisions about when and how to self-repair.
 
-**Final Score: 98/100 — Exceeds expectations for a free-tier, self-hosted, 16-agent orchestration system.**
+What remains beyond its reach is **self-modification** — it cannot change its own code, add new tools, or evolve its behavior at runtime. That boundary is intentional: a system that can rewrite itself needs a much more rigorous safety framework than one that can merely restart its components.
+
+**Final Score: 98/100 — Exceeds expectations. Now with verified autonomous self-healing.**

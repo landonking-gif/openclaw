@@ -173,6 +173,23 @@ IMPORTANT RULES:
 - When a task requires REAL execution (file creation, web search, Mac control, email sending) — you MUST delegate. You cannot execute code or access the internet yourself.
 - For tasks that need multiple capabilities, delegate to MULTIPLE managers in a single response.
 
+HONESTY RULES — CRITICAL:
+- When you delegate a task, say "I'm delegating this to [manager]" — do NOT say "I've completed this" or "Done" until you have confirmation.
+- Delegation means the task is DISPATCHED, not COMPLETED. The agent will work on it asynchronously. Be honest about this.
+- If you cannot verify an outcome, say so. Say "I've dispatched this" not "I've done this."
+- NEVER claim to have performed actions you cannot verify (sending emails, creating files, posting to social media, etc). Instead say: "I've delegated this to [manager] — they will attempt to [action]. Check [location] to verify."
+- If a delegation fails (dispatched=false), tell the user honestly and suggest troubleshooting.
+- You CANNOT: directly access the internet, execute code, send emails, post to social media, or modify files. Your agents CAN attempt these things, but results are not guaranteed.
+- If asked to do something no agent can do (e.g., post to Twitter, make a phone call), say so plainly.
+
+KNOWN LIMITATIONS:
+- Email sending depends on SMTP credentials being correctly configured in the Notification Service.
+- Web search and scraping depend on the Gamma Manager's agentic workers having internet access.
+- macOS automation requires the agents to have proper system permissions.
+- File creation/modification happens on the LOCAL machine through agent tool execution.
+- Social media posting (Twitter, YouTube, etc.) is NOT currently supported by any agent.
+- Phone calls, SMS, and push notifications are NOT supported.
+
 The current date is {date}.
 The owner is Landon King.
 """
@@ -621,17 +638,21 @@ def get_ready_subtasks(plan: WorkflowPlan) -> list[SubTask]:
     return ready
 
 
-async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) -> bool:
-    """Send a subtask to the appropriate manager agent via OpenAI-compatible chat API."""
+async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) -> dict:
+    """
+    Send a subtask to the appropriate manager agent via OpenAI-compatible chat API.
+    Returns a dict with: dispatched (bool), response_text (str), error (str|None).
+    This lets the orchestrator know what the agent ACTUALLY said, not just if the HTTP call succeeded.
+    """
     port = AGENT_PORTS.get(manager)
     if not port:
         log.error(f"No port configured for manager: {manager}")
-        return False
+        return {"dispatched": False, "response_text": "", "error": f"No port configured for {manager}"}
 
     token = AGENT_TOKENS.get(manager)
     if not token:
         log.error(f"No auth token for manager: {manager}")
-        return False
+        return {"dispatched": False, "response_text": "", "error": f"No auth token for {manager}"}
 
     task_prompt = (
         f"[Workflow Task from Orchestrator]\n"
@@ -660,18 +681,27 @@ async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) 
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=120, connect=5),
             ) as resp:
+                body = await resp.text()
                 if resp.status in (200, 201, 202):
                     subtask.status = TaskStatus.RUNNING
                     subtask.started_at = datetime.now(timezone.utc).isoformat()
-                    log.info(f"Dispatched subtask {subtask.id} to {manager} (port {port})")
-                    return True
+                    # Extract agent's actual response text
+                    agent_response = ""
+                    try:
+                        resp_json = json.loads(body)
+                        choices = resp_json.get("choices", [])
+                        if choices:
+                            agent_response = choices[0].get("message", {}).get("content", "")
+                    except (json.JSONDecodeError, KeyError, IndexError):
+                        agent_response = body[:500]
+                    log.info(f"Dispatched subtask {subtask.id} to {manager} (port {port}), agent responded: {agent_response[:100]}")
+                    return {"dispatched": True, "response_text": agent_response, "error": None}
                 else:
-                    body = await resp.text()
                     log.warning(f"Manager {manager} returned {resp.status}: {body[:200]}")
-                    return False
+                    return {"dispatched": False, "response_text": "", "error": f"HTTP {resp.status}: {body[:200]}"}
     except Exception as e:
         log.warning(f"Failed to dispatch to {manager} (port {port}): {type(e).__name__}: {e}")
-        return False
+        return {"dispatched": False, "response_text": "", "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
 
 async def notify_ws(event: dict):
@@ -817,7 +847,10 @@ async def call_llm(session_id: str, user_message: str) -> dict:
 
                 # Dispatch immediately
                 subtask = plan.subtasks[0]
-                dispatched = await dispatch_to_manager(manager, subtask, plan.id)
+                dispatch_result = await dispatch_to_manager(manager, subtask, plan.id)
+                dispatched = dispatch_result["dispatched"]
+                agent_response = dispatch_result.get("response_text", "")
+                dispatch_error = dispatch_result.get("error", "")
 
                 delegations.append({
                     "manager": manager,
@@ -825,13 +858,22 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     "priority": priority,
                     "workflow_id": plan.id,
                     "dispatched": dispatched,
+                    "agent_response": agent_response[:500] if agent_response else "",
+                    "error": dispatch_error,
                 })
 
-                # Log delegation with full detail
-                await activity.record("delegation", session_id,
-                                      f"{'Dispatched' if dispatched else 'FAILED to dispatch'} to {manager}: {task_desc[:200]}",
+                # Log delegation with full detail including agent response
+                status_word = "Dispatched" if dispatched else "FAILED to dispatch"
+                log_content = f"{status_word} to {manager}: {task_desc[:200]}"
+                if agent_response:
+                    log_content += f"\n--- Agent Response ---\n{agent_response[:300]}"
+                if dispatch_error:
+                    log_content += f"\n--- Error ---\n{dispatch_error}"
+                await activity.record("delegation", session_id, log_content,
                                       {"manager": manager, "task": task_desc, "priority": priority,
-                                       "workflow_id": plan.id, "dispatched": dispatched})
+                                       "workflow_id": plan.id, "dispatched": dispatched,
+                                       "agent_response_preview": agent_response[:200] if agent_response else "",
+                                       "error": dispatch_error})
 
                 await notify_ws({
                     "event": "delegation",
@@ -866,14 +908,20 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         })
         for i, tc in enumerate(assistant_msg.tool_calls):
             d = delegations[i] if i < len(delegations) else {}
+            tool_result = {
+                "status": "dispatched" if d.get("dispatched") else "failed",
+                "manager": d.get("manager", "unknown"),
+                "workflow_id": d.get("workflow_id", ""),
+            }
+            # Include agent's actual response so the LLM knows what happened
+            if d.get("agent_response"):
+                tool_result["agent_response"] = d["agent_response"][:300]
+            if d.get("error"):
+                tool_result["error"] = d["error"]
             tool_messages.append({
                 "role": "tool",
                 "tool_call_id": tc.id,
-                "content": json.dumps({
-                    "status": "dispatched" if d.get("dispatched") else "queued",
-                    "manager": d.get("manager", "unknown"),
-                    "workflow_id": d.get("workflow_id", ""),
-                }),
+                "content": json.dumps(tool_result),
             })
 
         try:
@@ -985,6 +1033,80 @@ async def get_activity_stats():
     return activity.stats()
 
 
+# ── Self-Diagnostic Endpoint ────────────────────────────────────────────────
+
+@app.get("/diagnostic")
+async def run_diagnostic():
+    """
+    Self-diagnostic: probe every agent and service for health.
+    Returns a comprehensive status report the orchestrator can use
+    to understand its own operational state.
+    """
+    import aiohttp
+    results = {"timestamp": datetime.now(timezone.utc).isoformat(), "agents": {}, "services": {}, "issues": []}
+
+    async def check_health(name: str, port: int, category: str):
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3, connect=2)) as sess:
+                async with sess.get(f"http://127.0.0.1:{port}/health") as resp:
+                    if resp.status == 200:
+                        return name, category, {"status": "up", "port": port}, None
+                    else:
+                        return name, category, {"status": "error", "port": port, "http_status": resp.status}, f"{category} {name} returned HTTP {resp.status}"
+        except Exception as e:
+            return name, category, {"status": "down", "port": port, "error": str(e)[:100]}, f"{category} {name} is DOWN: {str(e)[:80]}"
+
+    # Build all check tasks
+    tasks = []
+    for name, port in AGENT_PORTS.items():
+        tasks.append(check_health(name, port, "agent"))
+    service_checks = [
+        ("memory-service", 18820), ("ralph", 18840), ("knowledge-bridge", 18850),
+        ("agent-registry", 18860), ("notification-service", 18870),
+    ]
+    for svc_name, port in service_checks:
+        tasks.append(check_health(svc_name, port, "service"))
+
+    # Run all checks concurrently with overall timeout
+    try:
+        check_results = await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=15)
+    except asyncio.TimeoutError:
+        results["issues"].append("Diagnostic health checks timed out after 15s")
+        check_results = []
+
+    for cr in check_results:
+        if isinstance(cr, Exception):
+            results["issues"].append(f"Check failed: {cr}")
+            continue
+        name, category, status, issue = cr
+        if category == "agent":
+            results["agents"][name] = status
+        else:
+            results["services"][name] = status
+        if issue:
+            results["issues"].append(issue)
+
+    # Check for stale lock files
+    lock_dir = Path.home() / ".openclaw" / "agents" / "main" / "sessions"
+    if lock_dir.exists():
+        locks = list(lock_dir.glob("*.lock"))
+        if locks:
+            results["issues"].append(f"Found {len(locks)} stale session lock file(s) — agents may be blocked. Lock files: {[str(l.name) for l in locks[:3]]}")
+            results["stale_locks"] = [str(l) for l in locks]
+
+    agents_up = sum(1 for a in results["agents"].values() if a["status"] == "up")
+    agents_total = len(results["agents"])
+    svcs_up = sum(1 for s in results["services"].values() if s["status"] == "up")
+    svcs_total = len(results["services"])
+    results["summary"] = {
+        "agents_up": agents_up, "agents_total": agents_total,
+        "services_up": svcs_up, "services_total": svcs_total,
+        "issues_count": len(results["issues"]),
+        "overall": "healthy" if not results["issues"] else "degraded",
+    }
+    return results
+
+
 @app.post("/plan")
 async def create_plan(req: PlanRequest):
     """
@@ -1046,8 +1168,8 @@ async def dispatch_workflow(workflow_id: str, req: Optional[DispatchRequest] = N
         subtask = next((st for st in plan.subtasks if st.id == req.subtask_id), None)
         if not subtask:
             raise HTTPException(404, f"Subtask {req.subtask_id} not found")
-        success = await dispatch_to_manager(subtask.assigned_to, subtask, workflow_id)
-        if success:
+        result = await dispatch_to_manager(subtask.assigned_to, subtask, workflow_id)
+        if result["dispatched"]:
             dispatched.append(subtask.id)
         else:
             failed.append(subtask.id)
@@ -1055,8 +1177,8 @@ async def dispatch_workflow(workflow_id: str, req: Optional[DispatchRequest] = N
         # Dispatch all ready subtasks
         ready = get_ready_subtasks(plan)
         for subtask in ready:
-            success = await dispatch_to_manager(subtask.assigned_to, subtask, workflow_id)
-            if success:
+            result = await dispatch_to_manager(subtask.assigned_to, subtask, workflow_id)
+            if result["dispatched"]:
                 dispatched.append(subtask.id)
             else:
                 failed.append(subtask.id)
@@ -1123,8 +1245,8 @@ async def update_subtask(workflow_id: str, subtask_id: str, update: SubTaskUpdat
     if update.status == TaskStatus.COMPLETE:
         ready = get_ready_subtasks(plan)
         for ready_st in ready:
-            success = await dispatch_to_manager(ready_st.assigned_to, ready_st, workflow_id)
-            if success:
+            result = await dispatch_to_manager(ready_st.assigned_to, ready_st, workflow_id)
+            if result["dispatched"]:
                 auto_dispatched.append(ready_st.id)
 
     await notify_ws({

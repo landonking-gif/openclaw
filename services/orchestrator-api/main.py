@@ -26,7 +26,8 @@ import asyncio
 import logging
 import re
 import time
-from collections import deque
+import subprocess
+from collections import deque, Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -167,7 +168,7 @@ You are NOT a router. You are a brilliant, all-knowing AI that THINKS FIRST, the
 You have THREE manager agents you can delegate to when actual work needs doing:
 
 - **Alpha Manager** (general-purpose, port 18800, Kimi K2.5): Writing, email drafting, summarization, Mac automation, communication, formatting, templates, reports. Workers: general-1 (writing), general-2 (summarization), general-3 (Q&A), general-4 (macOS automation).
-- **Beta Manager** (software engineering, port 18801, DeepSeek R1): Coding, implementation, debugging, testing, deployment, Python, JavaScript, Bash, infrastructure, refactoring. Workers: coding-1 (Python), coding-2 (JS/TS), coding-3 (Bash/DevOps), coding-4 (testing/QA).
+- **Beta Manager** (software engineering, port 18801, Kimi K2.5): Coding, implementation, debugging, testing, deployment, Python, JavaScript, Bash, infrastructure, refactoring. Workers: coding-1 (Python), coding-2 (JS/TS), coding-3 (Bash/DevOps), coding-4 (testing/QA).
 - **Gamma Manager** (research & analysis, port 18802, Kimi K2.5): Web search, document analysis, data synthesis, fact-checking, benchmarks, investigation, comparison, evaluation. Workers: agentic-1 (web search), agentic-2 (document analysis), agentic-3 (data synthesis), agentic-4 (fact-checking).
 
 Each manager has 4 specialized workers (12 workers + 3 managers + you = 16 agents total).
@@ -180,6 +181,19 @@ SUPPORTING SERVICES:
 - Agent Registry (port 18860): Agent self-registration, heartbeat monitoring, capability discovery, topology.
 - Notification Service (port 18870): Email notifications via Gmail SMTP.
 - Infrastructure: PostgreSQL 17 (port 5432), Redis (port 6379).
+
+SELF-HEALING & SELF-AWARENESS:
+You have built-in tools to monitor and fix yourself:
+- **run_self_heal**: Call this when something goes wrong — when a delegation fails, when a manager is unresponsive, or when you detect errors. It will clear stale locks, restart crashed managers, rotate API keys, and report what it fixed. YOU SHOULD CALL THIS PROACTIVELY when you notice failures.
+- **run_diagnostic**: Call this to get a full health report of every agent and service in the system. Use this before answering questions about system status, or when troubleshooting problems.
+- **query_failure_patterns**: Call this to review recent error patterns and learn what's been going wrong. This helps you give informed answers about system reliability.
+
+WHEN TO SELF-HEAL:
+- If a delegation returns dispatched=false → call run_self_heal immediately, then retry the delegation.
+- If you get a timeout or error from a manager → call run_self_heal.
+- If the user asks about system status → call run_diagnostic first.
+- If multiple failures happen in a session → call query_failure_patterns to understand the pattern.
+- After self-healing, TELL THE USER what you found and fixed.
 
 IMPORTANT RULES:
 - Be conversational and direct. You are an intelligent being, not a dispatch system.
@@ -285,11 +299,64 @@ MANAGER_TOOLS = [
     },
 ]
 
+MANAGER_TOOLS += [
+    {
+        "type": "function",
+        "function": {
+            "name": "run_self_heal",
+            "description": "Run the self-healing procedure: clears stale locks, checks all managers, restarts any crashed managers, rotates API keys. Call this when a delegation fails, a manager is unresponsive, or you detect errors.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "description": "Why you are triggering self-heal (e.g., 'beta-manager delegation failed', 'timeout on dispatch')."
+                    }
+                },
+                "required": ["reason"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_diagnostic",
+            "description": "Get a full health report of all 16 agents and 5 services. Returns which are up/down, stale lock status, and system issues. Call this before answering questions about system status.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_failure_patterns",
+            "description": "Query recent failure patterns from the activity log. Shows what errors have occurred, how often, and which managers are most affected. Use this to diagnose recurring issues.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "hours": {
+                        "type": "integer",
+                        "description": "Look back this many hours for failures. Default 1.",
+                        "default": 1
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+]
+
 TOOL_TO_MANAGER = {
     "delegate_to_alpha": "alpha-manager",
     "delegate_to_beta": "beta-manager",
     "delegate_to_gamma": "gamma-manager",
 }
+
+# Internal tools (not delegation — handled directly by orchestrator)
+INTERNAL_TOOLS = {"run_self_heal", "run_diagnostic", "query_failure_patterns"}
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 
@@ -716,9 +783,12 @@ async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) 
                     return {"dispatched": True, "response_text": agent_response, "error": None}
                 else:
                     log.warning(f"Manager {manager} returned {resp.status}: {body[:200]}")
+                    _record_failure("dispatch_fail", f"HTTP {resp.status} from {manager}: {body[:100]}", manager)
                     return {"dispatched": False, "response_text": "", "error": f"HTTP {resp.status}: {body[:200]}"}
     except Exception as e:
         log.warning(f"Failed to dispatch to {manager} (port {port}): {type(e).__name__}: {e}")
+        category = "timeout" if "Timeout" in type(e).__name__ else "dispatch_fail"
+        _record_failure(category, f"{type(e).__name__}: {str(e)[:100]}", manager)
         return {"dispatched": False, "response_text": "", "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
 
@@ -799,6 +869,8 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         except Exception as e:
             err_str = str(e)
             is_rate_limit = "429" in err_str or "Too Many Requests" in err_str
+            if is_rate_limit:
+                _record_failure("429_rate_limit", f"Rate limited on attempt {attempt + 1}: {err_str[:100]}")
             await activity.record("error", session_id,
                                   f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
                                   {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
@@ -849,7 +921,44 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 fn_args = {"task": tc.function.arguments}
 
             manager = TOOL_TO_MANAGER.get(fn_name)
-            if manager:
+            if fn_name in INTERNAL_TOOLS:
+                # Handle internal self-healing/diagnostic tools
+                if fn_name == "run_self_heal":
+                    reason = fn_args.get("reason", "LLM-triggered")
+                    heal_result = await self_heal(reason=reason)
+                    delegations.append({
+                        "manager": "self",
+                        "task": f"Self-heal: {reason}",
+                        "priority": 1,
+                        "workflow_id": "",
+                        "dispatched": True,
+                        "agent_response": json.dumps(heal_result, default=str)[:500],
+                        "error": "",
+                    })
+                elif fn_name == "run_diagnostic":
+                    diag_result = await run_diagnostic()
+                    delegations.append({
+                        "manager": "self",
+                        "task": "System diagnostic",
+                        "priority": 1,
+                        "workflow_id": "",
+                        "dispatched": True,
+                        "agent_response": json.dumps(diag_result, default=str)[:500],
+                        "error": "",
+                    })
+                elif fn_name == "query_failure_patterns":
+                    hours = fn_args.get("hours", 1)
+                    patterns = _query_failure_patterns(hours=hours)
+                    delegations.append({
+                        "manager": "self",
+                        "task": f"Query failure patterns ({hours}h)",
+                        "priority": 1,
+                        "workflow_id": "",
+                        "dispatched": True,
+                        "agent_response": json.dumps(patterns, default=str)[:500],
+                        "error": "",
+                    })
+            elif manager:
                 task_desc = fn_args.get("task", "")
                 priority = fn_args.get("priority", 2)
 
@@ -1129,11 +1238,151 @@ async def run_diagnostic():
     return results
 
 
-@app.post("/self-heal")
-async def self_heal():
+# ── Manager Restart Logic ───────────────────────────────────────────────────
+
+_MANAGER_PROFILES = {
+    "alpha-manager": {"port": 18800, "profile": "alpha", "dir": "agents/alpha-manager"},
+    "beta-manager":  {"port": 18801, "profile": "beta",  "dir": "agents/beta-manager"},
+    "gamma-manager": {"port": 18802, "profile": "gamma", "dir": "agents/gamma-manager"},
+}
+
+
+async def _restart_manager(name: str) -> dict:
     """
-    Self-healing endpoint: diagnose problems and fix what can be fixed automatically.
-    Clears stale lock files, checks managers, and attempts to restart dead managers.
+    Actually restart a single manager agent via subprocess.
+    Returns {"restarted": bool, "detail": str}
+    """
+    info = _MANAGER_PROFILES.get(name)
+    if not info:
+        return {"restarted": False, "detail": f"Unknown manager: {name}"}
+
+    port = info["port"]
+    profile = info["profile"]
+    agent_dir = Path(ARMY_HOME) / info["dir"]
+
+    try:
+        # Kill any existing process on that port
+        kill_result = subprocess.run(
+            ["lsof", "-ti", f":{port}"],
+            capture_output=True, text=True, timeout=5
+        )
+        if kill_result.stdout.strip():
+            pids = kill_result.stdout.strip().split("\n")
+            for pid in pids:
+                try:
+                    subprocess.run(["kill", "-9", pid.strip()], timeout=3)
+                except Exception:
+                    pass
+            await asyncio.sleep(1)
+
+        # Clear profile locks
+        profile_dir = Path.home() / f".openclaw-{profile}"
+        if profile_dir.exists():
+            for lock in profile_dir.rglob("*.lock"):
+                try:
+                    lock.unlink()
+                except Exception:
+                    pass
+
+        # Start the manager
+        env = os.environ.copy()
+        subprocess.Popen(
+            ["openclaw", "gateway", "--port", str(port), "--force", "--profile", profile],
+            cwd=str(agent_dir),
+            env=env,
+            stdout=open(f"/tmp/openclaw-{profile}.log", "w"),
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+
+        # Wait and verify it came up
+        for _ in range(10):
+            await asyncio.sleep(2)
+            try:
+                import aiohttp
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3)) as sess:
+                    async with sess.get(f"http://127.0.0.1:{port}/") as resp:
+                        if resp.status == 200:
+                            return {"restarted": True, "detail": f"{name} restarted on port {port}"}
+            except Exception:
+                continue
+
+        return {"restarted": False, "detail": f"{name} started but not responding after 20s"}
+    except Exception as e:
+        return {"restarted": False, "detail": f"Restart failed: {str(e)[:200]}"}
+
+
+# ── Failure Pattern Tracking ────────────────────────────────────────────────
+
+_FAILURE_LOG_PATH = Path(ARMY_HOME) / "data" / "logs" / "failures.jsonl"
+
+
+def _record_failure(category: str, detail: str, manager: str = ""):
+    """Append a failure record for pattern learning."""
+    _FAILURE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "category": category,
+        "detail": detail[:500],
+        "manager": manager,
+    }
+    with open(_FAILURE_LOG_PATH, "a") as f:
+        f.write(json.dumps(record) + "\n")
+
+
+def _query_failure_patterns(hours: int = 1) -> dict:
+    """Analyze recent failure patterns."""
+    if not _FAILURE_LOG_PATH.exists():
+        return {"total_failures": 0, "patterns": [], "recommendation": "No failures recorded."}
+
+    cutoff = datetime.now(timezone.utc).timestamp() - (hours * 3600)
+    recent = []
+    try:
+        for line in open(_FAILURE_LOG_PATH):
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            ts = datetime.fromisoformat(r["ts"]).timestamp()
+            if ts >= cutoff:
+                recent.append(r)
+    except Exception:
+        pass
+
+    if not recent:
+        return {"total_failures": 0, "patterns": [], "recommendation": "No recent failures. System is healthy."}
+
+    # Analyze patterns
+    by_category = Counter(r["category"] for r in recent)
+    by_manager = Counter(r["manager"] for r in recent if r["manager"])
+
+    patterns = []
+    for cat, count in by_category.most_common(5):
+        patterns.append({"category": cat, "count": count, "example": next(r["detail"] for r in recent if r["category"] == cat)})
+
+    recommendation = "System is stable."
+    if by_category.get("timeout", 0) > 3:
+        recommendation = "High timeout rate — consider increasing dispatch timeout or checking NVIDIA API status."
+    elif by_category.get("dispatch_fail", 0) > 2:
+        recommendation = "Multiple dispatch failures — run self-heal to restart affected managers."
+    elif by_category.get("429_rate_limit", 0) > 5:
+        recommendation = "Heavy rate limiting — API key rotation is active but may need a paid tier upgrade."
+
+    return {
+        "total_failures": len(recent),
+        "hours_analyzed": hours,
+        "by_category": dict(by_category),
+        "by_manager": dict(by_manager),
+        "patterns": patterns,
+        "recommendation": recommendation,
+    }
+
+
+@app.post("/self-heal")
+async def self_heal(reason: str = "manual trigger"):
+    """
+    Self-healing endpoint: diagnose problems and ACTUALLY FIX them.
+    Clears stale locks, checks managers, restarts crashed ones, rotates API keys.
     """
     actions = []
 
@@ -1149,20 +1398,27 @@ async def self_heal():
                 except Exception as e:
                     actions.append(f"Failed to remove lock {lock.name}: {e}")
 
-    # 2. Check manager health and attempt restart if needed
+    # 2. Check manager health and RESTART dead ones
     import aiohttp
     manager_status = {}
     for mgr, port in [("alpha-manager", 18800), ("beta-manager", 18801), ("gamma-manager", 18802)]:
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
-                async with sess.get(f"http://127.0.0.1:{port}/health") as resp:
+                async with sess.get(f"http://127.0.0.1:{port}/") as resp:
                     if resp.status == 200:
                         manager_status[mgr] = "up"
                     else:
                         manager_status[mgr] = "error"
         except Exception:
             manager_status[mgr] = "down"
-            actions.append(f"{mgr} is DOWN on port {port} — needs manual restart via: zsh scripts/start_managers.sh")
+            actions.append(f"{mgr} is DOWN — attempting automatic restart...")
+            restart = await _restart_manager(mgr)
+            if restart["restarted"]:
+                actions.append(f"RESTARTED {mgr} successfully")
+                manager_status[mgr] = "restarted"
+            else:
+                actions.append(f"FAILED to restart {mgr}: {restart['detail']}")
+                _record_failure("restart_fail", restart["detail"], mgr)
 
     # 3. Rotate API key if current one might be rate-limited
     _rotate_key()
@@ -1170,13 +1426,14 @@ async def self_heal():
     llm_client.api_key = new_key
     actions.append("Rotated API key to next in pool")
 
-    await activity.record("system", "", "Self-heal executed", {"actions": actions, "manager_status": manager_status})
+    await activity.record("self_heal", "", f"Self-heal executed: {reason}",
+                          {"reason": reason, "actions": actions, "manager_status": manager_status})
 
     return {
+        "reason": reason,
         "actions_taken": actions,
         "manager_status": manager_status,
         "api_key_rotated": True,
-        "recommendation": "If managers are down, run: zsh /Users/landonking/openclaw-army/scripts/start_managers.sh"
     }
 
 
@@ -1568,8 +1825,10 @@ async def websocket_endpoint(ws: WebSocket):
 # ── Startup ─────────────────────────────────────────────────────────────────
 
 async def _health_watchdog():
-    """Background task: every 60s, clear stale locks and log manager health."""
+    """Background task: every 60s, clear stale locks, auto-restart dead managers."""
     import aiohttp
+    _consecutive_failures = Counter()  # track per-manager consecutive failures
+
     while True:
         await asyncio.sleep(60)
         try:
@@ -1584,20 +1843,33 @@ async def _health_watchdog():
                         except Exception:
                             pass
 
-            # Check managers
-            down = []
-            for mgr, port in [("alpha", 18800), ("beta", 18801), ("gamma", 18802)]:
+            # Check managers and auto-restart dead ones
+            for mgr_name, port in [("alpha-manager", 18800), ("beta-manager", 18801), ("gamma-manager", 18802)]:
                 try:
                     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3)) as sess:
-                        async with sess.get(f"http://127.0.0.1:{port}/health") as resp:
-                            if resp.status != 200:
-                                down.append(mgr)
+                        async with sess.get(f"http://127.0.0.1:{port}/") as resp:
+                            if resp.status == 200:
+                                _consecutive_failures[mgr_name] = 0
+                            else:
+                                _consecutive_failures[mgr_name] += 1
                 except Exception:
-                    down.append(mgr)
+                    _consecutive_failures[mgr_name] += 1
 
-            if down:
-                log.warning(f"Watchdog: managers down: {down}")
-                await activity.record("watchdog", "", f"Managers down: {down}", {"down": down})
+                # Auto-restart after 2 consecutive failures (gives transient errors a chance)
+                if _consecutive_failures[mgr_name] >= 2:
+                    log.warning(f"Watchdog: {mgr_name} down for {_consecutive_failures[mgr_name]} checks — restarting")
+                    _record_failure("watchdog_restart", f"{mgr_name} unresponsive for {_consecutive_failures[mgr_name]} checks", mgr_name)
+                    restart = await _restart_manager(mgr_name)
+                    if restart["restarted"]:
+                        log.info(f"Watchdog: RESTARTED {mgr_name} successfully")
+                        await activity.record("watchdog", "", f"Auto-restarted {mgr_name}",
+                                              {"manager": mgr_name, "result": "success"})
+                        _consecutive_failures[mgr_name] = 0
+                    else:
+                        log.error(f"Watchdog: FAILED to restart {mgr_name}: {restart['detail']}")
+                        await activity.record("watchdog", "", f"Failed to restart {mgr_name}",
+                                              {"manager": mgr_name, "error": restart["detail"]})
+
         except Exception as e:
             log.error(f"Watchdog error: {e}")
 

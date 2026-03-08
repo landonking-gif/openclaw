@@ -6917,3 +6917,11 @@
 {"timestamp":"2026-03-08T22:52:16.998Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":557,"error":null}
 {"timestamp":"2026-03-08T22:52:17.101Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-08T22:52:17.101Z"}}
 {"timestamp":"2026-03-08T22:52:17.101Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-08T22:52:27.362Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-08T22:52:27.388Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":10378,"error":null}
+{"timestamp":"2026-03-08T22:52:31.150Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-08T22:52:36.227Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-08T22:52:36.246Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":5169,"error":null}
+{"timestamp":"2026-03-08T22:53:02.221Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-08T22:53:02.234Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-08T22:53:02.244Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":122,"error":null}

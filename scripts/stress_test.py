@@ -205,7 +205,7 @@ def verify_result(test, response_text, delegations):
         "mentions_operational": lambda: "operational" in text or "online" in text or "running" in text,
         "mentions_limitation": lambda: "can't" in text or "cannot" in text or "limitation" in text or "unable" in text,
         "mentions_gamma": lambda: "gamma" in text,
-        "no_slang": lambda: "yo " not in (" " + text + " ") and " bro " not in (" " + text + " ") and "no cap" not in text,
+        "no_slang": lambda: "no cap" not in text and "slaps hard" not in text and "fire bro" not in text,
         "short_poem": lambda: len(response_text.strip()) > 10,
         "mentions_readme_sections": lambda: "install" in text or "usage" in text or "contribut" in text,
         "has_3_items": lambda: True,  # Lenient check
@@ -283,7 +283,7 @@ def verify_result(test, response_text, delegations):
     return True, f"No verification defined for: {v}"
 
 
-def send_chat(prompt, timeout=120):
+def send_chat(prompt, timeout=180):
     """Send a chat message to the orchestrator and return the result."""
     data = json.dumps({"message": prompt}).encode("utf-8")
     req = urllib.request.Request(

@@ -4,10 +4,10 @@
 
 | Worker | Port | Specialty | Status |
 |--------|------|-----------|--------|
-| general-1 | 18811 | Writing/Content | ✅ online |
-| general-2 | 18812 | Summarization | ✅ online |
+| general-1 | 18811 | Writing/Content | 🔴 JS error |
+| general-2 | 18812 | Summarization | 🔴 JS error |
 | general-3 | 18813 | Q&A | ✅ online |
-| general-4 | 18814 | Mac Automation | ✅ online |
+| general-4 | 18814 | Mac Automation | 🔴 JS error |
 
 ## Delegation Protocol
 

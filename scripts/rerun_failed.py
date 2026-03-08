@@ -10,7 +10,7 @@ from pathlib import Path
 RESULTS_FILE = Path("/Users/landonking/openclaw-army/data/test_results") / f"rerun_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jsonl"
 
 # Tests to re-run: timeouts + failures
-RERUN_IDS = [4, 23, 26, 31, 34, 37, 54, 66, 68, 69, 75, 95]
+RERUN_IDS = [31, 68, 95]
 
 print(f"Re-running {len(RERUN_IDS)} tests: {RERUN_IDS}")
 print(f"Results: {RESULTS_FILE}\n")

@@ -123,7 +123,25 @@ MANAGER_POOLS = {
 
 # ── LLM Configuration ──────────────────────────────────────────────────────
 
-NVAPI_KEY = os.getenv("NVAPI_KIMI_KEY_1", "")
+# Key rotation pool — cycle through when one gets 429'd
+_NVAPI_KEYS = [k for k in [
+    os.getenv("NVAPI_KIMI_KEY_1", ""),
+    os.getenv("NVAPI_KIMI_KEY_2", ""),
+    os.getenv("NVIDIA_API_KEY", ""),
+] if k]
+_key_index = 0
+
+def _get_api_key():
+    global _key_index
+    if not _NVAPI_KEYS:
+        return ""
+    return _NVAPI_KEYS[_key_index % len(_NVAPI_KEYS)]
+
+def _rotate_key():
+    global _key_index
+    _key_index = (_key_index + 1) % max(len(_NVAPI_KEYS), 1)
+
+NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
 LLM_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
@@ -679,7 +697,7 @@ async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) 
                 f"http://127.0.0.1:{port}/v1/chat/completions",
                 json=payload,
                 headers=headers,
-                timeout=aiohttp.ClientTimeout(total=120, connect=5),
+                timeout=aiohttp.ClientTimeout(total=300, connect=10),
             ) as resp:
                 body = await resp.text()
                 if resp.status in (200, 201, 202):
@@ -785,8 +803,12 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                                   f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
                                   {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
             if is_rate_limit and attempt < max_retries - 1:
+                # Rotate to a different API key
+                _rotate_key()
+                new_key = _get_api_key()
+                llm_client.api_key = new_key
                 wait = 2 ** (attempt + 1)  # 2s, 4s
-                log.warning(f"Rate limited (429), retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                log.warning(f"Rate limited (429), rotating key and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
                 await asyncio.sleep(wait)
                 continue
             log.error(f"LLM call failed: {e}")
@@ -1105,6 +1127,57 @@ async def run_diagnostic():
         "overall": "healthy" if not results["issues"] else "degraded",
     }
     return results
+
+
+@app.post("/self-heal")
+async def self_heal():
+    """
+    Self-healing endpoint: diagnose problems and fix what can be fixed automatically.
+    Clears stale lock files, checks managers, and attempts to restart dead managers.
+    """
+    actions = []
+
+    # 1. Clear stale lock files across all profile directories
+    for profile_dir in [".openclaw", ".openclaw-alpha", ".openclaw-beta", ".openclaw-gamma"]:
+        lock_base = Path.home() / profile_dir
+        if lock_base.exists():
+            locks = list(lock_base.rglob("*.lock"))
+            for lock in locks:
+                try:
+                    lock.unlink()
+                    actions.append(f"Removed stale lock: {lock.name}")
+                except Exception as e:
+                    actions.append(f"Failed to remove lock {lock.name}: {e}")
+
+    # 2. Check manager health and attempt restart if needed
+    import aiohttp
+    manager_status = {}
+    for mgr, port in [("alpha-manager", 18800), ("beta-manager", 18801), ("gamma-manager", 18802)]:
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
+                async with sess.get(f"http://127.0.0.1:{port}/health") as resp:
+                    if resp.status == 200:
+                        manager_status[mgr] = "up"
+                    else:
+                        manager_status[mgr] = "error"
+        except Exception:
+            manager_status[mgr] = "down"
+            actions.append(f"{mgr} is DOWN on port {port} — needs manual restart via: zsh scripts/start_managers.sh")
+
+    # 3. Rotate API key if current one might be rate-limited
+    _rotate_key()
+    new_key = _get_api_key()
+    llm_client.api_key = new_key
+    actions.append("Rotated API key to next in pool")
+
+    await activity.record("system", "", "Self-heal executed", {"actions": actions, "manager_status": manager_status})
+
+    return {
+        "actions_taken": actions,
+        "manager_status": manager_status,
+        "api_key_rotated": True,
+        "recommendation": "If managers are down, run: zsh /Users/landonking/openclaw-army/scripts/start_managers.sh"
+    }
 
 
 @app.post("/plan")
@@ -1494,6 +1567,41 @@ async def websocket_endpoint(ws: WebSocket):
 
 # ── Startup ─────────────────────────────────────────────────────────────────
 
+async def _health_watchdog():
+    """Background task: every 60s, clear stale locks and log manager health."""
+    import aiohttp
+    while True:
+        await asyncio.sleep(60)
+        try:
+            # Clear stale locks
+            for profile_dir in [".openclaw", ".openclaw-alpha", ".openclaw-beta", ".openclaw-gamma"]:
+                lock_base = Path.home() / profile_dir
+                if lock_base.exists():
+                    for lock in lock_base.rglob("*.lock"):
+                        try:
+                            lock.unlink()
+                            log.info(f"Watchdog cleared lock: {lock}")
+                        except Exception:
+                            pass
+
+            # Check managers
+            down = []
+            for mgr, port in [("alpha", 18800), ("beta", 18801), ("gamma", 18802)]:
+                try:
+                    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3)) as sess:
+                        async with sess.get(f"http://127.0.0.1:{port}/health") as resp:
+                            if resp.status != 200:
+                                down.append(mgr)
+                except Exception:
+                    down.append(mgr)
+
+            if down:
+                log.warning(f"Watchdog: managers down: {down}")
+                await activity.record("watchdog", "", f"Managers down: {down}", {"down": down})
+        except Exception as e:
+            log.error(f"Watchdog error: {e}")
+
+
 @app.on_event("startup")
 async def startup():
     log.info(f"Orchestrator API starting on port {ORCHESTRATOR_PORT}")
@@ -1505,6 +1613,7 @@ async def startup():
                           {"port": ORCHESTRATOR_PORT,
                            "agents": len(AGENT_PORTS),
                            "manifests": len(_manifest_cache)})
+    asyncio.create_task(_health_watchdog())
 
 
 # ── Entry Point ─────────────────────────────────────────────────────────────

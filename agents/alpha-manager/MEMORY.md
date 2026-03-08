@@ -4,10 +4,10 @@
 
 | Worker | Port | Specialty | Status |
 |--------|------|-----------|--------|
-| general-1 | 18811 | Writing/Content | ready |
-| general-2 | 18812 | Summarization | ready |
-| general-3 | 18813 | Q&A | ready |
-| general-4 | 18814 | Mac Automation | ready |
+| general-1 | 18811 | Writing/Content | ⚠️ unresponsive |
+| general-2 | 18812 | Summarization | ⚠️ unresponsive |
+| general-3 | 18813 | Q&A | ⚠️ unresponsive |
+| general-4 | 18814 | Mac Automation | ⚠️ unresponsive |
 
 ## Delegation Protocol
 

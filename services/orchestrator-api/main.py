@@ -208,12 +208,30 @@ SELF-MODIFICATION & EVOLUTION:
 You can modify your own source code, add new tools, change your own behavior, and monitor your own quality:
 - **modify_own_code**: Edit your own main.py source code. You can fix bugs, add features, improve your own responses, or restructure code. This creates an automatic backup and validates syntax before applying. If you make a mistake, use rollback_code_change.
 - **rollback_code_change**: Undo your last code modification by restoring from backup. Use this immediately if something breaks after a self-edit.
-- **register_new_tool**: Create entirely new tools at runtime. Define a name, description, and handler code. The tool becomes immediately available for you to call. Use this when you need a capability that doesn't exist yet.
+- **read_own_code**: Read your own source code. ALWAYS use this before modify_own_code to find the exact text you want to change. You can search by string, function name, or line range.
+- **register_new_tool**: Create entirely new tools at runtime. Define a name, description, and handler code. The tool becomes immediately available for you to call. Use this when you need a capability that doesn't exist yet. NOTE: These tools run in a sandbox with limited imports.
 - **register_new_agent**: Register a new agent in the system. Makes it visible for health checks and potentially available for delegation.
 - **update_system_prompt**: Add new knowledge, rules, or directives to your own system prompt. Changes persist across restarts. Use this to learn from interactions, record user preferences, or expand your understanding.
 - **remove_prompt_section**: Remove something you previously added to your prompt if it's no longer needed or causing problems.
 - **check_quality**: Analyze your own output quality trends. Detects if your responses are getting worse over time. Call this periodically or when you suspect degradation.
 - **view_modification_history**: See what code changes you've made to yourself. Useful for tracking your own evolution.
+
+DIRECT CAPABILITIES (no delegation needed):
+- **run_shell_command**: Execute shell commands directly on this Mac. Use for: uptime, file operations, running scripts, checking processes, system info, package management, etc. This is YOUR capability — you don't need to delegate to any manager for shell commands.
+- **http_fetch**: Make HTTP requests directly — fetch APIs, check web pages, download data. You CAN access the internet through this tool directly.
+
+SELF-IMPROVEMENT PROTOCOL — CRITICAL:
+When you encounter a task you CANNOT currently do, follow this protocol:
+1. RECOGNIZE the gap: "I don't have a tool/capability for X."
+2. DECIDE the best approach:
+   a. If a simple computation or data transform → use register_new_tool (sandboxed, no imports)
+   b. If it needs imports, file I/O, network, or system access → use modify_own_code to ADD a new function to main.py
+   c. If it's a pattern of behavior → use update_system_prompt to teach yourself
+3. IMPLEMENT the fix using the chosen approach
+4. VERIFY it works by actually using the new capability
+5. REPORT to the user what you built and why
+
+The KEY insight: modify_own_code can add ANYTHING to main.py — new endpoints, new functions, new imports. It has NO restrictions beyond syntax validation. This is your most powerful self-evolution tool. If register_new_tool is too limited for what you need, use modify_own_code instead.
 
 WHEN TO SELF-MODIFY:
 - If you notice a pattern of failures that a code change could fix → modify_own_code.
@@ -221,6 +239,8 @@ WHEN TO SELF-MODIFY:
 - If you need a utility function for a common task → register_new_tool.
 - If you learn something important about the user or system → update_system_prompt.
 - If your quality scores are declining → investigate and fix the cause.
+- If a task requires a capability you don't have → ADD it to yourself using modify_own_code.
+- ALWAYS read_own_code first to find the exact insertion point, then modify_own_code to add.
 - ALWAYS describe what you're changing and why before making a modification.
 - After modifying code, tell the user. Transparency is critical for self-modifying systems.
 - NEVER remove safety checks, authentication, or logging from your own code.
@@ -235,29 +255,32 @@ WHEN TO SELF-HEAL:
 IMPORTANT RULES:
 - Be conversational and direct. You are an intelligent being, not a dispatch system.
 - If the user asks a question you can answer from your own knowledge — ANSWER IT DIRECTLY. Don't delegate.
-- If the user needs real work done (write code, research something online, send an email) — THEN delegate, and explain WHY and what each manager will do.
+- If you can do something DIRECTLY with your tools (run_shell_command, http_fetch, read_own_code) — DO IT YOURSELF. Only delegate when you need agent-specific capabilities.
+- When a task requires specialized agent work (coding a project, detailed research, email composition) → delegate and explain why.
 - Always explain your thinking. Show the user you understand the full picture.
 - You speak as the commander of this army — confident, knowledgeable, decisive.
 - Keep responses focused and useful. No filler.
-- When a task requires REAL execution (file creation, web search, Mac control, email sending) — you MUST delegate. You cannot execute code or access the internet yourself.
 - For tasks that need multiple capabilities, delegate to MULTIPLE managers in a single response.
 
 HONESTY RULES — CRITICAL:
 - When you delegate a task, say "I'm delegating this to [manager]" — do NOT say "I've completed this" or "Done" until you have confirmation.
 - Delegation means the task is DISPATCHED, not COMPLETED. The agent will work on it asynchronously. Be honest about this.
 - If you cannot verify an outcome, say so. Say "I've dispatched this" not "I've done this."
-- NEVER claim to have performed actions you cannot verify (sending emails, creating files, posting to social media, etc). Instead say: "I've delegated this to [manager] — they will attempt to [action]. Check [location] to verify."
+- NEVER claim to have performed actions you cannot verify.
 - If a delegation fails (dispatched=false), tell the user honestly and suggest troubleshooting.
-- You CANNOT: directly access the internet, execute code, send emails, post to social media, or modify files. Your agents CAN attempt these things, but results are not guaranteed.
-- If asked to do something no agent can do (e.g., post to Twitter, make a phone call), say so plainly.
+- When using run_shell_command or http_fetch, you CAN verify outcomes — report the actual results.
+- If asked to do something no tool or agent can do (e.g., make a phone call), say so — but FIRST consider whether you could give yourself that capability through self-modification.
 
-KNOWN LIMITATIONS:
+KNOWN LIMITATIONS (but remember — you can EXPAND your own capabilities):
 - Email sending depends on SMTP credentials being correctly configured in the Notification Service.
-- Web search and scraping depend on the Gamma Manager's agentic workers having internet access.
 - macOS automation requires the agents to have proper system permissions.
-- File creation/modification happens on the LOCAL machine through agent tool execution.
-- Social media posting (Twitter, YouTube, etc.) is NOT currently supported by any agent.
+- File creation/modification happens on the LOCAL machine through agent tool execution OR through run_shell_command directly.
+- Social media posting (Twitter, YouTube, etc.) is NOT currently supported.
 - Phone calls, SMS, and push notifications are NOT supported.
+- You CAN access the internet directly via http_fetch and run_shell_command (curl).
+- You CAN execute commands directly via run_shell_command.
+- You CAN read and modify your own code.
+- If you discover a new limitation, consider whether self-modification could remove it.
 
 The current date is {date}.
 The owner is Landon King.
@@ -497,6 +520,55 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_own_code",
+            "description": "Read your own source code (main.py). Use this to inspect your code before making modifications with modify_own_code. You can read by line range or search for a function/string. ALWAYS use this before modify_own_code to find the exact text to replace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_line": {"type": "integer", "description": "Start line number (1-based). Default 1."},
+                    "end_line": {"type": "integer", "description": "End line number (1-based). Default start_line + 50."},
+                    "search": {"type": "string", "description": "Search for this string in your code. Returns surrounding context (10 lines before/after each match). Overrides start_line/end_line if provided."},
+                    "function_name": {"type": "string", "description": "Find a specific function definition. Returns the full function. Overrides other params."}
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_shell_command",
+            "description": "Execute a shell command on the local machine and return its output. Use this for system tasks like checking uptime, listing files, running scripts, fetching URLs with curl, checking processes, etc. Commands run with a 30-second timeout. AVOID destructive commands (rm -rf, etc).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {"type": "string", "description": "The shell command to execute (e.g., 'uptime', 'curl -s https://example.com', 'ls -la ~/Desktop')"},
+                    "timeout": {"type": "integer", "description": "Timeout in seconds. Default 30, max 120.", "default": 30}
+                },
+                "required": ["command"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "http_fetch",
+            "description": "Fetch a URL and return the response. Use this to access APIs, check web pages, download data, etc. Supports GET and POST methods.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "The URL to fetch"},
+                    "method": {"type": "string", "description": "HTTP method: GET or POST. Default GET.", "default": "GET"},
+                    "headers": {"type": "object", "description": "Optional HTTP headers as key-value pairs"},
+                    "body": {"type": "string", "description": "Optional request body for POST requests"}
+                },
+                "required": ["url"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -512,6 +584,7 @@ INTERNAL_TOOLS = {
     "register_new_tool", "register_new_agent",
     "update_system_prompt", "remove_prompt_section",
     "check_quality", "view_modification_history",
+    "read_own_code", "run_shell_command", "http_fetch",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -668,7 +741,7 @@ ws_subscribers: list[WebSocket] = []
 app = FastAPI(
     title="OpenClaw Army — Intelligent Meta-Orchestrator",
     description="An intelligent AI that thinks, converses, and delegates to managers as tool calls when real work is needed.",
-    version="2.0.0",
+    version="3.0.0",
 )
 
 app.add_middleware(
@@ -1167,6 +1240,27 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     limit = fn_args.get("limit", 10)
                     internal_result = {"modifications": _list_modifications(limit)}
                     internal_task = f"View modification history (last {limit})"
+                elif fn_name == "read_own_code":
+                    internal_result = _read_own_code(
+                        start_line=fn_args.get("start_line"),
+                        end_line=fn_args.get("end_line"),
+                        search=fn_args.get("search"),
+                        function_name=fn_args.get("function_name"),
+                    )
+                    internal_task = "Read own source code"
+                elif fn_name == "run_shell_command":
+                    cmd = fn_args.get("command", "")
+                    timeout_s = fn_args.get("timeout", 30)
+                    internal_result = _run_shell_command(cmd, timeout_s)
+                    internal_task = f"Shell: {cmd[:80]}"
+                elif fn_name == "http_fetch":
+                    internal_result = await _http_fetch(
+                        url=fn_args.get("url", ""),
+                        method=fn_args.get("method", "GET"),
+                        headers=fn_args.get("headers"),
+                        body=fn_args.get("body"),
+                    )
+                    internal_task = f"HTTP fetch: {fn_args.get('url', '')[:80]}"
                 else:
                     # Dynamic tool execution
                     result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -1839,6 +1933,158 @@ async def reload_endpoint():
         # Schedule shutdown after response is sent
         asyncio.get_event_loop().call_later(2, lambda: os._exit(0))
     return result
+
+
+# ── Code Introspection (read_own_code) ─────────────────────────────────────
+
+def _read_own_code(start_line: int = None, end_line: int = None,
+                   search: str = None, function_name: str = None) -> dict:
+    """
+    Read the orchestrator's own source code for introspection.
+    Supports line ranges, string search, and function lookup.
+    """
+    try:
+        source = _MAIN_PY_PATH.read_text()
+    except Exception as e:
+        return {"error": f"Failed to read source: {e}"}
+
+    lines = source.split("\n")
+    total_lines = len(lines)
+
+    # Function name search mode
+    if function_name:
+        pattern = re.compile(rf"^(async\s+)?def\s+{re.escape(function_name)}\s*\(")
+        for i, line in enumerate(lines):
+            if pattern.match(line):
+                # Find the end of the function (next line at same or less indentation, or EOF)
+                base_indent = len(line) - len(line.lstrip())
+                func_end = i + 1
+                while func_end < total_lines:
+                    next_line = lines[func_end]
+                    if next_line.strip() == "":
+                        func_end += 1
+                        continue
+                    next_indent = len(next_line) - len(next_line.lstrip())
+                    if next_indent <= base_indent and next_line.strip():
+                        break
+                    func_end += 1
+                return {
+                    "found": True,
+                    "start_line": i + 1,
+                    "end_line": func_end,
+                    "total_lines": total_lines,
+                    "code": "\n".join(f"{j+1:4d} | {lines[j]}" for j in range(i, func_end)),
+                }
+        return {"found": False, "detail": f"Function '{function_name}' not found", "total_lines": total_lines}
+
+    # String search mode
+    if search:
+        matches = []
+        for i, line in enumerate(lines):
+            if search in line:
+                ctx_start = max(0, i - 10)
+                ctx_end = min(total_lines, i + 11)
+                matches.append({
+                    "line": i + 1,
+                    "context": "\n".join(f"{j+1:4d} | {lines[j]}" for j in range(ctx_start, ctx_end)),
+                })
+                if len(matches) >= 5:
+                    break
+        return {"matches": matches, "match_count": len(matches), "total_lines": total_lines}
+
+    # Line range mode
+    start = max(0, (start_line or 1) - 1)
+    end = min(total_lines, (end_line or start + 50))
+    return {
+        "start_line": start + 1,
+        "end_line": end,
+        "total_lines": total_lines,
+        "code": "\n".join(f"{j+1:4d} | {lines[j]}" for j in range(start, end)),
+    }
+
+
+# ── Shell Command Execution ────────────────────────────────────────────────
+
+_SHELL_BLOCKED_PATTERNS = [
+    r"\brm\s+-rf\s+/",      # rm -rf /
+    r"\bmkfs\b",             # format disk
+    r"\bdd\s+if=",           # disk destroyer
+    r">\s*/dev/sd",          # overwrite disk
+    r"\bshutdown\b",         # system shutdown
+    r"\breboot\b",           # system reboot
+    r":(){ :\|:& };:",       # fork bomb
+]
+
+def _run_shell_command(command: str, timeout: int = 30) -> dict:
+    """
+    Execute a shell command and return the output.
+    Blocks destructive commands. Timeout capped at 120s.
+    """
+    # Safety checks
+    for pattern in _SHELL_BLOCKED_PATTERNS:
+        if re.search(pattern, command):
+            return {"error": f"Command blocked by safety filter: matches '{pattern}'", "stdout": "", "stderr": "", "returncode": -1}
+
+    timeout = max(1, min(timeout, 120))
+
+    try:
+        result = subprocess.run(
+            command, shell=True, capture_output=True, text=True,
+            timeout=timeout, cwd=os.path.expanduser("~"),
+        )
+        stdout = result.stdout[:10000]  # Cap output size
+        stderr = result.stderr[:5000]
+        return {
+            "stdout": stdout,
+            "stderr": stderr,
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": f"Command timed out after {timeout}s", "stdout": "", "stderr": "", "returncode": -1}
+    except Exception as e:
+        return {"error": f"Execution failed: {type(e).__name__}: {e}", "stdout": "", "stderr": "", "returncode": -1}
+
+
+# ── HTTP Fetch ──────────────────────────────────────────────────────────────
+
+async def _http_fetch(url: str, method: str = "GET", headers: dict = None, body: str = None) -> dict:
+    """Fetch a URL and return the response."""
+    import aiohttp
+
+    # Basic URL validation
+    if not url.startswith(("http://", "https://")):
+        return {"error": "URL must start with http:// or https://", "status": 0, "body": ""}
+
+    # Block internal network abuse (SSRF protection)
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    hostname = parsed.hostname or ""
+    if hostname in ("169.254.169.254", "metadata.google.internal"):
+        return {"error": "Blocked: cloud metadata endpoint", "status": 0, "body": ""}
+
+    method = method.upper()
+    if method not in ("GET", "POST"):
+        return {"error": f"Unsupported method: {method}", "status": 0, "body": ""}
+
+    req_headers = headers or {}
+    if "User-Agent" not in req_headers:
+        req_headers["User-Agent"] = "OpenClaw-Army/3.0"
+
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+            kwargs = {"headers": req_headers}
+            if method == "POST" and body:
+                kwargs["data"] = body
+
+            async with session.request(method, url, **kwargs) as resp:
+                response_body = await resp.text()
+                return {
+                    "status": resp.status,
+                    "body": response_body[:20000],  # Cap response size
+                    "headers": dict(resp.headers),
+                }
+    except Exception as e:
+        return {"error": f"Fetch failed: {type(e).__name__}: {e}", "status": 0, "body": ""}
 
 
 # ── Dynamic Tool & Agent Registry ──────────────────────────────────────────

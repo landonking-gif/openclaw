@@ -25,6 +25,8 @@ import uuid
 import asyncio
 import logging
 import re
+import time
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -64,6 +66,25 @@ AGENT_PORTS = {
     "general-3":      int(os.getenv("GENERAL_3_PORT", "18813")),
     "general-4":      int(os.getenv("GENERAL_4_PORT", "18814")),
 }
+
+
+def _load_agent_tokens() -> dict:
+    """Load gateway auth tokens from agent openclaw.json configs."""
+    tokens = {}
+    agents_dir = Path(ARMY_HOME) / "agents"
+    for name in ("alpha-manager", "beta-manager", "gamma-manager"):
+        cfg_path = agents_dir / name / "openclaw.json"
+        try:
+            cfg = json.loads(cfg_path.read_text())
+            token = cfg.get("gateway", {}).get("auth", {}).get("token", "")
+            if token:
+                tokens[name] = token
+        except Exception:
+            pass
+    return tokens
+
+
+AGENT_TOKENS = _load_agent_tokens()
 
 # Manager → Worker pool mapping
 MANAGER_POOLS = {
@@ -223,6 +244,95 @@ TOOL_TO_MANAGER = {
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [orchestrator] %(message)s")
 log = logging.getLogger("orchestrator")
+
+
+# ── Activity Log ────────────────────────────────────────────────────────────
+
+ACTIVITY_LOG_PATH = Path(ARMY_HOME) / "data" / "logs" / "activity.jsonl"
+ACTIVITY_MAX_MEMORY = 500  # entries kept in memory for fast API access
+
+
+class ActivityLog:
+    """Structured activity log with persistent JSONL storage and in-memory buffer."""
+
+    def __init__(self, path: Path, max_memory: int = 500):
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._buffer: deque[dict] = deque(maxlen=max_memory)
+        self._lock = asyncio.Lock()
+        # Load tail of existing log into memory
+        self._warm_buffer()
+
+    def _warm_buffer(self):
+        """Load last N entries from disk into memory on startup."""
+        if not self.path.exists():
+            return
+        try:
+            lines = self.path.read_text().strip().split("\n")
+            for line in lines[-self._buffer.maxlen:]:
+                if line.strip():
+                    self._buffer.append(json.loads(line))
+        except Exception as e:
+            log.warning(f"Failed to warm activity buffer: {e}")
+
+    async def record(self, event_type: str, session_id: str = "",
+                     content: str = "", metadata: dict | None = None):
+        """Record an activity event."""
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "type": event_type,
+            "session": session_id,
+            "content": content,
+            "meta": metadata or {},
+        }
+        self._buffer.append(entry)
+        # Persist to disk (non-blocking via lock)
+        async with self._lock:
+            try:
+                with open(self.path, "a") as f:
+                    f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            except Exception as e:
+                log.warning(f"Activity log write failed: {e}")
+        # Broadcast to WebSocket subscribers
+        ws_event = {"event": "activity", **entry}
+        msg = json.dumps(ws_event, ensure_ascii=False)
+        dead = []
+        for ws in ws_subscribers:
+            try:
+                await ws.send_text(msg)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            ws_subscribers.remove(ws)
+
+    def recent(self, limit: int = 50, event_type: str | None = None,
+              session_id: str | None = None) -> list[dict]:
+        """Query recent entries from the in-memory buffer."""
+        items = list(self._buffer)
+        if event_type:
+            items = [e for e in items if e["type"] == event_type]
+        if session_id:
+            items = [e for e in items if e["session"] == session_id]
+        return items[-limit:]
+
+    def stats(self) -> dict:
+        """Summary statistics."""
+        buf = list(self._buffer)
+        types: dict[str, int] = {}
+        sessions: set[str] = set()
+        for e in buf:
+            types[e["type"]] = types.get(e["type"], 0) + 1
+            if e["session"]:
+                sessions.add(e["session"])
+        return {
+            "total_in_memory": len(buf),
+            "event_types": types,
+            "unique_sessions": len(sessions),
+            "log_file": str(self.path),
+        }
+
+
+activity = ActivityLog(ACTIVITY_LOG_PATH, ACTIVITY_MAX_MEMORY)
 
 # ── Models ──────────────────────────────────────────────────────────────────
 
@@ -496,29 +606,43 @@ def get_ready_subtasks(plan: WorkflowPlan) -> list[SubTask]:
 
 
 async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) -> bool:
-    """Send a subtask to the appropriate manager agent via HTTP."""
+    """Send a subtask to the appropriate manager agent via OpenAI-compatible chat API."""
     port = AGENT_PORTS.get(manager)
     if not port:
         log.error(f"No port configured for manager: {manager}")
         return False
 
-    # Build the message to send to the manager
-    message = {
-        "type": "workflow_task",
-        "workflow_id": workflow_id,
-        "subtask_id": subtask.id,
-        "task": subtask.description,
-        "priority": subtask.priority,
-        "from": "orchestrator",
+    token = AGENT_TOKENS.get(manager)
+    if not token:
+        log.error(f"No auth token for manager: {manager}")
+        return False
+
+    task_prompt = (
+        f"[Workflow Task from Orchestrator]\n"
+        f"Workflow ID: {workflow_id}\n"
+        f"Subtask ID: {subtask.id}\n"
+        f"Priority: {subtask.priority}\n\n"
+        f"Task: {subtask.description}"
+    )
+
+    payload = {
+        "model": "openclaw",
+        "messages": [{"role": "user", "content": task_prompt}],
+        "user": f"orchestrator-{workflow_id}",
     }
 
     try:
         import aiohttp
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+        }
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                f"http://localhost:{port}/api/v1/messages",
-                json=message,
-                timeout=aiohttp.ClientTimeout(total=5),
+                f"http://127.0.0.1:{port}/v1/chat/completions",
+                json=payload,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=120, connect=5),
             ) as resp:
                 if resp.status in (200, 201, 202):
                     subtask.status = TaskStatus.RUNNING
@@ -526,27 +650,11 @@ async def dispatch_to_manager(manager: str, subtask: SubTask, workflow_id: str) 
                     log.info(f"Dispatched subtask {subtask.id} to {manager} (port {port})")
                     return True
                 else:
-                    log.warning(f"Manager {manager} returned {resp.status}")
+                    body = await resp.text()
+                    log.warning(f"Manager {manager} returned {resp.status}: {body[:200]}")
                     return False
-    except ImportError:
-        # Fallback without aiohttp
-        import urllib.request
-        try:
-            req = urllib.request.Request(
-                f"http://localhost:{port}/api/v1/messages",
-                data=json.dumps(message).encode(),
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            urllib.request.urlopen(req, timeout=5)
-            subtask.status = TaskStatus.RUNNING
-            subtask.started_at = datetime.now(timezone.utc).isoformat()
-            return True
-        except Exception as e:
-            log.warning(f"Failed to dispatch to {manager}: {e}")
-            return False
     except Exception as e:
-        log.warning(f"Failed to dispatch to {manager}: {e}")
+        log.warning(f"Failed to dispatch to {manager} (port {port}): {type(e).__name__}: {e}")
         return False
 
 
@@ -566,22 +674,22 @@ async def notify_ws(event: dict):
 
 
 async def log_to_memory(content: str, category: str = "orchestrator"):
-    """Log plan/workflow events to memory service."""
+    """Log plan/workflow events to memory service (non-blocking)."""
     try:
-        import urllib.request
-        req = urllib.request.Request(
-            f"{MEMORY_SERVICE_URL}/memory/commit",
-            data=json.dumps({
-                "agent_name": "orchestrator",
-                "content": content,
-                "category": category,
-                "importance": 0.8,
-                "metadata": {"source": "orchestrator-api"},
-            }).encode(),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        urllib.request.urlopen(req, timeout=3)
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{MEMORY_SERVICE_URL}/memory/commit",
+                json={
+                    "agent_name": "orchestrator",
+                    "content": content,
+                    "category": category,
+                    "importance": 0.8,
+                    "metadata": {"source": "orchestrator-api"},
+                },
+                timeout=aiohttp.ClientTimeout(total=3),
+            ) as resp:
+                pass
     except Exception:
         pass  # Non-critical
 
@@ -591,6 +699,9 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     Core LLM conversation loop. Sends message to Kimi K2.5, processes
     tool calls (delegations to managers), and returns the response.
     """
+    # Log incoming message
+    await activity.record("user_message", session_id, user_message)
+
     # Get or create session history
     if session_id not in _chat_sessions:
         _chat_sessions[session_id] = []
@@ -604,30 +715,64 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         {"role": "user", "content": user_message},
     ]
 
-    # Call the LLM with tool definitions
-    try:
-        response = await llm_client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=messages,
-            tools=MANAGER_TOOLS,
-            tool_choice="auto",
-            temperature=0.7,
-            max_tokens=2048,
-        )
-    except Exception as e:
-        log.error(f"LLM call failed: {e}")
-        return {
-            "response": f"I'm having trouble connecting to my reasoning engine right now. Error: {str(e)[:200]}",
-            "delegations": [],
-            "session_id": session_id,
-        }
+    # Call the LLM with tool definitions (with 429 retry logic)
+    max_retries = 3
+    response = None
+    for attempt in range(max_retries):
+        try:
+            await activity.record("llm_call", session_id,
+                                  f"Calling {LLM_MODEL} (attempt {attempt + 1})",
+                                  {"attempt": attempt + 1, "history_len": len(history)})
+            response = await llm_client.chat.completions.create(
+                model=LLM_MODEL,
+                messages=messages,
+                tools=MANAGER_TOOLS,
+                tool_choice="auto",
+                temperature=0.7,
+                max_tokens=2048,
+            )
+            break  # Success
+        except Exception as e:
+            err_str = str(e)
+            is_rate_limit = "429" in err_str or "Too Many Requests" in err_str
+            await activity.record("error", session_id,
+                                  f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
+                                  {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
+            if is_rate_limit and attempt < max_retries - 1:
+                wait = 2 ** (attempt + 1)  # 2s, 4s
+                log.warning(f"Rate limited (429), retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                await asyncio.sleep(wait)
+                continue
+            log.error(f"LLM call failed: {e}")
+            error_response = f"I'm having trouble connecting to my reasoning engine right now. Error: {err_str[:200]}"
+            await activity.record("error_response", session_id, error_response)
+            return {
+                "response": error_response,
+                "delegations": [],
+                "session_id": session_id,
+            }
 
     choice = response.choices[0]
     assistant_msg = choice.message
 
+    # Log the LLM's thinking/response
+    await activity.record("llm_thinking", session_id,
+                          assistant_msg.content or "(no text — tool calls only)",
+                          {"finish_reason": choice.finish_reason,
+                           "has_tool_calls": bool(assistant_msg.tool_calls),
+                           "tool_call_count": len(assistant_msg.tool_calls) if assistant_msg.tool_calls else 0})
+
     # Process any tool calls (delegations to managers)
     delegations = []
     if assistant_msg.tool_calls:
+        # Log raw tool calls
+        tool_call_info = []
+        for tc in assistant_msg.tool_calls:
+            tool_call_info.append({"function": tc.function.name, "args": tc.function.arguments[:200]})
+        await activity.record("llm_tool_calls", session_id,
+                              f"LLM requested {len(assistant_msg.tool_calls)} delegation(s)",
+                              {"tool_calls": tool_call_info})
+
         for tc in assistant_msg.tool_calls:
             fn_name = tc.function.name
             try:
@@ -666,6 +811,12 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     "dispatched": dispatched,
                 })
 
+                # Log delegation with full detail
+                await activity.record("delegation", session_id,
+                                      f"{'Dispatched' if dispatched else 'FAILED to dispatch'} to {manager}: {task_desc[:200]}",
+                                      {"manager": manager, "task": task_desc, "priority": priority,
+                                       "workflow_id": plan.id, "dispatched": dispatched})
+
                 await notify_ws({
                     "event": "delegation",
                     "manager": manager,
@@ -680,12 +831,23 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     # If the LLM made tool calls but gave no text, make a follow-up call
     # so the user gets a real response alongside the delegations
     if not text_response and delegations:
-        # Build tool results to feed back
+        # Build tool results to feed back using the serialized message format
         tool_messages = []
-        tool_messages.append({"role": "assistant", "content": None, "tool_calls": [
-            {"id": tc.id, "type": "function", "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
-            for tc in assistant_msg.tool_calls
-        ]})
+        tool_messages.append({
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {
+                        "name": tc.function.name,
+                        "arguments": tc.function.arguments,
+                    },
+                }
+                for tc in assistant_msg.tool_calls
+            ],
+        })
         for i, tc in enumerate(assistant_msg.tool_calls):
             d = delegations[i] if i < len(delegations) else {}
             tool_messages.append({
@@ -706,7 +868,14 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 max_tokens=1024,
             )
             text_response = followup.choices[0].message.content or ""
-        except Exception:
+            await activity.record("llm_followup", session_id,
+                                  text_response[:500],
+                                  {"purpose": "synthesize delegation response"})
+        except Exception as followup_err:
+            log.warning(f"Follow-up LLM call failed: {followup_err}")
+            await activity.record("error", session_id,
+                                  f"Follow-up LLM call failed: {followup_err}",
+                                  {"purpose": "synthesize delegation response"})
             # Fallback — construct summary ourselves
             parts = ["I've dispatched the following to my team:"]
             for d in delegations:
@@ -719,6 +888,13 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     history.append({"role": "assistant", "content": text_response})
     if len(history) > 40:  # 20 exchanges = 40 messages
         history[:] = history[-40:]
+
+    # Log the final assembled response
+    await activity.record("response", session_id,
+                          text_response[:500],
+                          {"delegation_count": len(delegations),
+                           "delegations_dispatched": sum(1 for d in delegations if d["dispatched"]),
+                           "response_length": len(text_response)})
 
     return {
         "response": text_response,
@@ -768,6 +944,29 @@ async def chat(req: ChatMessage):
     })
 
     return result
+
+
+# ── Activity Log Endpoints ──────────────────────────────────────────────────
+
+@app.get("/activity")
+async def get_activity(limit: int = 50, event_type: str | None = None,
+                       session_id: str | None = None):
+    """Get recent activity log entries. Filterable by event type and session."""
+    entries = activity.recent(limit=limit, event_type=event_type, session_id=session_id)
+    return {"entries": entries, "count": len(entries)}
+
+
+@app.get("/activity/session/{session_id}")
+async def get_session_activity(session_id: str, limit: int = 100):
+    """Get all activity for a specific chat session — full trace of thinking + work."""
+    entries = activity.recent(limit=limit, session_id=session_id)
+    return {"session_id": session_id, "entries": entries, "count": len(entries)}
+
+
+@app.get("/activity/stats")
+async def get_activity_stats():
+    """Get activity log statistics."""
+    return activity.stats()
 
 
 @app.post("/plan")
@@ -1164,6 +1363,10 @@ async def startup():
     log.info(f"Manager pools: {list(MANAGER_POOLS.keys())}")
     _load_manifests()
     log.info(f"Loaded {len(_manifest_cache)} workflow manifests")
+    await activity.record("system", "", "Orchestrator started",
+                          {"port": ORCHESTRATOR_PORT,
+                           "agents": len(AGENT_PORTS),
+                           "manifests": len(_manifest_cache)})
 
 
 # ── Entry Point ─────────────────────────────────────────────────────────────

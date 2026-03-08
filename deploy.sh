@@ -226,7 +226,7 @@ _start_services() {
         REDIS_URL="${REDIS_URL:-redis://localhost:6379/0}" \
         CHROMA_PATH="$DATA_DIR/chroma" \
         VAULT_PATH="$ARMY_HOME/data/obsidian database" \
-        nohup ${=cmd} > "$logfile" 2>&1 &
+        eval nohup $cmd > "$logfile" 2>&1 &
 
         local pid=$!
         echo "$pid" > "$pidfile"

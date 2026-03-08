@@ -69,6 +69,13 @@ This agent participates in the shared memory infrastructure at port 18820.
 - Use `memory_query` to search past knowledge before starting new work
 - Use `get_memory_context` at the start of each session for continuity
 
+## Cron Spam Incident — 2026-03-07
+- **Issue:** Duplicate reminder triggers every 15 minutes
+- **Duration:** 3+ hours of spam from 3:19 PM - 6:41 PM
+- **Root:** Misconfigured crontab (multiple entries suspected)
+- **Fix:** Documented in `CRON_FIX_GUIDE.md`
+- **Action Needed:** User to check crontab and remove duplicates
+
 ## Knowledge Vault (Obsidian)
 
 Shared knowledge vault via `http://localhost:18850`.

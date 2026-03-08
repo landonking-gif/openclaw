@@ -150,6 +150,13 @@
     "auth": {
       "mode": "token",
       "token": "2de2537e4892b065f102fd5e4a602fc910357717ba46013a"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
     }
   },
   "plugins": {

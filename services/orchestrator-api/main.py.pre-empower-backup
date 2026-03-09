@@ -541,12 +541,12 @@ MANAGER_TOOLS += [
         "type": "function",
         "function": {
             "name": "run_shell_command",
-            "description": "Execute a shell command on the local machine and return its output. Use this for system tasks like checking uptime, listing files, running scripts, fetching URLs with curl, checking processes, etc. Commands run with a 60-second timeout. AVOID destructive commands (rm -rf, etc).",
+            "description": "Execute a shell command on the local machine and return its output. Use this for system tasks like checking uptime, listing files, running scripts, fetching URLs with curl, checking processes, etc. Commands run with a 30-second timeout. AVOID destructive commands (rm -rf, etc).",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "command": {"type": "string", "description": "The shell command to execute (e.g., 'uptime', 'curl -s https://example.com', 'ls -la ~/Desktop')"},
-                    "timeout": {"type": "integer", "description": "Timeout in seconds. Default 60, max 120.", "default": 60}
+                    "timeout": {"type": "integer", "description": "Timeout in seconds. Default 30, max 120.", "default": 30}
                 },
                 "required": ["command"]
             }
@@ -758,57 +758,6 @@ except ImportError:
     pass
 
 # ── Helper Functions ────────────────────────────────────────────────────────
-
-# Tokens Kimi K2.5 sometimes emits as text instead of using the tool_calls field
-_TOOL_TOKEN_RE = re.compile(
-    r"<\|tool_calls?_section_begin\|>.*?<\|tool_calls?_section_end\|>",
-    re.DOTALL,
-)
-_TOOL_TOKEN_TAGS = re.compile(r"<\|tool_call[^|]*\|>")
-
-
-def _strip_tool_tokens(text: str) -> str:
-    """Remove raw Kimi tool-call tokens that leaked into a text response."""
-    text = _TOOL_TOKEN_RE.sub("", text)
-    text = _TOOL_TOKEN_TAGS.sub("", text)
-    return text.strip()
-
-
-def _parse_inline_tool_calls(content: str) -> list:
-    """
-    Parse tool calls that Kimi K2.5 emitted as text in the content field.
-    Returns a list of SimpleNamespace objects compatible with the tool-call loop,
-    or an empty list if no valid inline calls were found.
-    Format: <|tool_calls_section_begin|> <|tool_call_begin|> functions.NAME:IDX
-    <|tool_call_argument_begin|> {JSON} <|tool_call_end|> <|tool_calls_section_end|>
-    """
-    from types import SimpleNamespace
-    if "<|tool_call" not in content:
-        return []
-    # Extract individual tool calls
-    pattern = re.compile(
-        r"functions\.(\w+):\d+\s*"
-        r"<\|tool_call_argument_begin\|>\s*"
-        r"(\{.*?\})\s*"
-        r"<\|tool_call_end\|>",
-        re.DOTALL,
-    )
-    calls = []
-    for match in pattern.finditer(content):
-        fn_name = match.group(1)
-        raw_args = match.group(2)
-        # Validate JSON
-        try:
-            json.loads(raw_args)
-        except json.JSONDecodeError:
-            continue
-        call_id = f"inline_{uuid.uuid4().hex[:12]}"
-        calls.append(SimpleNamespace(
-            id=call_id,
-            function=SimpleNamespace(name=fn_name, arguments=raw_args),
-        ))
-    return calls
-
 
 def classify_task_to_managers(task_description: str) -> list[str]:
     """
@@ -1146,317 +1095,274 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     # Track timing for quality scoring
     _llm_start_time = time.monotonic()
 
-    # ── Multi-turn tool-call loop ──────────────────────────────────────
-    # The LLM can invoke tools (read_own_code, modify_own_code, etc.)
-    # and we feed results back so it can chain actions across turns.
-    MAX_TOOL_TURNS = 8           # safety cap
-    max_retries = 5              # per-turn retry budget for 429s
-    delegations = []             # accumulate across all turns
+    # Call the LLM with tool definitions (with 429 retry logic)
+    max_retries = 3
+    response = None
+    for attempt in range(max_retries):
+        try:
+            await activity.record("llm_call", session_id,
+                                  f"Calling {LLM_MODEL} (attempt {attempt + 1})",
+                                  {"attempt": attempt + 1, "history_len": len(history)})
+            response = await llm_client.chat.completions.create(
+                model=LLM_MODEL,
+                messages=messages,
+                tools=all_tools,
+                tool_choice="auto",
+                temperature=0.7,
+                max_tokens=2048,
+            )
+            break  # Success
+        except Exception as e:
+            err_str = str(e)
+            is_rate_limit = "429" in err_str or "Too Many Requests" in err_str
+            if is_rate_limit:
+                _record_failure("429_rate_limit", f"Rate limited on attempt {attempt + 1}: {err_str[:100]}")
+            await activity.record("error", session_id,
+                                  f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
+                                  {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
+            if is_rate_limit and attempt < max_retries - 1:
+                # Rotate to a different API key
+                _rotate_key()
+                new_key = _get_api_key()
+                llm_client.api_key = new_key
+                wait = 2 ** (attempt + 1)  # 2s, 4s
+                log.warning(f"Rate limited (429), rotating key and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                await asyncio.sleep(wait)
+                continue
+            log.error(f"LLM call failed: {e}")
+            error_response = f"I'm having trouble connecting to my reasoning engine right now. Error: {err_str[:200]}"
+            await activity.record("error_response", session_id, error_response)
+            return {
+                "response": error_response,
+                "delegations": [],
+                "session_id": session_id,
+            }
 
-    for _tool_turn in range(MAX_TOOL_TURNS):
-        response = None
-        for attempt in range(max_retries):
-            try:
-                await activity.record("llm_call", session_id,
-                                      f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
-                                      {"attempt": attempt + 1, "turn": _tool_turn + 1,
-                                       "history_len": len(messages)})
-                response = await llm_client.chat.completions.create(
-                    model=LLM_MODEL,
-                    messages=messages,
-                    tools=all_tools,
-                    tool_choice="auto",
-                    temperature=0.7,
-                    max_tokens=4096,
-                )
-                break  # Success
-            except Exception as e:
-                err_str = str(e)
-                is_rate_limit = "429" in err_str or "Too Many Requests" in err_str
-                if is_rate_limit:
-                    _record_failure("429_rate_limit", f"Rate limited on attempt {attempt + 1}: {err_str[:100]}")
-                await activity.record("error", session_id,
-                                      f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
-                                      {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
-                if is_rate_limit and attempt < max_retries - 1:
-                    # Rotate to a different API key
-                    _rotate_key()
-                    new_key = _get_api_key()
-                    llm_client.api_key = new_key
-                    wait = min(2 ** (attempt + 1), 16)  # 2s, 4s, 8s, 16s, 16s
-                    log.warning(f"Rate limited (429), rotating key and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
-                    await asyncio.sleep(wait)
-                    continue
-                log.error(f"LLM call failed: {e}")
-                error_response = f"I'm having trouble connecting to my reasoning engine right now. Error: {err_str[:200]}"
-                await activity.record("error_response", session_id, error_response)
-                return {
-                    "response": error_response,
-                    "delegations": delegations,
-                    "session_id": session_id,
-                }
+    choice = response.choices[0]
+    assistant_msg = choice.message
 
-        choice = response.choices[0]
-        assistant_msg = choice.message
+    # Log the LLM's thinking/response
+    await activity.record("llm_thinking", session_id,
+                          assistant_msg.content or "(no text — tool calls only)",
+                          {"finish_reason": choice.finish_reason,
+                           "has_tool_calls": bool(assistant_msg.tool_calls),
+                           "tool_call_count": len(assistant_msg.tool_calls) if assistant_msg.tool_calls else 0})
 
-        # Log the LLM's thinking/response
-        await activity.record("llm_thinking", session_id,
-                              assistant_msg.content or "(no text — tool calls only)",
-                              {"finish_reason": choice.finish_reason,
-                               "has_tool_calls": bool(assistant_msg.tool_calls),
-                               "tool_call_count": len(assistant_msg.tool_calls) if assistant_msg.tool_calls else 0,
-                               "turn": _tool_turn + 1})
-
-        # ── Resolve tool calls (real or inline-parsed) ────────────────
-        effective_tool_calls = list(assistant_msg.tool_calls or [])
-        inline_parsed = False
-        if not effective_tool_calls and assistant_msg.content:
-            effective_tool_calls = _parse_inline_tool_calls(assistant_msg.content)
-            if effective_tool_calls:
-                inline_parsed = True
-                log.info(f"Parsed {len(effective_tool_calls)} inline tool call(s) from content (turn {_tool_turn + 1})")
-
-        if not effective_tool_calls:
-            break
-
-        # ── Process tool calls in this turn ────────────────────────────
+    # Process any tool calls (delegations to managers)
+    delegations = []
+    if assistant_msg.tool_calls:
+        # Log raw tool calls
         tool_call_info = []
-        for tc in effective_tool_calls:
+        for tc in assistant_msg.tool_calls:
             tool_call_info.append({"function": tc.function.name, "args": tc.function.arguments[:200]})
         await activity.record("llm_tool_calls", session_id,
-                              f"LLM requested {len(effective_tool_calls)} tool call(s) (turn {_tool_turn + 1}){' [inline-parsed]' if inline_parsed else ''}",
-                              {"tool_calls": tool_call_info, "turn": _tool_turn + 1})
+                              f"LLM requested {len(assistant_msg.tool_calls)} delegation(s)",
+                              {"tool_calls": tool_call_info})
 
-        # Separate internal tools from manager delegations for parallel dispatch
-        internal_calls = []
-        manager_calls = []
-        for tc in effective_tool_calls:
+        for tc in assistant_msg.tool_calls:
             fn_name = tc.function.name
             try:
                 fn_args = json.loads(tc.function.arguments)
             except json.JSONDecodeError:
                 fn_args = {"task": tc.function.arguments}
+
+            manager = TOOL_TO_MANAGER.get(fn_name)
             if fn_name in INTERNAL_TOOLS:
-                internal_calls.append((tc, fn_name, fn_args))
-            elif TOOL_TO_MANAGER.get(fn_name):
-                manager_calls.append((tc, fn_name, fn_args))
-            else:
-                internal_calls.append((tc, fn_name, fn_args))  # dynamic tools
+                # Handle internal tools (self-healing, self-modification, etc.)
+                internal_result = None
+                internal_task = fn_name
 
-        # ── Execute internal tools sequentially ────────────────────────
-        turn_tool_results = {}  # tc.id -> (delegation_entry, tool_result_str)
-        for tc, fn_name, fn_args in internal_calls:
-            internal_result = None
-            internal_task = fn_name
+                if fn_name == "run_self_heal":
+                    reason = fn_args.get("reason", "LLM-triggered")
+                    internal_result = await self_heal(reason=reason)
+                    internal_task = f"Self-heal: {reason}"
+                elif fn_name == "run_diagnostic":
+                    internal_result = await run_diagnostic()
+                    internal_task = "System diagnostic"
+                elif fn_name == "query_failure_patterns":
+                    hours = fn_args.get("hours", 1)
+                    internal_result = _query_failure_patterns(hours=hours)
+                    internal_task = f"Query failure patterns ({hours}h)"
+                elif fn_name == "modify_own_code":
+                    internal_result = _apply_code_edit(
+                        fn_args.get("old_text", ""),
+                        fn_args.get("new_text", ""),
+                        fn_args.get("description", "LLM self-modification"),
+                    )
+                    internal_task = f"Self-modify: {fn_args.get('description', '')[:100]}"
+                    if internal_result.get("applied"):
+                        await activity.record("self_modify", session_id,
+                                              internal_task, {"backup": internal_result.get("backup", "")})
+                elif fn_name == "rollback_code_change":
+                    internal_result = _rollback_last_modification()
+                    internal_task = "Rollback last code change"
+                    if internal_result.get("rolled_back"):
+                        await activity.record("self_modify_rollback", session_id,
+                                              internal_result.get("detail", ""))
+                elif fn_name == "register_new_tool":
+                    internal_result = register_tool(
+                        fn_args.get("name", ""),
+                        fn_args.get("description", ""),
+                        fn_args.get("parameters", {}),
+                        fn_args.get("handler_code", "return 'not implemented'"),
+                    )
+                    internal_task = f"Register tool: {fn_args.get('name', '')}"
+                    if internal_result.get("registered"):
+                        await activity.record("tool_register", session_id,
+                                              f"Registered tool: {fn_args.get('name', '')}")
+                elif fn_name == "register_new_agent":
+                    internal_result = register_agent(
+                        fn_args.get("name", ""),
+                        fn_args.get("port", 0),
+                        fn_args.get("description", ""),
+                        fn_args.get("capabilities", []),
+                    )
+                    internal_task = f"Register agent: {fn_args.get('name', '')}"
+                    if internal_result.get("registered"):
+                        await activity.record("agent_register", session_id,
+                                              f"Registered agent: {fn_args.get('name', '')}")
+                elif fn_name == "update_system_prompt":
+                    internal_result = update_prompt_section(
+                        fn_args.get("section_name", ""),
+                        fn_args.get("content", ""),
+                    )
+                    internal_task = f"Update prompt: {fn_args.get('section_name', '')}"
+                    if internal_result.get("updated"):
+                        await activity.record("prompt_update", session_id,
+                                              f"Updated prompt section: {fn_args.get('section_name', '')}")
+                elif fn_name == "remove_prompt_section":
+                    internal_result = remove_prompt_section(fn_args.get("section_name", ""))
+                    internal_task = f"Remove prompt section: {fn_args.get('section_name', '')}"
+                elif fn_name == "check_quality":
+                    internal_result = _detect_quality_degradation()
+                    internal_task = "Quality check"
+                elif fn_name == "view_modification_history":
+                    limit = fn_args.get("limit", 10)
+                    internal_result = {"modifications": _list_modifications(limit)}
+                    internal_task = f"View modification history (last {limit})"
+                elif fn_name == "read_own_code":
+                    internal_result = _read_own_code(
+                        start_line=fn_args.get("start_line"),
+                        end_line=fn_args.get("end_line"),
+                        search=fn_args.get("search"),
+                        function_name=fn_args.get("function_name"),
+                    )
+                    internal_task = "Read own source code"
+                elif fn_name == "run_shell_command":
+                    cmd = fn_args.get("command", "")
+                    timeout_s = fn_args.get("timeout", 30)
+                    internal_result = _run_shell_command(cmd, timeout_s)
+                    internal_task = f"Shell: {cmd[:80]}"
+                elif fn_name == "http_fetch":
+                    internal_result = await _http_fetch(
+                        url=fn_args.get("url", ""),
+                        method=fn_args.get("method", "GET"),
+                        headers=fn_args.get("headers"),
+                        body=fn_args.get("body"),
+                    )
+                    internal_task = f"HTTP fetch: {fn_args.get('url', '')[:80]}"
+                else:
+                    # Dynamic tool execution
+                    result_str = await _execute_dynamic_tool(fn_name, fn_args)
+                    internal_result = {"result": result_str}
+                    internal_task = f"Dynamic tool: {fn_name}"
 
-            if fn_name == "run_self_heal":
-                reason = fn_args.get("reason", "LLM-triggered")
-                internal_result = await self_heal(reason=reason)
-                internal_task = f"Self-heal: {reason}"
-            elif fn_name == "run_diagnostic":
-                internal_result = await run_diagnostic()
-                internal_task = "System diagnostic"
-            elif fn_name == "query_failure_patterns":
-                hours = fn_args.get("hours", 1)
-                internal_result = _query_failure_patterns(hours=hours)
-                internal_task = f"Query failure patterns ({hours}h)"
-            elif fn_name == "modify_own_code":
-                internal_result = _apply_code_edit(
-                    fn_args.get("old_text", ""),
-                    fn_args.get("new_text", ""),
-                    fn_args.get("description", "LLM self-modification"),
-                )
-                internal_task = f"Self-modify: {fn_args.get('description', '')[:100]}"
-                if internal_result.get("applied"):
-                    await activity.record("self_modify", session_id,
-                                          internal_task, {"backup": internal_result.get("backup", "")})
-            elif fn_name == "rollback_code_change":
-                internal_result = _rollback_last_modification()
-                internal_task = "Rollback last code change"
-                if internal_result.get("rolled_back"):
-                    await activity.record("self_modify_rollback", session_id,
-                                          internal_result.get("detail", ""))
-            elif fn_name == "register_new_tool":
-                internal_result = register_tool(
-                    fn_args.get("name", ""),
-                    fn_args.get("description", ""),
-                    fn_args.get("parameters", {}),
-                    fn_args.get("handler_code", "return 'not implemented'"),
-                )
-                internal_task = f"Register tool: {fn_args.get('name', '')}"
-                if internal_result.get("registered"):
-                    await activity.record("tool_register", session_id,
-                                          f"Registered tool: {fn_args.get('name', '')}")
-            elif fn_name == "register_new_agent":
-                internal_result = register_agent(
-                    fn_args.get("name", ""),
-                    fn_args.get("port", 0),
-                    fn_args.get("description", ""),
-                    fn_args.get("capabilities", []),
-                )
-                internal_task = f"Register agent: {fn_args.get('name', '')}"
-                if internal_result.get("registered"):
-                    await activity.record("agent_register", session_id,
-                                          f"Registered agent: {fn_args.get('name', '')}")
-            elif fn_name == "update_system_prompt":
-                internal_result = update_prompt_section(
-                    fn_args.get("section_name", ""),
-                    fn_args.get("content", ""),
-                )
-                internal_task = f"Update prompt: {fn_args.get('section_name', '')}"
-                if internal_result.get("updated"):
-                    await activity.record("prompt_update", session_id,
-                                          f"Updated prompt section: {fn_args.get('section_name', '')}")
-            elif fn_name == "remove_prompt_section":
-                internal_result = remove_prompt_section(fn_args.get("section_name", ""))
-                internal_task = f"Remove prompt section: {fn_args.get('section_name', '')}"
-            elif fn_name == "check_quality":
-                internal_result = _detect_quality_degradation()
-                internal_task = "Quality check"
-            elif fn_name == "view_modification_history":
-                limit = fn_args.get("limit", 10)
-                internal_result = {"modifications": _list_modifications(limit)}
-                internal_task = f"View modification history (last {limit})"
-            elif fn_name == "read_own_code":
-                internal_result = _read_own_code(
-                    start_line=fn_args.get("start_line"),
-                    end_line=fn_args.get("end_line"),
-                    search=fn_args.get("search"),
-                    function_name=fn_args.get("function_name"),
-                )
-                internal_task = "Read own source code"
-            elif fn_name == "run_shell_command":
-                cmd = fn_args.get("command", "")
-                timeout_s = fn_args.get("timeout", 60)
-                internal_result = _run_shell_command(cmd, timeout_s)
-                internal_task = f"Shell: {cmd[:80]}"
-            elif fn_name == "http_fetch":
-                internal_result = await _http_fetch(
-                    url=fn_args.get("url", ""),
-                    method=fn_args.get("method", "GET"),
-                    headers=fn_args.get("headers"),
-                    body=fn_args.get("body"),
-                )
-                internal_task = f"HTTP fetch: {fn_args.get('url', '')[:80]}"
-            else:
-                # Dynamic tool execution
-                result_str = await _execute_dynamic_tool(fn_name, fn_args)
-                internal_result = {"result": result_str}
-                internal_task = f"Dynamic tool: {fn_name}"
-
-            d_entry = {
-                "manager": "self",
-                "task": internal_task,
-                "priority": 1,
-                "workflow_id": "",
-                "dispatched": True,
-                "agent_response": json.dumps(internal_result, default=str)[:500],
-                "error": "",
-            }
-            delegations.append(d_entry)
-            turn_tool_results[tc.id] = (d_entry, json.dumps(internal_result, default=str)[:2000])
-
-        # ── Dispatch manager calls in parallel ─────────────────────────
-        async def _dispatch_one(tc, fn_name, fn_args):
-            manager = TOOL_TO_MANAGER[fn_name]
-            task_desc = fn_args.get("task", "")
-            priority = fn_args.get("priority", 2)
-            plan = WorkflowPlan(
-                original_task=task_desc,
-                analysis=f"Delegated by Meta-Orchestrator to {manager}",
-                status=TaskStatus.PENDING,
-                requester="orchestrator",
-            )
-            plan.subtasks.append(SubTask(
-                description=task_desc,
-                assigned_to=manager,
-                priority=priority,
-            ))
-            workflows[plan.id] = plan
-            subtask = plan.subtasks[0]
-            dispatch_result = await dispatch_to_manager(manager, subtask, plan.id)
-            dispatched = dispatch_result["dispatched"]
-            agent_response = dispatch_result.get("response_text", "")
-            dispatch_error = dispatch_result.get("error", "")
-
-            # Auto-heal and retry on dispatch failure
-            if not dispatched:
-                log.warning(f"Dispatch to {manager} failed — auto-triggering self-heal and retry")
-                await activity.record("auto_heal", session_id,
-                                      f"Dispatch to {manager} failed, triggering self-heal",
-                                      {"manager": manager, "error": dispatch_error[:200]})
-                heal_result = await self_heal(reason=f"dispatch to {manager} failed: {dispatch_error[:100]}")
-                heal_status = heal_result.get("manager_status", {}).get(manager, "unknown")
-                if heal_status in ("up", "restarted"):
-                    log.info(f"Self-heal restored {manager} — retrying dispatch")
-                    dispatch_result = await dispatch_to_manager(manager, subtask, plan.id)
-                    dispatched = dispatch_result["dispatched"]
-                    agent_response = dispatch_result.get("response_text", "")
-                    dispatch_error = dispatch_result.get("error", "")
-                    if dispatched:
-                        await activity.record("auto_heal", session_id,
-                                              f"Retry succeeded after self-heal for {manager}",
-                                              {"manager": manager})
-
-            d_entry = {
-                "manager": manager,
-                "task": task_desc,
-                "priority": priority,
-                "workflow_id": plan.id,
-                "dispatched": dispatched,
-                "agent_response": agent_response[:500] if agent_response else "",
-                "error": dispatch_error,
-            }
-
-            status_word = "Dispatched" if dispatched else "FAILED to dispatch"
-            log_content = f"{status_word} to {manager}: {task_desc[:200]}"
-            if agent_response:
-                log_content += f"\n--- Agent Response ---\n{agent_response[:300]}"
-            if dispatch_error:
-                log_content += f"\n--- Error ---\n{dispatch_error}"
-            await activity.record("delegation", session_id, log_content,
-                                  {"manager": manager, "task": task_desc, "priority": priority,
-                                   "workflow_id": plan.id, "dispatched": dispatched,
-                                   "agent_response_preview": agent_response[:200] if agent_response else "",
-                                   "error": dispatch_error})
-            await notify_ws({
-                "event": "delegation",
-                "manager": manager,
-                "task": task_desc[:100],
-                "workflow_id": plan.id,
-                "dispatched": dispatched,
-            })
-            return tc.id, d_entry
-
-        if manager_calls:
-            mgr_results = await asyncio.gather(
-                *[_dispatch_one(tc, fn, fa) for tc, fn, fa in manager_calls],
-                return_exceptions=True,
-            )
-            for result in mgr_results:
-                if isinstance(result, Exception):
-                    log.error(f"Parallel dispatch exception: {result}")
-                    continue
-                tc_id, d_entry = result
-                delegations.append(d_entry)
-                tool_result_str = json.dumps({
-                    "status": "dispatched" if d_entry["dispatched"] else "failed",
-                    "manager": d_entry["manager"],
-                    "workflow_id": d_entry.get("workflow_id", ""),
-                    "agent_response": d_entry.get("agent_response", "")[:300],
-                    "error": d_entry.get("error", ""),
+                delegations.append({
+                    "manager": "self",
+                    "task": internal_task,
+                    "priority": 1,
+                    "workflow_id": "",
+                    "dispatched": True,
+                    "agent_response": json.dumps(internal_result, default=str)[:500],
+                    "error": "",
                 })
-                turn_tool_results[tc_id] = (d_entry, tool_result_str)
+            elif manager:
+                task_desc = fn_args.get("task", "")
+                priority = fn_args.get("priority", 2)
 
-        # ── Feed tool results back into messages for next turn ─────────
-        # Add the assistant message with tool_calls
-        # If tool calls were inline-parsed, strip tokens from content
-        msg_content = assistant_msg.content or ""
-        if inline_parsed:
-            msg_content = _strip_tool_tokens(msg_content)
-        messages.append({
+                # Create a workflow plan for this delegation
+                plan = WorkflowPlan(
+                    original_task=task_desc,
+                    analysis=f"Delegated by Meta-Orchestrator to {manager}",
+                    status=TaskStatus.PENDING,
+                    requester="orchestrator",
+                )
+                plan.subtasks.append(SubTask(
+                    description=task_desc,
+                    assigned_to=manager,
+                    priority=priority,
+                ))
+                workflows[plan.id] = plan
+
+                # Dispatch immediately
+                subtask = plan.subtasks[0]
+                dispatch_result = await dispatch_to_manager(manager, subtask, plan.id)
+                dispatched = dispatch_result["dispatched"]
+                agent_response = dispatch_result.get("response_text", "")
+                dispatch_error = dispatch_result.get("error", "")
+
+                # Auto-heal and retry on dispatch failure
+                if not dispatched:
+                    log.warning(f"Dispatch to {manager} failed — auto-triggering self-heal and retry")
+                    await activity.record("auto_heal", session_id,
+                                          f"Dispatch to {manager} failed, triggering self-heal",
+                                          {"manager": manager, "error": dispatch_error[:200]})
+                    heal_result = await self_heal(reason=f"dispatch to {manager} failed: {dispatch_error[:100]}")
+                    heal_status = heal_result.get("manager_status", {}).get(manager, "unknown")
+
+                    if heal_status in ("up", "restarted"):
+                        log.info(f"Self-heal restored {manager} — retrying dispatch")
+                        dispatch_result = await dispatch_to_manager(manager, subtask, plan.id)
+                        dispatched = dispatch_result["dispatched"]
+                        agent_response = dispatch_result.get("response_text", "")
+                        dispatch_error = dispatch_result.get("error", "")
+                        if dispatched:
+                            await activity.record("auto_heal", session_id,
+                                                  f"Retry succeeded after self-heal for {manager}",
+                                                  {"manager": manager})
+
+                delegations.append({
+                    "manager": manager,
+                    "task": task_desc,
+                    "priority": priority,
+                    "workflow_id": plan.id,
+                    "dispatched": dispatched,
+                    "agent_response": agent_response[:500] if agent_response else "",
+                    "error": dispatch_error,
+                })
+
+                # Log delegation with full detail including agent response
+                status_word = "Dispatched" if dispatched else "FAILED to dispatch"
+                log_content = f"{status_word} to {manager}: {task_desc[:200]}"
+                if agent_response:
+                    log_content += f"\n--- Agent Response ---\n{agent_response[:300]}"
+                if dispatch_error:
+                    log_content += f"\n--- Error ---\n{dispatch_error}"
+                await activity.record("delegation", session_id, log_content,
+                                      {"manager": manager, "task": task_desc, "priority": priority,
+                                       "workflow_id": plan.id, "dispatched": dispatched,
+                                       "agent_response_preview": agent_response[:200] if agent_response else "",
+                                       "error": dispatch_error})
+
+                await notify_ws({
+                    "event": "delegation",
+                    "manager": manager,
+                    "task": task_desc[:100],
+                    "workflow_id": plan.id,
+                    "dispatched": dispatched,
+                })
+
+    # Extract the text response
+    text_response = assistant_msg.content or ""
+
+    # If the LLM made tool calls but gave no text, make a follow-up call
+    # so the user gets a real response alongside the delegations
+    if not text_response and delegations:
+        # Build tool results to feed back using the serialized message format
+        tool_messages = []
+        tool_messages.append({
             "role": "assistant",
-            "content": msg_content,
+            "content": "",
             "tool_calls": [
                 {
                     "id": tc.id,
@@ -1466,93 +1372,49 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                         "arguments": tc.function.arguments,
                     },
                 }
-                for tc in effective_tool_calls
+                for tc in assistant_msg.tool_calls
             ],
         })
-        # Add tool result messages
-        for tc in effective_tool_calls:
-            _, result_str = turn_tool_results.get(tc.id, (None, '{"error": "no result"}'))
-            messages.append({
+        for i, tc in enumerate(assistant_msg.tool_calls):
+            d = delegations[i] if i < len(delegations) else {}
+            tool_result = {
+                "status": "dispatched" if d.get("dispatched") else "failed",
+                "manager": d.get("manager", "unknown"),
+                "workflow_id": d.get("workflow_id", ""),
+            }
+            # Include agent's actual response so the LLM knows what happened
+            if d.get("agent_response"):
+                tool_result["agent_response"] = d["agent_response"][:300]
+            if d.get("error"):
+                tool_result["error"] = d["error"]
+            tool_messages.append({
                 "role": "tool",
                 "tool_call_id": tc.id,
-                "content": result_str,
+                "content": json.dumps(tool_result),
             })
-        log.info(f"Multi-turn: completed turn {_tool_turn + 1}, processed {len(turn_tool_results)} tool results, continuing to turn {_tool_turn + 2}")
-        # Continue the loop — the LLM will see tool results and decide next action
 
-    # ── End of multi-turn loop ─────────────────────────────────────────
-
-    # Extract the text response from the final turn
-    text_response = assistant_msg.content or ""
-    log.info(f"Final turn raw content (len={len(text_response)}): {text_response[:300]!r}")
-
-    # Strip any leaked raw tool-call tokens from the text
-    text_response = _strip_tool_tokens(text_response)
-    log.info(f"After token strip (len={len(text_response)}): {text_response[:300]!r}")
-
-    # If the last turn had tool calls but no text, make a synthesis call
-    # with full conversation context (no tools) to force a natural response
-    if not text_response and delegations:
         try:
-            # Build a compact summary of what tools returned
-            tool_summary_parts = []
+            followup = await llm_client.chat.completions.create(
+                model=LLM_MODEL,
+                messages=messages + tool_messages,
+                temperature=0.7,
+                max_tokens=1024,
+            )
+            text_response = followup.choices[0].message.content or ""
+            await activity.record("llm_followup", session_id,
+                                  text_response[:500],
+                                  {"purpose": "synthesize delegation response"})
+        except Exception as followup_err:
+            log.warning(f"Follow-up LLM call failed: {followup_err}")
+            await activity.record("error", session_id,
+                                  f"Follow-up LLM call failed: {followup_err}",
+                                  {"purpose": "synthesize delegation response"})
+            # Fallback — construct summary ourselves
+            parts = ["I've dispatched the following to my team:"]
             for d in delegations:
-                status = "completed" if d["dispatched"] else "failed"
-                resp = d.get("agent_response", "")[:300]
-                tool_summary_parts.append(f"- {d['task']} ({status}): {resp}")
-            tool_summary = "\n".join(tool_summary_parts)
-
-            for _synth_attempt in range(3):
-                try:
-                    _rotate_key()
-                    llm_client.api_key = _get_api_key()
-                    synthesis = await llm_client.chat.completions.create(
-                        model=LLM_MODEL,
-                        messages=messages + [{"role": "user", "content": (
-                            "Based on all the tool results above, provide a complete, detailed answer "
-                            "to the user's original question. Include specific data, numbers, and findings. "
-                            "Do NOT mention tool calls or dispatching — just give the final answer.\n\n"
-                            f"Tool results summary:\n{tool_summary}"
-                        )}],
-                        temperature=0.7,
-                        max_tokens=4096,
-                    )
-                    raw_synth = synthesis.choices[0].message.content or ""
-                    log.info(f"Synthesis raw (len={len(raw_synth)}): {raw_synth[:300]!r}")
-                    text_response = _strip_tool_tokens(raw_synth)
-                    if text_response:
-                        await activity.record("llm_synthesis", session_id, text_response[:500],
-                                              {"purpose": "synthesize after multi-turn tool calls"})
-                        break
-                    await asyncio.sleep(2)
-                except Exception as inner_err:
-                    log.warning(f"Synthesis attempt {_synth_attempt + 1} failed: {inner_err}")
-                    await asyncio.sleep(min(2 ** (_synth_attempt + 1), 8))
-        except Exception as synth_err:
-            log.warning(f"Synthesis call failed: {synth_err}")
-
-        # Final fallback — always produce SOMETHING if we have delegations
-        if not text_response:
-            parts = []
-            for d in delegations:
-                resp = d.get("agent_response", "")
-                if resp:
-                    try:
-                        data = json.loads(resp)
-                        if "code" in data:
-                            parts.append(f"**{d['task']}**:\n```\n{data['code'][:500]}\n```")
-                        elif "output" in data:
-                            parts.append(f"**{d['task']}**: {data['output'][:300]}")
-                        elif "matches" in data:
-                            parts.append(f"**{d['task']}**: Found {len(data['matches'])} matches")
-                        else:
-                            parts.append(f"**{d['task']}**: {resp[:300]}")
-                    except (json.JSONDecodeError, TypeError):
-                        parts.append(f"**{d['task']}**: {resp[:300]}")
-                else:
-                    status = "✓" if d["dispatched"] else "✗"
-                    parts.append(f"**{d['task']}** ({status})")
-            text_response = "\n\n".join(parts) if parts else "I completed the requested actions but couldn't generate a summary due to rate limiting."
+                status = "✓ dispatched" if d["dispatched"] else "queued"
+                parts.append(f"  → **{d['manager']}**: {d['task']} ({status})")
+            text_response = "\n".join(parts)
 
     # Save to conversation history (keep last 20 exchanges to stay within context)
     history.append({"role": "user", "content": user_message})
@@ -1597,15 +1459,6 @@ async def health():
         "active_workflows": len([w for w in workflows.values() if w.status in (TaskStatus.PLANNING, TaskStatus.RUNNING, TaskStatus.WAITING)]),
         "total_workflows": len(workflows),
         "active_chat_sessions": len(_chat_sessions),
-    }
-
-
-@app.get("/ping")
-async def ping():
-    from datetime import datetime, timezone
-    return {
-        "pong": True,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -2162,7 +2015,7 @@ _SHELL_BLOCKED_PATTERNS = [
     r":(){ :\|:& };:",       # fork bomb
 ]
 
-def _run_shell_command(command: str, timeout: int = 60) -> dict:
+def _run_shell_command(command: str, timeout: int = 30) -> dict:
     """
     Execute a shell command and return the output.
     Blocks destructive commands. Timeout capped at 120s.

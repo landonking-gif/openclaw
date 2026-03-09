@@ -174,7 +174,7 @@ def send_test(test: dict, timeout: int = 300) -> dict:
             capture_output=True, text=True, timeout=timeout + 10
         )
         if result.returncode != 0:
-            return {"error": f"curl failed: {result.stderr[:200]}", "raw": ""}
+            return {"error": f"curl exit {result.returncode}: {result.stderr[:200] or result.stdout[:200]}", "raw": result.stdout}
 
         try:
             data = json.loads(result.stdout)
@@ -194,7 +194,7 @@ def send_test(test: dict, timeout: int = 300) -> dict:
         return {"error": str(e), "raw": ""}
 
 
-def run_test(test: dict, pause: int = 20) -> dict:
+def run_test(test: dict, pause: int = 40) -> dict:
     """Run a single test with verification."""
     print(f"\n{'='*60}")
     print(f"[{test['id']}] {test['description']}")
@@ -249,7 +249,7 @@ def run_test(test: dict, pause: int = 20) -> dict:
     return entry
 
 
-def run_all(tier: int = 0, pause: int = 20):
+def run_all(tier: int = 0, pause: int = 40):
     """Run all tests (or specific tier). pause=seconds between tests for rate limiting."""
     tests = TESTS if tier == 0 else [t for t in TESTS if t["tier"] == tier]
     results = []
@@ -308,8 +308,8 @@ if __name__ == "__main__":
         if arg.startswith("T"):
             run_single(arg)
         elif arg.isdigit():
-            run_all(tier=int(arg), pause=20)
+            run_all(tier=int(arg), pause=40)
         else:
             print(f"Usage: {sys.argv[0]} [test_id|tier_number]")
     else:
-        run_all(pause=20)
+        run_all(pause=40)

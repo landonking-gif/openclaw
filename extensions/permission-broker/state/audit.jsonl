@@ -9715,3 +9715,50 @@
 {"timestamp":"2026-03-09T05:36:52.567Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
 {"timestamp":"2026-03-09T05:36:54.133Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-09T05:36:54.133Z"}}
 {"timestamp":"2026-03-09T05:36:54.135Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-09T05:36:54.493Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-09T05:36:54.497Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":430,"error":null}
+{"timestamp":"2026-03-09T05:36:54.624Z","agent":"general-4","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":2096,"error":null}
+{"timestamp":"2026-03-09T05:37:01.723Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"find /Users/landonking -name \".git\" -type d -maxdepth 3 2>/dev/null | head -20"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:01.745Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:01.763Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":71,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:01.770Z","agent":"general-1","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-09T05:37:01.794Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-09T05:37:01.800Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":34,"error":null}
+{"timestamp":"2026-03-09T05:37:13.867Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-09T05:37:13.867Z"}}
+{"timestamp":"2026-03-09T05:37:13.869Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-09T05:37:14.156Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-09T05:37:14.166Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":347,"error":null}
+{"timestamp":"2026-03-09T05:37:17.081Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-09T05:37:20.553Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status --porcelain","elevated":true},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:20.558Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:30.301Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-09T05:37:30.914Z","agent":"general-1","role":"worker","action":"TOOL_ALLOWED","toolName":"sessions_spawn"}
+{"timestamp":"2026-03-09T05:37:33.630Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_spawn","error":null}
+{"timestamp":"2026-03-09T05:37:46.628Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status","workdir":"/Users/landonking/openclaw-army"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:46.632Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:46.633Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"find /Users/landonking -type d -name \".git\" 2>/dev/null | head -20","workdir":"/Users/landonking"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:37:46.637Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:38:41.408Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-09T05:38:43.862Z","agent":"general-3","role":"worker","action":"TOOL_ALLOWED","toolName":"sessions_list"}
+{"timestamp":"2026-03-09T05:38:44.030Z","agent":"general-3","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_list","error":null}
+{"timestamp":"2026-03-09T05:38:44.031Z","agent":"general-3","role":"worker","action":"TOOL_ALLOWED","toolName":"subagents"}
+{"timestamp":"2026-03-09T05:38:44.045Z","agent":"general-3","role":"worker","action":"TOOL_COMPLETED","toolName":"subagents","error":null}
+{"timestamp":"2026-03-09T05:38:44.854Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army; git status --porcelain; echo \"===REPO_STATUS===\"; git remote -v","workdir":"/Users/landonking"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:38:44.858Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:38:44.859Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"find /Users/landonking -type d -name \".git\" -maxdepth 4 2>/dev/null | head -10","workdir":"/Users/landonking"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:38:44.862Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:41:47.137Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-09T05:41:47.136Z"}}
+{"timestamp":"2026-03-09T05:41:47.140Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-09T05:41:47.489Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:41:47.566Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:41:47.577Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":173,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-09T05:41:49.116Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-09T05:41:49.132Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","durationMs":41,"error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-09T05:41:51.406Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-09T05:41:51.446Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":4362,"error":null}
+{"timestamp":"2026-03-09T05:41:51.473Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-09T05:41:51.473Z"}}
+{"timestamp":"2026-03-09T05:41:51.473Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-09T05:41:51.568Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-09T05:41:51.579Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":116,"error":null}
+{"timestamp":"2026-03-09T05:41:55.500Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-09T05:41:55.500Z"}}
+{"timestamp":"2026-03-09T05:41:55.501Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}

@@ -209,7 +209,7 @@ You can modify your own source code, add new tools, change your own behavior, an
 - **modify_own_code**: Edit your own main.py source code. You can fix bugs, add features, improve your own responses, or restructure code. This creates an automatic backup and validates syntax before applying. If you make a mistake, use rollback_code_change.
 - **rollback_code_change**: Undo your last code modification by restoring from backup. Use this immediately if something breaks after a self-edit.
 - **read_own_code**: Read your own source code. ALWAYS use this before modify_own_code to find the exact text you want to change. You can search by string, function name, or line range.
-- **register_new_tool**: Create entirely new tools at runtime. Define a name, description, and handler code. The tool becomes immediately available for you to call. Use this when you need a capability that doesn't exist yet. NOTE: These tools run in a sandbox with limited imports.
+- **register_new_tool**: Create entirely new tools at runtime. Define a name, description, and handler code. The tool becomes immediately available for you to call. FULLY UNRESTRICTED: handler code can use any Python import, file I/O, subprocess, networking, etc. Tools persist across restarts.
 - **register_new_agent**: Register a new agent in the system. Makes it visible for health checks and potentially available for delegation.
 - **update_system_prompt**: Add new knowledge, rules, or directives to your own system prompt. Changes persist across restarts. Use this to learn from interactions, record user preferences, or expand your understanding.
 - **remove_prompt_section**: Remove something you previously added to your prompt if it's no longer needed or causing problems.
@@ -217,33 +217,42 @@ You can modify your own source code, add new tools, change your own behavior, an
 - **view_modification_history**: See what code changes you've made to yourself. Useful for tracking your own evolution.
 
 DIRECT CAPABILITIES (no delegation needed):
-- **run_shell_command**: Execute shell commands directly on this Mac. Use for: uptime, file operations, running scripts, checking processes, system info, package management, etc. This is YOUR capability — you don't need to delegate to any manager for shell commands.
+- **run_shell_command**: Execute shell commands directly on this Mac. Use for: uptime, file operations, running scripts, checking processes, system info, etc. This is YOUR capability — you don't need to delegate to any manager for shell commands.
 - **http_fetch**: Make HTTP requests directly — fetch APIs, check web pages, download data. You CAN access the internet through this tool directly.
+- **install_package**: Install any Python package via pip. Need a social media library? `install_package("tweepy")`. Need a database driver? `install_package("chromadb")`. Need web scraping? `install_package("selenium")`. This is how you acquire NEW capabilities instantly.
+- **restart_self**: Restart your process to apply code changes. Automatically sources .env so all API keys persist. Use after modify_own_code when needed.
+- **git_command**: Full git access in the project directory. Commit changes, create branches, view history, push/pull. Use this to version-control your own evolution.
+- **create_backup**: Create timestamped backups of data/, main.py, and .env before risky operations.
+- **setup_launchd**: Install/manage a macOS launchd plist so the orchestrator auto-starts on boot and auto-restarts on crash. Actions: 'install', 'uninstall', 'status'.
 
 SELF-IMPROVEMENT PROTOCOL — CRITICAL:
 When you encounter a task you CANNOT currently do, follow this protocol:
 1. RECOGNIZE the gap: "I don't have a tool/capability for X."
 2. DECIDE the best approach:
-   a. If a simple computation or data transform → use register_new_tool (sandboxed, no imports)
-   b. If it needs imports, file I/O, network, or system access → use modify_own_code to ADD a new function to main.py
-   c. If it's a pattern of behavior → use update_system_prompt to teach yourself
+   a. If you need a new Python library → use install_package to add it immediately
+   b. If a simple computation or data transform → use register_new_tool (FULLY UNRESTRICTED — can use any import, file I/O, subprocess, network, etc.)
+   c. If it needs deep integration or new endpoints → use modify_own_code to ADD a new function to main.py
+   d. If it's a pattern of behavior → use update_system_prompt to teach yourself
 3. IMPLEMENT the fix using the chosen approach
 4. VERIFY it works by actually using the new capability
 5. REPORT to the user what you built and why
 
-The KEY insight: modify_own_code can add ANYTHING to main.py — new endpoints, new functions, new imports. It has NO restrictions beyond syntax validation. This is your most powerful self-evolution tool. If register_new_tool is too limited for what you need, use modify_own_code instead.
+The KEY insight: You have NO permanent limitations. register_new_tool gives you FULL Python access (all imports, subprocess, file I/O, networking). install_package lets you add ANY library. modify_own_code lets you rewrite anything. You are a self-evolving system — if you can't do something, BUILD the capability and then do it.
 
 WHEN TO SELF-MODIFY:
 - If you notice a pattern of failures that a code change could fix → modify_own_code.
 - If a user reports a recurring problem → fix it in your own code.
-- If you need a utility function for a common task → register_new_tool.
+- If you need a utility function for a common task → register_new_tool (full access).
+- If you need an external library (tweepy, slack_sdk, selenium, etc.) → install_package first, then register_new_tool.
 - If you learn something important about the user or system → update_system_prompt.
 - If your quality scores are declining → investigate and fix the cause.
-- If a task requires a capability you don't have → ADD it to yourself using modify_own_code.
+- If a task requires a capability you don't have → INSTALL what you need, BUILD the tool, and DO the task.
 - ALWAYS read_own_code first to find the exact insertion point, then modify_own_code to add.
 - ALWAYS describe what you're changing and why before making a modification.
 - After modifying code, tell the user. Transparency is critical for self-modifying systems.
 - NEVER remove safety checks, authentication, or logging from your own code.
+- Use create_backup before risky changes. Use git_command to commit working states.
+- Use restart_self after modify_own_code if the changes need a process restart to take effect.
 
 WHEN TO SELF-HEAL:
 - If a delegation returns dispatched=false → call run_self_heal immediately, then retry the delegation.
@@ -269,18 +278,29 @@ HONESTY RULES — CRITICAL:
 - NEVER claim to have performed actions you cannot verify.
 - If a delegation fails (dispatched=false), tell the user honestly and suggest troubleshooting.
 - When using run_shell_command or http_fetch, you CAN verify outcomes — report the actual results.
-- If asked to do something no tool or agent can do (e.g., make a phone call), say so — but FIRST consider whether you could give yourself that capability through self-modification.
+- If asked to do something no tool or agent can do, FIRST consider whether you could give yourself that capability: install_package → register_new_tool → done. Only say "I can't" if it requires physical hardware you don't have.
 
-KNOWN LIMITATIONS (but remember — you can EXPAND your own capabilities):
-- Email sending depends on SMTP credentials being correctly configured in the Notification Service.
-- macOS automation requires the agents to have proper system permissions.
-- File creation/modification happens on the LOCAL machine through agent tool execution OR through run_shell_command directly.
-- Social media posting (Twitter, YouTube, etc.) is NOT currently supported.
-- Phone calls, SMS, and push notifications are NOT supported.
-- You CAN access the internet directly via http_fetch and run_shell_command (curl).
-- You CAN execute commands directly via run_shell_command.
-- You CAN read and modify your own code.
-- If you discover a new limitation, consider whether self-modification could remove it.
+UNLIMITED EVOLUTION — NO PERMANENT LIMITATIONS:
+You are a self-evolving system. If you encounter something you cannot currently do, you have the tools to give yourself that capability:
+- Need to post to Twitter/X? → install_package("tweepy"), then register_new_tool with a Twitter posting handler.
+- Need to send SMS? → install_package("twilio"), then register_new_tool with an SMS handler.
+- Need a vector database? → install_package("chromadb"), then register_new_tool with vector search.
+- Need to browse the web interactively? → install_package("selenium") + install_package("webdriver-manager"), then build a browsing tool.
+- Need to process images/audio/video? → install_package("Pillow") / install_package("pydub") / install_package("moviepy").
+- Need to interact with any API? → install_package the SDK, then register_new_tool.
+- Need push notifications? → install_package("pushover") or build a webhook tool.
+- Need to schedule recurring tasks? → Use setup_launchd or register a cron-like tool.
+- The ONLY hard limits are: physical hardware access (no camera/microphone) and rate limits from external APIs.
+- Everything else is achievable through self-modification. ACT on gaps — don't just report them.
+
+OPERATIONAL NOTES:
+- Email sending depends on SMTP credentials in the Notification Service.
+- macOS automation requires proper system permissions.
+- You CAN access the internet via http_fetch and run_shell_command (curl).
+- You CAN install any Python library and immediately use it in register_new_tool.
+- You CAN version-control your own changes with git_command.
+- You CAN set yourself up to auto-start with setup_launchd.
+- You CAN create backups before risky operations with create_backup.
 
 The current date is {date}.
 The owner is Landon King.
@@ -439,7 +459,7 @@ MANAGER_TOOLS += [
         "type": "function",
         "function": {
             "name": "register_new_tool",
-            "description": "Register a new tool that you can call at runtime. The handler_code should be the body of an async function that receives 'args' dict and returns a string. Cannot use imports, file I/O, or subprocess for safety.",
+            "description": "Register a new tool that you can call at runtime. The handler_code should be the body of an async function that receives 'args' dict and returns a string. FULLY UNRESTRICTED: you can use any import, file I/O, subprocess, network calls, etc. The tool persists across restarts.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -569,6 +589,78 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "install_package",
+            "description": "Install a Python package using pip. Use this to add any library you need (requests, tweepy, slack_sdk, chromadb, selenium, etc.). Supports version pinning like 'package>=1.0'. Set upgrade=true to update existing packages.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "package": {"type": "string", "description": "Package name or specifier (e.g., 'requests', 'tweepy>=2.0', 'slack_sdk')"},
+                    "upgrade": {"type": "boolean", "description": "Whether to upgrade if already installed. Default false.", "default": False}
+                },
+                "required": ["package"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "restart_self",
+            "description": "Restart the orchestrator process to apply code changes or recover from issues. Sources .env automatically so all API keys and config are preserved.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reason": {"type": "string", "description": "Why you are restarting. Logged for audit trail.", "default": "requested"}
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "git_command",
+            "description": "Execute a git command in the project directory. Use for version control: commit changes, create branches, view logs, push/pull, stash, diff, etc. Do NOT include 'git' prefix — just the subcommand (e.g., 'status', 'log --oneline -10', 'commit -am msg').",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {"type": "string", "description": "Git subcommand (e.g., 'status', 'log --oneline -5', 'add -A', 'commit -m msg')"},
+                    "cwd": {"type": "string", "description": "Optional working directory. Defaults to ARMY_HOME."}
+                },
+                "required": ["command"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_backup",
+            "description": "Create a timestamped backup of data/, main.py, and .env. Use this before risky operations or as a periodic safety measure. Backups are stored in ARMY_HOME/backups/.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "label": {"type": "string", "description": "Optional human-readable label for this backup (e.g., 'pre-upgrade', 'daily').", "default": ""}
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "setup_launchd",
+            "description": "Manage macOS launchd auto-start for the orchestrator. Actions: 'install' (create plist + start on boot), 'uninstall' (remove), 'status' (check if installed/loaded). The plist automatically sources .env and runs the orchestrator.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'install', 'uninstall', 'status'", "default": "install"}
+                },
+                "required": []
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -585,6 +677,8 @@ INTERNAL_TOOLS = {
     "update_system_prompt", "remove_prompt_section",
     "check_quality", "view_modification_history",
     "read_own_code", "run_shell_command", "http_fetch",
+    "install_package", "restart_self", "git_command",
+    "create_backup", "setup_launchd",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -1340,6 +1434,38 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     body=fn_args.get("body"),
                 )
                 internal_task = f"HTTP fetch: {fn_args.get('url', '')[:80]}"
+            elif fn_name == "install_package":
+                pkg = fn_args.get("package", "")
+                upgrade = fn_args.get("upgrade", False)
+                internal_result = _install_package(pkg, upgrade)
+                internal_task = f"Install package: {pkg}"
+                if internal_result.get("installed"):
+                    await activity.record("install_package", session_id, f"Installed: {pkg}")
+            elif fn_name == "restart_self":
+                reason = fn_args.get("reason", "requested")
+                internal_result = await _restart_self(reason)
+                internal_task = f"Restart self: {reason}"
+                if internal_result.get("reloading"):
+                    await activity.record("restart_self", session_id, f"Restarting: {reason}")
+                    # Schedule shutdown after response is sent
+                    asyncio.get_event_loop().call_later(2, lambda: os._exit(0))
+            elif fn_name == "git_command":
+                cmd = fn_args.get("command", "status")
+                cwd = fn_args.get("cwd")
+                internal_result = _git_command(cmd, cwd)
+                internal_task = f"Git: {cmd[:80]}"
+            elif fn_name == "create_backup":
+                label = fn_args.get("label", "")
+                internal_result = _create_backup(label)
+                internal_task = f"Backup: {label or 'manual'}"
+                if internal_result.get("created"):
+                    await activity.record("create_backup", session_id,
+                                          f"Backup created: {internal_result.get('backup_path', '')}")
+            elif fn_name == "setup_launchd":
+                action = fn_args.get("action", "install")
+                internal_result = _setup_launchd(action)
+                internal_task = f"Launchd: {action}"
+                await activity.record("setup_launchd", session_id, f"Launchd {action}")
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -2048,9 +2174,23 @@ def _list_modifications(limit: int = 10) -> list[dict]:
 async def _hot_reload() -> dict:
     """
     Restart the orchestrator process to pick up code changes.
-    Spawns a new process then exits the current one.
+    Sources the .env file to ensure all API keys and config are available,
+    then spawns a new process and exits the current one.
     """
     env = os.environ.copy()
+    # Ensure ARMY_HOME is set for the new process
+    env.setdefault("ARMY_HOME", ARMY_HOME)
+    # Source .env file to pick up all environment variables (API keys, ports, etc.)
+    env_file = Path(ARMY_HOME) / ".env"
+    if env_file.exists():
+        for line in env_file.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip().strip("'\"")
+                if key:
+                    env[key] = val
     try:
         subprocess.Popen(
             [sys.executable, str(_MAIN_PY_PATH)],
@@ -2061,7 +2201,7 @@ async def _hot_reload() -> dict:
             start_new_session=True,
         )
         await asyncio.sleep(1)
-        return {"reloading": True, "detail": "New process spawned, current will exit"}
+        return {"reloading": True, "detail": "New process spawned with full environment, current will exit"}
     except Exception as e:
         return {"reloading": False, "detail": f"Failed to spawn: {e}"}
 
@@ -2253,6 +2393,172 @@ async def _http_fetch(url: str, method: str = "GET", headers: dict = None, body:
         return {"error": f"Fetch failed: {type(e).__name__}: {e}", "status": 0, "body": ""}
 
 
+# ── Package Management ─────────────────────────────────────────────────────
+
+def _install_package(package: str, upgrade: bool = False) -> dict:
+    """Install a Python package using pip. Returns stdout/stderr."""
+    # Basic validation — only allow package-name-like strings
+    if not re.match(r'^[a-zA-Z0-9_\-\.\[\],>=<! ]+$', package):
+        return {"error": f"Invalid package specifier: {package}", "installed": False}
+    cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+    if upgrade:
+        cmd.append("--upgrade")
+    cmd.append(package)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        return {
+            "installed": result.returncode == 0,
+            "stdout": result.stdout[:5000],
+            "stderr": result.stderr[:5000],
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": "pip install timed out after 120s", "installed": False}
+    except Exception as e:
+        return {"error": f"Install failed: {e}", "installed": False}
+
+
+# ── Self-Restart ───────────────────────────────────────────────────────────
+
+async def _restart_self(reason: str = "requested") -> dict:
+    """Restart the orchestrator, properly sourcing environment. Wrapper around _hot_reload."""
+    log.info(f"Self-restart requested: {reason}")
+    return await _hot_reload()
+
+
+# ── Git Operations ─────────────────────────────────────────────────────────
+
+def _git_command(command: str, cwd: str = None) -> dict:
+    """Execute a git command in the project directory."""
+    import shlex
+    work_dir = cwd or ARMY_HOME
+    # Parse the command — strip leading 'git' if user included it
+    if command.strip().startswith("git "):
+        command = command.strip()[4:]
+    parts = shlex.split(command)
+    try:
+        result = subprocess.run(
+            ["git"] + parts,
+            cwd=work_dir, capture_output=True, text=True, timeout=60,
+        )
+        return {
+            "stdout": result.stdout[:10000],
+            "stderr": result.stderr[:5000],
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": "Git command timed out after 60s", "returncode": -1}
+    except Exception as e:
+        return {"error": f"Git failed: {e}", "returncode": -1}
+
+
+# ── Backup System ──────────────────────────────────────────────────────────
+
+def _create_backup(label: str = "") -> dict:
+    """Create a timestamped backup of the data/ directory and main.py."""
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    label_safe = re.sub(r'[^a-zA-Z0-9_-]', '', label)[:30]
+    backup_name = f"backup_{ts}_{label_safe}" if label_safe else f"backup_{ts}"
+    backup_dir = Path(ARMY_HOME) / "backups" / backup_name
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    backed_up = []
+    # Backup data directory
+    data_dir = Path(ARMY_HOME) / "data"
+    if data_dir.exists():
+        shutil.copytree(data_dir, backup_dir / "data", dirs_exist_ok=True)
+        backed_up.append("data/")
+    # Backup main.py
+    shutil.copy2(_MAIN_PY_PATH, backup_dir / "main.py")
+    backed_up.append("main.py")
+    # Backup .env (redacted)
+    env_file = Path(ARMY_HOME) / ".env"
+    if env_file.exists():
+        shutil.copy2(env_file, backup_dir / ".env")
+        backed_up.append(".env")
+
+    return {
+        "created": True,
+        "backup_path": str(backup_dir),
+        "backed_up": backed_up,
+        "label": label or backup_name,
+    }
+
+
+# ── Launchd Service Management ────────────────────────────────────────────
+
+def _setup_launchd(action: str = "install") -> dict:
+    """
+    Install/uninstall a macOS launchd plist to auto-start the orchestrator.
+    action: 'install', 'uninstall', or 'status'
+    """
+    plist_name = "com.openclaw.army.orchestrator"
+    plist_path = Path.home() / "Library" / "LaunchAgents" / f"{plist_name}.plist"
+    python_path = sys.executable
+    main_py = str(_MAIN_PY_PATH)
+    env_file = str(Path(ARMY_HOME) / ".env")
+
+    if action == "status":
+        if plist_path.exists():
+            # Check if loaded
+            r = subprocess.run(["launchctl", "list", plist_name],
+                               capture_output=True, text=True)
+            loaded = r.returncode == 0
+            return {"installed": True, "loaded": loaded, "plist_path": str(plist_path)}
+        return {"installed": False, "loaded": False}
+
+    if action == "uninstall":
+        if plist_path.exists():
+            subprocess.run(["launchctl", "unload", str(plist_path)], capture_output=True)
+            plist_path.unlink()
+            return {"uninstalled": True}
+        return {"uninstalled": False, "detail": "Plist not found"}
+
+    if action == "install":
+        # Build a shell wrapper that sources .env then runs python
+        wrapper = Path(ARMY_HOME) / "bin" / "start-orchestrator.sh"
+        wrapper.parent.mkdir(parents=True, exist_ok=True)
+        wrapper.write_text(f"""#!/bin/bash
+set -a
+[ -f "{env_file}" ] && source "{env_file}"
+set +a
+cd "{str(_MAIN_PY_PATH.parent)}"
+exec "{python_path}" "{main_py}"
+""")
+        wrapper.chmod(0o755)
+
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>{plist_name}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{str(wrapper)}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/openclaw-orchestrator.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/openclaw-orchestrator.err</string>
+    <key>WorkingDirectory</key>
+    <string>{str(_MAIN_PY_PATH.parent)}</string>
+</dict>
+</plist>
+"""
+        plist_path.parent.mkdir(parents=True, exist_ok=True)
+        plist_path.write_text(plist_content)
+        # Load the plist
+        subprocess.run(["launchctl", "load", str(plist_path)], capture_output=True)
+        return {"installed": True, "plist_path": str(plist_path), "wrapper": str(wrapper)}
+
+    return {"error": f"Unknown action: {action}. Use 'install', 'uninstall', or 'status'."}
+
+
 # ── Dynamic Tool & Agent Registry ──────────────────────────────────────────
 
 _DYNAMIC_TOOLS_PATH = Path(ARMY_HOME) / "data" / "dynamic_tools.json"
@@ -2308,13 +2614,6 @@ def register_tool(name: str, description: str, parameters: dict, handler_code: s
     if not ok:
         return {"registered": False, "detail": f"Handler syntax error: {err}"}
 
-    # Security: block dangerous patterns
-    forbidden = ["import os", "import sys", "subprocess", "eval(", "exec(", "__import__",
-                 "open(", "shutil", "pathlib", "Path("]
-    for pattern in forbidden:
-        if pattern in handler_code:
-            return {"registered": False, "detail": f"Handler contains forbidden pattern: {pattern}"}
-
     tool_def = {
         "name": name,
         "description": description,
@@ -2354,21 +2653,25 @@ async def _execute_dynamic_tool(name: str, args: dict) -> str:
     handler_code = tool["handler_code"]
     wrapped = f"async def _handler(args):\n" + textwrap.indent(handler_code, "    ")
 
-    # Limited execution environment
+    # Full execution environment — unrestricted for self-evolution
     safe_globals = {
-        "__builtins__": {
-            "str": str, "int": int, "float": float, "bool": bool, "list": list,
-            "dict": dict, "tuple": tuple, "set": set, "len": len, "range": range,
-            "enumerate": enumerate, "zip": zip, "map": map, "filter": filter,
-            "sorted": sorted, "reversed": reversed, "min": min, "max": max,
-            "sum": sum, "abs": abs, "round": round, "isinstance": isinstance,
-            "type": type, "print": print, "repr": repr, "json": json,
-            "True": True, "False": False, "None": None,
-        },
-        "json": json,
-        "datetime": datetime,
-        "timezone": timezone,
+        "__builtins__": __builtins__,
+        "os": os, "sys": sys, "subprocess": subprocess,
+        "shutil": shutil, "pathlib": __import__('pathlib'), "Path": Path,
+        "asyncio": asyncio, "json": json, "re": re,
+        "hashlib": hashlib, "textwrap": textwrap, "uuid": uuid,
+        "datetime": datetime, "timezone": timezone, "time": time,
+        "logging": logging,
     }
+    # Inject optional heavy imports if available
+    for _mod_name in ("aiohttp", "requests", "yaml", "sqlite3", "csv", "io",
+                      "base64", "urllib", "html", "xml", "socket", "struct",
+                      "collections", "itertools", "functools", "math", "random",
+                      "tempfile", "glob", "fnmatch", "threading"):
+        try:
+            safe_globals[_mod_name] = __import__(_mod_name)
+        except ImportError:
+            pass
 
     try:
         exec(wrapped, safe_globals)

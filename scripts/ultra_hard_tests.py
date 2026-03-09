@@ -160,7 +160,7 @@ TESTS = [
 ]
 
 
-def send_test(test: dict, timeout: int = 300) -> dict:
+def send_test(test: dict, timeout: int = 600) -> dict:
     """Send a test prompt to the orchestrator and capture the full result."""
     session_id = f"ultra-{test['id']}-{int(time.time())}"
     payload = json.dumps({"message": test["prompt"], "session_id": session_id})

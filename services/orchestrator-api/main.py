@@ -765,12 +765,14 @@ _TOOL_TOKEN_RE = re.compile(
     re.DOTALL,
 )
 _TOOL_TOKEN_TAGS = re.compile(r"<\|tool_call[^|]*\|>")
+_FAKE_COMPLETION_ID = re.compile(r"\bchatcmpl-tool-[0-9a-f]{32,}\b")
 
 
 def _strip_tool_tokens(text: str) -> str:
-    """Remove raw Kimi tool-call tokens that leaked into a text response."""
+    """Remove raw Kimi tool-call tokens and fake completion IDs that leaked into a text response."""
     text = _TOOL_TOKEN_RE.sub("", text)
     text = _TOOL_TOKEN_TAGS.sub("", text)
+    text = _FAKE_COMPLETION_ID.sub("", text)
     return text.strip()
 
 
@@ -1149,7 +1151,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     # ── Multi-turn tool-call loop ──────────────────────────────────────
     # The LLM can invoke tools (read_own_code, modify_own_code, etc.)
     # and we feed results back so it can chain actions across turns.
-    MAX_TOOL_TURNS = 8           # safety cap
+    MAX_TOOL_TURNS = 5           # safety cap (most tasks complete in 2-3 turns)
     max_retries = 5              # per-turn retry budget for 429s
     delegations = []             # accumulate across all turns
 
@@ -1350,7 +1352,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 "priority": 1,
                 "workflow_id": "",
                 "dispatched": True,
-                "agent_response": json.dumps(internal_result, default=str)[:500],
+                "agent_response": json.dumps(internal_result, default=str)[:2000],
                 "error": "",
             }
             delegations.append(d_entry)
@@ -1404,7 +1406,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 "priority": priority,
                 "workflow_id": plan.id,
                 "dispatched": dispatched,
-                "agent_response": agent_response[:500] if agent_response else "",
+                "agent_response": agent_response[:2000] if agent_response else "",
                 "error": dispatch_error,
             }
 
@@ -1490,6 +1492,13 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     text_response = _strip_tool_tokens(text_response)
     log.info(f"After token strip (len={len(text_response)}): {text_response[:300]!r}")
 
+    # Detect if response is just echoing raw tool output (JSON) instead of synthesizing
+    if text_response and delegations:
+        _raw_indicators = ('"code":', '"start_line":', '"end_line":', '"matches":', '"total_lines":')
+        if any(ind in text_response for ind in _raw_indicators):
+            log.info("Response contains raw tool output echo — forcing synthesis")
+            text_response = ""
+
     # If the last turn had tool calls but no text, make a synthesis call
     # with full conversation context (no tools) to force a natural response
     if not text_response and delegations:
@@ -1498,7 +1507,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
             tool_summary_parts = []
             for d in delegations:
                 status = "completed" if d["dispatched"] else "failed"
-                resp = d.get("agent_response", "")[:300]
+                resp = d.get("agent_response", "")[:1000]
                 tool_summary_parts.append(f"- {d['task']} ({status}): {resp}")
             tool_summary = "\n".join(tool_summary_parts)
 
@@ -1506,14 +1515,24 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 try:
                     _rotate_key()
                     llm_client.api_key = _get_api_key()
+                    # Use a CLEAN message chain without tool context to prevent
+                    # Kimi K2.5 from trying to make tool calls in the synthesis
+                    synth_messages = [
+                        {"role": "system", "content": (
+                            "You are a helpful assistant. Answer the user's question based on "
+                            "the information provided. Do NOT attempt to use tools or functions. "
+                            "Respond ONLY in natural language."
+                        )},
+                        {"role": "user", "content": (
+                            f"Original question: {user_message}\n\n"
+                            f"Here are the results from tools that were used to answer:\n{tool_summary}\n\n"
+                            "Provide a complete, detailed natural language answer to the question. "
+                            "Include specific data, numbers, and findings from the tool results."
+                        )},
+                    ]
                     synthesis = await llm_client.chat.completions.create(
                         model=LLM_MODEL,
-                        messages=messages + [{"role": "user", "content": (
-                            "Based on all the tool results above, provide a complete, detailed answer "
-                            "to the user's original question. Include specific data, numbers, and findings. "
-                            "Do NOT mention tool calls or dispatching — just give the final answer.\n\n"
-                            f"Tool results summary:\n{tool_summary}"
-                        )}],
+                        messages=synth_messages,
                         temperature=0.7,
                         max_tokens=4096,
                     )

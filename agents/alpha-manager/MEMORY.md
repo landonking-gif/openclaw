@@ -4,10 +4,12 @@
 
 | Worker | Port | Specialty | Status |
 |--------|------|-----------|--------|
-| general-1 | 18811 | Writing/Content | 🔴 JS error |
-| general-2 | 18812 | Summarization | 🔴 JS error |
+| general-1 | 18811 | Writing/Content | ✅ online (was JS error, now active) |
+| general-2 | 18812 | Summarization | ✅ online (was JS error, now active) |
 | general-3 | 18813 | Q&A | ✅ online |
-| general-4 | 18814 | Mac Automation | 🔴 JS error |
+| general-4 | 18814 | Mac Automation | ✅ online (was JS error, now active) |
+
+*Note:* All workers showing JS errors on 2026-03-08 morning but sessions confirmed active by evening. Ping timeouts were misleading.
 
 ## Delegation Protocol
 
@@ -72,6 +74,26 @@ Worker → Me (Manager) → King AI
 ### Active Grant Monitoring
 Use `check_permissions(agent_name="coding-1")` to audit a worker's current state.
 Use `revoke_grant(grant_id="...")` if a worker is misusing a grant.
+
+## Known System Issues (2026-03-08)
+
+### GitHub Sync Failures
+- **Status:** Local commits succeed, push fails with 401/403
+- **Root Cause:** GitHub repo `landonking/openclaw-army` either doesn't exist or lacks auth
+- **History:** Multiple commits saved locally (28c2184, ef6c78f, 0b7f912, 00fd083, 684e5d7)
+- **Resolution:** Needs `gh auth status` check and repo creation or auth fix
+
+### Elevation System Degraded
+- **Status:** `list_elevation_requests` failing with "Cannot find elevation request file"
+- **Impact:** Cannot approve worker elevation requests
+- **Possible Cause:** Permission-broker state file missing/corrupted, or port 18840 unavailable
+- **Workaround:** Workers may need to request elevation directly from King AI
+
+### Cron Job Noise
+- **Status:** Multiple duplicate error messages every 15-30 minutes
+- **Types:** 410 API errors, 400 "single tool-call" errors, permission denied, GitHub 404
+- **Impact:** Alert fatigue from same root causes
+- **Note:** Consider disabling or fixing cron config to reduce log spam
 
 ## Integrated Memory Architecture
 

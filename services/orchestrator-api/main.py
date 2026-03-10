@@ -1873,6 +1873,201 @@ MANAGER_TOOLS += [
             }
         }
     },
+    # ── Round 8 Tools ──
+    {
+        "type": "function",
+        "function": {
+            "name": "email_parse",
+            "description": "Parse email files and read IMAP inboxes. Actions: 'parse_file' (parse .eml), 'extract_attachments' (save attachments), 'imap_list' (list IMAP folders), 'imap_inbox' (read inbox headers), 'parse_string' (parse raw email text).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: parse_file, extract_attachments, imap_list, imap_inbox, parse_string"},
+                    "path": {"type": "string", "description": "Path to .eml file"},
+                    "output_dir": {"type": "string", "description": "Output directory for attachments"},
+                    "host": {"type": "string", "description": "IMAP server hostname"},
+                    "user": {"type": "string", "description": "IMAP username"},
+                    "password": {"type": "string", "description": "IMAP password"},
+                    "folder": {"type": "string", "description": "IMAP folder (default INBOX)"},
+                    "limit": {"type": "integer", "description": "Max messages to fetch"},
+                    "raw": {"type": "string", "description": "Raw email string for parse_string"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "qr_code",
+            "description": "Generate and decode QR codes. Actions: 'generate' (create PNG QR), 'generate_svg' (create SVG QR), 'decode' (read QR from image). Auto-installs qrcode.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: generate, generate_svg, decode"},
+                    "data": {"type": "string", "description": "Data to encode in QR"},
+                    "output": {"type": "string", "description": "Output file path"},
+                    "size": {"type": "integer", "description": "Box size for PNG (default 10)"},
+                    "source": {"type": "string", "description": "Image path for decode"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "http_server",
+            "description": "Manage ephemeral HTTP file servers for sharing files. Actions: 'start' (launch server on a port), 'stop' (shutdown), 'list' (show running servers).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: start, stop, list"},
+                    "directory": {"type": "string", "description": "Directory to serve (default /tmp)"},
+                    "port": {"type": "integer", "description": "Port number (0 for auto)"},
+                    "server_id": {"type": "string", "description": "Server identifier"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "json_schema",
+            "description": "JSON Schema validation and generation. Actions: 'validate' (check data against schema), 'generate' (infer schema from data), 'diff' (compare two schemas).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: validate, generate, diff"},
+                    "data": {"description": "JSON data to validate or generate schema from"},
+                    "schema": {"description": "JSON Schema for validation"},
+                    "schema_a": {"description": "First schema for diff"},
+                    "schema_b": {"description": "Second schema for diff"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "cache_manager",
+            "description": "Smart caching layer over Redis with TTL and namespaces. Actions: 'get' (fetch cached value), 'set' (store with TTL), 'delete', 'clear' (flush namespace), 'keys' (list cached keys), 'stats' (cache statistics).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: get, set, delete, clear, keys, stats"},
+                    "key": {"type": "string", "description": "Cache key"},
+                    "value": {"description": "Value to cache (any JSON type)"},
+                    "ttl": {"type": "integer", "description": "Time-to-live in seconds (default 3600)"},
+                    "namespace": {"type": "string", "description": "Cache namespace (default 'cache')"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "math_compute",
+            "description": "Advanced math via sympy and numpy. Actions: 'symbolic' (simplify/expand/factor), 'solve' (solve equations), 'derivative', 'integrate' (definite/indefinite), 'matrix' (det/inverse/eigenvalues/multiply), 'statistics' (mean/median/std/quartiles).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: symbolic, solve, derivative, integrate, matrix, statistics"},
+                    "expression": {"type": "string", "description": "Math expression (sympy syntax)"},
+                    "equation": {"type": "string", "description": "Equation to solve (e.g. 'x**2 - 4')"},
+                    "variable": {"type": "string", "description": "Variable name (default 'x')"},
+                    "order": {"type": "integer", "description": "Derivative order"},
+                    "lower": {"type": "string", "description": "Lower bound for definite integral"},
+                    "upper": {"type": "string", "description": "Upper bound for definite integral"},
+                    "data": {"type": "array", "description": "Data array for matrix/statistics"},
+                    "data_b": {"type": "array", "description": "Second matrix for multiply"},
+                    "operation": {"type": "string", "description": "Matrix operation: info, inverse, eigenvalues, multiply"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "regex_builder",
+            "description": "Regex pattern testing, replacement, and explanation. Actions: 'test' (find matches with groups), 'replace' (regex substitution), 'extract' (findall), 'split' (split text by pattern), 'explain' (tokenize and explain pattern).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: test, replace, extract, split, explain"},
+                    "pattern": {"type": "string", "description": "Regex pattern"},
+                    "text": {"type": "string", "description": "Text to match against"},
+                    "replacement": {"type": "string", "description": "Replacement string for replace action"},
+                    "flags": {"type": "string", "description": "Flags: i=ignorecase, m=multiline, s=dotall"},
+                    "count": {"type": "integer", "description": "Max replacements (0=all)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "cert_check",
+            "description": "SSL certificate inspection and management. Actions: 'inspect' (full cert details), 'check_expiry' (days until expiry with status), 'generate_self_signed' (create cert+key), 'decode_pem' (read PEM file).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: inspect, check_expiry, generate_self_signed, decode_pem"},
+                    "host": {"type": "string", "description": "Hostname for inspect/check_expiry"},
+                    "port": {"type": "integer", "description": "Port (default 443)"},
+                    "warn_days": {"type": "integer", "description": "Warning threshold days (default 30)"},
+                    "output_cert": {"type": "string", "description": "Output cert path for self-signed"},
+                    "output_key": {"type": "string", "description": "Output key path for self-signed"},
+                    "cn": {"type": "string", "description": "Common Name for self-signed"},
+                    "days": {"type": "integer", "description": "Validity days for self-signed"},
+                    "path": {"type": "string", "description": "PEM file path for decode_pem"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "system_profiler",
+            "description": "macOS system profiling. Actions: 'hardware', 'software', 'network', 'storage', 'usb', 'displays', 'battery', 'custom' (any SPDataType), 'list_types' (available data types).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: hardware, software, network, storage, usb, displays, battery, custom, list_types"},
+                    "data_type": {"type": "string", "description": "SPDataType for custom action (e.g. 'SPBluetoothDataType')"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "url_tools",
+            "description": "URL parsing, building, encoding, validation, and link extraction. Actions: 'parse' (decompose URL), 'build' (construct URL), 'encode'/'decode' (URL encoding), 'validate' (check URL validity, optionally live), 'extract_links' (find URLs in text), 'sitemap' (fetch and parse XML sitemap).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: parse, build, encode, decode, validate, extract_links, sitemap"},
+                    "url": {"type": "string", "description": "URL to parse/validate/sitemap"},
+                    "text": {"type": "string", "description": "Text for encode/decode/extract_links"},
+                    "scheme": {"type": "string", "description": "URL scheme for build (default https)"},
+                    "host": {"type": "string", "description": "Host for build"},
+                    "path": {"type": "string", "description": "Path for build"},
+                    "params": {"type": "object", "description": "Query params for build"},
+                    "fragment": {"type": "string", "description": "Fragment for build"},
+                    "check_live": {"type": "boolean", "description": "Whether to check if URL is reachable"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -1910,6 +2105,9 @@ INTERNAL_TOOLS = {
     "audio_process", "video_process", "pdf_tools", "ssh_remote",
     "secret_vault", "test_runner", "dependency_analysis", "resource_monitor",
     "sqlite_query", "file_watch",
+    "email_parse", "qr_code", "http_server", "json_schema",
+    "cache_manager", "math_compute", "regex_builder", "cert_check",
+    "system_profiler", "url_tools",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -3205,6 +3403,111 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     limit=fn_args.get("limit", 50),
                 )
                 internal_task = f"FileWatch: {fn_args.get('action', '')}"
+            # ── Round 8 dispatch ──
+            elif fn_name == "email_parse":
+                internal_result = _email_parse(
+                    fn_args.get("action", ""),
+                    path=fn_args.get("path", ""),
+                    output_dir=fn_args.get("output_dir", ""),
+                    host=fn_args.get("host", ""),
+                    user=fn_args.get("user", ""),
+                    password=fn_args.get("password", ""),
+                    folder=fn_args.get("folder", "INBOX"),
+                    limit=fn_args.get("limit", 10),
+                    raw=fn_args.get("raw", ""),
+                )
+                internal_task = f"Email: {fn_args.get('action', '')}"
+            elif fn_name == "qr_code":
+                internal_result = _qr_code(
+                    fn_args.get("action", ""),
+                    data=fn_args.get("data", ""),
+                    output=fn_args.get("output", ""),
+                    size=fn_args.get("size", 10),
+                    source=fn_args.get("source", ""),
+                )
+                internal_task = f"QR: {fn_args.get('action', '')}"
+            elif fn_name == "http_server":
+                internal_result = _http_server(
+                    fn_args.get("action", ""),
+                    directory=fn_args.get("directory", "/tmp"),
+                    port=fn_args.get("port", 0),
+                    server_id=fn_args.get("server_id", ""),
+                )
+                internal_task = f"HTTPServer: {fn_args.get('action', '')}"
+            elif fn_name == "json_schema":
+                internal_result = _json_schema(
+                    fn_args.get("action", ""),
+                    data=fn_args.get("data"),
+                    schema=fn_args.get("schema"),
+                    schema_a=fn_args.get("schema_a"),
+                    schema_b=fn_args.get("schema_b"),
+                )
+                internal_task = f"JSONSchema: {fn_args.get('action', '')}"
+            elif fn_name == "cache_manager":
+                internal_result = _cache_manager(
+                    fn_args.get("action", ""),
+                    key=fn_args.get("key", ""),
+                    value=fn_args.get("value"),
+                    ttl=fn_args.get("ttl", 3600),
+                    namespace=fn_args.get("namespace", "cache"),
+                )
+                internal_task = f"Cache: {fn_args.get('action', '')} {fn_args.get('key', '')}"
+            elif fn_name == "math_compute":
+                internal_result = _math_compute(
+                    fn_args.get("action", ""),
+                    expression=fn_args.get("expression", ""),
+                    equation=fn_args.get("equation", ""),
+                    variable=fn_args.get("variable", "x"),
+                    order=fn_args.get("order", 1),
+                    lower=fn_args.get("lower"),
+                    upper=fn_args.get("upper"),
+                    data=fn_args.get("data", []),
+                    data_b=fn_args.get("data_b", []),
+                    operation=fn_args.get("operation", "info"),
+                )
+                internal_task = f"Math: {fn_args.get('action', '')}"
+            elif fn_name == "regex_builder":
+                internal_result = _regex_builder(
+                    fn_args.get("action", ""),
+                    pattern=fn_args.get("pattern", ""),
+                    text=fn_args.get("text", ""),
+                    replacement=fn_args.get("replacement", ""),
+                    flags=fn_args.get("flags", ""),
+                    count=fn_args.get("count", 0),
+                )
+                internal_task = f"Regex: {fn_args.get('action', '')}"
+            elif fn_name == "cert_check":
+                internal_result = _cert_check(
+                    fn_args.get("action", ""),
+                    host=fn_args.get("host", ""),
+                    port=fn_args.get("port", 443),
+                    warn_days=fn_args.get("warn_days", 30),
+                    output_cert=fn_args.get("output_cert", ""),
+                    output_key=fn_args.get("output_key", ""),
+                    cn=fn_args.get("cn", "localhost"),
+                    days=fn_args.get("days", 365),
+                    path=fn_args.get("path", ""),
+                )
+                internal_task = f"Cert: {fn_args.get('action', '')} {fn_args.get('host', '')}"
+            elif fn_name == "system_profiler":
+                internal_result = _system_profiler(
+                    fn_args.get("action", ""),
+                    data_type=fn_args.get("data_type", ""),
+                )
+                internal_task = f"SysProfile: {fn_args.get('action', '')}"
+            elif fn_name == "url_tools":
+                internal_result = _url_tools(
+                    fn_args.get("action", ""),
+                    url=fn_args.get("url", ""),
+                    text=fn_args.get("text", ""),
+                    scheme=fn_args.get("scheme", "https"),
+                    host=fn_args.get("host", ""),
+                    path=fn_args.get("path", "/"),
+                    params=fn_args.get("params", {}),
+                    fragment=fn_args.get("fragment", ""),
+                    check_live=fn_args.get("check_live", False),
+                )
+                internal_task = f"URL: {fn_args.get('action', '')}"
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)

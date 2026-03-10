@@ -95,6 +95,29 @@ Use `revoke_grant(grant_id="...")` if a worker is misusing a grant.
 - **Impact:** Alert fatigue from same root causes
 - **Note:** Consider disabling or fixing cron config to reduce log spam
 
+## Known System Issues (2026-03-09)
+
+### GitHub Sync Still Failing
+- **Status:** Repo `landonking/openclaw-army` does not exist on GitHub
+- **Remote URL:** `https://github.com/landonking/openclaw-army.git`
+- **Local commits:** Working perfectly (4 files, 8,692 lines today)
+- **Error pattern:** DNS resolution (earlier) → now "repo not found"
+- **Root cause:** Repository was never created on GitHub
+- **Resolution options:** 
+  1. Create repo at https://github.com/new
+  2. Run `gh repo create openclaw-army --source=. --push`
+  3. Update remote to correct URL if different
+
+### Memory Service Down
+- **Status:** `memory_search` unavailable
+- **Error:** OpenAI API key 401 (invalid)
+- **Impact:** Cannot use memory commit/query/reflect tools
+- **Workaround:** Rely on file-based memory in `memory/` directory
+
+### Elevation System
+- **Status:** Degraded — `list_elevation_requests` still returning errors
+- **Workaround:** Workers elevated via manager approval (King AI or me) when needed
+
 ## Integrated Memory Architecture
 
 This agent participates in the shared memory infrastructure at port 18820.

@@ -13433,3 +13433,25 @@
 {"timestamp":"2026-03-10T14:18:25.741Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":108,"error":null}
 {"timestamp":"2026-03-10T14:18:25.747Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T14:18:25.747Z"}}
 {"timestamp":"2026-03-10T14:18:25.747Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T14:18:26.003Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T14:18:26.013Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":271,"error":null}
+{"timestamp":"2026-03-10T14:18:26.023Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T14:18:26.023Z"}}
+{"timestamp":"2026-03-10T14:18:26.023Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T14:18:26.522Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T14:18:26.529Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":513,"error":null}
+{"timestamp":"2026-03-10T14:18:30.291Z","agent":"agentic-3","role":"worker","action":"FS_BLOCKED","toolName":"read","targetPath":"/Users/landonking/openclaw-army/.git/config"}
+{"timestamp":"2026-03-10T14:18:30.298Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":"Permission denied: worker 'agentic-3' can only access files within its workspace. Use request_elevation with capability 'fs_unrestricted' for broader access."}
+{"timestamp":"2026-03-10T14:18:30.302Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":19,"error":"Permission denied: worker 'agentic-3' can only access files within its workspace. Use request_elevation with capability 'fs_unrestricted' for broader access."}
+{"timestamp":"2026-03-10T14:18:30.855Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T14:18:30.855Z"}}
+{"timestamp":"2026-03-10T14:18:30.855Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T14:18:30.888Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T14:18:30.896Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":52,"error":null}
+{"timestamp":"2026-03-10T14:18:34.676Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T14:18:34.676Z"}}
+{"timestamp":"2026-03-10T14:18:34.677Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T14:18:34.935Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T14:18:34.941Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":289,"error":null}
+{"timestamp":"2026-03-10T14:18:42.556Z","agent":"agentic-3","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"pwd && ls -la"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T14:18:42.565Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T14:18:42.570Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":21,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T14:18:43.651Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T14:18:43.651Z"}}
+{"timestamp":"2026-03-10T14:18:43.651Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

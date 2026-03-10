@@ -12035,3 +12035,25 @@
 {"timestamp":"2026-03-10T06:34:57.978Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":2301,"error":null}
 {"timestamp":"2026-03-10T06:35:00.826Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T06:35:00.826Z"}}
 {"timestamp":"2026-03-10T06:35:00.826Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T06:35:01.958Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T06:35:01.963Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1415,"error":null}
+{"timestamp":"2026-03-10T06:35:04.747Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-10T06:35:04.747Z"}}
+{"timestamp":"2026-03-10T06:35:04.747Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T06:35:04.780Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T06:35:04.815Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":86,"error":null}
+{"timestamp":"2026-03-10T06:35:04.822Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-10T06:35:04.918Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-10T06:35:04.927Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","durationMs":102,"error":null}
+{"timestamp":"2026-03-10T06:35:08.760Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-10T06:35:08.760Z"}}
+{"timestamp":"2026-03-10T06:35:08.760Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T06:35:09.356Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T06:35:09.433Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":690,"error":null}
+{"timestamp":"2026-03-10T06:35:13.949Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-10T06:35:13.959Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-10T06:35:13.974Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"read","durationMs":248,"error":null}
+{"timestamp":"2026-03-10T06:35:14.175Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status --short && echo \"---\" && git log --oneline -3"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T06:35:14.211Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T06:35:14.235Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":157,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-10T06:35:14.245Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"memory_search"}
+{"timestamp":"2026-03-10T06:35:14.275Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T06:35:14.274Z"}}
+{"timestamp":"2026-03-10T06:35:14.275Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

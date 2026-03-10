@@ -143,9 +143,18 @@ MANAGER_POOLS = {
 # ── LLM Configuration ──────────────────────────────────────────────────────
 
 # Key rotation pool — cycle through when one gets 429'd
+# Include ALL NVIDIA keys (they work across models) for maximum throughput
 _NVAPI_KEYS = [k for k in [
     os.getenv("NVAPI_KIMI_KEY_1", ""),
     os.getenv("NVAPI_KIMI_KEY_2", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_1", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_2", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_3", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_4", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_5", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_6", ""),
+    os.getenv("NVAPI_GLM5_KEY_1", ""),
+    os.getenv("NVAPI_GLM5_KEY_2", ""),
     os.getenv("NVIDIA_API_KEY", ""),
 ] if k]
 _key_index = 0
@@ -3054,7 +3063,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
     # The LLM can invoke tools (read_own_code, modify_own_code, etc.)
     # and we feed results back so it can chain actions across turns.
     MAX_TOOL_TURNS = 12          # safety cap — increased for complex multi-step tasks
-    max_retries = 5              # per-turn retry budget for 429s
+    max_retries = 8              # per-turn retry budget for 429s (11 keys to rotate through)
     delegations = []             # accumulate across all turns
 
     for _tool_turn in range(MAX_TOOL_TURNS):
@@ -3087,8 +3096,8 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     _rotate_key()
                     new_key = _get_api_key()
                     llm_client.api_key = new_key
-                    wait = min(2 ** (attempt + 1), 16)  # 2s, 4s, 8s, 16s, 16s
-                    log.warning(f"Rate limited (429), rotating key and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                    wait = min(2 ** attempt, 8)  # 1s, 2s, 4s, 8s, 8s... (faster with more keys)
+                    log.warning(f"Rate limited (429), rotating key ({_key_index % len(_NVAPI_KEYS) + 1}/{len(_NVAPI_KEYS)}) and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
                     await asyncio.sleep(wait)
                     continue
                 log.error(f"LLM call failed: {e}")

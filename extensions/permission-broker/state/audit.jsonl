@@ -11940,3 +11940,17 @@
 {"timestamp":"2026-03-10T05:30:02.157Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":5864,"error":null}
 {"timestamp":"2026-03-10T05:30:12.126Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-10T05:30:12.126Z"}}
 {"timestamp":"2026-03-10T05:30:12.127Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T05:30:14.646Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T05:30:14.685Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":2999,"error":null}
+{"timestamp":"2026-03-10T05:30:18.860Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T05:30:18.860Z"}}
+{"timestamp":"2026-03-10T05:30:18.862Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T05:30:19.051Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T05:30:19.111Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":958,"error":null}
+{"timestamp":"2026-03-10T05:30:19.156Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T05:30:19.156Z"}}
+{"timestamp":"2026-03-10T05:30:19.156Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T05:30:19.217Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T05:30:19.255Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":121,"error":null}
+{"timestamp":"2026-03-10T05:30:19.751Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-10T05:30:21.093Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":1795,"error":null}
+{"timestamp":"2026-03-10T05:30:27.991Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-10T05:30:27.991Z"}}
+{"timestamp":"2026-03-10T05:30:27.992Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}

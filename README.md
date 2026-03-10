@@ -1,6 +1,6 @@
 # OpenClaw Army
 
-A 16-agent hierarchical AI system with 6 supporting services, running on free NVIDIA API models.
+A 16-agent hierarchical AI system with 6 supporting services and a self-evolving orchestrator with **99 internal tools** (12,756 lines), running on free NVIDIA API models (Kimi K2.5).
 
 ## Architecture
 
@@ -29,6 +29,28 @@ A 16-agent hierarchical AI system with 6 supporting services, running on free NV
 | **Alpha** | Writing, email, automation, communication | general-1 through general-4 | Kimi K2.5 |
 | **Beta** | Coding, testing, debugging, deployment | coding-1 through coding-4 | DeepSeek R1 |
 | **Gamma** | Research, analysis, fact-checking, synthesis | agentic-1 through agentic-4 | GLM-5 / Kimi K2.5 |
+
+## Orchestrator Capabilities (99 Internal Tools)
+
+The orchestrator (`services/orchestrator-api/main.py`, 12,756 lines) is self-evolving — it can inspect, modify, and extend its own code at runtime. Its 99 tools span:
+
+| Category | Tools |
+|----------|-------|
+| **Self-Evolution** | `modify_own_code`, `register_new_tool`, `register_new_agent`, `unregister_tool`, `update_system_prompt`, `remove_prompt_section` |
+| **Self-Healing** | `run_self_heal`, `run_diagnostic`, `query_failure_patterns`, `rollback_code_change`, `check_quality`, `view_modification_history` |
+| **Code & Introspection** | `read_own_code`, `eval_python`, `code_analyze` (AST, lint, security scan) |
+| **Shell & System** | `run_shell_command`, `install_package`, `restart_self`, `system_info`, `system_profiler`, `manage_env`, `manage_process`, `spawn_process`, `process_watchdog`, `resource_monitor` |
+| **Files & Search** | `read_file`, `write_file`, `list_files`, `search_files`, `diff_files`, `file_watch`, `compress_archive`, `project_replace` |
+| **Networking** | `http_fetch`, `web_scrape`, `network_probe`, `http_server`, `api_client` (REST/GraphQL), `url_tools`, `cert_check` |
+| **Data** | `query_database`, `sqlite_query`, `sql_schema`, `redis_command`, `json_schema`, `data_transform`, `hash_encode`, `math_compute`, `regex_builder` |
+| **Memory & Knowledge** | `memory_store`, `memory_search`, `knowledge_query`, `cache_manager`, `embeddings` (vector similarity search) |
+| **Scheduling** | `schedule_task`, `cancel_scheduled_task`, `list_scheduled_tasks`, `cron_schedule`, `cron_advanced` (with dependencies & conditions) |
+| **DevOps** | `git_command`, `git_ops` (GitHub API), `docker_manage`, `create_backup`, `full_backup`, `setup_launchd`, `port_manager`, `service_mesh`, `dependency_analysis`, `test_runner` |
+| **Communication** | `send_notification`, `notify_send` (multi-channel), `email_parse`, `broadcast_event`, `agent_message`, `manage_sessions`, `clipboard` |
+| **Media** | `screenshot`, `image_process`, `audio_process`, `video_process`, `pdf_tools`, `qr_code`, `markdown_render`, `render_template` |
+| **Desktop & GUI** | `desktop_control` (pyautogui + OCR), `browser_automate` (Playwright), `accessibility` (macOS AX API) |
+| **Security & Ops** | `secret_vault`, `ssh_remote`, `webhook_register`, `manage_config`, `log_query`, `metrics_collect`, `text_process`, `date_calc`, `batch_delegate`, `manage_workflow_manifest` |
+| **LLM** | `llm_fallback` (multi-provider routing with failover) |
 
 ## Services
 
@@ -213,6 +235,9 @@ Run with: `POST /workflows/run/research-implement-report`
 
 ## Security Features
 
+### Orchestrator Hardening
+All subprocess calls have timeouts. AppleScript string parameters are escaped to prevent injection. Shell commands are validated against a blocklist. SSRF protection on HTTP fetches. API key rotation with thread-safe locking. Role-parameter whitelisting in accessibility API.
+
 ### PII Redaction
 All content stored through the memory service is automatically scrubbed for:
 - Email addresses → `[EMAIL_REDACTED]`
@@ -293,6 +318,19 @@ openclaw-army/
 │   └── obsidian database/        # Obsidian vault
 └── vault/                        # Knowledge vault templates
 ```
+
+## Self-Evolution
+
+The orchestrator can modify its own source code at runtime via `modify_own_code`, `register_new_tool`, and `update_system_prompt`. It can:
+
+- **Add new tools**: Define schema, implementation, and dispatch wiring — then hot-reload
+- **Fix its own bugs**: Read its code, identify issues, apply patches, validate compilation
+- **Register new agents**: Spin up new worker agents or entire hierarchies
+- **Roll back changes**: Every modification is versioned with automatic rollback capability
+- **Install dependencies**: Use `install_package` to add any Python or system package
+- **Create persistent services**: Use `setup_launchd` to create macOS launch agents
+
+All modifications pass through `check_quality` validation before being committed.
 
 ## Troubleshooting
 

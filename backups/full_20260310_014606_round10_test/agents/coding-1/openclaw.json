@@ -1,0 +1,184 @@
+{
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "ui": {
+    "assistant": {
+      "name": "coding-1",
+      "avatar": "coding-1"
+    }
+  },
+  "auth": {
+    "profiles": {
+      "nvidia:default": {
+        "provider": "nvidia",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "replace",
+    "providers": {
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1/",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "deepseek-ai/deepseek-r1",
+            "name": "DeepSeek R1 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "z-ai/glm-5",
+            "name": "GLM-5 (NVIDIA NIM)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    },
+    "bedrockDiscovery": {
+      "enabled": false
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/deepseek-ai/deepseek-r1",
+        "fallbacks": [
+          "nvidia/meta/llama-3.3-70b-instruct",
+          "nvidia/nvidia/llama-3.1-nemotron-70b-instruct"
+        ]
+      },
+      "workspace": "/Users/landonking/openclaw-army/agents/coding-1",
+      "memorySearch": {
+        "enabled": true
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "brave",
+        "maxResults": 10
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "sessions": {
+      "visibility": "self"
+    },
+    "message": {
+      "allowCrossContextSend": false,
+      "crossContext": {
+        "allowWithinProvider": false,
+        "allowAcrossProviders": false
+      },
+      "broadcast": {
+        "enabled": false
+      }
+    },
+    "elevated": {
+      "enabled": false
+    },
+    "exec": {
+      "ask": "always"
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "gateway": {
+    "port": 18803,
+    "mode": "local",
+    "bind": "loopback",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "7cafe3fce24a44f72add77f337382b3e578d56ba3c815fed"
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "load": {
+      "paths": [
+        "/Users/landonking/openclaw-army/extensions"
+      ]
+    },
+    "entries": {
+      "permission-broker": {
+        "enabled": true
+      },
+      "memory-client": {
+        "enabled": true
+      },
+      "cost-tracker": {
+        "enabled": true
+      },
+      "reasoning-engine": {
+        "enabled": true
+      }
+    }
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.2.22-2",
+    "lastTouchedAt": "2026-03-07T00:09:05.165Z"
+  }
+}

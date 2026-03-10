@@ -149,16 +149,19 @@ _NVAPI_KEYS = [k for k in [
     os.getenv("NVIDIA_API_KEY", ""),
 ] if k]
 _key_index = 0
+import threading
+_key_lock = threading.Lock()
 
 def _get_api_key():
-    global _key_index
-    if not _NVAPI_KEYS:
-        return ""
-    return _NVAPI_KEYS[_key_index % len(_NVAPI_KEYS)]
+    with _key_lock:
+        if not _NVAPI_KEYS:
+            return ""
+        return _NVAPI_KEYS[_key_index % len(_NVAPI_KEYS)]
 
 def _rotate_key():
     global _key_index
-    _key_index = (_key_index + 1) % max(len(_NVAPI_KEYS), 1)
+    with _key_lock:
+        _key_index = (_key_index + 1) % max(len(_NVAPI_KEYS), 1)
 
 NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
@@ -294,6 +297,18 @@ DIRECT CAPABILITIES (no delegation needed):
 - **cert_check**: SSL certificate management — inspect remote certs, check expiry with warning thresholds, generate self-signed certs, decode PEM files.
 - **system_profiler**: macOS system profiling — hardware specs, software info, network config, storage, USB devices, displays, battery, any SPDataType.
 - **url_tools**: URL manipulation — parse/decompose URLs, build URLs from components, URL encode/decode, validate (optionally live), extract links from text, fetch and parse XML sitemaps.
+- **desktop_control**: Full macOS desktop GUI automation — see the screen (screenshot + OCR text recognition), move mouse, click, type text, press hotkeys, find images/text on screen, list/focus windows, scroll, drag. Auto-installs pyautogui.
+- **browser_automate**: Full browser automation via headless Playwright — navigate websites, fill forms, click UI elements, screenshot rendered pages, extract JS-rendered content, run JavaScript in page, interact with SPAs. Launch/close persistent sessions.
+- **git_ops**: Complete Git and GitHub operations — local repo management (status, log, diff, branch, commit, push, pull, clone, stash, remote, tag) + GitHub API (raw endpoints, create PRs, list issues). Uses GITHUB_TOKEN env var.
+- **code_analyze**: Code analysis suite — AST parsing (list classes/functions/imports), linting (flake8/pylint), security scanning (bandit SAST), cyclomatic complexity metrics, TODO/FIXME/HACK finder. Auto-installs tools.
+- **llm_fallback**: Multi-provider LLM routing with automatic failover — add/remove providers, set priorities, test reachability, query with automatic failover across all configured providers. Supports any OpenAI-compatible API.
+- **notify_send**: Multi-channel notifications — macOS native alerts, Slack webhooks, Discord webhooks, Pushover push notifications, macOS text-to-speech. Alert yourself or users through any channel.
+- **full_backup**: Complete system backup and disaster recovery — backs up code, data/, agents/, configs, PostgreSQL (pg_dump), Redis (BGSAVE). Restore, list, and cleanup old backups.
+- **embeddings**: Text embeddings and vector similarity search — encode text to vectors (NVIDIA API or bag-of-words fallback), store in collections, semantic search with cosine similarity. Build knowledge bases.
+- **api_client**: Generic REST/GraphQL API client — HTTP requests with auth (bearer/basic/api_key), auto-retry with backoff, GraphQL queries, auto-pagination. Call any external API.
+- **cron_advanced**: Advanced cron with task chains — define multi-step task chains with dependencies, per-step retry policies, conditional execution (abort/skip/retry on failure), enable/disable chains.
+- **accessibility**: macOS Accessibility API — inspect and control UI elements of any application. Get focused app, list UI elements, click buttons by name, read/write text fields, list and click menu items. Deep app integration.
+- **screen_share**: Live screen sharing and continuous monitoring — start a persistent screen capture session that periodically takes screenshots with OCR, detects changes, and streams frames as base64 images over a WebSocket or HTTP endpoint. Actions: start_session (begin capturing), stop_session, get_frame (latest screenshot + OCR text + changed regions), get_status (active sessions), set_interval (adjust capture rate). Integrates with Chrome Remote Desktop for remote access.
 
 SELF-IMPROVEMENT PROTOCOL — CRITICAL:
 When you encounter a task you CANNOT currently do, follow this protocol:
@@ -410,6 +425,18 @@ You are a self-evolving system with FULL access to the underlying machine. If yo
 - Need to check SSL certificates? → Use cert_check to inspect certs, check expiry, generate self-signed, decode PEM.
 - Need macOS hardware/software info? → Use system_profiler to query any SPDataType (hardware, software, network, storage, etc.).
 - Need URL parsing or link extraction? → Use url_tools to parse, build, encode, validate URLs, extract links, fetch sitemaps.
+- Need to see the screen or control the mouse/keyboard? → Use desktop_control — screenshot_ocr to see what's on screen (with text recognition), move_mouse/click/type_text/hotkey to interact, get_window_list/focus_window to manage apps, find_text_on_screen to locate UI elements.
+- Need to automate a browser or scrape JS-rendered sites? → Use browser_automate — launch a Playwright session, navigate, click, fill forms, extract content, screenshot pages. Handles SPAs and dynamic content.
+- Need full Git/GitHub integration? → Use git_ops — local repo management (status, log, diff, commit, push, pull) + GitHub API (create PRs, list issues, any endpoint).
+- Need code quality analysis? → Use code_analyze — AST parsing, flake8 linting, bandit security scanning, cyclomatic complexity, TODO finder. Self-audit your own code.
+- Need to query a different LLM or add backup models? → Use llm_fallback — add providers, set priority chain, queries auto-failover across all providers if one is down.
+- Need to alert yourself or a user? → Use notify_send — macOS native alerts, Slack, Discord, Pushover push notifications, or text-to-speech.
+- Need a full system backup before risky changes? → Use full_backup — backs up code, data, agents, configs, PostgreSQL, Redis. One-click disaster recovery.
+- Need semantic search over documents or knowledge? → Use embeddings — encode text to vectors, store in collections, search by meaning with cosine similarity.
+- Need to call any external REST or GraphQL API? → Use api_client — supports auth (bearer/basic/api_key), retry with backoff, GraphQL, auto-pagination.
+- Need multi-step automation with retry logic? → Use cron_advanced — define task chains where each step can abort, skip, or retry on failure.
+- Need to inspect or click UI elements in macOS apps? → Use accessibility — read AX trees, click buttons by name, get/set text field values, navigate menus.
+- Need live screen monitoring or continuous visual feedback? → Use screen_share — start a capture session, get periodic screenshots with OCR + change detection. Streams frames for continuous visual awareness.
 - Need to schedule recurring tasks? → Use schedule_task — tasks persist across restarts now.
 - Need to read/write files? → Use read_file, write_file, list_files, search_files directly.
 - Need to launch new services? → Use spawn_process, then manage_process to monitor them.
@@ -493,6 +520,18 @@ OPERATIONAL NOTES:
 - You CAN inspect SSL certificates with cert_check (remote cert details, expiry warnings, self-signed generation, PEM decode).
 - You CAN profile macOS system hardware and software with system_profiler (hardware, software, network, storage, USB, displays, battery).
 - You CAN parse, build, validate URLs and extract links with url_tools (parse, encode, validate, sitemaps).
+- You CAN see the computer screen with desktop_control screenshot_ocr (captures screen + OCR text recognition). You CAN control the mouse (move, click, drag, scroll) and keyboard (type_text, hotkey). You CAN list all visible windows, focus any app, find text/images on screen. This gives you FULL GUI automation capability.
+- You CAN automate any browser with browser_automate (Playwright — navigate, click, fill, evaluate JS, screenshot, extract tables, handle JS-rendered content).
+- You CAN do full Git and GitHub API operations with git_ops (status, log, diff, commit, push, pull, clone + create PRs, list issues, raw API calls).
+- You CAN analyze code quality with code_analyze (AST parse, flake8 lint, bandit security scan, cyclomatic complexity, find TODOs). Self-audit your own code.
+- You CAN route LLM queries across multiple providers with llm_fallback (automatic failover, priority chain, add/test/query providers).
+- You CAN send alerts through any channel with notify_send (macOS native, Slack webhooks, Discord webhooks, Pushover, text-to-speech).
+- You CAN perform complete system backups with full_backup (code, data, configs, PostgreSQL, Redis — one-click backup and restore).
+- You CAN build semantic search over any text with embeddings (encode to vectors, store in collections, cosine similarity search).
+- You CAN call any external REST or GraphQL API with api_client (auth support, retry with backoff, auto-pagination).
+- You CAN define multi-step task chains with cron_advanced (dependencies, per-step retry policies, abort/skip/retry on failure).
+- You CAN inspect and control macOS app UIs with accessibility (AX tree, click buttons by name, read/write text fields, navigate menus).
+- You CAN continuously monitor the screen with screen_share (start a capture session, get periodic screenshots + OCR text + change detection). Chrome Remote Desktop host is running for remote access integration.
 - Dynamic tools have access to the FastAPI app object for creating new HTTP endpoints.
 - Scheduled tasks persist to disk and auto-reload on restart.
 - Cron tasks persist to disk and auto-reload on restart.
@@ -2098,6 +2137,278 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "desktop_control",
+            "description": "Full macOS desktop GUI automation — see the screen, control mouse and keyboard, interact with applications. Actions: 'screenshot_ocr' (capture screen + OCR text recognition), 'move_mouse' (move cursor to x,y), 'click' (click at position), 'type_text' (type string), 'hotkey' (press key combo like cmd+c), 'locate_on_screen' (find image template on screen), 'get_mouse_position', 'get_screen_size', 'get_window_list' (list all visible windows with positions), 'focus_window' (bring app to front), 'scroll', 'drag', 'find_text_on_screen' (OCR + find text coordinates).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: screenshot_ocr, move_mouse, click, type_text, hotkey, locate_on_screen, get_mouse_position, get_screen_size, get_window_list, focus_window, scroll, drag, find_text_on_screen"},
+                    "x": {"type": "integer", "description": "X coordinate for mouse operations"},
+                    "y": {"type": "integer", "description": "Y coordinate for mouse operations"},
+                    "text": {"type": "string", "description": "Text to type or find on screen"},
+                    "keys": {"type": "array", "items": {"type": "string"}, "description": "Key names for hotkey (e.g., ['command', 'c'])"},
+                    "button": {"type": "string", "description": "Mouse button: left, right, middle (default: left)"},
+                    "clicks": {"type": "integer", "description": "Number of clicks (default: 1)"},
+                    "app": {"type": "string", "description": "Application name for focus_window"},
+                    "template": {"type": "string", "description": "Path to template image for locate_on_screen"},
+                    "confidence": {"type": "number", "description": "Match confidence 0-1 for locate_on_screen (default: 0.8)"},
+                    "amount": {"type": "integer", "description": "Scroll amount (negative=down, positive=up)"},
+                    "region": {"type": "object", "description": "Screen region for screenshot_ocr {x,y,w,h}"},
+                    "output": {"type": "string", "description": "Output path for screenshot"},
+                    "x1": {"type": "integer"}, "y1": {"type": "integer"},
+                    "x2": {"type": "integer"}, "y2": {"type": "integer"},
+                    "duration": {"type": "number", "description": "Duration for drag in seconds"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "browser_automate",
+            "description": "Full browser automation via headless Playwright — navigate websites, fill forms, click UI, screenshot rendered pages, extract JS-rendered content, interact with SPAs. Actions: 'launch' (start browser session), 'navigate' (go to URL), 'click' (click CSS selector), 'type' (type into input), 'evaluate' (run JavaScript), 'screenshot' (capture page), 'content' (extract text), 'wait' (wait for selector/timeout), 'close' (end session), 'list_sessions', 'select' (dropdown), 'extract_table'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: launch, navigate, click, type, evaluate, screenshot, content, wait, close, list_sessions, select, extract_table"},
+                    "session_id": {"type": "string", "description": "Browser session ID (returned by launch)"},
+                    "url": {"type": "string", "description": "URL to navigate to"},
+                    "selector": {"type": "string", "description": "CSS selector for click/type/wait/content/extract_table"},
+                    "text": {"type": "string", "description": "Text to type into element"},
+                    "js": {"type": "string", "description": "JavaScript code to evaluate in page context"},
+                    "headless": {"type": "boolean", "description": "Run headless (default true)"},
+                    "full_page": {"type": "boolean", "description": "Full page screenshot"},
+                    "fill": {"type": "boolean", "description": "Use fill instead of type (clears first)"},
+                    "output": {"type": "string", "description": "Screenshot output path"},
+                    "timeout": {"type": "integer", "description": "Timeout in ms"},
+                    "wait_until": {"type": "string", "description": "Navigation wait: load, domcontentloaded, networkidle"},
+                    "value": {"type": "string", "description": "Value for select dropdown"},
+                    "width": {"type": "integer"}, "height": {"type": "integer"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "git_ops",
+            "description": "Complete Git and GitHub operations — local repo management + GitHub API. Actions: 'status' (porcelain status), 'log' (commit history), 'diff' (file diffs), 'branch' (list branches), 'commit' (stage and commit), 'push', 'pull', 'clone', 'stash', 'remote', 'tag', 'github_api' (raw GitHub API call), 'create_pr' (create pull request), 'list_issues' (list repo issues).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: status, log, diff, branch, commit, push, pull, clone, stash, remote, tag, github_api, create_pr, list_issues"},
+                    "repo": {"type": "string", "description": "Local repo path or GitHub 'owner/name'"},
+                    "message": {"type": "string", "description": "Commit message"},
+                    "files": {"type": "array", "items": {"type": "string"}, "description": "Files to stage"},
+                    "add_all": {"type": "boolean", "description": "Stage all changes before commit"},
+                    "remote": {"type": "string", "description": "Git remote name (default: origin)"},
+                    "branch": {"type": "string", "description": "Branch name"},
+                    "url": {"type": "string", "description": "Clone URL"},
+                    "dest": {"type": "string", "description": "Clone destination"},
+                    "depth": {"type": "integer", "description": "Shallow clone depth"},
+                    "staged": {"type": "boolean", "description": "Show staged diff"},
+                    "file": {"type": "string", "description": "File to diff"},
+                    "limit": {"type": "integer", "description": "Log entry limit"},
+                    "token": {"type": "string", "description": "GitHub token (or use GITHUB_TOKEN env)"},
+                    "endpoint": {"type": "string", "description": "GitHub API endpoint (e.g., /repos/owner/name/issues)"},
+                    "method": {"type": "string", "description": "HTTP method for github_api"},
+                    "body": {"type": "object", "description": "Request body for github_api"},
+                    "title": {"type": "string", "description": "PR title"},
+                    "head": {"type": "string", "description": "PR head branch"},
+                    "base": {"type": "string", "description": "PR base branch (default: main)"},
+                    "state": {"type": "string", "description": "Issue state: open, closed, all"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "code_analyze",
+            "description": "Analyze code — AST parsing, linting, security scanning, complexity metrics. Actions: 'ast_parse' (parse Python, list classes/functions/imports), 'lint' (flake8/pylint), 'security_scan' (bandit SAST), 'complexity' (cyclomatic complexity per function), 'find_todos' (find TODO/FIXME/HACK across codebase).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: ast_parse, lint, security_scan, complexity, find_todos"},
+                    "path": {"type": "string", "description": "File or directory path"},
+                    "code": {"type": "string", "description": "Inline code to analyze (alternative to path)"},
+                    "pattern": {"type": "string", "description": "Glob pattern for find_todos (default: *.py)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "llm_fallback",
+            "description": "Multi-provider LLM routing with automatic failover — manage provider pool, query with fallback chain. Actions: 'add_provider' (register new LLM endpoint), 'remove_provider', 'list_providers' (show all providers with priority), 'test_provider' (check reachability), 'query' (send prompt with automatic failover across all providers).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: add_provider, remove_provider, list_providers, test_provider, query"},
+                    "name": {"type": "string", "description": "Provider name"},
+                    "base_url": {"type": "string", "description": "API base URL for provider"},
+                    "api_key": {"type": "string", "description": "API key for provider"},
+                    "model": {"type": "string", "description": "Model name for provider"},
+                    "priority": {"type": "integer", "description": "Priority (lower = tried first, default 10)"},
+                    "prompt": {"type": "string", "description": "Prompt for query action"},
+                    "max_tokens": {"type": "integer", "description": "Max tokens for query"},
+                    "temperature": {"type": "number", "description": "Temperature for query"},
+                    "timeout": {"type": "integer", "description": "Query timeout in seconds"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "notify_send",
+            "description": "Send notifications via multiple channels — macOS native alerts, Slack webhooks, Discord webhooks, Pushover push notifications, text-to-speech. Actions: 'macos' (native macOS notification), 'slack' (Slack webhook), 'discord' (Discord webhook), 'pushover' (push notification), 'say' (text-to-speech).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: macos, slack, discord, pushover, say"},
+                    "message": {"type": "string", "description": "Notification message"},
+                    "title": {"type": "string", "description": "Notification title"},
+                    "webhook_url": {"type": "string", "description": "Webhook URL for slack/discord"},
+                    "channel": {"type": "string", "description": "Slack channel override"},
+                    "username": {"type": "string", "description": "Bot username for discord"},
+                    "token": {"type": "string", "description": "Pushover app token"},
+                    "user": {"type": "string", "description": "Pushover user key"},
+                    "priority": {"type": "integer", "description": "Pushover priority (-2 to 2)"},
+                    "sound": {"type": "string", "description": "macOS notification sound"},
+                    "voice": {"type": "string", "description": "TTS voice name for say"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "full_backup",
+            "description": "Complete system backup and disaster recovery — code, data, configs, PostgreSQL, Redis. Actions: 'create' (full backup of everything), 'list' (show all backups), 'restore' (restore from backup), 'cleanup' (remove old backups, keep N most recent).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: create, list, restore, cleanup"},
+                    "label": {"type": "string", "description": "Backup label for create"},
+                    "path": {"type": "string", "description": "Backup path for restore"},
+                    "keep": {"type": "integer", "description": "Number of backups to keep in cleanup (default 5)"},
+                    "restore_db": {"type": "boolean", "description": "Also restore PostgreSQL database"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "embeddings",
+            "description": "Text embeddings and vector similarity search — encode text, store vectors, semantic search across collections. Actions: 'encode' (generate embeddings and store), 'search' (find similar texts by semantic meaning), 'list_collections' (show all vector collections), 'delete_collection'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: encode, search, list_collections, delete_collection"},
+                    "texts": {"type": "array", "items": {"type": "string"}, "description": "Texts to encode"},
+                    "query": {"type": "string", "description": "Search query"},
+                    "collection": {"type": "string", "description": "Collection name (default: default)"},
+                    "top_k": {"type": "integer", "description": "Number of results for search (default 5)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "api_client",
+            "description": "Generic REST/GraphQL API client with authentication, pagination, and retry. Actions: 'request' (HTTP request with auth), 'graphql' (GraphQL query), 'paginate' (auto-paginate REST endpoints).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: request, graphql, paginate"},
+                    "url": {"type": "string", "description": "Request URL"},
+                    "method": {"type": "string", "description": "HTTP method (default GET)"},
+                    "headers": {"type": "object", "description": "Request headers"},
+                    "body": {"type": "object", "description": "Request body (auto serialized to JSON)"},
+                    "auth_type": {"type": "string", "description": "Auth type: bearer, basic, api_key"},
+                    "auth_value": {"type": "string", "description": "Auth token/credentials"},
+                    "key_name": {"type": "string", "description": "Header name for api_key auth (default X-API-Key)"},
+                    "timeout": {"type": "integer", "description": "Request timeout in seconds"},
+                    "retries": {"type": "integer", "description": "Number of retries on failure"},
+                    "query": {"type": "string", "description": "GraphQL query string"},
+                    "variables": {"type": "object", "description": "GraphQL variables"},
+                    "max_pages": {"type": "integer", "description": "Max pages for pagination"},
+                    "page_param": {"type": "string", "description": "Page parameter name (default: page)"},
+                    "per_page": {"type": "integer", "description": "Items per page"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "cron_advanced",
+            "description": "Advanced cron with task chains, conditional execution, and retry policies. Actions: 'create_chain' (define multi-step task with dependencies), 'run_chain' (execute a chain), 'list_chains', 'delete_chain', 'toggle' (enable/disable chain).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: create_chain, run_chain, list_chains, delete_chain, toggle"},
+                    "name": {"type": "string", "description": "Chain name"},
+                    "steps": {"type": "array", "items": {"type": "object"}, "description": "Step definitions [{tool, args, on_fail: abort|skip|retry, retries}]"},
+                    "schedule": {"type": "string", "description": "Cron expression for scheduling"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "accessibility",
+            "description": "macOS Accessibility API — inspect and control UI elements of any application. Actions: 'get_focused_app' (currently focused app + window title), 'get_ui_elements' (list UI elements of an app), 'click_element' (click a named UI element), 'get_element_value' (read value from text field), 'set_element_value' (write to text field), 'get_menu_items' (list app menu bar items), 'click_menu' (click a menu item).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: get_focused_app, get_ui_elements, click_element, get_element_value, set_element_value, get_menu_items, click_menu"},
+                    "app": {"type": "string", "description": "Application process name"},
+                    "element": {"type": "string", "description": "UI element name"},
+                    "role": {"type": "string", "description": "UI element role (default: button for click, text field for get/set)"},
+                    "value": {"type": "string", "description": "Value to set"},
+                    "menu": {"type": "string", "description": "Menu bar item name for click_menu"},
+                    "item": {"type": "string", "description": "Menu item name for click_menu"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "screen_share",
+            "description": "Live screen sharing and continuous monitoring — start a persistent screen capture session with periodic screenshots, OCR text recognition, and change detection. Actions: 'start_session' (begin capturing, optional interval_sec), 'stop_session', 'get_frame' (latest screenshot as base64 + OCR text + changed regions), 'get_status' (active session info), 'set_interval' (adjust capture rate in seconds). Integrates with Chrome Remote Desktop host for remote access.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: start_session, stop_session, get_frame, get_status, set_interval"},
+                    "interval_sec": {"type": "number", "description": "Seconds between captures (default 2.0, min 0.5)"},
+                    "include_image": {"type": "boolean", "description": "Include base64 PNG in get_frame (default false, just OCR text)"},
+                    "region": {"type": "object", "description": "Optional capture region {x, y, width, height}"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -2138,6 +2449,18 @@ INTERNAL_TOOLS = {
     "email_parse", "qr_code", "http_server", "json_schema",
     "cache_manager", "math_compute", "regex_builder", "cert_check",
     "system_profiler", "url_tools",
+    "desktop_control",
+    "browser_automate",
+    "git_ops",
+    "code_analyze",
+    "llm_fallback",
+    "notify_send",
+    "full_backup",
+    "embeddings",
+    "api_client",
+    "cron_advanced",
+    "accessibility",
+    "screen_share",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -2186,9 +2509,14 @@ class ActivityLog:
             "meta": metadata or {},
         }
         self._buffer.append(entry)
-        # Persist to disk (non-blocking via lock)
+        # Persist to disk (non-blocking via lock) with rotation
         async with self._lock:
             try:
+                # Rotate if file exceeds 50MB
+                if self.path.exists() and self.path.stat().st_size > 50 * 1024 * 1024:
+                    rotated = self.path.with_suffix(f".{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.jsonl")
+                    self.path.rename(rotated)
+                    log.info(f"Activity log rotated to {rotated}")
                 with open(self.path, "a") as f:
                     f.write(json.dumps(entry, ensure_ascii=False) + "\n")
             except Exception as e:
@@ -3538,6 +3866,58 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     check_live=fn_args.get("check_live", False),
                 )
                 internal_task = f"URL: {fn_args.get('action', '')}"
+            elif fn_name == "desktop_control":
+                internal_result = _desktop_control(
+                    fn_args.get("action", ""),
+                    x=fn_args.get("x"), y=fn_args.get("y"),
+                    text=fn_args.get("text", ""),
+                    keys=fn_args.get("keys", []),
+                    button=fn_args.get("button", "left"),
+                    clicks=fn_args.get("clicks", 1),
+                    app=fn_args.get("app", ""),
+                    template=fn_args.get("template", ""),
+                    confidence=fn_args.get("confidence", 0.8),
+                    amount=fn_args.get("amount", -3),
+                    region=fn_args.get("region"),
+                    output=fn_args.get("output", ""),
+                    x1=fn_args.get("x1", 0), y1=fn_args.get("y1", 0),
+                    x2=fn_args.get("x2", 0), y2=fn_args.get("y2", 0),
+                    duration=fn_args.get("duration", 0.5),
+                )
+                internal_task = f"Desktop: {fn_args.get('action', '')}"
+            elif fn_name == "browser_automate":
+                internal_result = _browser_automate(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Browser: {fn_args.get('action', '')}"
+            elif fn_name == "git_ops":
+                internal_result = _git_ops(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Git: {fn_args.get('action', '')}"
+            elif fn_name == "code_analyze":
+                internal_result = _code_analyze(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Code analysis: {fn_args.get('action', '')}"
+            elif fn_name == "llm_fallback":
+                internal_result = _llm_fallback(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"LLM fallback: {fn_args.get('action', '')}"
+            elif fn_name == "notify_send":
+                internal_result = _notify_send(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Notify: {fn_args.get('action', '')}"
+            elif fn_name == "full_backup":
+                internal_result = _full_backup(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Backup: {fn_args.get('action', '')}"
+            elif fn_name == "embeddings":
+                internal_result = _embeddings(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Embeddings: {fn_args.get('action', '')}"
+            elif fn_name == "api_client":
+                internal_result = _api_client(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"API client: {fn_args.get('action', '')}"
+            elif fn_name == "cron_advanced":
+                internal_result = _cron_advanced(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Cron: {fn_args.get('action', '')}"
+            elif fn_name == "accessibility":
+                internal_result = _accessibility(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Accessibility: {fn_args.get('action', '')}"
+            elif fn_name == "screen_share":
+                internal_result = await _screen_share(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"Screen share: {fn_args.get('action', '')}"
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -4394,6 +4774,11 @@ _SHELL_BLOCKED_PATTERNS = [
     r"\bshutdown\b",         # system shutdown
     r"\breboot\b",           # system reboot
     r":(){ :\|:& };:",       # fork bomb
+    r"\brm\s+-rf\s+~",      # rm -rf home
+    r">\s*/dev/disk",        # overwrite macOS disk
+    r"\bnewfs\b",            # macOS format disk
+    r"\bnewfs_\w+",           # macOS newfs variants (newfs_hfs, newfs_apfs, etc.)
+    r"\bdiskutil\s+eraseDisk", # macOS erase disk
 ]
 
 def _run_shell_command(command: str, timeout: int = 60) -> dict:
@@ -4438,10 +4823,19 @@ async def _http_fetch(url: str, method: str = "GET", headers: dict = None, body:
 
     # Block internal network abuse (SSRF protection)
     from urllib.parse import urlparse
+    import ipaddress
     parsed = urlparse(url)
     hostname = parsed.hostname or ""
-    if hostname in ("169.254.169.254", "metadata.google.internal"):
+    _ssrf_blocked = {"169.254.169.254", "metadata.google.internal", "metadata.internal"}
+    if hostname in _ssrf_blocked:
         return {"error": "Blocked: cloud metadata endpoint", "status": 0, "body": ""}
+    try:
+        ip = ipaddress.ip_address(hostname)
+        if ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_reserved:
+            return {"error": f"Blocked: private/internal IP {hostname}", "status": 0, "body": ""}
+    except ValueError:
+        if hostname in ("localhost", "0.0.0.0"):
+            return {"error": f"Blocked: internal host {hostname}", "status": 0, "body": ""}
 
     method = method.upper()
     if method not in ("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"):
@@ -4577,14 +4971,14 @@ def _setup_launchd(action: str = "install") -> dict:
         if plist_path.exists():
             # Check if loaded
             r = subprocess.run(["launchctl", "list", plist_name],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, timeout=10)
             loaded = r.returncode == 0
             return {"installed": True, "loaded": loaded, "plist_path": str(plist_path)}
         return {"installed": False, "loaded": False}
 
     if action == "uninstall":
         if plist_path.exists():
-            subprocess.run(["launchctl", "unload", str(plist_path)], capture_output=True)
+            subprocess.run(["launchctl", "unload", str(plist_path)], capture_output=True, timeout=10)
             plist_path.unlink()
             return {"uninstalled": True}
         return {"uninstalled": False, "detail": "Plist not found"}
@@ -4628,7 +5022,7 @@ exec "{python_path}" "{main_py}"
         plist_path.parent.mkdir(parents=True, exist_ok=True)
         plist_path.write_text(plist_content)
         # Load the plist
-        subprocess.run(["launchctl", "load", str(plist_path)], capture_output=True)
+        subprocess.run(["launchctl", "load", str(plist_path)], capture_output=True, timeout=10)
         return {"installed": True, "plist_path": str(plist_path), "wrapper": str(wrapper)}
 
     return {"error": f"Unknown action: {action}. Use 'install', 'uninstall', or 'status'."}
@@ -8863,7 +9257,7 @@ def _qr_code(action: str, **kwargs) -> dict:
             if not source:
                 return {"error": "source image path required"}
             # Use zbarimg if available, else try pyzbar
-            r = subprocess.run(["which", "zbarimg"], capture_output=True)
+            r = subprocess.run(["which", "zbarimg"], capture_output=True, timeout=5)
             if r.returncode == 0:
                 r = subprocess.run(["zbarimg", "--raw", "-q", source],
                                    capture_output=True, text=True, timeout=10)
@@ -9632,6 +10026,1866 @@ def _url_tools(action: str, **kwargs) -> dict:
             return {"error": f"Unknown action: {action}. Use parse, build, encode, decode, validate, extract_links, sitemap."}
     except Exception as e:
         return {"error": f"url_tools failed: {e}"}
+
+
+# ── Desktop Control (Screen Vision + GUI Automation) ───────────────────────
+
+def _ensure_pyautogui():
+    """Auto-install pyautogui + pyobjc-framework-Quartz if missing."""
+    try:
+        import pyautogui
+        return True
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q",
+                        "pyautogui", "pyobjc-framework-Quartz", "pyobjc-framework-ApplicationServices"],
+                       capture_output=True, timeout=120)
+        try:
+            import pyautogui
+            return True
+        except ImportError:
+            return False
+
+def _ensure_ocr():
+    """Auto-install pytesseract if missing. Requires tesseract binary."""
+    try:
+        import pytesseract
+        return True
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "pytesseract"],
+                       capture_output=True, timeout=60)
+        try:
+            import pytesseract
+            return True
+        except ImportError:
+            return False
+
+
+def _desktop_control(action: str, **kwargs) -> dict:
+    """Full macOS desktop control — see screen, move mouse, click, type, find elements."""
+    try:
+        if action == "screenshot_ocr":
+            # Take screenshot and OCR it to understand what's on screen
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            img_path = kwargs.get("output", f"/tmp/desktop_ocr_{ts}.png")
+            region = kwargs.get("region")  # Optional: {"x": 0, "y": 0, "w": 800, "h": 600}
+
+            if region:
+                subprocess.run(["screencapture", "-x", "-R",
+                                f"{region['x']},{region['y']},{region['w']},{region['h']}",
+                                img_path], capture_output=True, timeout=10)
+            else:
+                subprocess.run(["screencapture", "-x", img_path],
+                               capture_output=True, timeout=10)
+
+            if not Path(img_path).exists():
+                return {"error": "Screenshot failed"}
+
+            # Try OCR
+            ocr_text = ""
+            if _ensure_ocr():
+                # First check if tesseract binary exists
+                tess_check = subprocess.run(["which", "tesseract"], capture_output=True, text=True, timeout=5)
+                if tess_check.returncode == 0:
+                    import pytesseract
+                    from PIL import Image
+                    img = Image.open(img_path)
+                    ocr_text = pytesseract.image_to_string(img)
+                else:
+                    # Use macOS native Vision framework via subprocess as fallback
+                    vision_script = f'''
+import subprocess, json
+r = subprocess.run(["/usr/bin/swift", "-e", """
+import Vision, AppKit
+let url = URL(fileURLWithPath: "{img_path}")
+guard let img = NSImage(contentsOf: url), let cgImg = img.cgImage(forProposedRect: nil, context: nil, hints: nil) else {{ exit(1) }}
+let req = VNRecognizeTextRequest()
+req.recognitionLevel = .accurate
+try? VNImageRequestHandler(cgImage: cgImg).perform([req])
+let texts = (req.results ?? []).compactMap {{ $0.topCandidates(1).first?.string }}
+print(texts.joined(separator: "\\n"))
+"""], capture_output=True, text=True, timeout=30)
+print(r.stdout)
+'''
+                    result = subprocess.run([sys.executable, "-c", vision_script],
+                                           capture_output=True, text=True, timeout=45)
+                    ocr_text = result.stdout.strip()
+
+            return {
+                "screenshot": img_path,
+                "size_bytes": Path(img_path).stat().st_size,
+                "ocr_text": ocr_text[:10000],
+                "has_ocr": bool(ocr_text.strip()),
+            }
+
+        elif action == "move_mouse":
+            x = kwargs.get("x", 0)
+            y = kwargs.get("y", 0)
+            if _ensure_pyautogui():
+                import pyautogui
+                pyautogui.moveTo(x, y, duration=0.2)
+                return {"moved_to": {"x": x, "y": y}}
+            else:
+                # Fallback: AppleScript via cliclick or CGEvent
+                script = f'''
+import subprocess
+subprocess.run(["/usr/bin/swift", "-e", """
+import CoreGraphics
+let move = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: CGPoint(x: {x}, y: {y}), mouseButton: .left)
+move?.post(tap: .cghidEventTap)
+"""], capture_output=True, timeout=5)
+'''
+                subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=10)
+                return {"moved_to": {"x": x, "y": y}, "method": "cgevent"}
+
+        elif action == "click":
+            x = kwargs.get("x", None)
+            y = kwargs.get("y", None)
+            button = kwargs.get("button", "left")
+            clicks = kwargs.get("clicks", 1)
+            if _ensure_pyautogui():
+                import pyautogui
+                if x is not None and y is not None:
+                    pyautogui.click(x, y, clicks=clicks, button=button)
+                else:
+                    pyautogui.click(clicks=clicks, button=button)
+                return {"clicked": True, "x": x, "y": y, "button": button, "clicks": clicks}
+            else:
+                return {"error": "pyautogui required for click — install failed"}
+
+        elif action == "type_text":
+            text = kwargs.get("text", "")
+            interval = kwargs.get("interval", 0.02)
+            if not text:
+                return {"error": "text required"}
+            if _ensure_pyautogui():
+                import pyautogui
+                pyautogui.typewrite(text, interval=interval) if text.isascii() else pyautogui.write(text)
+                return {"typed": True, "length": len(text)}
+            else:
+                # Fallback: osascript
+                escaped = text.replace("\\", "\\\\").replace('"', '\\"')
+                subprocess.run(["/usr/bin/osascript", "-e",
+                                f'tell application "System Events" to keystroke "{escaped}"'],
+                               capture_output=True, timeout=10)
+                return {"typed": True, "length": len(text), "method": "osascript"}
+
+        elif action == "hotkey":
+            keys = kwargs.get("keys", [])
+            if not keys:
+                return {"error": "keys required (e.g., ['command', 'c'])"}
+            if _ensure_pyautogui():
+                import pyautogui
+                pyautogui.hotkey(*keys)
+                return {"hotkey": keys}
+            else:
+                return {"error": "pyautogui required for hotkey — install failed"}
+
+        elif action == "locate_on_screen":
+            # Find an image/button on screen by template matching
+            template_path = kwargs.get("template", "")
+            confidence = kwargs.get("confidence", 0.8)
+            if not template_path or not Path(template_path).exists():
+                return {"error": "template image path required and must exist"}
+            if _ensure_pyautogui():
+                import pyautogui
+                try:
+                    location = pyautogui.locateOnScreen(template_path, confidence=confidence)
+                    if location:
+                        center = pyautogui.center(location)
+                        return {"found": True, "x": center.x, "y": center.y,
+                                "region": {"left": location.left, "top": location.top,
+                                           "width": location.width, "height": location.height}}
+                    return {"found": False}
+                except Exception as e:
+                    return {"error": f"locate failed: {e}"}
+            return {"error": "pyautogui required"}
+
+        elif action == "get_mouse_position":
+            if _ensure_pyautogui():
+                import pyautogui
+                pos = pyautogui.position()
+                return {"x": pos.x, "y": pos.y}
+            return {"error": "pyautogui required"}
+
+        elif action == "get_screen_size":
+            if _ensure_pyautogui():
+                import pyautogui
+                size = pyautogui.size()
+                return {"width": size.width, "height": size.height}
+            # Fallback
+            result = subprocess.run(["system_profiler", "SPDisplaysDataType", "-json"],
+                                     capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                return {"displays": data, "method": "system_profiler"}
+            return {"error": "Could not determine screen size"}
+
+        elif action == "get_window_list":
+            # List all visible windows with positions
+            script = '''
+tell application "System Events"
+    set winList to ""
+    repeat with proc in (every process whose visible is true)
+        set pName to name of proc
+        try
+            repeat with w in (every window of proc)
+                set wName to name of w
+                set wPos to position of w
+                set wSz to size of w
+                set winList to winList & pName & "|" & wName & "|" & (item 1 of wPos) & "," & (item 2 of wPos) & "|" & (item 1 of wSz) & "," & (item 2 of wSz) & "\\n"
+            end repeat
+        end try
+    end repeat
+    return winList
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=15)
+            windows = []
+            for line in result.stdout.strip().split("\n"):
+                parts = line.split("|")
+                if len(parts) == 4:
+                    pos = parts[2].split(",")
+                    sz = parts[3].split(",")
+                    windows.append({
+                        "app": parts[0], "title": parts[1],
+                        "x": int(pos[0]), "y": int(pos[1]),
+                        "width": int(sz[0]), "height": int(sz[1]),
+                    })
+            return {"windows": windows, "count": len(windows)}
+
+        elif action == "focus_window":
+            app_name = kwargs.get("app", "")
+            if not app_name:
+                return {"error": "app name required"}
+            subprocess.run(["/usr/bin/osascript", "-e",
+                            f'tell application "{app_name}" to activate'],
+                           capture_output=True, timeout=10)
+            return {"focused": app_name}
+
+        elif action == "scroll":
+            amount = kwargs.get("amount", -3)
+            x = kwargs.get("x")
+            y = kwargs.get("y")
+            if _ensure_pyautogui():
+                import pyautogui
+                if x is not None and y is not None:
+                    pyautogui.scroll(amount, x, y)
+                else:
+                    pyautogui.scroll(amount)
+                return {"scrolled": amount}
+            return {"error": "pyautogui required"}
+
+        elif action == "drag":
+            x1 = kwargs.get("x1", 0)
+            y1 = kwargs.get("y1", 0)
+            x2 = kwargs.get("x2", 0)
+            y2 = kwargs.get("y2", 0)
+            duration = kwargs.get("duration", 0.5)
+            if _ensure_pyautogui():
+                import pyautogui
+                pyautogui.moveTo(x1, y1)
+                pyautogui.drag(x2 - x1, y2 - y1, duration=duration)
+                return {"dragged": True, "from": {"x": x1, "y": y1}, "to": {"x": x2, "y": y2}}
+            return {"error": "pyautogui required"}
+
+        elif action == "find_text_on_screen":
+            # Screenshot + OCR + find text coordinates
+            target = kwargs.get("text", "")
+            if not target:
+                return {"error": "text to find required"}
+            # Take screenshot
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            img_path = f"/tmp/find_text_{ts}.png"
+            subprocess.run(["screencapture", "-x", img_path],
+                           capture_output=True, timeout=10)
+            if not Path(img_path).exists():
+                return {"error": "Screenshot failed"}
+
+            from PIL import Image
+            img = Image.open(img_path)
+            w, h = img.size
+
+            # Try tesseract with bounding boxes
+            tess_check = subprocess.run(["which", "tesseract"], capture_output=True, text=True, timeout=5)
+            if tess_check.returncode == 0 and _ensure_ocr():
+                import pytesseract
+                data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+                results = []
+                for i, word in enumerate(data["text"]):
+                    if target.lower() in word.lower():
+                        results.append({
+                            "text": word,
+                            "x": data["left"][i] + data["width"][i] // 2,
+                            "y": data["top"][i] + data["height"][i] // 2,
+                            "box": {"left": data["left"][i], "top": data["top"][i],
+                                    "width": data["width"][i], "height": data["height"][i]},
+                        })
+                Path(img_path).unlink(missing_ok=True)
+                return {"found": len(results) > 0, "matches": results[:20],
+                        "screen_size": {"w": w, "h": h}}
+            else:
+                # Fallback: just screenshot + full OCR text
+                result = _desktop_control("screenshot_ocr", output=img_path)
+                ocr = result.get("ocr_text", "")
+                found = target.lower() in ocr.lower()
+                Path(img_path).unlink(missing_ok=True)
+                return {"found": found, "ocr_contains_text": found,
+                        "hint": "Install tesseract for precise coordinates: brew install tesseract"}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use screenshot_ocr, move_mouse, click, type_text, hotkey, locate_on_screen, get_mouse_position, get_screen_size, get_window_list, focus_window, scroll, drag, find_text_on_screen."}
+
+    except Exception as e:
+        return {"error": f"desktop_control failed: {e}"}
+
+
+# ── Browser Automation (Playwright) ────────────────────────────────────────
+
+_BROWSER_SESSIONS: dict[str, dict] = {}  # session_id -> {browser, page, context}
+
+def _browser_automate(action: str, **kwargs) -> dict:
+    """Full browser automation via Playwright — navigate, click, type, screenshot, extract."""
+    try:
+        if action == "launch":
+            try:
+                from playwright.sync_api import sync_playwright
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "-q", "playwright"],
+                               capture_output=True, timeout=120)
+                subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
+                               capture_output=True, timeout=300)
+                from playwright.sync_api import sync_playwright
+
+            headless = kwargs.get("headless", True)
+            sid = kwargs.get("session_id", str(uuid.uuid4())[:8])
+            pw = sync_playwright().start()
+            browser = pw.chromium.launch(headless=headless)
+            context = browser.new_context(
+                viewport={"width": kwargs.get("width", 1280), "height": kwargs.get("height", 720)},
+                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) OpenClaw-Army/3.0",
+            )
+            page = context.new_page()
+            _BROWSER_SESSIONS[sid] = {"pw": pw, "browser": browser, "context": context, "page": page}
+            return {"session_id": sid, "launched": True, "headless": headless}
+
+        elif action == "navigate":
+            sid = kwargs.get("session_id", "")
+            url = kwargs.get("url", "")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No browser session '{sid}'. Use launch first."}
+            if not url:
+                return {"error": "url required"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            wait = kwargs.get("wait_until", "domcontentloaded")
+            page.goto(url, wait_until=wait, timeout=kwargs.get("timeout", 30000))
+            return {"url": page.url, "title": page.title()}
+
+        elif action == "click":
+            sid = kwargs.get("session_id", "")
+            selector = kwargs.get("selector", "")
+            if sid not in _BROWSER_SESSIONS or not selector:
+                return {"error": "session_id and selector required"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            page.click(selector, timeout=kwargs.get("timeout", 5000))
+            return {"clicked": selector}
+
+        elif action == "type":
+            sid = kwargs.get("session_id", "")
+            selector = kwargs.get("selector", "")
+            text = kwargs.get("text", "")
+            if sid not in _BROWSER_SESSIONS or not selector:
+                return {"error": "session_id and selector required"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            page.fill(selector, text) if kwargs.get("fill") else page.type(selector, text)
+            return {"typed": text[:100], "into": selector}
+
+        elif action == "evaluate":
+            sid = kwargs.get("session_id", "")
+            js = kwargs.get("js", "")
+            if sid not in _BROWSER_SESSIONS or not js:
+                return {"error": "session_id and js required"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            result = page.evaluate(js)
+            return {"result": str(result)[:10000]}
+
+        elif action == "screenshot":
+            sid = kwargs.get("session_id", "")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No session '{sid}'"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            path = kwargs.get("output", f"/tmp/browser_shot_{ts}.png")
+            page.screenshot(path=path, full_page=kwargs.get("full_page", False))
+            return {"screenshot": path, "size": Path(path).stat().st_size}
+
+        elif action == "content":
+            sid = kwargs.get("session_id", "")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No session '{sid}'"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            selector = kwargs.get("selector", "body")
+            el = page.query_selector(selector)
+            text = el.inner_text() if el else ""
+            return {"text": text[:20000], "selector": selector, "url": page.url}
+
+        elif action == "wait":
+            sid = kwargs.get("session_id", "")
+            selector = kwargs.get("selector", "")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No session '{sid}'"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            if selector:
+                page.wait_for_selector(selector, timeout=kwargs.get("timeout", 10000))
+                return {"waited_for": selector}
+            else:
+                page.wait_for_timeout(kwargs.get("timeout", 2000))
+                return {"waited_ms": kwargs.get("timeout", 2000)}
+
+        elif action == "close":
+            sid = kwargs.get("session_id", "")
+            if sid in _BROWSER_SESSIONS:
+                sess = _BROWSER_SESSIONS.pop(sid)
+                sess["browser"].close()
+                sess["pw"].stop()
+                return {"closed": sid}
+            return {"error": f"No session '{sid}'"}
+
+        elif action == "list_sessions":
+            return {"sessions": list(_BROWSER_SESSIONS.keys()), "count": len(_BROWSER_SESSIONS)}
+
+        elif action == "select":
+            sid = kwargs.get("session_id", "")
+            selector = kwargs.get("selector", "")
+            value = kwargs.get("value", "")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No session '{sid}'"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            page.select_option(selector, value)
+            return {"selected": value, "in": selector}
+
+        elif action == "extract_table":
+            sid = kwargs.get("session_id", "")
+            selector = kwargs.get("selector", "table")
+            if sid not in _BROWSER_SESSIONS:
+                return {"error": f"No session '{sid}'"}
+            page = _BROWSER_SESSIONS[sid]["page"]
+            js = f"""
+            (() => {{
+                const table = document.querySelector('{selector}');
+                if (!table) return null;
+                const rows = [];
+                for (const tr of table.querySelectorAll('tr')) {{
+                    const cells = [];
+                    for (const td of tr.querySelectorAll('td, th')) cells.push(td.innerText.trim());
+                    rows.push(cells);
+                }}
+                return rows;
+            }})()
+            """
+            rows = page.evaluate(js)
+            return {"rows": rows[:200] if rows else [], "count": len(rows) if rows else 0}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use launch, navigate, click, type, evaluate, screenshot, content, wait, close, list_sessions, select, extract_table."}
+
+    except Exception as e:
+        return {"error": f"browser_automate failed: {e}"}
+
+
+# ── Git Operations (GitHub API + local git) ────────────────────────────────
+
+def _git_ops(action: str, **kwargs) -> dict:
+    """Git operations — local repo management + GitHub API integration."""
+    try:
+        if action in ("status", "log", "diff", "branch", "stash", "remote", "tag"):
+            repo_path = kwargs.get("repo", ARMY_HOME)
+            cmd_map = {
+                "status": ["git", "status", "--porcelain", "-b"],
+                "log": ["git", "log", f"--oneline", f"-{kwargs.get('limit', 20)}",
+                        "--format=%h %s (%cr) <%an>"],
+                "diff": ["git", "diff"] + (["--staged"] if kwargs.get("staged") else []),
+                "branch": ["git", "branch", "-a", "--format=%(refname:short) %(objectname:short)"],
+                "stash": ["git", "stash", "list"],
+                "remote": ["git", "remote", "-v"],
+                "tag": ["git", "tag", "-l", "--sort=-creatordate",
+                        "--format=%(refname:short) %(creatordate:short)"],
+            }
+            cmd = cmd_map[action]
+            if action == "diff" and kwargs.get("file"):
+                cmd.append(kwargs["file"])
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, cwd=repo_path)
+            return {"output": result.stdout[:15000], "returncode": result.returncode,
+                    "stderr": result.stderr[:2000] if result.returncode else ""}
+
+        elif action == "commit":
+            repo_path = kwargs.get("repo", ARMY_HOME)
+            message = kwargs.get("message", "")
+            if not message:
+                return {"error": "commit message required"}
+            add_all = kwargs.get("add_all", False)
+            files = kwargs.get("files", [])
+            if add_all:
+                subprocess.run(["git", "add", "-A"], cwd=repo_path, capture_output=True, timeout=15)
+            elif files:
+                subprocess.run(["git", "add"] + files, cwd=repo_path, capture_output=True, timeout=15)
+            result = subprocess.run(["git", "commit", "-m", message],
+                                     capture_output=True, text=True, timeout=30, cwd=repo_path)
+            return {"output": result.stdout[:5000], "returncode": result.returncode,
+                    "stderr": result.stderr[:2000]}
+
+        elif action == "push":
+            repo_path = kwargs.get("repo", ARMY_HOME)
+            remote = kwargs.get("remote", "origin")
+            branch = kwargs.get("branch", "")
+            cmd = ["git", "push", remote]
+            if branch:
+                cmd.append(branch)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, cwd=repo_path)
+            return {"output": result.stdout[:5000] + result.stderr[:5000],
+                    "returncode": result.returncode}
+
+        elif action == "pull":
+            repo_path = kwargs.get("repo", ARMY_HOME)
+            remote = kwargs.get("remote", "origin")
+            branch = kwargs.get("branch", "")
+            cmd = ["git", "pull", remote]
+            if branch:
+                cmd.append(branch)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, cwd=repo_path)
+            return {"output": result.stdout[:5000] + result.stderr[:5000],
+                    "returncode": result.returncode}
+
+        elif action == "clone":
+            url = kwargs.get("url", "")
+            dest = kwargs.get("dest", "")
+            if not url:
+                return {"error": "url required"}
+            if kwargs.get("depth"):
+                cmd = ["git", "clone", "--depth", str(kwargs["depth"]), url]
+            else:
+                cmd = ["git", "clone", url]
+            if dest:
+                cmd.append(dest)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+            return {"output": result.stdout[:5000] + result.stderr[:5000],
+                    "returncode": result.returncode}
+
+        elif action == "github_api":
+            # Generic GitHub API calls
+            token = kwargs.get("token", os.environ.get("GITHUB_TOKEN", ""))
+            endpoint = kwargs.get("endpoint", "")
+            method = kwargs.get("method", "GET").upper()
+            body = kwargs.get("body")
+            if not token:
+                return {"error": "GITHUB_TOKEN env var or token param required"}
+            if not endpoint:
+                return {"error": "endpoint required (e.g., /repos/owner/name/issues)"}
+            import urllib.request
+            url = f"https://api.github.com{endpoint}" if endpoint.startswith("/") else endpoint
+            data = json.dumps(body).encode() if body else None
+            req = urllib.request.Request(url, data=data, method=method)
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            req.add_header("User-Agent", "OpenClaw-Army/3.0")
+            if body:
+                req.add_header("Content-Type", "application/json")
+            resp = urllib.request.urlopen(req, timeout=30)
+            resp_body = resp.read().decode()
+            try:
+                return {"status": resp.status, "data": json.loads(resp_body)}
+            except json.JSONDecodeError:
+                return {"status": resp.status, "data": resp_body[:10000]}
+
+        elif action == "create_pr":
+            token = kwargs.get("token", os.environ.get("GITHUB_TOKEN", ""))
+            repo = kwargs.get("repo", "")  # "owner/name"
+            title = kwargs.get("title", "")
+            head = kwargs.get("head", "")
+            base = kwargs.get("base", "main")
+            body_text = kwargs.get("body", "")
+            if not all([token, repo, title, head]):
+                return {"error": "token, repo (owner/name), title, and head branch required"}
+            return _git_ops("github_api", token=token, endpoint=f"/repos/{repo}/pulls",
+                           method="POST", body={"title": title, "head": head, "base": base, "body": body_text})
+
+        elif action == "list_issues":
+            token = kwargs.get("token", os.environ.get("GITHUB_TOKEN", ""))
+            repo = kwargs.get("repo", "")
+            state = kwargs.get("state", "open")
+            if not repo:
+                return {"error": "repo (owner/name) required"}
+            return _git_ops("github_api", token=token,
+                           endpoint=f"/repos/{repo}/issues?state={state}&per_page=30")
+
+        else:
+            return {"error": f"Unknown action: {action}. Use status, log, diff, branch, stash, remote, tag, commit, push, pull, clone, github_api, create_pr, list_issues."}
+
+    except Exception as e:
+        return {"error": f"git_ops failed: {e}"}
+
+
+# ── Code Analysis (AST, Lint, Security Scan) ──────────────────────────────
+
+def _code_analyze(action: str, **kwargs) -> dict:
+    """Analyze code — AST parsing, linting, security scanning, complexity metrics."""
+    try:
+        if action == "ast_parse":
+            code = kwargs.get("code", "")
+            path = kwargs.get("path", "")
+            if path:
+                code = Path(path).expanduser().read_text(errors="replace")
+            if not code:
+                return {"error": "code or path required"}
+            import ast
+            tree = ast.parse(code)
+            classes = [n.name for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]
+            functions = [n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) or isinstance(n, ast.AsyncFunctionDef)]
+            imports = []
+            for n in ast.walk(tree):
+                if isinstance(n, ast.Import):
+                    imports.extend(a.name for a in n.names)
+                elif isinstance(n, ast.ImportFrom):
+                    imports.append(n.module or "")
+            return {"classes": classes, "functions": functions[:200], "imports": list(set(imports)),
+                    "total_nodes": sum(1 for _ in ast.walk(tree)),
+                    "lines": len(code.split("\n"))}
+
+        elif action == "lint":
+            path = kwargs.get("path", "")
+            if not path:
+                return {"error": "path required"}
+            # Try flake8 first, then pylint
+            for linter in ["flake8", "pylint"]:
+                check = subprocess.run([sys.executable, "-m", linter, "--version"],
+                                        capture_output=True, timeout=10)
+                if check.returncode == 0:
+                    result = subprocess.run(
+                        [sys.executable, "-m", linter, path],
+                        capture_output=True, text=True, timeout=60)
+                    return {"linter": linter, "output": result.stdout[:15000],
+                            "returncode": result.returncode,
+                            "stderr": result.stderr[:2000]}
+            # Auto-install flake8
+            subprocess.run([sys.executable, "-m", "pip", "install", "-q", "flake8"],
+                           capture_output=True, timeout=60)
+            result = subprocess.run([sys.executable, "-m", "flake8", path],
+                                     capture_output=True, text=True, timeout=60)
+            return {"linter": "flake8", "output": result.stdout[:15000],
+                    "returncode": result.returncode}
+
+        elif action == "security_scan":
+            path = kwargs.get("path", "")
+            if not path:
+                return {"error": "path required"}
+            check = subprocess.run([sys.executable, "-m", "bandit", "--version"],
+                                    capture_output=True, timeout=10)
+            if check.returncode != 0:
+                subprocess.run([sys.executable, "-m", "pip", "install", "-q", "bandit"],
+                               capture_output=True, timeout=60)
+            result = subprocess.run(
+                [sys.executable, "-m", "bandit", "-r", path, "-f", "json", "-ll"],
+                capture_output=True, text=True, timeout=120)
+            try:
+                data = json.loads(result.stdout)
+                return {"issues": data.get("results", [])[:50],
+                        "metrics": data.get("metrics", {}),
+                        "severity_counts": {
+                            "high": len([r for r in data.get("results", []) if r.get("issue_severity") == "HIGH"]),
+                            "medium": len([r for r in data.get("results", []) if r.get("issue_severity") == "MEDIUM"]),
+                            "low": len([r for r in data.get("results", []) if r.get("issue_severity") == "LOW"]),
+                        }}
+            except json.JSONDecodeError:
+                return {"output": result.stdout[:10000], "stderr": result.stderr[:2000]}
+
+        elif action == "complexity":
+            path = kwargs.get("path", "")
+            code = kwargs.get("code", "")
+            if path:
+                code = Path(path).expanduser().read_text(errors="replace")
+            if not code:
+                return {"error": "code or path required"}
+            import ast
+            tree = ast.parse(code)
+            # Cyclomatic complexity approximation
+            complexities = []
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    cc = 1
+                    for child in ast.walk(node):
+                        if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler,
+                                              ast.With, ast.Assert, ast.BoolOp)):
+                            cc += 1
+                        if isinstance(child, ast.BoolOp):
+                            cc += len(child.values) - 1
+                    complexities.append({"name": node.name, "line": node.lineno, "complexity": cc})
+            complexities.sort(key=lambda x: x["complexity"], reverse=True)
+            return {"functions": complexities[:50],
+                    "total_functions": len(complexities),
+                    "avg_complexity": sum(c["complexity"] for c in complexities) / max(len(complexities), 1),
+                    "max_complexity": complexities[0]["complexity"] if complexities else 0}
+
+        elif action == "find_todos":
+            path = kwargs.get("path", ARMY_HOME)
+            pattern = kwargs.get("pattern", "*.py")
+            p = Path(path).expanduser()
+            todos = []
+            for f in (p.rglob(pattern) if p.is_dir() else [p]):
+                if not f.is_file() or f.stat().st_size > 2_000_000:
+                    continue
+                for i, line in enumerate(f.read_text(errors="replace").split("\n"), 1):
+                    for marker in ["TODO", "FIXME", "HACK", "BUG", "XXX"]:
+                        if marker in line:
+                            todos.append({"file": str(f), "line": i, "marker": marker,
+                                          "text": line.strip()[:200]})
+                            break
+                if len(todos) >= 200:
+                    break
+            return {"todos": todos, "count": len(todos)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use ast_parse, lint, security_scan, complexity, find_todos."}
+    except Exception as e:
+        return {"error": f"code_analyze failed: {e}"}
+
+
+# ── LLM Fallback (Multi-provider routing) ─────────────────────────────────
+
+_LLM_PROVIDERS: dict[str, dict] = {}  # provider_name -> {base_url, api_key, model, priority}
+_LLM_PROVIDERS_PATH = Path(ARMY_HOME) / "data" / "llm_providers.json"
+
+def _load_llm_providers():
+    """Load LLM provider configurations from disk."""
+    global _LLM_PROVIDERS
+    if _LLM_PROVIDERS_PATH.exists():
+        try:
+            _LLM_PROVIDERS = json.loads(_LLM_PROVIDERS_PATH.read_text())
+        except Exception:
+            pass
+
+def _save_llm_providers():
+    _LLM_PROVIDERS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _LLM_PROVIDERS_PATH.write_text(json.dumps(_LLM_PROVIDERS, indent=2))
+
+_load_llm_providers()
+
+def _llm_fallback(action: str, **kwargs) -> dict:
+    """Manage LLM provider fallback chain — add providers, test, query with automatic failover."""
+    try:
+        if action == "add_provider":
+            name = kwargs.get("name", "")
+            base_url = kwargs.get("base_url", "")
+            api_key = kwargs.get("api_key", "")
+            model = kwargs.get("model", "")
+            priority = kwargs.get("priority", 10)
+            if not all([name, base_url, model]):
+                return {"error": "name, base_url, and model required"}
+            _LLM_PROVIDERS[name] = {
+                "base_url": base_url, "api_key": api_key,
+                "model": model, "priority": priority, "enabled": True,
+            }
+            _save_llm_providers()
+            return {"added": name, "total_providers": len(_LLM_PROVIDERS)}
+
+        elif action == "remove_provider":
+            name = kwargs.get("name", "")
+            if name in _LLM_PROVIDERS:
+                del _LLM_PROVIDERS[name]
+                _save_llm_providers()
+                return {"removed": name}
+            return {"error": f"Provider '{name}' not found"}
+
+        elif action == "list_providers":
+            providers = []
+            # Include the default NVIDIA provider
+            providers.append({
+                "name": "nvidia_default", "base_url": LLM_BASE_URL,
+                "model": LLM_MODEL, "priority": 0, "builtin": True,
+            })
+            for name, cfg in sorted(_LLM_PROVIDERS.items(), key=lambda x: x[1].get("priority", 10)):
+                providers.append({"name": name, **{k: v for k, v in cfg.items() if k != "api_key"},
+                                  "has_key": bool(cfg.get("api_key"))})
+            return {"providers": providers, "count": len(providers)}
+
+        elif action == "test_provider":
+            name = kwargs.get("name", "")
+            if name == "nvidia_default":
+                base_url, api_key, model = LLM_BASE_URL, _get_api_key(), LLM_MODEL
+            elif name in _LLM_PROVIDERS:
+                cfg = _LLM_PROVIDERS[name]
+                base_url, api_key, model = cfg["base_url"], cfg.get("api_key", ""), cfg["model"]
+            else:
+                return {"error": f"Provider '{name}' not found"}
+            try:
+                import urllib.request
+                req = urllib.request.Request(f"{base_url}/models", method="GET")
+                if api_key:
+                    req.add_header("Authorization", f"Bearer {api_key}")
+                req.add_header("User-Agent", "OpenClaw-Army/3.0")
+                resp = urllib.request.urlopen(req, timeout=10)
+                return {"provider": name, "reachable": True, "status": resp.status}
+            except Exception as e:
+                return {"provider": name, "reachable": False, "error": str(e)[:200]}
+
+        elif action == "query":
+            # Try providers in priority order with automatic failover
+            prompt = kwargs.get("prompt", "")
+            if not prompt:
+                return {"error": "prompt required"}
+            providers_ordered = [
+                ("nvidia_default", {"base_url": LLM_BASE_URL, "api_key": _get_api_key(), "model": LLM_MODEL, "priority": 0})
+            ]
+            for name, cfg in sorted(_LLM_PROVIDERS.items(), key=lambda x: x[1].get("priority", 10)):
+                if cfg.get("enabled"):
+                    providers_ordered.append((name, cfg))
+            providers_ordered.sort(key=lambda x: x[1].get("priority", 10))
+
+            for name, cfg in providers_ordered:
+                try:
+                    import urllib.request
+                    data = json.dumps({
+                        "model": cfg["model"],
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": kwargs.get("max_tokens", 1024),
+                        "temperature": kwargs.get("temperature", 0.7),
+                    }).encode()
+                    req = urllib.request.Request(f"{cfg['base_url']}/chat/completions",
+                                                 data=data, method="POST")
+                    if cfg.get("api_key"):
+                        req.add_header("Authorization", f"Bearer {cfg['api_key']}")
+                    req.add_header("Content-Type", "application/json")
+                    req.add_header("User-Agent", "OpenClaw-Army/3.0")
+                    resp = urllib.request.urlopen(req, timeout=kwargs.get("timeout", 60))
+                    body = json.loads(resp.read().decode())
+                    content = body.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    return {"provider": name, "model": cfg["model"], "response": content[:10000],
+                            "usage": body.get("usage", {})}
+                except Exception:
+                    continue
+            return {"error": "All LLM providers failed"}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use add_provider, remove_provider, list_providers, test_provider, query."}
+    except Exception as e:
+        return {"error": f"llm_fallback failed: {e}"}
+
+
+# ── Notification Sender (Multi-channel) ────────────────────────────────────
+
+def _notify_send(action: str, **kwargs) -> dict:
+    """Send notifications via multiple channels — Slack, Discord, macOS native, Pushover."""
+    try:
+        if action == "macos":
+            title = kwargs.get("title", "OpenClaw Army")
+            message = kwargs.get("message", "")
+            sound = kwargs.get("sound", "default")
+            if not message:
+                return {"error": "message required"}
+            def _osa_escape(s: str) -> str:
+                return s.replace('\\', '\\\\').replace('"', '\\"')
+            escaped_title = _osa_escape(title)
+            escaped_msg = _osa_escape(message)
+            escaped_sound = _osa_escape(sound)
+            script = f'display notification "{escaped_msg}" with title "{escaped_title}" sound name "{escaped_sound}"'
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            return {"sent": result.returncode == 0, "channel": "macos",
+                    "error": result.stderr if result.returncode else ""}
+
+        elif action == "slack":
+            webhook_url = kwargs.get("webhook_url", os.environ.get("SLACK_WEBHOOK_URL", ""))
+            message = kwargs.get("message", "")
+            channel = kwargs.get("channel", "")
+            if not webhook_url:
+                return {"error": "webhook_url or SLACK_WEBHOOK_URL env var required"}
+            if not message:
+                return {"error": "message required"}
+            payload = {"text": message}
+            if channel:
+                payload["channel"] = channel
+            import urllib.request
+            data = json.dumps(payload).encode()
+            req = urllib.request.Request(webhook_url, data=data, method="POST")
+            req.add_header("Content-Type", "application/json")
+            resp = urllib.request.urlopen(req, timeout=10)
+            return {"sent": True, "channel": "slack", "status": resp.status}
+
+        elif action == "discord":
+            webhook_url = kwargs.get("webhook_url", os.environ.get("DISCORD_WEBHOOK_URL", ""))
+            message = kwargs.get("message", "")
+            username = kwargs.get("username", "OpenClaw Army")
+            if not webhook_url:
+                return {"error": "webhook_url or DISCORD_WEBHOOK_URL env var required"}
+            if not message:
+                return {"error": "message required"}
+            import urllib.request
+            payload = {"content": message[:2000], "username": username}
+            data = json.dumps(payload).encode()
+            req = urllib.request.Request(webhook_url, data=data, method="POST")
+            req.add_header("Content-Type", "application/json")
+            resp = urllib.request.urlopen(req, timeout=10)
+            return {"sent": True, "channel": "discord", "status": resp.status}
+
+        elif action == "pushover":
+            token = kwargs.get("token", os.environ.get("PUSHOVER_APP_TOKEN", ""))
+            user = kwargs.get("user", os.environ.get("PUSHOVER_USER_KEY", ""))
+            message = kwargs.get("message", "")
+            title = kwargs.get("title", "OpenClaw Army")
+            priority = kwargs.get("priority", 0)
+            if not all([token, user, message]):
+                return {"error": "token, user, and message required (or set PUSHOVER_APP_TOKEN/PUSHOVER_USER_KEY)"}
+            import urllib.request, urllib.parse
+            data = urllib.parse.urlencode({
+                "token": token, "user": user, "message": message[:1024],
+                "title": title, "priority": priority,
+            }).encode()
+            req = urllib.request.Request("https://api.pushover.net/1/messages.json",
+                                          data=data, method="POST")
+            resp = urllib.request.urlopen(req, timeout=10)
+            return {"sent": True, "channel": "pushover", "status": resp.status}
+
+        elif action == "say":
+            # macOS text-to-speech
+            message = kwargs.get("message", "")
+            voice = kwargs.get("voice", "")
+            if not message:
+                return {"error": "message required"}
+            cmd = ["say"]
+            if voice:
+                cmd.extend(["-v", voice])
+            cmd.append(message[:500])
+            subprocess.run(cmd, capture_output=True, timeout=30)
+            return {"spoken": True, "length": len(message)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use macos, slack, discord, pushover, say."}
+    except Exception as e:
+        return {"error": f"notify_send failed: {e}"}
+
+
+# ── Full System Backup & Disaster Recovery ─────────────────────────────────
+
+def _full_backup(action: str, **kwargs) -> dict:
+    """Complete system backup and restore — all code, data, configs, databases."""
+    try:
+        backup_base = Path(ARMY_HOME) / "backups"
+        backup_base.mkdir(parents=True, exist_ok=True)
+
+        if action == "create":
+            label = kwargs.get("label", "full")
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            backup_dir = backup_base / f"full_{ts}_{label}"
+            backup_dir.mkdir(parents=True)
+
+            manifest = {"ts": ts, "label": label, "contents": []}
+
+            # 1. Main code
+            src = Path(__file__).resolve()
+            shutil.copy2(src, backup_dir / "main.py")
+            manifest["contents"].append("main.py")
+
+            # 2. Data directory
+            data_dir = Path(ARMY_HOME) / "data"
+            if data_dir.exists():
+                shutil.copytree(data_dir, backup_dir / "data", dirs_exist_ok=True)
+                manifest["contents"].append("data/")
+
+            # 3. Agents directory
+            agents_dir = Path(ARMY_HOME) / "agents"
+            if agents_dir.exists():
+                shutil.copytree(agents_dir, backup_dir / "agents", dirs_exist_ok=True)
+                manifest["contents"].append("agents/")
+
+            # 4. Config files
+            for cfg in [".env", "docker-compose.yml", "docker-compose.override.yml"]:
+                cfg_path = Path(ARMY_HOME) / cfg
+                if cfg_path.exists():
+                    shutil.copy2(cfg_path, backup_dir / cfg)
+                    manifest["contents"].append(cfg)
+
+            # 5. PostgreSQL dump
+            try:
+                pg_dump = backup_dir / "pg_dump.sql"
+                dsn = os.environ.get("DATABASE_URL", "postgresql://landonking@localhost:5432/openclaw")
+                result = subprocess.run(["pg_dump", dsn, "-f", str(pg_dump)],
+                                         capture_output=True, text=True, timeout=120)
+                if result.returncode == 0:
+                    manifest["contents"].append("pg_dump.sql")
+            except Exception as e:
+                manifest["pg_dump_error"] = str(e)[:200]
+
+            # 6. Redis snapshot
+            try:
+                rdb = backup_dir / "redis_dump.rdb"
+                redis_dir = subprocess.run(["redis-cli", "CONFIG", "GET", "dir"],
+                                            capture_output=True, text=True, timeout=5)
+                if redis_dir.returncode == 0:
+                    lines = redis_dir.stdout.strip().split("\n")
+                    if len(lines) >= 2:
+                        rdb_src = Path(lines[1]) / "dump.rdb"
+                        if rdb_src.exists():
+                            subprocess.run(["redis-cli", "BGSAVE"], capture_output=True, timeout=10)
+                            time.sleep(2)
+                            shutil.copy2(rdb_src, rdb)
+                            manifest["contents"].append("redis_dump.rdb")
+            except Exception as e:
+                manifest["redis_error"] = str(e)[:200]
+
+            # Write manifest
+            (backup_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
+
+            # Calculate size
+            total_size = sum(f.stat().st_size for f in backup_dir.rglob("*") if f.is_file())
+
+            return {"backup_dir": str(backup_dir), "contents": manifest["contents"],
+                    "total_size_mb": round(total_size / (1024*1024), 2),
+                    "manifest": str(backup_dir / "manifest.json")}
+
+        elif action == "list":
+            backups = []
+            for d in sorted(backup_base.iterdir(), reverse=True):
+                if d.is_dir() and d.name.startswith("full_"):
+                    manifest_path = d / "manifest.json"
+                    size = sum(f.stat().st_size for f in d.rglob("*") if f.is_file())
+                    info = {"name": d.name, "path": str(d), "size_mb": round(size / (1024*1024), 2)}
+                    if manifest_path.exists():
+                        try:
+                            info["manifest"] = json.loads(manifest_path.read_text())
+                        except Exception:
+                            pass
+                    backups.append(info)
+            return {"backups": backups[:20], "count": len(backups)}
+
+        elif action == "restore":
+            backup_path = kwargs.get("path", "")
+            if not backup_path or not Path(backup_path).exists():
+                return {"error": "valid backup path required"}
+            bp = Path(backup_path)
+            restored = []
+
+            # Restore main.py
+            src_main = bp / "main.py"
+            if src_main.exists():
+                _safe_backup("pre_restore")
+                shutil.copy2(src_main, Path(__file__).resolve())
+                restored.append("main.py")
+
+            # Restore data/
+            src_data = bp / "data"
+            if src_data.exists():
+                shutil.copytree(src_data, Path(ARMY_HOME) / "data", dirs_exist_ok=True)
+                restored.append("data/")
+
+            # Restore agents/
+            src_agents = bp / "agents"
+            if src_agents.exists():
+                shutil.copytree(src_agents, Path(ARMY_HOME) / "agents", dirs_exist_ok=True)
+                restored.append("agents/")
+
+            # Restore config files
+            for cfg in [".env", "docker-compose.yml"]:
+                src_cfg = bp / cfg
+                if src_cfg.exists():
+                    shutil.copy2(src_cfg, Path(ARMY_HOME) / cfg)
+                    restored.append(cfg)
+
+            # Restore PostgreSQL
+            pg_dump = bp / "pg_dump.sql"
+            if pg_dump.exists() and kwargs.get("restore_db"):
+                dsn = os.environ.get("DATABASE_URL", "postgresql://landonking@localhost:5432/openclaw")
+                result = subprocess.run(["psql", dsn, "-f", str(pg_dump)],
+                                         capture_output=True, text=True, timeout=120)
+                restored.append(f"pg_dump.sql (rc={result.returncode})")
+
+            return {"restored": restored, "source": str(bp),
+                    "hint": "Restart the server to apply restored code"}
+
+        elif action == "cleanup":
+            keep = kwargs.get("keep", 5)
+            backups = sorted([d for d in backup_base.iterdir() if d.is_dir()], reverse=True)
+            removed = []
+            for d in backups[keep:]:
+                shutil.rmtree(d)
+                removed.append(d.name)
+            return {"removed": removed, "kept": min(len(backups), keep)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use create, list, restore, cleanup."}
+    except Exception as e:
+        return {"error": f"full_backup failed: {e}"}
+
+
+# ── Embeddings & Vector Search ─────────────────────────────────────────────
+
+_EMBEDDINGS_PATH = Path(ARMY_HOME) / "data" / "embeddings"
+
+def _embeddings(action: str, **kwargs) -> dict:
+    """Generate text embeddings, store vectors, and perform similarity search."""
+    import numpy as np
+
+    _EMBEDDINGS_PATH.mkdir(parents=True, exist_ok=True)
+
+    try:
+        if action == "encode":
+            texts = kwargs.get("texts", [])
+            if isinstance(texts, str):
+                texts = [texts]
+            if not texts:
+                return {"error": "texts required (string or list of strings)"}
+            collection = kwargs.get("collection", "default")
+
+            # Use the configured LLM API's embedding endpoint if available,
+            # otherwise fall back to simple TF-IDF style embeddings
+            try:
+                import urllib.request
+                api_key = _get_api_key()
+                data = json.dumps({"input": texts[:100], "model": "nvidia/nv-embedqa-e5-v5"}).encode()
+                req = urllib.request.Request(f"{LLM_BASE_URL}/embeddings", data=data, method="POST")
+                req.add_header("Authorization", f"Bearer {api_key}")
+                req.add_header("Content-Type", "application/json")
+                resp = urllib.request.urlopen(req, timeout=30)
+                body = json.loads(resp.read().decode())
+                vectors = [item["embedding"] for item in body["data"]]
+            except Exception:
+                # Simple bag-of-words fallback embedding
+                from collections import Counter
+                vocab = set()
+                for t in texts:
+                    vocab.update(t.lower().split())
+                vocab_list = sorted(vocab)[:500]
+                vocab_idx = {w: i for i, w in enumerate(vocab_list)}
+                vectors = []
+                for t in texts:
+                    words = Counter(t.lower().split())
+                    vec = [0.0] * len(vocab_list)
+                    for w, c in words.items():
+                        if w in vocab_idx:
+                            vec[vocab_idx[w]] = float(c)
+                    norm = np.linalg.norm(vec) or 1.0
+                    vectors.append((np.array(vec) / norm).tolist())
+
+            # Store to collection
+            col_path = _EMBEDDINGS_PATH / f"{collection}.json"
+            store = json.loads(col_path.read_text()) if col_path.exists() else {"texts": [], "vectors": []}
+            store["texts"].extend(texts)
+            store["vectors"].extend(vectors)
+            col_path.write_text(json.dumps(store))
+
+            return {"encoded": len(texts), "collection": collection,
+                    "total_stored": len(store["texts"]),
+                    "vector_dim": len(vectors[0]) if vectors else 0}
+
+        elif action == "search":
+            query = kwargs.get("query", "")
+            collection = kwargs.get("collection", "default")
+            top_k = kwargs.get("top_k", 5)
+            if not query:
+                return {"error": "query required"}
+
+            col_path = _EMBEDDINGS_PATH / f"{collection}.json"
+            if not col_path.exists():
+                return {"error": f"Collection '{collection}' not found"}
+
+            store = json.loads(col_path.read_text())
+            if not store["vectors"]:
+                return {"results": [], "count": 0}
+
+            # Encode query the same way
+            try:
+                import urllib.request
+                api_key = _get_api_key()
+                data = json.dumps({"input": [query], "model": "nvidia/nv-embedqa-e5-v5"}).encode()
+                req = urllib.request.Request(f"{LLM_BASE_URL}/embeddings", data=data, method="POST")
+                req.add_header("Authorization", f"Bearer {api_key}")
+                req.add_header("Content-Type", "application/json")
+                resp = urllib.request.urlopen(req, timeout=30)
+                body = json.loads(resp.read().decode())
+                q_vec = np.array(body["data"][0]["embedding"])
+            except Exception:
+                from collections import Counter
+                dim = len(store["vectors"][0])
+                # Reconstruct vocab from stored vectors (approximate)
+                words = Counter(query.lower().split())
+                q_vec = np.zeros(dim)
+                # Simple fallback: just match text directly
+                results = []
+                for i, text in enumerate(store["texts"]):
+                    score = sum(1 for w in query.lower().split() if w in text.lower())
+                    if score > 0:
+                        results.append({"text": text[:500], "score": score, "index": i})
+                results.sort(key=lambda x: x["score"], reverse=True)
+                return {"results": results[:top_k], "count": len(results), "method": "keyword_fallback"}
+
+            # Cosine similarity
+            stored = np.array(store["vectors"])
+            norms = np.linalg.norm(stored, axis=1, keepdims=True)
+            norms[norms == 0] = 1
+            normalized = stored / norms
+            q_norm = q_vec / (np.linalg.norm(q_vec) or 1)
+            scores = normalized @ q_norm
+            top_indices = np.argsort(scores)[::-1][:top_k]
+            results = [{"text": store["texts"][i][:500], "score": float(scores[i]), "index": int(i)}
+                       for i in top_indices if scores[i] > 0]
+            return {"results": results, "count": len(results), "method": "cosine_similarity"}
+
+        elif action == "list_collections":
+            collections = []
+            for f in _EMBEDDINGS_PATH.glob("*.json"):
+                try:
+                    store = json.loads(f.read_text())
+                    collections.append({"name": f.stem, "count": len(store.get("texts", [])),
+                                        "size_kb": round(f.stat().st_size / 1024, 1)})
+                except Exception:
+                    collections.append({"name": f.stem, "error": "corrupt"})
+            return {"collections": collections}
+
+        elif action == "delete_collection":
+            collection = kwargs.get("collection", "")
+            col_path = _EMBEDDINGS_PATH / f"{collection}.json"
+            if col_path.exists():
+                col_path.unlink()
+                return {"deleted": collection}
+            return {"error": f"Collection '{collection}' not found"}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use encode, search, list_collections, delete_collection."}
+    except Exception as e:
+        return {"error": f"embeddings failed: {e}"}
+
+
+# ── Generic API Client ─────────────────────────────────────────────────────
+
+def _api_client(action: str, **kwargs) -> dict:
+    """Generic REST/GraphQL API client with auth, pagination, retry."""
+    import urllib.request, urllib.parse
+    try:
+        if action == "request":
+            url = kwargs.get("url", "")
+            method = kwargs.get("method", "GET").upper()
+            headers = kwargs.get("headers", {})
+            body = kwargs.get("body")
+            auth_type = kwargs.get("auth_type", "")  # bearer, basic, api_key
+            auth_value = kwargs.get("auth_value", "")
+            timeout = min(kwargs.get("timeout", 30), 120)
+
+            if not url:
+                return {"error": "url required"}
+
+            if auth_type == "bearer" and auth_value:
+                headers["Authorization"] = f"Bearer {auth_value}"
+            elif auth_type == "basic" and auth_value:
+                import base64
+                headers["Authorization"] = f"Basic {base64.b64encode(auth_value.encode()).decode()}"
+            elif auth_type == "api_key" and auth_value:
+                key_name = kwargs.get("key_name", "X-API-Key")
+                headers[key_name] = auth_value
+
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = "OpenClaw-Army/3.0"
+
+            data = None
+            if body:
+                if isinstance(body, (dict, list)):
+                    data = json.dumps(body).encode()
+                    headers.setdefault("Content-Type", "application/json")
+                else:
+                    data = str(body).encode()
+
+            retries = kwargs.get("retries", 0)
+            last_error = ""
+            for attempt in range(retries + 1):
+                try:
+                    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+                    resp = urllib.request.urlopen(req, timeout=timeout)
+                    resp_body = resp.read().decode(errors="replace")
+                    try:
+                        parsed = json.loads(resp_body)
+                    except json.JSONDecodeError:
+                        parsed = resp_body[:20000]
+                    return {"status": resp.status, "data": parsed,
+                            "headers": dict(resp.headers), "attempt": attempt + 1}
+                except Exception as e:
+                    last_error = str(e)[:200]
+                    if attempt < retries:
+                        time.sleep(min(2 ** attempt, 10))
+                        continue
+            return {"error": f"Request failed after {retries + 1} attempts: {last_error}"}
+
+        elif action == "graphql":
+            url = kwargs.get("url", "")
+            query = kwargs.get("query", "")
+            variables = kwargs.get("variables", {})
+            headers = kwargs.get("headers", {})
+            auth_value = kwargs.get("auth_value", "")
+            if not url or not query:
+                return {"error": "url and query required"}
+            if auth_value:
+                headers["Authorization"] = f"Bearer {auth_value}"
+            headers.setdefault("Content-Type", "application/json")
+            headers.setdefault("User-Agent", "OpenClaw-Army/3.0")
+            data = json.dumps({"query": query, "variables": variables}).encode()
+            req = urllib.request.Request(url, data=data, method="POST", headers=headers)
+            resp = urllib.request.urlopen(req, timeout=kwargs.get("timeout", 30))
+            body = json.loads(resp.read().decode())
+            return {"data": body.get("data"), "errors": body.get("errors"),
+                    "status": resp.status}
+
+        elif action == "paginate":
+            url = kwargs.get("url", "")
+            headers = kwargs.get("headers", {})
+            auth_value = kwargs.get("auth_value", "")
+            max_pages = kwargs.get("max_pages", 5)
+            page_param = kwargs.get("page_param", "page")
+            per_page = kwargs.get("per_page", 50)
+            if not url:
+                return {"error": "url required"}
+            if auth_value:
+                headers["Authorization"] = f"Bearer {auth_value}"
+            headers.setdefault("User-Agent", "OpenClaw-Army/3.0")
+
+            all_data = []
+            for page_num in range(1, max_pages + 1):
+                sep = "&" if "?" in url else "?"
+                page_url = f"{url}{sep}{page_param}={page_num}&per_page={per_page}"
+                req = urllib.request.Request(page_url, headers=headers)
+                resp = urllib.request.urlopen(req, timeout=30)
+                body = json.loads(resp.read().decode())
+                if isinstance(body, list):
+                    if not body:
+                        break
+                    all_data.extend(body)
+                elif isinstance(body, dict):
+                    items = body.get("results", body.get("data", body.get("items", [])))
+                    if not items:
+                        break
+                    all_data.extend(items if isinstance(items, list) else [items])
+            return {"data": all_data[:500], "total_fetched": len(all_data), "pages": page_num}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use request, graphql, paginate."}
+    except Exception as e:
+        return {"error": f"api_client failed: {e}"}
+
+
+# ── Advanced Cron (Dependencies, Conditions, Chaining) ─────────────────────
+
+_CRON_CHAINS: dict[str, dict] = {}
+_CRON_CHAINS_PATH = Path(ARMY_HOME) / "data" / "cron_chains.json"
+
+def _load_cron_chains():
+    global _CRON_CHAINS
+    if _CRON_CHAINS_PATH.exists():
+        try:
+            _CRON_CHAINS = json.loads(_CRON_CHAINS_PATH.read_text())
+        except Exception:
+            pass
+
+def _save_cron_chains():
+    _CRON_CHAINS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _CRON_CHAINS_PATH.write_text(json.dumps(_CRON_CHAINS, indent=2))
+
+_load_cron_chains()
+
+def _cron_advanced(action: str, **kwargs) -> dict:
+    """Advanced cron with task chains, conditional execution, retry policies."""
+    try:
+        if action == "create_chain":
+            name = kwargs.get("name", "")
+            steps = kwargs.get("steps", [])
+            if not name or not steps:
+                return {"error": "name and steps required"}
+            chain = {
+                "name": name,
+                "steps": steps,  # [{tool, args, on_fail: "abort"|"skip"|"retry", retries: 3}]
+                "schedule": kwargs.get("schedule", ""),  # cron expression or ""
+                "enabled": True,
+                "run_count": 0,
+                "last_run": None,
+                "last_result": None,
+                "created": datetime.now(timezone.utc).isoformat(),
+            }
+            _CRON_CHAINS[name] = chain
+            _save_cron_chains()
+            return {"created": name, "steps": len(steps)}
+
+        elif action == "run_chain":
+            name = kwargs.get("name", "")
+            if name not in _CRON_CHAINS:
+                return {"error": f"Chain '{name}' not found"}
+            chain = _CRON_CHAINS[name]
+            results = []
+            for i, step in enumerate(chain["steps"]):
+                tool = step.get("tool", "")
+                args = step.get("args", {})
+                on_fail = step.get("on_fail", "abort")
+                retries = step.get("retries", 0)
+
+                step_result = None
+                for attempt in range(retries + 1):
+                    try:
+                        # Execute the step using shell_command for now
+                        if tool == "shell":
+                            step_result = _run_shell_command(args.get("command", ""), args.get("timeout", 60))
+                        elif tool == "http":
+                            step_result = _api_client("request", **args)
+                        elif tool == "notify":
+                            step_result = _notify_send(args.get("channel", "macos"), **args)
+                        else:
+                            step_result = {"error": f"Unknown step tool: {tool}. Use shell, http, notify."}
+                        if not step_result.get("error"):
+                            break
+                    except Exception as e:
+                        step_result = {"error": str(e)[:200]}
+                    if attempt < retries:
+                        time.sleep(2)
+
+                results.append({"step": i, "tool": tool, "result": step_result, "success": not step_result.get("error")})
+                if step_result.get("error") and on_fail == "abort":
+                    break
+
+            chain["run_count"] += 1
+            chain["last_run"] = datetime.now(timezone.utc).isoformat()
+            chain["last_result"] = "success" if all(r["success"] for r in results) else "partial_failure"
+            _save_cron_chains()
+            return {"chain": name, "results": results, "overall": chain["last_result"]}
+
+        elif action == "list_chains":
+            chains = []
+            for name, chain in _CRON_CHAINS.items():
+                chains.append({
+                    "name": name, "steps": len(chain.get("steps", [])),
+                    "enabled": chain.get("enabled"), "run_count": chain.get("run_count", 0),
+                    "last_run": chain.get("last_run"), "schedule": chain.get("schedule", ""),
+                })
+            return {"chains": chains, "count": len(chains)}
+
+        elif action == "delete_chain":
+            name = kwargs.get("name", "")
+            if name in _CRON_CHAINS:
+                del _CRON_CHAINS[name]
+                _save_cron_chains()
+                return {"deleted": name}
+            return {"error": f"Chain '{name}' not found"}
+
+        elif action == "toggle":
+            name = kwargs.get("name", "")
+            if name not in _CRON_CHAINS:
+                return {"error": f"Chain '{name}' not found"}
+            _CRON_CHAINS[name]["enabled"] = not _CRON_CHAINS[name].get("enabled", True)
+            _save_cron_chains()
+            return {"name": name, "enabled": _CRON_CHAINS[name]["enabled"]}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use create_chain, run_chain, list_chains, delete_chain, toggle."}
+    except Exception as e:
+        return {"error": f"cron_advanced failed: {e}"}
+
+
+# ── macOS Accessibility API ────────────────────────────────────────────────
+
+def _accessibility(action: str, **kwargs) -> dict:
+    """macOS Accessibility API — inspect UI elements, read AX tree, interact with controls."""
+    def _osa_esc(s: str) -> str:
+        """Escape a string for safe interpolation into AppleScript double-quoted strings."""
+        return s.replace('\\', '\\\\').replace('"', '\\"')
+
+    try:
+        if action == "get_focused_app":
+            script = '''
+tell application "System Events"
+    set frontApp to first application process whose frontmost is true
+    return (name of frontApp) & "|" & (title of (first window of frontApp))
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            parts = result.stdout.strip().split("|")
+            return {"app": parts[0] if parts else "", "window_title": parts[1] if len(parts) > 1 else "",
+                    "error": result.stderr if result.returncode else ""}
+
+        elif action == "get_ui_elements":
+            app = kwargs.get("app", "")
+            if not app:
+                return {"error": "app name required"}
+            esc_app = _osa_esc(app)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        set uiList to ""
+        try
+            repeat with w in windows
+                set wTitle to name of w
+                repeat with elem in (UI elements of w)
+                    set eName to ""
+                    set eRole to ""
+                    set eVal to ""
+                    try
+                        set eName to name of elem
+                    end try
+                    try
+                        set eRole to role of elem
+                    end try
+                    try
+                        set eVal to value of elem
+                    end try
+                    set uiList to uiList & wTitle & "|||" & eRole & "|||" & eName & "|||" & eVal & "\\n"
+                end repeat
+            end repeat
+        end try
+        return uiList
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=15)
+            elements = []
+            for line in result.stdout.strip().split("\n"):
+                parts = line.split("|||")
+                if len(parts) >= 3:
+                    elements.append({
+                        "window": parts[0], "role": parts[1],
+                        "name": parts[2], "value": parts[3] if len(parts) > 3 else "",
+                    })
+            return {"app": app, "elements": elements[:100], "count": len(elements)}
+
+        elif action == "click_element":
+            app = kwargs.get("app", "")
+            element_name = kwargs.get("element", "")
+            role = kwargs.get("role", "button")
+            if not app or not element_name:
+                return {"error": "app and element name required"}
+            # Validate role against allowed AppleScript UI element types
+            allowed_roles = {"button", "checkbox", "radio button", "text field", "pop up button",
+                             "menu button", "slider", "scroll bar", "tab group", "group",
+                             "static text", "image", "UI element"}
+            if role not in allowed_roles:
+                return {"error": f"Invalid role '{role}'. Allowed: {', '.join(sorted(allowed_roles))}"}
+            esc_app = _osa_esc(app)
+            esc_name = _osa_esc(element_name)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        try
+            click {role} "{esc_name}" of window 1
+            return "clicked"
+        on error errMsg
+            return "error: " & errMsg
+        end try
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            return {"clicked": element_name, "result": result.stdout.strip()}
+
+        elif action == "get_element_value":
+            app = kwargs.get("app", "")
+            element_name = kwargs.get("element", "")
+            role = kwargs.get("role", "text field")
+            if not app or not element_name:
+                return {"error": "app and element name required"}
+            allowed_roles = {"button", "checkbox", "radio button", "text field", "pop up button",
+                             "menu button", "slider", "scroll bar", "static text", "UI element"}
+            if role not in allowed_roles:
+                return {"error": f"Invalid role '{role}'."}
+            esc_app = _osa_esc(app)
+            esc_name = _osa_esc(element_name)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        try
+            return value of {role} "{esc_name}" of window 1
+        on error errMsg
+            return "error: " & errMsg
+        end try
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            return {"element": element_name, "value": result.stdout.strip()}
+
+        elif action == "set_element_value":
+            app = kwargs.get("app", "")
+            element_name = kwargs.get("element", "")
+            value = kwargs.get("value", "")
+            role = kwargs.get("role", "text field")
+            if not app or not element_name:
+                return {"error": "app and element name required"}
+            allowed_roles = {"text field", "text area", "combo box", "pop up button", "UI element"}
+            if role not in allowed_roles:
+                return {"error": f"Invalid role '{role}' for set_element_value."}
+            esc_app = _osa_esc(app)
+            esc_name = _osa_esc(element_name)
+            esc_val = _osa_esc(value)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        try
+            set value of {role} "{esc_name}" of window 1 to "{esc_val}"
+            return "set"
+        on error errMsg
+            return "error: " & errMsg
+        end try
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            return {"element": element_name, "result": result.stdout.strip()}
+
+        elif action == "get_menu_items":
+            app = kwargs.get("app", "")
+            if not app:
+                return {"error": "app name required"}
+            esc_app = _osa_esc(app)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        set menuList to ""
+        repeat with m in menu bar items of menu bar 1
+            set mName to name of m
+            set menuList to menuList & mName & ","
+        end repeat
+        return menuList
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            items = [i.strip() for i in result.stdout.strip().split(",") if i.strip()]
+            return {"app": app, "menu_items": items}
+
+        elif action == "click_menu":
+            app = kwargs.get("app", "")
+            menu = kwargs.get("menu", "")
+            item = kwargs.get("item", "")
+            if not all([app, menu, item]):
+                return {"error": "app, menu, and item required"}
+            esc_app = _osa_esc(app)
+            esc_menu = _osa_esc(menu)
+            esc_item = _osa_esc(item)
+            script = f'''
+tell application "System Events"
+    tell process "{esc_app}"
+        click menu item "{esc_item}" of menu "{esc_menu}" of menu bar item "{esc_menu}" of menu bar 1
+    end tell
+end tell
+'''
+            result = subprocess.run(["/usr/bin/osascript", "-e", script],
+                                     capture_output=True, text=True, timeout=10)
+            return {"clicked": f"{menu} > {item}", "error": result.stderr if result.returncode else ""}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use get_focused_app, get_ui_elements, click_element, get_element_value, set_element_value, get_menu_items, click_menu."}
+    except Exception as e:
+        return {"error": f"accessibility failed: {e}"}
+
+
+# ── Tool #100: screen_share ────────────────────────────────────────────────
+
+_screen_share_session: dict | None = None
+_screen_share_task: asyncio.Task | None = None
+_screen_share_frames: list[dict] = []
+_SCREEN_SHARE_MAX_FRAMES = 30  # ring buffer of recent frames
+
+
+async def _screen_share_capture_loop(interval: float, region: dict | None):
+    """Background loop that captures screenshots with OCR at regular intervals."""
+    global _screen_share_frames
+    import io as _io
+    import base64 as _b64
+    import tempfile as _tmpf
+    try:
+        import pyautogui
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "pyautogui"], timeout=60)
+        import pyautogui
+
+    prev_text = ""
+    while True:
+        try:
+            if region:
+                img = pyautogui.screenshot(region=(region["x"], region["y"], region["width"], region["height"]))
+            else:
+                img = pyautogui.screenshot()
+
+            # OCR text extraction
+            ocr_text = ""
+            try:
+                result = subprocess.run(
+                    ["tesseract", "stdin", "stdout", "--dpi", "144"],
+                    input=img.tobytes(), capture_output=True, timeout=15
+                )
+                if result.returncode != 0:
+                    # Fallback: save to temp file
+                    tmp = Path(_tmpf.gettempdir()) / "screen_share_frame.png"
+                    img.save(str(tmp))
+                    result = subprocess.run(
+                        ["tesseract", str(tmp), "stdout", "--dpi", "144"],
+                        capture_output=True, timeout=15
+                    )
+                    ocr_text = result.stdout.decode("utf-8", errors="replace").strip()
+                else:
+                    ocr_text = result.stdout.decode("utf-8", errors="replace").strip()
+            except FileNotFoundError:
+                ocr_text = "(tesseract not available)"
+            except Exception as e:
+                ocr_text = f"(OCR error: {e})"
+
+            # Change detection
+            changed = ocr_text != prev_text
+            prev_text = ocr_text
+
+            # Compress image to JPEG for storage
+            rgb_img = img.convert("RGB") if img.mode == "RGBA" else img
+            buf = _io.BytesIO()
+            rgb_img.save(buf, format="JPEG", quality=50)
+            b64_img = _b64.b64encode(buf.getvalue()).decode("ascii")
+
+            frame = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "ocr_text": ocr_text[:5000],
+                "changed": changed,
+                "width": img.width,
+                "height": img.height,
+                "image_b64": b64_img,
+                "mouse": list(pyautogui.position()),
+            }
+
+            _screen_share_frames.append(frame)
+            if len(_screen_share_frames) > _SCREEN_SHARE_MAX_FRAMES:
+                _screen_share_frames[:] = _screen_share_frames[-_SCREEN_SHARE_MAX_FRAMES:]
+
+        except asyncio.CancelledError:
+            return
+        except Exception as e:
+            log.warning(f"screen_share capture error: {e}")
+
+        await asyncio.sleep(interval)
+
+
+async def _screen_share(action: str, **kwargs) -> dict:
+    """Live screen sharing with continuous capture, OCR, and change detection."""
+    global _screen_share_session, _screen_share_task, _screen_share_frames
+
+    try:
+        if action == "start_session":
+            if _screen_share_session:
+                return {"status": "already_running", "session": _screen_share_session}
+
+            interval = max(0.5, float(kwargs.get("interval_sec", 2.0)))
+            region = kwargs.get("region")
+            if region and isinstance(region, dict):
+                for k in ("x", "y", "width", "height"):
+                    if k not in region:
+                        return {"error": f"region must have x, y, width, height — missing '{k}'"}
+            else:
+                region = None
+
+            _screen_share_frames.clear()
+            _screen_share_session = {
+                "started_at": datetime.now(timezone.utc).isoformat(),
+                "interval_sec": interval,
+                "region": region,
+                "frames_captured": 0,
+            }
+            _screen_share_task = asyncio.create_task(
+                _screen_share_capture_loop(interval, region)
+            )
+
+            # Check CRD status
+            crd_running = False
+            try:
+                result = subprocess.run(
+                    ["pgrep", "-f", "remoting_me2me_host"],
+                    capture_output=True, timeout=5
+                )
+                crd_running = result.returncode == 0
+            except Exception:
+                pass
+
+            return {
+                "status": "started",
+                "interval_sec": interval,
+                "region": region,
+                "chrome_remote_desktop": "running" if crd_running else "not detected",
+                "note": "Use get_frame to see current screen. Use desktop_control to interact."
+            }
+
+        elif action == "stop_session":
+            if not _screen_share_session:
+                return {"status": "not_running"}
+            if _screen_share_task and not _screen_share_task.done():
+                _screen_share_task.cancel()
+                try:
+                    await _screen_share_task
+                except asyncio.CancelledError:
+                    pass
+            frames_count = len(_screen_share_frames)
+            _screen_share_session = None
+            _screen_share_task = None
+            _screen_share_frames.clear()
+            return {"status": "stopped", "frames_captured": frames_count}
+
+        elif action == "get_frame":
+            if not _screen_share_frames:
+                return {"error": "No frames captured. Start a session first with start_session."}
+            frame = _screen_share_frames[-1]
+            include_image = kwargs.get("include_image", False)
+            result = {
+                "timestamp": frame["timestamp"],
+                "ocr_text": frame["ocr_text"],
+                "changed": frame["changed"],
+                "resolution": f"{frame['width']}x{frame['height']}",
+                "mouse_position": frame["mouse"],
+                "total_frames": len(_screen_share_frames),
+            }
+            if include_image:
+                result["image_b64_jpeg"] = frame["image_b64"]
+            return result
+
+        elif action == "get_status":
+            crd_running = False
+            try:
+                result = subprocess.run(
+                    ["pgrep", "-f", "remoting_me2me_host"],
+                    capture_output=True, timeout=5
+                )
+                crd_running = result.returncode == 0
+            except Exception:
+                pass
+
+            return {
+                "session_active": _screen_share_session is not None,
+                "session": _screen_share_session,
+                "frames_buffered": len(_screen_share_frames),
+                "chrome_remote_desktop": "running" if crd_running else "not detected",
+                "screen_access": "pyautogui available",
+            }
+
+        elif action == "set_interval":
+            if not _screen_share_session:
+                return {"error": "No active session. Use start_session first."}
+            new_interval = max(0.5, float(kwargs.get("interval_sec", 2.0)))
+            # Restart capture loop with new interval
+            if _screen_share_task and not _screen_share_task.done():
+                _screen_share_task.cancel()
+                try:
+                    await _screen_share_task
+                except asyncio.CancelledError:
+                    pass
+            _screen_share_session["interval_sec"] = new_interval
+            region = _screen_share_session.get("region")
+            _screen_share_task = asyncio.create_task(
+                _screen_share_capture_loop(new_interval, region)
+            )
+            return {"status": "interval_updated", "interval_sec": new_interval}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use start_session, stop_session, get_frame, get_status, set_interval."}
+    except Exception as e:
+        return {"error": f"screen_share failed: {e}"}
 
 
 # ── Dynamic Tool & Agent Registry ──────────────────────────────────────────
@@ -10635,13 +12889,76 @@ async def websocket_endpoint(ws: WebSocket):
     log.info(f"WebSocket client connected ({len(ws_subscribers)} total)")
     try:
         while True:
-            # Keep connection alive, accept pings
-            data = await ws.receive_text()
-            if data == "ping":
-                await ws.send_text("pong")
+            try:
+                data = await asyncio.wait_for(ws.receive_text(), timeout=300)
+                if data == "ping":
+                    await ws.send_text("pong")
+            except asyncio.TimeoutError:
+                await ws.send_text('{"event":"ping"}')
+                try:
+                    await asyncio.wait_for(ws.receive_text(), timeout=30)
+                except asyncio.TimeoutError:
+                    log.info("WebSocket client timed out, closing")
+                    break
     except WebSocketDisconnect:
-        ws_subscribers.remove(ws)
+        pass
+    finally:
+        if ws in ws_subscribers:
+            ws_subscribers.remove(ws)
         log.info(f"WebSocket client disconnected ({len(ws_subscribers)} remaining)")
+
+
+@app.websocket("/ws/screen")
+async def websocket_screen_feed(ws: WebSocket):
+    """Stream live screen frames over WebSocket. Sends JSON with OCR text + optional base64 JPEG."""
+    await ws.accept()
+    log.info("Screen share WebSocket client connected")
+    last_idx = 0
+    try:
+        while True:
+            if _screen_share_frames and len(_screen_share_frames) > last_idx:
+                frame = _screen_share_frames[-1]
+                last_idx = len(_screen_share_frames)
+                payload = {
+                    "event": "screen_frame",
+                    "timestamp": frame["timestamp"],
+                    "ocr_text": frame["ocr_text"],
+                    "changed": frame["changed"],
+                    "resolution": f"{frame['width']}x{frame['height']}",
+                    "mouse": frame["mouse"],
+                    "image_b64_jpeg": frame["image_b64"],
+                }
+                await ws.send_json(payload)
+            else:
+                # Check for control messages from client
+                try:
+                    msg = await asyncio.wait_for(ws.receive_text(), timeout=1.0)
+                    if msg == "ping":
+                        await ws.send_text("pong")
+                except asyncio.TimeoutError:
+                    pass
+    except WebSocketDisconnect:
+        pass
+    finally:
+        log.info("Screen share WebSocket client disconnected")
+
+
+@app.get("/screen/frame")
+async def get_screen_frame(include_image: bool = False):
+    """HTTP endpoint to get the latest screen frame (for non-WebSocket clients)."""
+    if not _screen_share_frames:
+        raise HTTPException(status_code=404, detail="No frames. Start a screen_share session first.")
+    frame = _screen_share_frames[-1]
+    result = {
+        "timestamp": frame["timestamp"],
+        "ocr_text": frame["ocr_text"],
+        "changed": frame["changed"],
+        "resolution": f"{frame['width']}x{frame['height']}",
+        "mouse_position": frame["mouse"],
+    }
+    if include_image:
+        result["image_b64_jpeg"] = frame["image_b64"]
+    return result
 
 
 # ── Startup ─────────────────────────────────────────────────────────────────

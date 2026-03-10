@@ -13743,3 +13743,63 @@
 {"timestamp":"2026-03-10T15:43:38.798Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
 {"timestamp":"2026-03-10T15:43:57.420Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T15:43:57.418Z"}}
 {"timestamp":"2026-03-10T15:43:57.459Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T15:43:58.847Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T15:44:10.871Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-10T15:44:10.871Z"}}
+{"timestamp":"2026-03-10T15:44:10.874Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T15:44:12.807Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T15:50:03.733Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"subagents"}
+{"timestamp":"2026-03-10T15:50:04.115Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"subagents","error":null}
+{"timestamp":"2026-03-10T15:50:04.178Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"subagents","durationMs":2841,"error":null}
+{"timestamp":"2026-03-10T15:50:05.930Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"sessions_list"}
+{"timestamp":"2026-03-10T15:50:07.801Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_list","error":null}
+{"timestamp":"2026-03-10T15:50:07.832Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":3639,"error":null}
+{"timestamp":"2026-03-10T15:50:39.321Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-10T15:50:41.733Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/agentic-3/memory/2026-03-10.md'"}
+{"timestamp":"2026-03-10T15:50:41.838Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":7282,"error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/agentic-3/memory/2026-03-10.md'"}
+{"timestamp":"2026-03-10T15:51:33.094Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-10T15:51:33.157Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-10T15:51:33.234Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":3329,"error":null}
+{"timestamp":"2026-03-10T15:52:19.135Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"write"}
+{"timestamp":"2026-03-10T15:52:19.549Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"write","error":null}
+{"timestamp":"2026-03-10T15:52:19.695Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"write","durationMs":2678,"error":null}
+{"timestamp":"2026-03-10T16:34:00.127Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-10T16:34:05.070Z","agent":"beta-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-10T16:34:08.100Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-10T16:39:08.617Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:08.617Z"}}
+{"timestamp":"2026-03-10T16:39:08.618Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:08.735Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:08.740Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":140,"error":null}
+{"timestamp":"2026-03-10T16:39:08.745Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:08.745Z"}}
+{"timestamp":"2026-03-10T16:39:08.745Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:08.788Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:08.793Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":50,"error":null}
+{"timestamp":"2026-03-10T16:39:28.513Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-10T16:39:28.513Z"}}
+{"timestamp":"2026-03-10T16:39:28.513Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:29.853Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:29.855Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1358,"error":null}
+{"timestamp":"2026-03-10T16:39:41.397Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:41.397Z"}}
+{"timestamp":"2026-03-10T16:39:41.398Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:41.500Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:41.506Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":118,"error":null}
+{"timestamp":"2026-03-10T16:39:41.509Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:41.509Z"}}
+{"timestamp":"2026-03-10T16:39:41.510Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:41.569Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:41.575Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":64,"error":null}
+{"timestamp":"2026-03-10T16:39:41.582Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:41.582Z"}}
+{"timestamp":"2026-03-10T16:39:41.583Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:41.672Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:41.674Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":98,"error":null}
+{"timestamp":"2026-03-10T16:39:59.838Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:59.838Z"}}
+{"timestamp":"2026-03-10T16:39:59.839Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:59.910Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:59.913Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":83,"error":null}
+{"timestamp":"2026-03-10T16:39:59.915Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:39:59.915Z"}}
+{"timestamp":"2026-03-10T16:39:59.916Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:39:59.940Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:39:59.942Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":28,"error":null}
+{"timestamp":"2026-03-10T16:40:18.862Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:40:18.862Z"}}
+{"timestamp":"2026-03-10T16:40:18.862Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T16:40:18.928Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T16:40:18.930Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":72,"error":null}
+{"timestamp":"2026-03-10T16:40:28.694Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T16:40:28.694Z"}}
+{"timestamp":"2026-03-10T16:40:28.695Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

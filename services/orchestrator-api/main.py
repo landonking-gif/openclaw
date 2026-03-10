@@ -41,7 +41,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import yaml
 from openai import AsyncOpenAI
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -309,6 +309,7 @@ DIRECT CAPABILITIES (no delegation needed):
 - **cron_advanced**: Advanced cron with task chains — define multi-step task chains with dependencies, per-step retry policies, conditional execution (abort/skip/retry on failure), enable/disable chains.
 - **accessibility**: macOS Accessibility API — inspect and control UI elements of any application. Get focused app, list UI elements, click buttons by name, read/write text fields, list and click menu items. Deep app integration.
 - **screen_share**: Live screen sharing and continuous monitoring — start a persistent screen capture session that periodically takes screenshots with OCR, detects changes, and streams frames as base64 images over a WebSocket or HTTP endpoint. Actions: start_session (begin capturing), stop_session, get_frame (latest screenshot + OCR text + changed regions), get_status (active sessions), set_interval (adjust capture rate). Integrates with Chrome Remote Desktop for remote access.
+- **visionclaw**: VisionClaw integration for Meta Ray-Ban smart glasses — manage glass sessions, check connection status, configure gateway networking, view conversation history with glasses users. The orchestrator exposes /v1/chat/completions (OpenAI-compatible) that VisionClaw connects to, giving the glasses user access to all 101 tools. Actions: status, sessions, config, configure, send, history.
 
 SELF-IMPROVEMENT PROTOCOL — CRITICAL:
 When you encounter a task you CANNOT currently do, follow this protocol:
@@ -437,6 +438,7 @@ You are a self-evolving system with FULL access to the underlying machine. If yo
 - Need multi-step automation with retry logic? → Use cron_advanced — define task chains where each step can abort, skip, or retry on failure.
 - Need to inspect or click UI elements in macOS apps? → Use accessibility — read AX trees, click buttons by name, get/set text field values, navigate menus.
 - Need live screen monitoring or continuous visual feedback? → Use screen_share — start a capture session, get periodic screenshots with OCR + change detection. Streams frames for continuous visual awareness.
+- Need to manage Meta Ray-Ban glass sessions or check VisionClaw connections? → Use visionclaw — status shows active glass sessions and gateway config, config shows recommended settings, configure changes gateway bind for LAN access.
 - Need to schedule recurring tasks? → Use schedule_task — tasks persist across restarts now.
 - Need to read/write files? → Use read_file, write_file, list_files, search_files directly.
 - Need to launch new services? → Use spawn_process, then manage_process to monitor them.
@@ -532,6 +534,7 @@ OPERATIONAL NOTES:
 - You CAN define multi-step task chains with cron_advanced (dependencies, per-step retry policies, abort/skip/retry on failure).
 - You CAN inspect and control macOS app UIs with accessibility (AX tree, click buttons by name, read/write text fields, navigate menus).
 - You CAN continuously monitor the screen with screen_share (start a capture session, get periodic screenshots + OCR text + change detection). Chrome Remote Desktop host is running for remote access integration.
+- You CAN receive and process requests from Meta Ray-Ban smart glasses via VisionClaw. The /v1/chat/completions endpoint is OpenAI-compatible. When a glasses user speaks a command, Gemini Live delegates it here. All 101 tools are available to glasses users. Use visionclaw tool to manage glass sessions and gateway config.
 - Dynamic tools have access to the FastAPI app object for creating new HTTP endpoints.
 - Scheduled tasks persist to disk and auto-reload on restart.
 - Cron tasks persist to disk and auto-reload on restart.
@@ -2409,6 +2412,23 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "visionclaw",
+            "description": "VisionClaw integration — manage connections with Meta Ray-Ban smart glasses running VisionClaw iOS app. The glasses stream camera + audio to Gemini Live, which delegates tasks to this orchestrator via /v1/chat/completions. Actions: 'status' (show active glass sessions, connection info), 'sessions' (list all VisionClaw sessions with message counts), 'config' (show current VisionClaw connection config — host, port, token), 'configure' (update gateway bind mode for LAN/loopback access), 'send' (push a proactive message to a glass session), 'history' (get conversation history for a glass session).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: status, sessions, config, configure, send, history"},
+                    "session_id": {"type": "string", "description": "VisionClaw session ID (for send/history actions)"},
+                    "message": {"type": "string", "description": "Message to send (for send action)"},
+                    "bind_mode": {"type": "string", "description": "Gateway bind mode: 'lan' or 'loopback' (for configure action)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -2461,6 +2481,7 @@ INTERNAL_TOOLS = {
     "cron_advanced",
     "accessibility",
     "screen_share",
+    "visionclaw",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -3918,6 +3939,9 @@ async def call_llm(session_id: str, user_message: str) -> dict:
             elif fn_name == "screen_share":
                 internal_result = await _screen_share(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
                 internal_task = f"Screen share: {fn_args.get('action', '')}"
+            elif fn_name == "visionclaw":
+                internal_result = await _visionclaw(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                internal_task = f"VisionClaw: {fn_args.get('action', '')}"
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -4237,6 +4261,119 @@ async def chat(req: ChatMessage):
     })
 
     return result
+
+
+# ── VisionClaw / OpenAI-Compatible Chat Completions ────────────────────────
+
+# Track active VisionClaw (glass) sessions
+_visionclaw_sessions: dict[str, dict] = {}
+
+
+@app.post("/v1/chat/completions")
+async def chat_completions(req: Request):
+    """
+    OpenAI-compatible chat completions endpoint.
+    This allows VisionClaw (Meta Ray-Ban glasses) and any OpenAI-compatible
+    client to talk to the Meta-Orchestrator using the standard protocol.
+
+    Supports: model, messages[], stream (false only), x-openclaw-session-key header.
+    """
+    request = await req.json()
+    messages = request.get("messages", [])
+    if not messages:
+        raise HTTPException(status_code=400, detail="messages array is required")
+
+    # Extract the last user message
+    user_message = ""
+    for msg in reversed(messages):
+        if msg.get("role") == "user":
+            user_message = msg.get("content", "")
+            break
+
+    if not user_message:
+        raise HTTPException(status_code=400, detail="No user message found in messages array")
+
+    # Derive session from header or generate one
+    # VisionClaw sends x-openclaw-session-key header for session continuity
+    session_key = req.headers.get("x-openclaw-session-key", "")
+    if not session_key:
+        session_key = f"glass-{uuid.uuid4().hex[:8]}"
+
+    # Map to orchestrator session ID
+    session_id = f"vc-{hashlib.md5(session_key.encode()).hexdigest()[:10]}"
+
+    # Track as VisionClaw session
+    _visionclaw_sessions[session_id] = {
+        "session_key": session_key,
+        "last_active": datetime.now(timezone.utc).isoformat(),
+        "message_count": _visionclaw_sessions.get(session_id, {}).get("message_count", 0) + 1,
+        "source": "visionclaw",
+    }
+
+    log.info(f"VisionClaw [{session_id}]: {user_message[:120]}...")
+    await activity.record("visionclaw_request", session_id, user_message[:500],
+                          {"source": "glasses", "session_key": session_key[:30]})
+
+    # Route through the same call_llm as /chat — full 100-tool access
+    result = await call_llm(session_id, user_message)
+
+    response_text = result.get("response", "")
+
+    await activity.record("visionclaw_response", session_id,
+                          response_text[:300],
+                          {"delegations": len(result.get("delegations", []))})
+
+    # Return in OpenAI chat completions format
+    completion_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
+    return {
+        "id": completion_id,
+        "object": "chat.completion",
+        "created": int(time.time()),
+        "model": "openclaw-army",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": response_text,
+                },
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {
+            "prompt_tokens": len(user_message.split()),
+            "completion_tokens": len(response_text.split()),
+            "total_tokens": len(user_message.split()) + len(response_text.split()),
+        },
+    }
+
+
+@app.get("/v1/chat/completions")
+async def chat_completions_health():
+    """GET on /v1/chat/completions — used by VisionClaw to check gateway reachability."""
+    return {"status": "ok", "service": "openclaw-army-orchestrator", "tools": 101}
+
+
+@app.get("/v1/models")
+async def list_models():
+    """OpenAI-compatible model listing."""
+    return {
+        "object": "list",
+        "data": [
+            {
+                "id": "openclaw-army",
+                "object": "model",
+                "created": 1709078400,
+                "owned_by": "landon-king",
+            },
+            {
+                "id": "openclaw",
+                "object": "model",
+                "created": 1709078400,
+                "owned_by": "landon-king",
+            },
+        ],
+    }
 
 
 # ── Activity Log Endpoints ──────────────────────────────────────────────────
@@ -11886,6 +12023,158 @@ async def _screen_share(action: str, **kwargs) -> dict:
             return {"error": f"Unknown action: {action}. Use start_session, stop_session, get_frame, get_status, set_interval."}
     except Exception as e:
         return {"error": f"screen_share failed: {e}"}
+
+
+# ── Tool #101: visionclaw ──────────────────────────────────────────────────
+
+_OPENCLAW_CONFIG_PATH = Path.home() / ".openclaw" / "openclaw.json"
+
+
+async def _visionclaw(action: str, **kwargs) -> dict:
+    """VisionClaw integration — manage Meta Ray-Ban glass sessions and gateway config."""
+    try:
+        if action == "status":
+            # Show connection status and active sessions
+            active = {sid: info for sid, info in _visionclaw_sessions.items()
+                      if info.get("message_count", 0) > 0}
+            # Check gateway
+            gateway_status = "unknown"
+            gateway_config = {}
+            if _OPENCLAW_CONFIG_PATH.exists():
+                try:
+                    cfg = json.loads(_OPENCLAW_CONFIG_PATH.read_text())
+                    gw = cfg.get("gateway", {})
+                    gateway_config = {
+                        "port": gw.get("port", 18789),
+                        "bind": gw.get("bind", "loopback"),
+                        "auth_mode": gw.get("auth", {}).get("mode", "none"),
+                        "chat_completions_enabled": gw.get("http", {}).get("endpoints", {}).get("chatCompletions", {}).get("enabled", False),
+                    }
+                except Exception:
+                    pass
+            # Check if gateway is running
+            try:
+                result = subprocess.run(["lsof", "-ti", ":18789"], capture_output=True, text=True, timeout=3)
+                gateway_status = "running" if result.stdout.strip() else "stopped"
+            except Exception:
+                pass
+
+            return {
+                "orchestrator_endpoint": f"http://127.0.0.1:{ORCHESTRATOR_PORT}/v1/chat/completions",
+                "orchestrator_port": ORCHESTRATOR_PORT,
+                "active_glass_sessions": len(active),
+                "sessions": active,
+                "gateway_status": gateway_status,
+                "gateway_config": gateway_config,
+                "hostname": subprocess.run(["scutil", "--get", "LocalHostName"],
+                                           capture_output=True, text=True, timeout=3).stdout.strip(),
+                "lan_url": f"http://{subprocess.run(['scutil', '--get', 'LocalHostName'], capture_output=True, text=True, timeout=3).stdout.strip()}.local:{ORCHESTRATOR_PORT}/v1/chat/completions",
+            }
+
+        elif action == "sessions":
+            return {
+                "total_sessions": len(_visionclaw_sessions),
+                "sessions": {sid: {
+                    "last_active": info.get("last_active", ""),
+                    "message_count": info.get("message_count", 0),
+                    "source": info.get("source", ""),
+                } for sid, info in _visionclaw_sessions.items()},
+            }
+
+        elif action == "config":
+            # Show current VisionClaw configuration
+            config = {"gateway": {}, "visionclaw_project": None}
+            if _OPENCLAW_CONFIG_PATH.exists():
+                try:
+                    cfg = json.loads(_OPENCLAW_CONFIG_PATH.read_text())
+                    config["gateway"] = cfg.get("gateway", {})
+                    # Redact token
+                    if "auth" in config["gateway"] and "token" in config["gateway"]["auth"]:
+                        token = config["gateway"]["auth"]["token"]
+                        config["gateway"]["auth"]["token"] = token[:8] + "..." + token[-4:] if len(token) > 12 else "***"
+                except Exception as e:
+                    config["error"] = str(e)
+
+            # Check VisionClaw project
+            vc_path = Path.home() / "Desktop" / "landon" / "claw vision" / "VisionClaw"
+            if vc_path.exists():
+                config["visionclaw_project"] = str(vc_path)
+                secrets_path = vc_path / "samples" / "CameraAccess" / "CameraAccess" / "Secrets.swift"
+                config["secrets_exists"] = secrets_path.exists()
+
+            hostname = subprocess.run(["scutil", "--get", "LocalHostName"],
+                                      capture_output=True, text=True, timeout=3).stdout.strip()
+            config["recommended_settings"] = {
+                "openClawHost": f"http://{hostname}.local",
+                "openClawPort": ORCHESTRATOR_PORT,
+                "note": "Point VisionClaw at the orchestrator for full 101-tool access",
+            }
+            return config
+
+        elif action == "configure":
+            # Update gateway bind mode
+            bind_mode = kwargs.get("bind_mode", "lan")
+            if bind_mode not in ("lan", "loopback"):
+                return {"error": "bind_mode must be 'lan' or 'loopback'"}
+
+            if not _OPENCLAW_CONFIG_PATH.exists():
+                return {"error": f"Config not found: {_OPENCLAW_CONFIG_PATH}"}
+
+            cfg = json.loads(_OPENCLAW_CONFIG_PATH.read_text())
+            old_bind = cfg.get("gateway", {}).get("bind", "loopback")
+            if "gateway" not in cfg:
+                cfg["gateway"] = {}
+            cfg["gateway"]["bind"] = bind_mode
+            _OPENCLAW_CONFIG_PATH.write_text(json.dumps(cfg, indent=2))
+
+            return {
+                "updated": True,
+                "old_bind": old_bind,
+                "new_bind": bind_mode,
+                "note": f"Gateway bind changed to '{bind_mode}'. Restart gateway with `openclaw gateway restart` for changes to take effect.",
+            }
+
+        elif action == "send":
+            # Push a message to a VisionClaw session (stored for next poll)
+            session_id = kwargs.get("session_id", "")
+            message = kwargs.get("message", "")
+            if not session_id or not message:
+                return {"error": "session_id and message are required"}
+
+            if session_id not in _visionclaw_sessions:
+                return {"error": f"Session {session_id} not found. Active sessions: {list(_visionclaw_sessions.keys())}"}
+
+            # Inject a system message into the session history
+            if session_id in _chat_sessions:
+                _chat_sessions[session_id].append({
+                    "role": "system",
+                    "content": f"[Proactive notification to glasses user]: {message}"
+                })
+                _save_sessions_to_disk()
+
+            await activity.record("visionclaw_push", session_id, message[:300])
+            return {"sent": True, "session_id": session_id, "message": message[:200]}
+
+        elif action == "history":
+            session_id = kwargs.get("session_id", "")
+            if not session_id:
+                # Return all VC session IDs
+                return {"sessions": list(_visionclaw_sessions.keys())}
+
+            if session_id in _chat_sessions:
+                history = _chat_sessions[session_id]
+                return {
+                    "session_id": session_id,
+                    "message_count": len(history),
+                    "messages": [{"role": m["role"], "content": m["content"][:500]} for m in history[-20:]],
+                }
+            return {"session_id": session_id, "message_count": 0, "messages": []}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use: status, sessions, config, configure, send, history"}
+
+    except Exception as e:
+        return {"error": f"visionclaw failed: {e}"}
 
 
 # ── Dynamic Tool & Agent Registry ──────────────────────────────────────────

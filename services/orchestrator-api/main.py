@@ -264,6 +264,26 @@ DIRECT CAPABILITIES (no delegation needed):
 - **service_mesh**: Redis pub/sub for inter-agent messaging. Publish events, subscribe to channels, list active channels.
 - **port_manager**: Check what's running on ports, find free ports, kill processes on ports, list all OpenClaw Army port status.
 - **batch_delegate**: Delegate different tasks to multiple managers in a single call. Parallel multi-manager orchestration.
+- **web_scrape**: Parse HTML from URLs or raw strings. Extract text, links, tables, meta tags, headings, or query with CSS selectors. Auto-installs BeautifulSoup.
+- **docker_manage**: Full Docker container lifecycle — ps, images, run, stop, rm, logs, exec, pull, build, inspect, stats.
+- **osascript**: Execute AppleScript for macOS automation. Open/quit apps, text-to-speech, dialogs, notifications, clipboard, volume, Finder.
+- **image_process**: Image manipulation via Pillow — resize, crop, rotate, convert formats, thumbnails, EXIF metadata. Auto-installs Pillow.
+- **date_calc**: Date/time calculations — timezone conversion, date arithmetic, natural parsing, epoch conversion, calendar generation.
+- **project_replace**: Find and replace across entire project directories. Regex, glob filtering, dry-run preview, auto-backup.
+- **process_watchdog**: Auto-restart crashed processes. Register health checks, monitor uptime, configurable restart limits.
+- **metrics_collect**: Time-series metrics — record, query, summarize (min/max/avg/p95/p99), dashboard overview, trend detection.
+- **markdown_render**: Convert Markdown↔HTML, generate formatted tables from JSON, extract table of contents.
+- **sql_schema**: PostgreSQL schema management — list tables, describe columns, indexes, sizes, create tables, add columns, foreign keys.
+- **audio_process**: Audio processing via ffmpeg + macOS say — convert formats, text-to-speech, trim, merge, metadata, volume adjust, list available TTS voices.
+- **video_process**: Video processing via ffmpeg — convert formats, extract frames, trim clips, generate thumbnails, probe metadata, resize resolution.
+- **pdf_tools**: PDF generation and parsing — create PDFs from text, extract text from PDFs, count pages, merge multiple PDFs, split into individual pages. Auto-installs fpdf2 and pymupdf.
+- **ssh_remote**: Execute commands on remote hosts via SSH — run commands, copy files to/from remote hosts (scp), test connectivity.
+- **secret_vault**: Encrypted secrets management using Fernet — store, retrieve, list, delete secrets with AES encryption. Key rotation support. Vault file is chmod 600.
+- **test_runner**: Execute tests and return structured results — run pytest with pass/fail counts, unittest, arbitrary test scripts, discover available tests.
+- **dependency_analysis**: Analyze Python imports using AST — list all imports, detect circular dependencies across a project, find unused imports, categorize as stdlib/third-party/local.
+- **resource_monitor**: Real-time CPU/memory/disk monitoring with alerts — snapshots, top processes by CPU or memory, configurable threshold alerts, network I/O, temperatures. Auto-installs psutil.
+- **sqlite_query**: Lightweight local SQLite database — query, execute, list tables, describe schema, import CSV files. No server needed. Default database at data/local.db.
+- **file_watch**: Watch directories for file changes — start/stop watchers using watchfiles, view recent change events (added/modified/deleted) with timestamps.
 
 SELF-IMPROVEMENT PROTOCOL — CRITICAL:
 When you encounter a task you CANNOT currently do, follow this protocol:
@@ -349,6 +369,27 @@ You are a self-evolving system with FULL access to the underlying machine. If yo
 - Need inter-agent pub/sub events? → Use service_mesh for Redis-backed publish/subscribe messaging.
 - Need to check or free up ports? → Use port_manager to check listeners, find free ports, or kill port processes.
 - Need to assign work to multiple managers at once? → Use batch_delegate to send tasks to alpha/beta/gamma in parallel.
+- Need to scrape a website or parse HTML? → Use web_scrape to extract text, links, tables, or CSS-selected elements from any URL.
+- Need to manage Docker containers? → Use docker_manage to run, stop, inspect, exec, pull images — full container lifecycle.
+- Need macOS desktop automation? → Use osascript for AppleScript — open apps, send keystrokes, show dialogs, text-to-speech.
+- Need to resize or convert images? → Use image_process for resize, crop, rotate, convert, thumbnails, EXIF metadata.
+- Need date math or timezone conversion? → Use date_calc for adding days, diffing dates, converting timezones, epoch values.
+- Need to find-and-replace across a project? → Use project_replace with regex and glob filtering across all files.
+- Need auto-restart for crashed services? → Use process_watchdog to register health checks and auto-restart on failure.
+- Need to track metrics over time? → Use metrics_collect to record values and get min/max/avg/p95/p99 summaries.
+- Need Markdown↔HTML conversion or formatted tables? → Use markdown_render to convert, generate tables, extract TOC.
+- Need to inspect database schema? → Use sql_schema for tables, columns, indexes, sizes, DDL, foreign keys.
+- Need to process audio files? → Use audio_process for format conversion, trimming, merging, volume adjust, metadata via ffmpeg.
+- Need text-to-speech? → Use audio_process action 'tts' with macOS say — supports multiple voices. Use 'voices' to list them.
+- Need to process video files? → Use video_process for conversion, frame extraction, trimming, thumbnails, resizing via ffmpeg.
+- Need to create or parse PDFs? → Use pdf_tools — create PDFs from text, extract text from existing PDFs, merge, split. Auto-installs libraries.
+- Need to run commands on remote machines? → Use ssh_remote to execute commands, upload/download files via SCP, test connectivity.
+- Need to store secrets securely? → Use secret_vault for AES-encrypted storage. Store API keys, tokens, passwords. Supports key rotation.
+- Need to run tests? → Use test_runner to execute pytest/unittest and get structured pass/fail results with output.
+- Need to analyze Python dependencies? → Use dependency_analysis to list imports, detect circular deps, find unused imports, categorize packages.
+- Need real-time system resource monitoring? → Use resource_monitor for CPU/memory/disk snapshots, top processes, threshold alerts, network stats.
+- Need a lightweight local database? → Use sqlite_query for SQL queries without PostgreSQL overhead. Import CSVs, create tables, query data.
+- Need to detect file changes? → Use file_watch to start watchers on directories, get events for added/modified/deleted files.
 - Need to schedule recurring tasks? → Use schedule_task — tasks persist across restarts now.
 - Need to read/write files? → Use read_file, write_file, list_files, search_files directly.
 - Need to launch new services? → Use spawn_process, then manage_process to monitor them.
@@ -402,6 +443,26 @@ OPERATIONAL NOTES:
 - You CAN publish/subscribe to Redis pub/sub channels for inter-agent events with service_mesh.
 - You CAN check/free/kill ports and view all Army port status with port_manager.
 - You CAN delegate to multiple managers in parallel with batch_delegate.
+- You CAN scrape websites and parse HTML with web_scrape (text, links, tables, CSS selectors, meta tags).
+- You CAN manage Docker containers with docker_manage (run, stop, logs, exec, pull, build, inspect).
+- You CAN automate macOS with osascript (AppleScript — open apps, dialogs, notifications, TTS, clipboard).
+- You CAN process images with image_process (resize, crop, rotate, convert, thumbnails, EXIF). Auto-installs Pillow.
+- You CAN do date math and timezone conversion with date_calc (add days, diff dates, parse, format, epoch).
+- You CAN find-and-replace across project directories with project_replace (regex, glob, dry-run, backup).
+- You CAN auto-restart crashed processes with process_watchdog (health checks, max restart limits).
+- You CAN track time-series metrics with metrics_collect (record, query, summary with p95/p99, dashboard).
+- You CAN convert Markdown↔HTML and generate tables with markdown_render.
+- You CAN introspect and manage PostgreSQL schemas with sql_schema (tables, columns, indexes, DDL, foreign keys).
+- You CAN process audio with audio_process (convert formats, TTS, trim, merge, metadata, volume) via ffmpeg + macOS say.
+- You CAN process video with video_process (convert, extract frames, trim, thumbnails, metadata, resize) via ffmpeg.
+- You CAN generate and parse PDFs with pdf_tools (create from text, extract text, page count, merge, split). Auto-installs fpdf2/pymupdf.
+- You CAN execute commands on remote hosts with ssh_remote (SSH exec, SCP upload/download, connectivity test).
+- You CAN manage encrypted secrets with secret_vault (store, retrieve, list, delete, rotate encryption key). Fernet AES.
+- You CAN run tests with test_runner (pytest, unittest, scripts) and get structured pass/fail/error counts.
+- You CAN analyze Python dependencies with dependency_analysis (list imports, circular deps, unused imports, categorize stdlib/third-party/local).
+- You CAN monitor system resources with resource_monitor (CPU/memory/disk snapshots, top processes, threshold alerts, network I/O). Auto-installs psutil.
+- You CAN query lightweight local SQLite databases with sqlite_query (query, execute, tables, schema, import CSV). No server needed.
+- You CAN watch directories for file changes with file_watch (start/stop watchers, view added/modified/deleted events).
 - Dynamic tools have access to the FastAPI app object for creating new HTTP endpoints.
 - Scheduled tasks persist to disk and auto-reload on restart.
 - Cron tasks persist to disk and auto-reload on restart.
@@ -1426,6 +1487,392 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_scrape",
+            "description": "Parse HTML and extract structured data from URLs or raw HTML. Actions: 'text' (visible text), 'links' (all links), 'tables' (HTML tables as lists), 'select' (CSS selector query), 'meta' (meta tags/title), 'headers' (headings h1-h6). Auto-installs BeautifulSoup if needed.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'text', 'links', 'tables', 'select', 'meta', 'headers'"},
+                    "url": {"type": "string", "description": "URL to fetch and parse"},
+                    "html": {"type": "string", "description": "Raw HTML string to parse (instead of url)"},
+                    "selector": {"type": "string", "description": "CSS selector (for 'select' action)"},
+                    "attribute": {"type": "string", "description": "Extract this attribute from selected elements"},
+                    "limit": {"type": "integer", "description": "Max results (default 50)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "docker_manage",
+            "description": "Manage Docker containers and images. Actions: 'ps' (list containers), 'images' (list images), 'run' (start container), 'stop', 'rm' (remove), 'logs' (container logs), 'exec' (run command in container), 'pull' (pull image), 'build', 'inspect', 'stats' (resource usage).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'ps', 'images', 'run', 'stop', 'rm', 'logs', 'exec', 'pull', 'build', 'inspect', 'stats'"},
+                    "image": {"type": "string", "description": "Docker image name (for run/pull/build)"},
+                    "container": {"type": "string", "description": "Container name or ID"},
+                    "command": {"type": "string", "description": "Command to run (for exec/run)"},
+                    "ports": {"type": "string", "description": "Port mappings: '8080:80,9090:90'"},
+                    "env_vars": {"type": "object", "description": "Environment variables dict"},
+                    "volumes": {"type": "string", "description": "Volume mounts: '/host:/container'"},
+                    "name": {"type": "string", "description": "Container name (for run) or tag (for build)"},
+                    "options": {"type": "string", "description": "Additional docker options as string"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "osascript",
+            "description": "Execute AppleScript for macOS automation. Preset actions: 'open_app', 'quit_app', 'frontmost' (get frontmost app), 'say' (text-to-speech), 'dialog' (show dialog), 'notification' (macOS notification), 'open_url', 'set_volume', 'get_clipboard', 'set_clipboard', 'list_apps'. Or provide raw AppleScript.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "script": {"type": "string", "description": "Raw AppleScript code to execute"},
+                    "action": {"type": "string", "description": "Preset action name"},
+                    "app_name": {"type": "string", "description": "Application name (for open_app/quit_app)"},
+                    "text": {"type": "string", "description": "Text parameter (for say/dialog/notification/open_url/set_volume/set_clipboard)"},
+                    "path": {"type": "string", "description": "File path parameter (if needed)"}
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "image_process",
+            "description": "Process images: resize, crop, rotate, convert format, get metadata, create thumbnails. Auto-installs Pillow if needed. Actions: 'info' (dimensions/format/EXIF), 'resize', 'crop' (left,top,right,bottom), 'rotate', 'convert' (png/jpg/webp/gif), 'thumbnail', 'flip'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'info', 'resize', 'crop', 'rotate', 'convert', 'thumbnail', 'flip'"},
+                    "path": {"type": "string", "description": "Path to the input image"},
+                    "output_path": {"type": "string", "description": "Path to save output"},
+                    "width": {"type": "integer", "description": "Target width (for resize/thumbnail)"},
+                    "height": {"type": "integer", "description": "Target height (for resize/thumbnail)"},
+                    "quality": {"type": "integer", "description": "JPEG quality 1-100 (default 85)"},
+                    "format": {"type": "string", "description": "Target format: png, jpg, webp, gif (for convert). Or 'horizontal'/'vertical' (for flip)"},
+                    "angle": {"type": "number", "description": "Rotation angle in degrees (for rotate)"},
+                    "crop": {"type": "string", "description": "Crop coordinates: 'left,top,right,bottom'"}
+                },
+                "required": ["action", "path"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "date_calc",
+            "description": "Date/time calculations and conversions. Actions: 'now' (current time in timezone), 'add' (add days/hours/minutes), 'diff' (difference between two dates), 'convert_tz' (timezone conversion), 'parse' (parse date string), 'format' (reformat date), 'epoch' (Unix timestamp conversion), 'calendar' (month calendar).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'now', 'add', 'diff', 'convert_tz', 'parse', 'format', 'epoch', 'calendar'"},
+                    "date_str": {"type": "string", "description": "Date string to process. For 'diff': 'date1 | date2'"},
+                    "days": {"type": "integer", "description": "Days to add (for 'add')"},
+                    "hours": {"type": "integer", "description": "Hours to add (for 'add')"},
+                    "minutes": {"type": "integer", "description": "Minutes to add (for 'add')"},
+                    "from_tz": {"type": "string", "description": "Source timezone (e.g., 'America/New_York')"},
+                    "to_tz": {"type": "string", "description": "Target timezone (e.g., 'Asia/Tokyo')"},
+                    "format": {"type": "string", "description": "strftime format string"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "project_replace",
+            "description": "Find and replace across multiple files in a project directory. Actions: 'search' (find occurrences), 'replace' (apply replacements), 'preview' (dry-run showing what would change). Supports regex, glob file filtering, auto-backup.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'search', 'replace', 'preview'"},
+                    "directory": {"type": "string", "description": "Root directory to search (default: ARMY_HOME)"},
+                    "pattern": {"type": "string", "description": "Search pattern (text or regex)"},
+                    "replacement": {"type": "string", "description": "Replacement text (for replace/preview)"},
+                    "file_glob": {"type": "string", "description": "File glob pattern (default: '**/*')"},
+                    "regex": {"type": "boolean", "description": "Treat pattern as regex (default false)"},
+                    "dry_run": {"type": "boolean", "description": "Preview changes without applying (default true)"},
+                    "backup": {"type": "boolean", "description": "Create .bak files before replacing (default true)"}
+                },
+                "required": ["action", "pattern"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "process_watchdog",
+            "description": "Auto-restart crashed processes. Register processes with health checks. Actions: 'register' (add watchdog), 'unregister' (remove), 'list' (show all), 'status' (check one), 'check_all' (health-check all and auto-restart dead ones).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'register', 'unregister', 'list', 'status', 'check_all'"},
+                    "name": {"type": "string", "description": "Watchdog name/identifier"},
+                    "command": {"type": "string", "description": "Shell command to start the process"},
+                    "interval": {"type": "integer", "description": "Health check interval in seconds (default 30)"},
+                    "max_restarts": {"type": "integer", "description": "Max auto-restarts before giving up (default 10)"},
+                    "health_url": {"type": "string", "description": "HTTP URL to check for health (e.g., http://localhost:18830/health)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "metrics_collect",
+            "description": "Record and analyze time-series metrics. Track performance, latency, error rates over time. Actions: 'record' (store a metric), 'query' (get history), 'summary' (min/max/avg/p95/p99), 'list' (all metric names), 'delete', 'dashboard' (overview of all metrics).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'record', 'query', 'summary', 'list', 'delete', 'dashboard'"},
+                    "name": {"type": "string", "description": "Metric name (e.g., 'response_time', 'error_count')"},
+                    "value": {"type": "number", "description": "Numeric value to record"},
+                    "tags": {"type": "object", "description": "Optional tags/labels dict"},
+                    "hours": {"type": "number", "description": "Query time window in hours (default 24)"},
+                    "limit": {"type": "integer", "description": "Max results (default 100)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "markdown_render",
+            "description": "Convert between Markdown and HTML. Generate formatted tables. Actions: 'md_to_html' (Markdown → HTML with code highlighting), 'html_to_md' (HTML → Markdown), 'table' (generate Markdown table from JSON data), 'toc' (extract table of contents from markdown).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'md_to_html', 'html_to_md', 'table', 'toc'"},
+                    "text": {"type": "string", "description": "Input text (markdown, HTML, or JSON for table)"},
+                    "path": {"type": "string", "description": "Read input from file instead"},
+                    "output_path": {"type": "string", "description": "Write output to file"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sql_schema",
+            "description": "PostgreSQL schema introspection and management. Actions: 'tables' (list all), 'describe' (columns of a table), 'indexes' (list indexes), 'size' (table/DB sizes), 'create_table' (DDL), 'add_column', 'foreign_keys', 'migrations' (list applied).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: 'tables', 'describe', 'indexes', 'size', 'create_table', 'add_column', 'foreign_keys', 'migrations'"},
+                    "table": {"type": "string", "description": "Table name"},
+                    "schema": {"type": "string", "description": "Schema name (default 'public')"},
+                    "columns": {"type": "array", "description": "Column definitions: [{name, type, nullable, default, primary_key}]"},
+                    "query": {"type": "string", "description": "Raw SQL query (for advanced use)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    # ── Round 7 Tools ──
+    {
+        "type": "function",
+        "function": {
+            "name": "audio_process",
+            "description": "Audio processing via ffmpeg and macOS say. Actions: 'convert' (format conversion), 'tts' (text-to-speech), 'trim' (cut segment), 'merge' (concatenate files), 'metadata' (probe info), 'volume' (adjust level), 'voices' (list TTS voices).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: convert, tts, trim, merge, metadata, volume, voices"},
+                    "source": {"type": "string", "description": "Input audio file path"},
+                    "destination": {"type": "string", "description": "Output file path"},
+                    "text": {"type": "string", "description": "Text for TTS"},
+                    "output": {"type": "string", "description": "Output path for TTS"},
+                    "voice": {"type": "string", "description": "TTS voice name"},
+                    "start": {"type": "string", "description": "Start time for trim (seconds or HH:MM:SS)"},
+                    "duration": {"type": "string", "description": "Duration for trim"},
+                    "files": {"type": "array", "items": {"type": "string"}, "description": "List of files to merge"},
+                    "level": {"type": "string", "description": "Volume level (e.g., '1.5' for 150%)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "video_process",
+            "description": "Video processing via ffmpeg. Actions: 'convert' (format conversion), 'extract_frames' (save frames as images), 'trim' (cut segment), 'thumbnail' (extract single frame), 'metadata' (probe info), 'resize' (change resolution).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: convert, extract_frames, trim, thumbnail, metadata, resize"},
+                    "source": {"type": "string", "description": "Input video file path"},
+                    "destination": {"type": "string", "description": "Output file path"},
+                    "output_dir": {"type": "string", "description": "Output directory for extracted frames"},
+                    "fps": {"type": "string", "description": "Frames per second for extraction"},
+                    "start": {"type": "string", "description": "Start time for trim"},
+                    "duration": {"type": "string", "description": "Duration for trim"},
+                    "timestamp": {"type": "string", "description": "Timestamp for thumbnail (HH:MM:SS)"},
+                    "width": {"type": "string", "description": "Target width for resize"},
+                    "height": {"type": "string", "description": "Target height for resize (-1 for auto)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "pdf_tools",
+            "description": "PDF generation and parsing. Actions: 'create' (generate PDF from text), 'extract_text' (read text from PDF), 'page_count', 'merge' (combine PDFs), 'split' (extract individual pages). Auto-installs fpdf2 and pymupdf.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: create, extract_text, page_count, merge, split"},
+                    "source": {"type": "string", "description": "Input PDF file path"},
+                    "output": {"type": "string", "description": "Output PDF file path"},
+                    "output_dir": {"type": "string", "description": "Output directory for split pages"},
+                    "title": {"type": "string", "description": "PDF title for create"},
+                    "content": {"type": "string", "description": "Text content for create"},
+                    "files": {"type": "array", "items": {"type": "string"}, "description": "List of PDF files to merge"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "ssh_remote",
+            "description": "Execute commands on remote hosts via SSH. Actions: 'exec' (run command), 'copy_to' (scp upload), 'copy_from' (scp download), 'test' (connectivity check).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: exec, copy_to, copy_from, test"},
+                    "host": {"type": "string", "description": "Remote host (user@hostname or hostname)"},
+                    "command": {"type": "string", "description": "Shell command to execute"},
+                    "source": {"type": "string", "description": "Source path for copy"},
+                    "destination": {"type": "string", "description": "Destination path for copy"},
+                    "timeout": {"type": "integer", "description": "Timeout in seconds (max 120)"}
+                },
+                "required": ["action", "host"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "secret_vault",
+            "description": "Encrypted secrets management using Fernet encryption. Actions: 'store' (save secret), 'retrieve' (get secret), 'list' (show all keys), 'delete' (remove secret), 'rotate_key' (re-encrypt with new key).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: store, retrieve, list, delete, rotate_key"},
+                    "key": {"type": "string", "description": "Secret name/key"},
+                    "value": {"type": "string", "description": "Secret value to store"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "test_runner",
+            "description": "Execute tests and return structured results. Actions: 'pytest' (run pytest), 'unittest' (run unittest), 'script' (run test script), 'discover' (list available tests).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: pytest, unittest, script, discover"},
+                    "target": {"type": "string", "description": "Test file, directory, or module path"},
+                    "args": {"type": "string", "description": "Additional arguments"},
+                    "cwd": {"type": "string", "description": "Working directory"},
+                    "timeout": {"type": "integer", "description": "Timeout in seconds (max 600)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "dependency_analysis",
+            "description": "Analyze Python imports and dependencies using AST. Actions: 'imports' (list all imports), 'circular' (detect circular dependencies), 'unused' (find unused imports), 'graph' (categorize deps as stdlib/third-party/local).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: imports, circular, unused, graph"},
+                    "target": {"type": "string", "description": "File path or directory to analyze"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "resource_monitor",
+            "description": "CPU/memory/disk monitoring with thresholds and alerts. Actions: 'snapshot' (current usage), 'processes' (top processes by CPU/memory), 'check_thresholds' (alert if over limits), 'network' (I/O counters), 'temperatures'. Auto-installs psutil.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: snapshot, processes, check_thresholds, network, temperatures"},
+                    "limit": {"type": "integer", "description": "Max processes to return"},
+                    "sort_by": {"type": "string", "description": "Sort processes by 'memory' or 'cpu'"},
+                    "cpu_threshold": {"type": "number", "description": "CPU alert threshold percent"},
+                    "memory_threshold": {"type": "number", "description": "Memory alert threshold percent"},
+                    "disk_threshold": {"type": "number", "description": "Disk alert threshold percent"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sqlite_query",
+            "description": "Local SQLite database operations (lightweight, no server needed). Actions: 'query' (SELECT/etc), 'execute' (INSERT/UPDATE with params), 'tables' (list tables), 'schema' (describe table), 'import_csv' (load CSV into table).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: query, execute, tables, schema, import_csv"},
+                    "database": {"type": "string", "description": "SQLite database path (default: data/local.db)"},
+                    "sql": {"type": "string", "description": "SQL statement"},
+                    "params": {"type": "array", "description": "Parameters for parameterized queries"},
+                    "table": {"type": "string", "description": "Table name for schema/import"},
+                    "csv_path": {"type": "string", "description": "CSV file path for import_csv"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "file_watch",
+            "description": "Watch directories for file changes using watchfiles. Actions: 'start' (begin watching), 'stop' (end watcher), 'list' (show active watchers), 'events' (get recent change events).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: start, stop, list, events"},
+                    "path": {"type": "string", "description": "Directory to watch"},
+                    "watch_id": {"type": "string", "description": "Watcher identifier"},
+                    "limit": {"type": "integer", "description": "Max events to return"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -1457,6 +1904,12 @@ INTERNAL_TOOLS = {
     "log_query", "network_probe", "data_transform", "hash_encode",
     "screenshot", "render_template", "text_process", "service_mesh",
     "port_manager", "batch_delegate",
+    "web_scrape", "docker_manage", "osascript", "image_process",
+    "date_calc", "project_replace", "process_watchdog", "metrics_collect",
+    "markdown_render", "sql_schema",
+    "audio_process", "video_process", "pdf_tools", "ssh_remote",
+    "secret_vault", "test_runner", "dependency_analysis", "resource_monitor",
+    "sqlite_query", "file_watch",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -2546,6 +2999,212 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     fn_args.get("tasks", []),
                 )
                 internal_task = f"Batch delegate: {len(fn_args.get('tasks', []))} tasks"
+            elif fn_name == "web_scrape":
+                internal_result = _web_scrape(
+                    fn_args.get("action", "text"),
+                    url=fn_args.get("url", ""),
+                    html=fn_args.get("html", ""),
+                    selector=fn_args.get("selector", ""),
+                    attribute=fn_args.get("attribute", ""),
+                    limit=fn_args.get("limit", 50),
+                )
+                internal_task = f"Web scrape: {fn_args.get('action', '')} {fn_args.get('url', '')[:40]}"
+            elif fn_name == "docker_manage":
+                internal_result = _docker_manage(
+                    fn_args.get("action", "ps"),
+                    image=fn_args.get("image", ""),
+                    container=fn_args.get("container", ""),
+                    command=fn_args.get("command", ""),
+                    ports=fn_args.get("ports", ""),
+                    env_vars=fn_args.get("env_vars"),
+                    volumes=fn_args.get("volumes", ""),
+                    name=fn_args.get("name", ""),
+                    options=fn_args.get("options", ""),
+                )
+                internal_task = f"Docker: {fn_args.get('action', '')} {fn_args.get('container', fn_args.get('image', ''))[:30]}"
+            elif fn_name == "osascript":
+                internal_result = _osascript(
+                    script=fn_args.get("script", ""),
+                    action=fn_args.get("action", ""),
+                    app_name=fn_args.get("app_name", ""),
+                    text=fn_args.get("text", ""),
+                    path=fn_args.get("path", ""),
+                )
+                internal_task = f"AppleScript: {fn_args.get('action', 'custom')}"
+            elif fn_name == "image_process":
+                internal_result = _image_process(
+                    fn_args.get("action", "info"),
+                    path=fn_args.get("path", ""),
+                    output_path=fn_args.get("output_path", ""),
+                    width=fn_args.get("width", 0),
+                    height=fn_args.get("height", 0),
+                    quality=fn_args.get("quality", 85),
+                    format=fn_args.get("format", ""),
+                    angle=fn_args.get("angle", 0),
+                    crop=fn_args.get("crop", ""),
+                )
+                internal_task = f"Image: {fn_args.get('action', '')} {fn_args.get('path', '')[-30:]}"
+            elif fn_name == "date_calc":
+                internal_result = _date_calc(
+                    fn_args.get("action", "now"),
+                    date_str=fn_args.get("date_str", ""),
+                    days=fn_args.get("days", 0),
+                    hours=fn_args.get("hours", 0),
+                    minutes=fn_args.get("minutes", 0),
+                    from_tz=fn_args.get("from_tz", ""),
+                    to_tz=fn_args.get("to_tz", ""),
+                    format=fn_args.get("format", ""),
+                )
+                internal_task = f"Date calc: {fn_args.get('action', '')}"
+            elif fn_name == "project_replace":
+                internal_result = _project_replace(
+                    fn_args.get("action", "search"),
+                    directory=fn_args.get("directory", ""),
+                    pattern=fn_args.get("pattern", ""),
+                    replacement=fn_args.get("replacement", ""),
+                    file_glob=fn_args.get("file_glob", "**/*"),
+                    regex=fn_args.get("regex", False),
+                    dry_run=fn_args.get("dry_run", True),
+                    backup=fn_args.get("backup", True),
+                )
+                internal_task = f"Project replace: {fn_args.get('action', '')} '{fn_args.get('pattern', '')[:20]}'"
+            elif fn_name == "process_watchdog":
+                internal_result = _process_watchdog(
+                    fn_args.get("action", "list"),
+                    name=fn_args.get("name", ""),
+                    command=fn_args.get("command", ""),
+                    interval=fn_args.get("interval", 30),
+                    max_restarts=fn_args.get("max_restarts", 10),
+                    health_url=fn_args.get("health_url", ""),
+                )
+                internal_task = f"Watchdog: {fn_args.get('action', '')} {fn_args.get('name', '')}"
+            elif fn_name == "metrics_collect":
+                internal_result = _metrics_collect(
+                    fn_args.get("action", "list"),
+                    name=fn_args.get("name", ""),
+                    value=fn_args.get("value", 0),
+                    tags=fn_args.get("tags"),
+                    hours=fn_args.get("hours", 24),
+                    limit=fn_args.get("limit", 100),
+                )
+                internal_task = f"Metrics: {fn_args.get('action', '')} {fn_args.get('name', '')}"
+            elif fn_name == "markdown_render":
+                internal_result = _markdown_render(
+                    fn_args.get("action", "md_to_html"),
+                    text=fn_args.get("text", ""),
+                    path=fn_args.get("path", ""),
+                    output_path=fn_args.get("output_path", ""),
+                )
+                internal_task = f"Markdown: {fn_args.get('action', '')}"
+            elif fn_name == "sql_schema":
+                internal_result = await _sql_schema(
+                    fn_args.get("action", "tables"),
+                    table=fn_args.get("table", ""),
+                    schema=fn_args.get("schema", "public"),
+                    columns=fn_args.get("columns"),
+                    query=fn_args.get("query", ""),
+                )
+                internal_task = f"SQL schema: {fn_args.get('action', '')} {fn_args.get('table', '')}"
+            # ── Round 7 dispatch ──
+            elif fn_name == "audio_process":
+                internal_result = _audio_process(
+                    fn_args.get("action", ""),
+                    source=fn_args.get("source", ""),
+                    destination=fn_args.get("destination", ""),
+                    text=fn_args.get("text", ""),
+                    output=fn_args.get("output", ""),
+                    voice=fn_args.get("voice", ""),
+                    start=fn_args.get("start", "0"),
+                    duration=fn_args.get("duration", ""),
+                    files=fn_args.get("files", []),
+                    level=fn_args.get("level", "1.5"),
+                )
+                internal_task = f"Audio: {fn_args.get('action', '')}"
+            elif fn_name == "video_process":
+                internal_result = _video_process(
+                    fn_args.get("action", ""),
+                    source=fn_args.get("source", ""),
+                    destination=fn_args.get("destination", ""),
+                    output_dir=fn_args.get("output_dir", ""),
+                    fps=fn_args.get("fps", "1"),
+                    start=fn_args.get("start", "0"),
+                    duration=fn_args.get("duration", ""),
+                    timestamp=fn_args.get("timestamp", "00:00:01"),
+                    width=fn_args.get("width", "1280"),
+                    height=fn_args.get("height", "-1"),
+                )
+                internal_task = f"Video: {fn_args.get('action', '')}"
+            elif fn_name == "pdf_tools":
+                internal_result = _pdf_tools(
+                    fn_args.get("action", ""),
+                    source=fn_args.get("source", ""),
+                    output=fn_args.get("output", ""),
+                    output_dir=fn_args.get("output_dir", ""),
+                    title=fn_args.get("title", ""),
+                    content=fn_args.get("content", ""),
+                    files=fn_args.get("files", []),
+                )
+                internal_task = f"PDF: {fn_args.get('action', '')}"
+            elif fn_name == "ssh_remote":
+                internal_result = _ssh_remote(
+                    fn_args.get("action", ""),
+                    host=fn_args.get("host", ""),
+                    command=fn_args.get("command", ""),
+                    source=fn_args.get("source", ""),
+                    destination=fn_args.get("destination", ""),
+                    timeout=fn_args.get("timeout", 30),
+                )
+                internal_task = f"SSH: {fn_args.get('action', '')} {fn_args.get('host', '')}"
+            elif fn_name == "secret_vault":
+                internal_result = _secret_vault(
+                    fn_args.get("action", ""),
+                    key=fn_args.get("key", ""),
+                    value=fn_args.get("value", ""),
+                )
+                internal_task = f"Vault: {fn_args.get('action', '')} {fn_args.get('key', '')}"
+            elif fn_name == "test_runner":
+                internal_result = _test_runner(
+                    fn_args.get("action", ""),
+                    target=fn_args.get("target", ""),
+                    args=fn_args.get("args", ""),
+                    cwd=fn_args.get("cwd", ""),
+                    timeout=fn_args.get("timeout", 120),
+                )
+                internal_task = f"Tests: {fn_args.get('action', '')} {fn_args.get('target', '')}"
+            elif fn_name == "dependency_analysis":
+                internal_result = _dependency_analysis(
+                    fn_args.get("action", ""),
+                    target=fn_args.get("target", ""),
+                )
+                internal_task = f"Deps: {fn_args.get('action', '')} {fn_args.get('target', '')}"
+            elif fn_name == "resource_monitor":
+                internal_result = _resource_monitor(
+                    fn_args.get("action", ""),
+                    limit=fn_args.get("limit", 10),
+                    sort_by=fn_args.get("sort_by", "memory"),
+                    cpu_threshold=fn_args.get("cpu_threshold", 90),
+                    memory_threshold=fn_args.get("memory_threshold", 90),
+                    disk_threshold=fn_args.get("disk_threshold", 90),
+                )
+                internal_task = f"Resources: {fn_args.get('action', '')}"
+            elif fn_name == "sqlite_query":
+                internal_result = _sqlite_query(
+                    fn_args.get("action", ""),
+                    database=fn_args.get("database", ""),
+                    sql=fn_args.get("sql", ""),
+                    params=fn_args.get("params", []),
+                    table=fn_args.get("table", ""),
+                    csv_path=fn_args.get("csv_path", ""),
+                )
+                internal_task = f"SQLite: {fn_args.get('action', '')}"
+            elif fn_name == "file_watch":
+                internal_result = await _file_watch(
+                    fn_args.get("action", ""),
+                    path=fn_args.get("path", ""),
+                    watch_id=fn_args.get("watch_id", ""),
+                    limit=fn_args.get("limit", 50),
+                )
+                internal_task = f"FileWatch: {fn_args.get('action', '')}"
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -5693,6 +6352,2953 @@ async def _batch_delegate(tasks: list) -> dict:
         "dispatched": dispatched_count,
         "failed": len(delegation_results) - dispatched_count,
     }
+
+
+# ── Web Scraping / HTML Parsing ──────────────────────────────────────────
+
+def _web_scrape(action: str, url: str = "", html: str = "",
+                selector: str = "", attribute: str = "",
+                limit: int = 50) -> dict:
+    """Parse HTML and extract structured data. Works on URLs or raw HTML.
+    Actions: 'text' (extract visible text), 'links' (extract all links),
+    'tables' (extract HTML tables as lists), 'select' (CSS selector query),
+    'meta' (extract meta tags/title/description), 'headers' (extract headings).
+    """
+    # Get HTML content
+    content = html
+    if not content and url:
+        try:
+            result = subprocess.run(
+                ["curl", "-sL", "--max-time", "15", "-A",
+                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", url],
+                capture_output=True, text=True, timeout=20,
+            )
+            content = result.stdout
+        except Exception as e:
+            return {"error": f"Failed to fetch URL: {e}"}
+    if not content:
+        return {"error": "Provide url or html parameter"}
+
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        # Auto-install
+        subprocess.run([sys.executable, "-m", "pip", "install", "beautifulsoup4", "lxml"],
+                       capture_output=True, timeout=60)
+        from bs4 import BeautifulSoup
+
+    try:
+        soup = BeautifulSoup(content, "lxml")
+    except Exception:
+        soup = BeautifulSoup(content, "html.parser")
+
+    if action == "text":
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+        text = soup.get_text(separator="\n", strip=True)
+        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        return {"text": "\n".join(lines[:limit * 3])[:30000],
+                "line_count": len(lines), "truncated": len(lines) > limit * 3}
+
+    elif action == "links":
+        links = []
+        for a in soup.find_all("a", href=True)[:limit]:
+            links.append({"text": a.get_text(strip=True)[:100],
+                          "href": a["href"]})
+        return {"links": links, "count": len(links)}
+
+    elif action == "tables":
+        tables = []
+        for table in soup.find_all("table")[:limit]:
+            rows = []
+            for tr in table.find_all("tr"):
+                cells = [td.get_text(strip=True) for td in tr.find_all(["td", "th"])]
+                if cells:
+                    rows.append(cells)
+            if rows:
+                tables.append(rows)
+        return {"tables": tables, "count": len(tables)}
+
+    elif action == "select":
+        if not selector:
+            return {"error": "CSS selector required"}
+        elements = soup.select(selector)[:limit]
+        results = []
+        for el in elements:
+            item = {"tag": el.name, "text": el.get_text(strip=True)[:500]}
+            if attribute and el.get(attribute):
+                item["attribute"] = el[attribute]
+            item["attrs"] = {k: v for k, v in list(el.attrs.items())[:10]}
+            results.append(item)
+        return {"elements": results, "count": len(results), "selector": selector}
+
+    elif action == "meta":
+        title = soup.title.string.strip() if soup.title and soup.title.string else ""
+        meta_tags = {}
+        for meta in soup.find_all("meta"):
+            name = meta.get("name", meta.get("property", ""))
+            cont = meta.get("content", "")
+            if name and cont:
+                meta_tags[name] = cont[:500]
+        return {"title": title, "meta": meta_tags}
+
+    elif action == "headers":
+        headers = []
+        for level in range(1, 7):
+            for h in soup.find_all(f"h{level}"):
+                headers.append({"level": level, "text": h.get_text(strip=True)[:200]})
+        return {"headers": headers[:limit], "count": len(headers)}
+
+    return {"error": f"Unknown action: {action}. Use text, links, tables, select, meta, headers."}
+
+
+# ── Docker Management ─────────────────────────────────────────────────────
+
+def _docker_manage(action: str, image: str = "", container: str = "",
+                   command: str = "", ports: str = "", env_vars: dict = None,
+                   volumes: str = "", name: str = "", options: str = "") -> dict:
+    """Manage Docker containers and images.
+    Actions: 'ps' (list containers), 'images' (list images), 'run' (run container),
+    'stop' (stop container), 'rm' (remove container), 'logs' (container logs),
+    'exec' (exec command in container), 'pull' (pull image), 'build' (build image),
+    'inspect' (inspect container/image), 'stats' (container resource stats).
+    """
+    docker = shutil.which("docker")
+    if not docker:
+        return {"error": "Docker CLI not found"}
+
+    def _run_docker(args, timeout_sec=30):
+        try:
+            result = subprocess.run(
+                [docker] + args,
+                capture_output=True, text=True, timeout=timeout_sec,
+            )
+            return {"stdout": result.stdout[:10000], "stderr": result.stderr[:3000],
+                    "returncode": result.returncode}
+        except subprocess.TimeoutExpired:
+            return {"error": f"Docker command timed out ({timeout_sec}s)"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    if action == "ps":
+        r = _run_docker(["ps", "-a", "--format", "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}"])
+        if "error" in r:
+            return r
+        lines = r["stdout"].strip().split("\n")
+        return {"containers": lines, "count": max(0, len(lines) - 1), "raw": r["stdout"][:5000]}
+
+    elif action == "images":
+        r = _run_docker(["images", "--format", "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.ID}}"])
+        return {"images": r.get("stdout", "")[:5000], "returncode": r.get("returncode")}
+
+    elif action == "run":
+        if not image:
+            return {"error": "Image required"}
+        cmd = ["run", "-d"]
+        if name:
+            cmd += ["--name", name]
+        if ports:
+            for p in ports.split(","):
+                cmd += ["-p", p.strip()]
+        if env_vars:
+            for k, v in env_vars.items():
+                cmd += ["-e", f"{k}={v}"]
+        if volumes:
+            for v in volumes.split(","):
+                cmd += ["-v", v.strip()]
+        if options:
+            cmd += options.split()
+        cmd.append(image)
+        if command:
+            cmd += command.split()
+        r = _run_docker(cmd, timeout_sec=120)
+        container_id = r.get("stdout", "").strip()[:12]
+        return {"container_id": container_id, "image": image,
+                "started": r.get("returncode") == 0, "stderr": r.get("stderr", "")}
+
+    elif action == "stop":
+        if not container:
+            return {"error": "Container name/ID required"}
+        return _run_docker(["stop", container])
+
+    elif action == "rm":
+        if not container:
+            return {"error": "Container name/ID required"}
+        return _run_docker(["rm", "-f", container])
+
+    elif action == "logs":
+        if not container:
+            return {"error": "Container name/ID required"}
+        r = _run_docker(["logs", "--tail", "100", container])
+        return {"logs": r.get("stdout", "")[:10000] + r.get("stderr", "")[:5000],
+                "container": container}
+
+    elif action == "exec":
+        if not container or not command:
+            return {"error": "Container and command required"}
+        return _run_docker(["exec", container] + command.split())
+
+    elif action == "pull":
+        if not image:
+            return {"error": "Image required"}
+        return _run_docker(["pull", image], timeout_sec=300)
+
+    elif action == "build":
+        cmd = ["build"]
+        if name:
+            cmd += ["-t", name]
+        cmd.append(image or ".")
+        return _run_docker(cmd, timeout_sec=300)
+
+    elif action == "inspect":
+        target = container or image
+        if not target:
+            return {"error": "Container or image name required"}
+        r = _run_docker(["inspect", target])
+        try:
+            return {"inspect": json.loads(r.get("stdout", "[]"))[:1]}
+        except json.JSONDecodeError:
+            return r
+
+    elif action == "stats":
+        r = _run_docker(["stats", "--no-stream", "--format",
+                         "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"])
+        return {"stats": r.get("stdout", "")[:5000]}
+
+    return {"error": f"Unknown action: {action}. Use ps, images, run, stop, rm, logs, exec, pull, build, inspect, stats."}
+
+
+# ── macOS AppleScript Automation ─────────────────────────────────────────
+
+def _osascript(script: str = "", action: str = "", app_name: str = "",
+               text: str = "", path: str = "") -> dict:
+    """Execute AppleScript for macOS automation.
+    Provide raw 'script', or use preset actions:
+    'open_app' (launch an app), 'quit_app' (quit an app), 'frontmost' (get frontmost app),
+    'say' (text-to-speech), 'dialog' (show dialog box), 'notification' (macOS notification),
+    'open_url' (open URL in default browser), 'finder_selection' (get Finder selection),
+    'set_volume' (0-100), 'get_clipboard', 'set_clipboard', 'list_apps' (running apps).
+    """
+    osascript_bin = "/usr/bin/osascript"
+    if not Path(osascript_bin).exists():
+        return {"error": "osascript not found"}
+
+    # Preset actions
+    presets = {
+        "open_app": f'tell application "{app_name}" to activate',
+        "quit_app": f'tell application "{app_name}" to quit',
+        "frontmost": 'tell application "System Events" to get name of first process whose frontmost is true',
+        "say": f'say "{text}"',
+        "dialog": f'display dialog "{text}" buttons {{"OK", "Cancel"}} default button "OK"',
+        "notification": f'display notification "{text}" with title "OpenClaw Army"',
+        "open_url": f'open location "{text}"',
+        "finder_selection": 'tell application "Finder" to get POSIX path of (selection as alias list)',
+        "set_volume": f'set volume output volume {text}',
+        "get_clipboard": 'the clipboard',
+        "set_clipboard": f'set the clipboard to "{text}"',
+        "list_apps": 'tell application "System Events" to get name of every process whose background only is false',
+    }
+
+    if action and action in presets:
+        script = presets[action]
+    elif action:
+        return {"error": f"Unknown action: {action}. Available: {list(presets.keys())}"}
+
+    if not script:
+        return {"error": "Provide a script or an action (open_app, quit_app, say, notification, etc.)"}
+
+    try:
+        result = subprocess.run(
+            [osascript_bin, "-e", script],
+            capture_output=True, text=True, timeout=30,
+        )
+        return {
+            "output": result.stdout.strip()[:5000],
+            "error": result.stderr.strip()[:2000] if result.returncode != 0 else "",
+            "returncode": result.returncode,
+            "script": script[:500],
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": "AppleScript timed out (30s)"}
+    except Exception as e:
+        return {"error": f"AppleScript failed: {e}"}
+
+
+# ── Image Processing ─────────────────────────────────────────────────────
+
+def _image_process(action: str, path: str = "", output_path: str = "",
+                   width: int = 0, height: int = 0, quality: int = 85,
+                   format: str = "", angle: float = 0,
+                   crop: str = "") -> dict:
+    """Process images: resize, crop, rotate, convert, metadata, thumbnail.
+    Actions: 'info' (dimensions, format, size), 'resize' (resize to width×height),
+    'crop' (left,top,right,bottom), 'rotate' (angle in degrees),
+    'convert' (change format: png, jpg, webp, gif), 'thumbnail' (create thumbnail),
+    'flip' (horizontal/vertical).
+    """
+    try:
+        from PIL import Image, ExifTags
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "Pillow"],
+                       capture_output=True, timeout=60)
+        from PIL import Image, ExifTags
+
+    if not path:
+        return {"error": "Image path required"}
+    p = Path(path).expanduser()
+    if not p.exists():
+        return {"error": f"File not found: {path}"}
+
+    try:
+        img = Image.open(p)
+    except Exception as e:
+        return {"error": f"Cannot open image: {e}"}
+
+    if action == "info":
+        info = {
+            "format": img.format, "mode": img.mode,
+            "width": img.width, "height": img.height,
+            "size_bytes": p.stat().st_size,
+            "path": str(p),
+        }
+        try:
+            exif = img._getexif()
+            if exif:
+                info["exif"] = {ExifTags.TAGS.get(k, k): str(v)[:100]
+                                for k, v in list(exif.items())[:20]}
+        except Exception:
+            pass
+        return info
+
+    out = Path(output_path).expanduser() if output_path else p.parent / f"{p.stem}_out{p.suffix}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    if action == "resize":
+        if not width and not height:
+            return {"error": "Specify width and/or height"}
+        if width and not height:
+            ratio = width / img.width
+            height = int(img.height * ratio)
+        elif height and not width:
+            ratio = height / img.height
+            width = int(img.width * ratio)
+        img_resized = img.resize((width, height), Image.LANCZOS)
+        img_resized.save(str(out), quality=quality)
+        return {"resized": True, "output": str(out), "width": width, "height": height}
+
+    elif action == "crop":
+        if not crop:
+            return {"error": "Crop coordinates required: 'left,top,right,bottom'"}
+        coords = tuple(int(x.strip()) for x in crop.split(","))
+        if len(coords) != 4:
+            return {"error": "Crop needs 4 values: left,top,right,bottom"}
+        img_cropped = img.crop(coords)
+        img_cropped.save(str(out), quality=quality)
+        return {"cropped": True, "output": str(out),
+                "width": img_cropped.width, "height": img_cropped.height}
+
+    elif action == "rotate":
+        img_rotated = img.rotate(angle, expand=True)
+        img_rotated.save(str(out), quality=quality)
+        return {"rotated": True, "output": str(out), "angle": angle}
+
+    elif action == "convert":
+        if not format:
+            return {"error": "Target format required: png, jpg, webp, gif"}
+        out = Path(output_path).expanduser() if output_path else p.parent / f"{p.stem}.{format.lower()}"
+        if img.mode == "RGBA" and format.lower() in ("jpg", "jpeg"):
+            img = img.convert("RGB")
+        img.save(str(out), format=format.upper().replace("JPG", "JPEG"), quality=quality)
+        return {"converted": True, "output": str(out), "format": format}
+
+    elif action == "thumbnail":
+        size = (width or 200, height or 200)
+        img.thumbnail(size, Image.LANCZOS)
+        out = Path(output_path).expanduser() if output_path else p.parent / f"{p.stem}_thumb{p.suffix}"
+        img.save(str(out), quality=quality)
+        return {"thumbnail": True, "output": str(out),
+                "width": img.width, "height": img.height}
+
+    elif action == "flip":
+        direction = format or "horizontal"
+        if direction == "horizontal":
+            img_flipped = img.transpose(Image.FLIP_LEFT_RIGHT)
+        else:
+            img_flipped = img.transpose(Image.FLIP_TOP_BOTTOM)
+        img_flipped.save(str(out), quality=quality)
+        return {"flipped": True, "output": str(out), "direction": direction}
+
+    return {"error": f"Unknown action: {action}. Use info, resize, crop, rotate, convert, thumbnail, flip."}
+
+
+# ── Date / Time Calculator ────────────────────────────────────────────────
+
+def _date_calc(action: str, date_str: str = "", days: int = 0, hours: int = 0,
+               minutes: int = 0, from_tz: str = "", to_tz: str = "",
+               format: str = "") -> dict:
+    """Date/time calculations: arithmetic, timezone conversion, parsing, formatting.
+    Actions: 'now' (current time in timezone), 'add' (add days/hours/minutes to date),
+    'diff' (difference between two dates), 'convert_tz' (timezone conversion),
+    'parse' (parse natural/ISO date string), 'format' (reformat a date),
+    'epoch' (convert to/from Unix epoch), 'calendar' (month calendar).
+    """
+    from datetime import timedelta
+    import calendar as cal_mod
+
+    def _parse_dt(s):
+        """Try multiple date formats."""
+        for fmt in ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M",
+                    "%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y", "%B %d, %Y",
+                    "%b %d, %Y", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%SZ"]:
+            try:
+                return datetime.strptime(s.strip(), fmt)
+            except ValueError:
+                continue
+        return None
+
+    if action == "now":
+        tz_name = from_tz or "UTC"
+        try:
+            import zoneinfo
+            tz = zoneinfo.ZoneInfo(tz_name)
+            now = datetime.now(tz)
+        except Exception:
+            now = datetime.now(timezone.utc)
+            tz_name = "UTC"
+        return {"datetime": now.isoformat(), "timezone": tz_name,
+                "unix_epoch": int(now.timestamp()),
+                "day_of_week": now.strftime("%A"),
+                "iso_week": now.isocalendar()[1]}
+
+    elif action == "add":
+        base = _parse_dt(date_str) if date_str else datetime.now()
+        if not base:
+            return {"error": f"Cannot parse date: {date_str}"}
+        delta = timedelta(days=days, hours=hours, minutes=minutes)
+        result = base + delta
+        return {"original": base.isoformat(), "result": result.isoformat(),
+                "delta": str(delta), "day_of_week": result.strftime("%A")}
+
+    elif action == "diff":
+        # date_str format: "date1 | date2"  
+        parts = date_str.split("|")
+        if len(parts) != 2:
+            return {"error": "Use format: 'date1 | date2'"}
+        d1 = _parse_dt(parts[0])
+        d2 = _parse_dt(parts[1])
+        if not d1 or not d2:
+            return {"error": f"Cannot parse dates: {parts[0].strip()} or {parts[1].strip()}"}
+        delta = d2 - d1
+        total_seconds = int(delta.total_seconds())
+        return {"date1": d1.isoformat(), "date2": d2.isoformat(),
+                "days": delta.days, "total_seconds": total_seconds,
+                "total_hours": round(total_seconds / 3600, 2),
+                "human": f"{abs(delta.days)} days, {abs(total_seconds % 86400) // 3600} hours"}
+
+    elif action == "convert_tz":
+        if not date_str or not from_tz or not to_tz:
+            return {"error": "date_str, from_tz, and to_tz required"}
+        dt = _parse_dt(date_str)
+        if not dt:
+            return {"error": f"Cannot parse date: {date_str}"}
+        try:
+            import zoneinfo
+            src_tz = zoneinfo.ZoneInfo(from_tz)
+            dst_tz = zoneinfo.ZoneInfo(to_tz)
+            dt_src = dt.replace(tzinfo=src_tz)
+            dt_dst = dt_src.astimezone(dst_tz)
+            return {"original": dt_src.isoformat(), "converted": dt_dst.isoformat(),
+                    "from_tz": from_tz, "to_tz": to_tz}
+        except Exception as e:
+            return {"error": f"Timezone conversion failed: {e}"}
+
+    elif action == "parse":
+        dt = _parse_dt(date_str)
+        if dt:
+            return {"parsed": dt.isoformat(), "day_of_week": dt.strftime("%A"),
+                    "year": dt.year, "month": dt.month, "day": dt.day,
+                    "hour": dt.hour, "minute": dt.minute}
+        return {"error": f"Cannot parse: {date_str}"}
+
+    elif action == "format":
+        dt = _parse_dt(date_str)
+        if not dt:
+            return {"error": f"Cannot parse: {date_str}"}
+        fmt = format or "%B %d, %Y at %I:%M %p"
+        return {"formatted": dt.strftime(fmt), "format_used": fmt}
+
+    elif action == "epoch":
+        if date_str and date_str.replace(".", "").replace("-", "").isdigit():
+            # From epoch
+            ts = float(date_str)
+            dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+            return {"datetime": dt.isoformat(), "epoch": ts}
+        else:
+            dt = _parse_dt(date_str) if date_str else datetime.now(timezone.utc)
+            if not dt:
+                return {"error": f"Cannot parse: {date_str}"}
+            return {"epoch": int(dt.timestamp()), "datetime": dt.isoformat()}
+
+    elif action == "calendar":
+        dt = _parse_dt(date_str) if date_str else datetime.now()
+        if not dt:
+            dt = datetime.now()
+        cal_text = cal_mod.month(dt.year, dt.month)
+        return {"calendar": cal_text, "year": dt.year, "month": dt.month,
+                "days_in_month": cal_mod.monthrange(dt.year, dt.month)[1]}
+
+    return {"error": f"Unknown action: {action}. Use now, add, diff, convert_tz, parse, format, epoch, calendar."}
+
+
+# ── Project-Wide Find and Replace ────────────────────────────────────────
+
+def _project_replace(action: str, directory: str = "", pattern: str = "",
+                     replacement: str = "", file_glob: str = "**/*",
+                     regex: bool = False, dry_run: bool = True,
+                     backup: bool = True) -> dict:
+    """Find and replace across multiple files in a project.
+    Actions: 'search' (find occurrences across files), 'replace' (find & replace),
+    'preview' (show what would change, alias for dry_run replace).
+    """
+    if not directory:
+        directory = ARMY_HOME
+    root = Path(directory).expanduser()
+    if not root.exists():
+        return {"error": f"Directory not found: {directory}"}
+    if not pattern:
+        return {"error": "Pattern required"}
+
+    if action == "search":
+        matches = []
+        try:
+            for fpath in root.glob(file_glob):
+                if not fpath.is_file() or fpath.stat().st_size > 5_000_000:
+                    continue
+                if ".git/" in str(fpath) or "__pycache__/" in str(fpath) or "node_modules/" in str(fpath):
+                    continue
+                try:
+                    text = fpath.read_text(errors="replace")
+                except Exception:
+                    continue
+                if regex:
+                    found = [(m.start(), m.group()) for m in re.finditer(pattern, text, re.IGNORECASE)]
+                else:
+                    idx = 0
+                    found = []
+                    p_lower = pattern.lower()
+                    t_lower = text.lower()
+                    while True:
+                        idx = t_lower.find(p_lower, idx)
+                        if idx == -1:
+                            break
+                        found.append((idx, text[idx:idx + len(pattern)]))
+                        idx += 1
+                if found:
+                    line_hits = []
+                    for pos, match_text in found[:10]:
+                        line_no = text[:pos].count("\n") + 1
+                        line = text.splitlines()[line_no - 1].strip()[:200]
+                        line_hits.append({"line": line_no, "text": line, "match": match_text[:100]})
+                    matches.append({"file": str(fpath.relative_to(root)),
+                                    "count": len(found), "hits": line_hits})
+                if len(matches) >= 100:
+                    break
+        except Exception as e:
+            return {"error": f"Search failed: {e}"}
+        total = sum(m["count"] for m in matches)
+        return {"matches": matches, "files_matched": len(matches),
+                "total_occurrences": total, "directory": str(root), "pattern": pattern}
+
+    elif action in ("replace", "preview"):
+        is_dry = dry_run or action == "preview"
+        changes = []
+        try:
+            for fpath in root.glob(file_glob):
+                if not fpath.is_file() or fpath.stat().st_size > 5_000_000:
+                    continue
+                if ".git/" in str(fpath) or "__pycache__/" in str(fpath) or "node_modules/" in str(fpath):
+                    continue
+                try:
+                    text = fpath.read_text(errors="replace")
+                except Exception:
+                    continue
+                if regex:
+                    count = len(re.findall(pattern, text, re.IGNORECASE))
+                    if count == 0:
+                        continue
+                    new_text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+                else:
+                    count = text.lower().count(pattern.lower())
+                    if count == 0:
+                        continue
+                    # Case-preserving replace
+                    new_text = text.replace(pattern, replacement)
+
+                if new_text != text:
+                    if not is_dry:
+                        if backup:
+                            shutil.copy2(str(fpath), str(fpath) + ".bak")
+                        fpath.write_text(new_text)
+                    changes.append({"file": str(fpath.relative_to(root)),
+                                    "replacements": count, "applied": not is_dry})
+                if len(changes) >= 100:
+                    break
+        except Exception as e:
+            return {"error": f"Replace failed: {e}"}
+        total = sum(c["replacements"] for c in changes)
+        return {"changes": changes, "files_changed": len(changes),
+                "total_replacements": total, "dry_run": is_dry,
+                "pattern": pattern, "replacement": replacement}
+
+    return {"error": f"Unknown action: {action}. Use search, replace, preview."}
+
+
+# ── Process Watchdog ──────────────────────────────────────────────────────
+
+_WATCHDOG_REGISTRY: dict = {}
+_WATCHDOG_PATH = Path(ARMY_HOME) / "data" / "watchdog_registry.json"
+
+def _load_watchdog():
+    global _WATCHDOG_REGISTRY
+    if _WATCHDOG_PATH.exists():
+        try:
+            _WATCHDOG_REGISTRY = json.loads(_WATCHDOG_PATH.read_text())
+        except Exception:
+            _WATCHDOG_REGISTRY = {}
+
+def _save_watchdog():
+    _WATCHDOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _WATCHDOG_PATH.write_text(json.dumps(_WATCHDOG_REGISTRY, indent=2, default=str))
+
+def _process_watchdog(action: str, name: str = "", command: str = "",
+                      interval: int = 30, max_restarts: int = 10,
+                      health_url: str = "") -> dict:
+    """Auto-restart crashed processes. Register watchdogs with health checks.
+    Actions: 'register' (add a process to watch), 'unregister' (stop watching),
+    'list' (list all watched processes), 'status' (check status of one),
+    'check_all' (run health check on all registered processes).
+    """
+    _load_watchdog()
+
+    if action == "register":
+        if not name or not command:
+            return {"error": "Name and command required"}
+        _WATCHDOG_REGISTRY[name] = {
+            "command": command,
+            "interval": interval,
+            "max_restarts": max_restarts,
+            "health_url": health_url,
+            "restart_count": 0,
+            "last_check": None,
+            "last_restart": None,
+            "status": "registered",
+            "pid": None,
+        }
+        _save_watchdog()
+        return {"registered": True, "name": name, "command": command,
+                "interval": interval, "health_url": health_url}
+
+    elif action == "unregister":
+        if name in _WATCHDOG_REGISTRY:
+            del _WATCHDOG_REGISTRY[name]
+            _save_watchdog()
+            return {"unregistered": True, "name": name}
+        return {"error": f"Not found: {name}"}
+
+    elif action == "list":
+        return {"watchdogs": _WATCHDOG_REGISTRY, "count": len(_WATCHDOG_REGISTRY)}
+
+    elif action == "status":
+        if name not in _WATCHDOG_REGISTRY:
+            return {"error": f"Not found: {name}"}
+        entry = _WATCHDOG_REGISTRY[name]
+        # Check if process is actually running
+        alive = False
+        if entry.get("pid"):
+            try:
+                os.kill(entry["pid"], 0)
+                alive = True
+            except (OSError, TypeError):
+                pass
+        if entry.get("health_url"):
+            try:
+                result = subprocess.run(
+                    ["curl", "-sf", "--max-time", "5", entry["health_url"]],
+                    capture_output=True, timeout=10,
+                )
+                alive = result.returncode == 0
+            except Exception:
+                pass
+        entry["alive"] = alive
+        entry["last_check"] = datetime.now().isoformat()
+        _save_watchdog()
+        return {"name": name, **entry}
+
+    elif action == "check_all":
+        results = []
+        for wname, entry in _WATCHDOG_REGISTRY.items():
+            alive = False
+            # Check PID
+            if entry.get("pid"):
+                try:
+                    os.kill(entry["pid"], 0)
+                    alive = True
+                except (OSError, TypeError):
+                    pass
+            # Check health URL
+            if entry.get("health_url") and not alive:
+                try:
+                    result = subprocess.run(
+                        ["curl", "-sf", "--max-time", "5", entry["health_url"]],
+                        capture_output=True, timeout=10,
+                    )
+                    alive = result.returncode == 0
+                except Exception:
+                    pass
+            entry["alive"] = alive
+            entry["last_check"] = datetime.now().isoformat()
+            # Auto-restart if dead
+            restarted = False
+            if not alive and entry["restart_count"] < entry["max_restarts"]:
+                try:
+                    proc = subprocess.Popen(
+                        entry["command"], shell=True,
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                        start_new_session=True,
+                    )
+                    entry["pid"] = proc.pid
+                    entry["restart_count"] += 1
+                    entry["last_restart"] = datetime.now().isoformat()
+                    entry["status"] = "restarted"
+                    restarted = True
+                except Exception as e:
+                    entry["status"] = f"restart_failed: {e}"
+            results.append({"name": wname, "alive": alive, "restarted": restarted,
+                            "restart_count": entry["restart_count"]})
+        _save_watchdog()
+        return {"results": results, "total": len(results),
+                "healthy": sum(1 for r in results if r["alive"]),
+                "restarted": sum(1 for r in results if r["restarted"])}
+
+    return {"error": f"Unknown action: {action}. Use register, unregister, list, status, check_all."}
+
+
+# ── Time-Series Metrics Collector ────────────────────────────────────────
+
+_METRICS_PATH = Path(ARMY_HOME) / "data" / "metrics"
+
+def _metrics_collect(action: str, name: str = "", value: float = 0,
+                     tags: dict = None, hours: float = 24,
+                     limit: int = 100) -> dict:
+    """Record and analyze time-series metrics. Track performance, errors, latency, etc.
+    Actions: 'record' (store a metric), 'query' (get metric history),
+    'summary' (min/max/avg/p95 for a metric), 'list' (list all metric names),
+    'delete' (delete a metric's history), 'dashboard' (summary of all metrics).
+    """
+    _METRICS_PATH.mkdir(parents=True, exist_ok=True)
+
+    def _metric_file(metric_name):
+        safe = re.sub(r'[^a-zA-Z0-9_-]', '_', metric_name)
+        return _METRICS_PATH / f"{safe}.jsonl"
+
+    if action == "record":
+        if not name:
+            return {"error": "Metric name required"}
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "value": value,
+            "tags": tags or {},
+        }
+        f = _metric_file(name)
+        with open(f, "a") as fp:
+            fp.write(json.dumps(entry) + "\n")
+        return {"recorded": True, "name": name, "value": value, "timestamp": entry["ts"]}
+
+    elif action == "query":
+        if not name:
+            return {"error": "Metric name required"}
+        f = _metric_file(name)
+        if not f.exists():
+            return {"error": f"No data for metric: {name}"}
+        cutoff = (datetime.now(timezone.utc) - __import__('datetime').timedelta(hours=hours)).isoformat()
+        entries = []
+        for line in f.read_text().strip().split("\n"):
+            if not line.strip():
+                continue
+            try:
+                e = json.loads(line)
+                if e["ts"] >= cutoff:
+                    entries.append(e)
+            except json.JSONDecodeError:
+                continue
+        entries = entries[-limit:]
+        return {"name": name, "entries": entries, "count": len(entries), "hours": hours}
+
+    elif action == "summary":
+        if not name:
+            return {"error": "Metric name required"}
+        f = _metric_file(name)
+        if not f.exists():
+            return {"error": f"No data for metric: {name}"}
+        cutoff = (datetime.now(timezone.utc) - __import__('datetime').timedelta(hours=hours)).isoformat()
+        values = []
+        for line in f.read_text().strip().split("\n"):
+            try:
+                e = json.loads(line)
+                if e["ts"] >= cutoff:
+                    values.append(e["value"])
+            except (json.JSONDecodeError, KeyError):
+                continue
+        if not values:
+            return {"name": name, "count": 0, "detail": "No data in time range"}
+        values.sort()
+        n = len(values)
+        return {
+            "name": name, "count": n, "hours": hours,
+            "min": min(values), "max": max(values),
+            "avg": round(sum(values) / n, 4),
+            "median": values[n // 2],
+            "p95": values[int(n * 0.95)] if n >= 20 else values[-1],
+            "p99": values[int(n * 0.99)] if n >= 100 else values[-1],
+            "sum": round(sum(values), 4),
+            "latest": values[-1],
+        }
+
+    elif action == "list":
+        metrics = []
+        for f in sorted(_METRICS_PATH.glob("*.jsonl")):
+            lines = f.read_text().strip().split("\n")
+            count = len([l for l in lines if l.strip()])
+            metrics.append({"name": f.stem, "count": count, "size": f.stat().st_size})
+        return {"metrics": metrics, "count": len(metrics)}
+
+    elif action == "delete":
+        if not name:
+            return {"error": "Metric name required"}
+        f = _metric_file(name)
+        if f.exists():
+            f.unlink()
+            return {"deleted": True, "name": name}
+        return {"error": f"No data for metric: {name}"}
+
+    elif action == "dashboard":
+        dashboard = {}
+        for f in sorted(_METRICS_PATH.glob("*.jsonl")):
+            lines = f.read_text().strip().split("\n")
+            values = []
+            for line in lines[-100:]:
+                try:
+                    values.append(json.loads(line)["value"])
+                except Exception:
+                    continue
+            if values:
+                dashboard[f.stem] = {
+                    "count": len(lines),
+                    "latest": values[-1],
+                    "avg": round(sum(values) / len(values), 2),
+                    "min": min(values),
+                    "max": max(values),
+                }
+        return {"dashboard": dashboard, "metric_count": len(dashboard)}
+
+    return {"error": f"Unknown action: {action}. Use record, query, summary, list, delete, dashboard."}
+
+
+# ── Markdown / HTML Conversion ────────────────────────────────────────────
+
+def _markdown_render(action: str, text: str = "", path: str = "",
+                     output_path: str = "") -> dict:
+    """Convert between Markdown and HTML. Generate formatted tables.
+    Actions: 'md_to_html' (Markdown → HTML), 'html_to_md' (HTML → Markdown),
+    'table' (generate Markdown table from data), 'toc' (extract table of contents from markdown).
+    """
+    content = text or (Path(path).expanduser().read_text() if path else "")
+    if not content and action != "table":
+        return {"error": "Provide text or path"}
+
+    if action == "md_to_html":
+        try:
+            import markdown as md_lib
+        except ImportError:
+            subprocess.run([sys.executable, "-m", "pip", "install", "markdown"],
+                           capture_output=True, timeout=60)
+            import markdown as md_lib
+        html = md_lib.markdown(content, extensions=["tables", "fenced_code", "toc"])
+        if output_path:
+            Path(output_path).expanduser().write_text(html)
+        return {"html": html[:50000], "length": len(html),
+                "output_path": output_path or None, "truncated": len(html) > 50000}
+
+    elif action == "html_to_md":
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            subprocess.run([sys.executable, "-m", "pip", "install", "beautifulsoup4"],
+                           capture_output=True, timeout=60)
+            from bs4 import BeautifulSoup
+        soup = BeautifulSoup(content, "html.parser")
+        # Simple HTML→Markdown converter
+        md_lines = []
+        for el in soup.descendants:
+            if el.name and el.name.startswith("h") and el.name[1:].isdigit():
+                level = int(el.name[1:])
+                md_lines.append(f"\n{'#' * level} {el.get_text(strip=True)}\n")
+            elif el.name == "p":
+                md_lines.append(f"\n{el.get_text(strip=True)}\n")
+            elif el.name == "li":
+                md_lines.append(f"- {el.get_text(strip=True)}")
+            elif el.name == "a" and el.get("href"):
+                md_lines.append(f"[{el.get_text(strip=True)}]({el['href']})")
+            elif el.name == "strong" or el.name == "b":
+                md_lines.append(f"**{el.get_text(strip=True)}**")
+            elif el.name == "em" or el.name == "i":
+                md_lines.append(f"*{el.get_text(strip=True)}*")
+            elif el.name == "code":
+                md_lines.append(f"`{el.get_text(strip=True)}`")
+            elif el.name == "pre":
+                md_lines.append(f"\n```\n{el.get_text()}\n```\n")
+            elif el.name == "br":
+                md_lines.append("")
+        result = "\n".join(md_lines).strip()
+        if output_path:
+            Path(output_path).expanduser().write_text(result)
+        return {"markdown": result[:50000], "length": len(result),
+                "output_path": output_path or None}
+
+    elif action == "table":
+        # text should be JSON array of objects
+        try:
+            data = json.loads(content) if isinstance(content, str) else content
+        except json.JSONDecodeError:
+            return {"error": "Table data must be JSON array of objects"}
+        if not isinstance(data, list) or not data:
+            return {"error": "Need a non-empty list of dicts"}
+        if isinstance(data[0], dict):
+            headers = list(data[0].keys())
+            rows = [[str(row.get(h, "")) for h in headers] for row in data]
+        elif isinstance(data[0], list):
+            headers = [str(h) for h in data[0]]
+            rows = [[str(c) for c in row] for row in data[1:]]
+        else:
+            return {"error": "Data must be list of dicts or list of lists"}
+        md = "| " + " | ".join(headers) + " |\n"
+        md += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+        for row in rows:
+            md += "| " + " | ".join(row) + " |\n"
+        if output_path:
+            Path(output_path).expanduser().write_text(md)
+        return {"table": md, "rows": len(rows), "columns": len(headers)}
+
+    elif action == "toc":
+        toc = []
+        for line in content.split("\n"):
+            m = re.match(r'^(#{1,6})\s+(.+)', line)
+            if m:
+                level = len(m.group(1))
+                heading = m.group(2).strip()
+                anchor = re.sub(r'[^\w\s-]', '', heading.lower()).replace(' ', '-')
+                toc.append({"level": level, "heading": heading, "anchor": anchor})
+        return {"toc": toc, "count": len(toc)}
+
+    return {"error": f"Unknown action: {action}. Use md_to_html, html_to_md, table, toc."}
+
+
+# ── SQL Schema Management ────────────────────────────────────────────────
+
+async def _sql_schema(action: str, table: str = "", schema: str = "public",
+                      columns: list = None, query: str = "") -> dict:
+    """PostgreSQL schema introspection and management.
+    Actions: 'tables' (list all tables), 'describe' (describe table columns),
+    'indexes' (list indexes for a table), 'size' (table/database sizes),
+    'create_table' (create table from column specs), 'add_column' (add column to table),
+    'migrations' (list applied migrations), 'foreign_keys' (list FKs).
+    """
+    import asyncpg
+    dsn = os.environ.get("DATABASE_URL", "postgresql://landonking@localhost:5432/openclaw")
+    try:
+        conn = await asyncpg.connect(dsn)
+    except Exception as e:
+        return {"error": f"Database connection failed: {e}"}
+
+    try:
+        if action == "tables":
+            rows = await conn.fetch(
+                "SELECT table_name, table_type FROM information_schema.tables "
+                "WHERE table_schema = $1 ORDER BY table_name", schema)
+            tables = [{"name": r["table_name"], "type": r["table_type"]} for r in rows]
+            return {"tables": tables, "count": len(tables), "schema": schema}
+
+        elif action == "describe":
+            if not table:
+                return {"error": "Table name required"}
+            rows = await conn.fetch(
+                "SELECT column_name, data_type, is_nullable, column_default, "
+                "character_maximum_length FROM information_schema.columns "
+                "WHERE table_schema = $1 AND table_name = $2 ORDER BY ordinal_position",
+                schema, table)
+            columns_info = [{"name": r["column_name"], "type": r["data_type"],
+                             "nullable": r["is_nullable"], "default": str(r["column_default"] or ""),
+                             "max_length": r["character_maximum_length"]} for r in rows]
+            return {"table": table, "columns": columns_info, "count": len(columns_info)}
+
+        elif action == "indexes":
+            if not table:
+                return {"error": "Table name required"}
+            rows = await conn.fetch(
+                "SELECT indexname, indexdef FROM pg_indexes "
+                "WHERE schemaname = $1 AND tablename = $2", schema, table)
+            indexes = [{"name": r["indexname"], "definition": r["indexdef"]} for r in rows]
+            return {"table": table, "indexes": indexes, "count": len(indexes)}
+
+        elif action == "size":
+            rows = await conn.fetch(
+                "SELECT relname AS table_name, "
+                "pg_size_pretty(pg_total_relation_size(relid)) AS total_size, "
+                "pg_size_pretty(pg_relation_size(relid)) AS data_size "
+                "FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC")
+            sizes = [{"table": r["table_name"], "total": r["total_size"],
+                       "data": r["data_size"]} for r in rows]
+            db_size = await conn.fetchval("SELECT pg_size_pretty(pg_database_size(current_database()))")
+            return {"tables": sizes, "database_size": db_size}
+
+        elif action == "create_table":
+            if not table or not columns:
+                return {"error": "Table name and columns required. columns: [{name, type, nullable, default}]"}
+            col_defs = []
+            for col in columns:
+                col_def = f"{col['name']} {col['type']}"
+                if not col.get("nullable", True):
+                    col_def += " NOT NULL"
+                if col.get("default"):
+                    col_def += f" DEFAULT {col['default']}"
+                if col.get("primary_key"):
+                    col_def += " PRIMARY KEY"
+                col_defs.append(col_def)
+            ddl = f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({', '.join(col_defs)})"
+            await conn.execute(ddl)
+            return {"created": True, "table": f"{schema}.{table}", "ddl": ddl}
+
+        elif action == "add_column":
+            if not table or not columns or not columns[0].get("name"):
+                return {"error": "Table and column spec required: [{name, type}]"}
+            col = columns[0]
+            ddl = f"ALTER TABLE {schema}.{table} ADD COLUMN {col['name']} {col['type']}"
+            if not col.get("nullable", True):
+                ddl += " NOT NULL"
+            if col.get("default"):
+                ddl += f" DEFAULT {col['default']}"
+            await conn.execute(ddl)
+            return {"added": True, "table": f"{schema}.{table}", "column": col["name"], "ddl": ddl}
+
+        elif action == "foreign_keys":
+            if not table:
+                return {"error": "Table name required"}
+            rows = await conn.fetch(
+                "SELECT kcu.column_name, ccu.table_name AS foreign_table, "
+                "ccu.column_name AS foreign_column, tc.constraint_name "
+                "FROM information_schema.table_constraints tc "
+                "JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name "
+                "JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name "
+                "WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = $1", table)
+            fks = [{"column": r["column_name"], "references_table": r["foreign_table"],
+                     "references_column": r["foreign_column"],
+                     "constraint": r["constraint_name"]} for r in rows]
+            return {"table": table, "foreign_keys": fks, "count": len(fks)}
+
+        elif action == "migrations":
+            # Check if migrations table exists
+            exists = await conn.fetchval(
+                "SELECT EXISTS(SELECT 1 FROM information_schema.tables "
+                "WHERE table_name = 'schema_migrations')")
+            if not exists:
+                return {"detail": "No schema_migrations table found. Use create_table to set one up."}
+            rows = await conn.fetch(
+                "SELECT * FROM schema_migrations ORDER BY applied_at DESC LIMIT 50")
+            return {"migrations": [dict(r) for r in rows]}
+
+    except Exception as e:
+        return {"error": f"SQL schema operation failed: {e}"}
+    finally:
+        await conn.close()
+
+    return {"error": f"Unknown action: {action}. Use tables, describe, indexes, size, create_table, add_column, foreign_keys, migrations."}
+
+
+# ── Round 7 Tools ──────────────────────────────────────────────────────────
+
+# --- audio_process ---
+def _audio_process(action: str, **kwargs) -> dict:
+    """Audio processing via ffmpeg and macOS say."""
+    try:
+        if action == "convert":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, dst],
+                               capture_output=True, text=True, timeout=120)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"converted": dst, "detail": "OK"}
+
+        elif action == "tts":
+            text = kwargs.get("text", "")
+            output = kwargs.get("output", "/tmp/tts_output.aiff")
+            voice = kwargs.get("voice", "")
+            if not text:
+                return {"error": "text required"}
+            cmd = ["say"]
+            if voice:
+                cmd += ["-v", voice]
+            cmd += ["-o", output, text]
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return {"tts_file": output, "detail": "OK"}
+
+        elif action == "trim":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            start = kwargs.get("start", "0")
+            duration = kwargs.get("duration", "")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            cmd = ["ffmpeg", "-y", "-i", src, "-ss", str(start)]
+            if duration:
+                cmd += ["-t", str(duration)]
+            cmd += [dst]
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"trimmed": dst, "detail": "OK"}
+
+        elif action == "merge":
+            files = kwargs.get("files", [])
+            dst = kwargs.get("destination", "")
+            if len(files) < 2 or not dst:
+                return {"error": "files (list of >=2) and destination required"}
+            import tempfile
+            list_path = tempfile.mktemp(suffix=".txt")
+            with open(list_path, "w") as f:
+                for fp in files:
+                    f.write(f"file '{fp}'\n")
+            r = subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+                                "-i", list_path, "-c", "copy", dst],
+                               capture_output=True, text=True, timeout=120)
+            os.unlink(list_path)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"merged": dst, "detail": "OK"}
+
+        elif action == "metadata":
+            src = kwargs.get("source", "")
+            if not src:
+                return {"error": "source required"}
+            r = subprocess.run(["ffprobe", "-v", "quiet", "-print_format", "json",
+                                "-show_format", "-show_streams", src],
+                               capture_output=True, text=True, timeout=30)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "volume":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            level = kwargs.get("level", "1.5")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, "-filter:a",
+                                f"volume={level}", dst],
+                               capture_output=True, text=True, timeout=120)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"adjusted": dst, "detail": "OK"}
+
+        elif action == "voices":
+            r = subprocess.run(["say", "-v", "?"], capture_output=True, text=True, timeout=10)
+            voices = [line.split()[0] for line in r.stdout.strip().split("\n") if line.strip()][:50]
+            return {"voices": voices, "count": len(voices)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use convert, tts, trim, merge, metadata, volume, voices."}
+    except subprocess.TimeoutExpired:
+        return {"error": "Audio processing timed out"}
+    except Exception as e:
+        return {"error": f"audio_process failed: {e}"}
+
+
+# --- video_process ---
+def _video_process(action: str, **kwargs) -> dict:
+    """Video processing via ffmpeg."""
+    try:
+        if action == "convert":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, dst],
+                               capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"converted": dst, "detail": "OK"}
+
+        elif action == "extract_frames":
+            src = kwargs.get("source", "")
+            output_dir = kwargs.get("output_dir", "/tmp/frames")
+            fps = kwargs.get("fps", "1")
+            os.makedirs(output_dir, exist_ok=True)
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, "-vf", f"fps={fps}",
+                                os.path.join(output_dir, "frame_%04d.png")],
+                               capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            frames = sorted(os.listdir(output_dir))
+            return {"output_dir": output_dir, "frame_count": len(frames), "frames": frames[:20]}
+
+        elif action == "trim":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            start = kwargs.get("start", "0")
+            duration = kwargs.get("duration", "")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            cmd = ["ffmpeg", "-y", "-i", src, "-ss", str(start)]
+            if duration:
+                cmd += ["-t", str(duration)]
+            cmd += ["-c", "copy", dst]
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"trimmed": dst, "detail": "OK"}
+
+        elif action == "thumbnail":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "/tmp/thumb.png")
+            timestamp = kwargs.get("timestamp", "00:00:01")
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, "-ss", timestamp,
+                                "-vframes", "1", dst],
+                               capture_output=True, text=True, timeout=60)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"thumbnail": dst, "detail": "OK"}
+
+        elif action == "metadata":
+            src = kwargs.get("source", "")
+            if not src:
+                return {"error": "source required"}
+            r = subprocess.run(["ffprobe", "-v", "quiet", "-print_format", "json",
+                                "-show_format", "-show_streams", src],
+                               capture_output=True, text=True, timeout=30)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "resize":
+            src = kwargs.get("source", "")
+            dst = kwargs.get("destination", "")
+            width = kwargs.get("width", "1280")
+            height = kwargs.get("height", "-1")
+            if not src or not dst:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["ffmpeg", "-y", "-i", src, "-vf",
+                                f"scale={width}:{height}", dst],
+                               capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                return {"error": r.stderr[:1000]}
+            return {"resized": dst, "detail": "OK"}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use convert, extract_frames, trim, thumbnail, metadata, resize."}
+    except subprocess.TimeoutExpired:
+        return {"error": "Video processing timed out"}
+    except Exception as e:
+        return {"error": f"video_process failed: {e}"}
+
+
+# --- pdf_tools ---
+def _pdf_tools(action: str, **kwargs) -> dict:
+    """PDF generation and parsing."""
+    try:
+        if action == "create":
+            output = kwargs.get("output", "/tmp/output.pdf")
+            title = kwargs.get("title", "")
+            content = kwargs.get("content", "")
+            if not content:
+                return {"error": "content required"}
+            try:
+                from fpdf import FPDF
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "fpdf2"],
+                               capture_output=True, timeout=60)
+                from fpdf import FPDF
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            if title:
+                pdf.set_font("Helvetica", "B", 16)
+                pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf.ln(5)
+            pdf.set_font("Helvetica", "", 11)
+            for line in content.split("\n"):
+                pdf.multi_cell(0, 6, line)
+            os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
+            pdf.output(output)
+            return {"created": output, "pages": pdf.pages_count}
+
+        elif action == "extract_text":
+            source = kwargs.get("source", "")
+            if not source:
+                return {"error": "source required"}
+            try:
+                import pymupdf
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pymupdf"],
+                               capture_output=True, timeout=120)
+                import pymupdf
+            doc = pymupdf.open(source)
+            pages = []
+            for i, page in enumerate(doc):
+                pages.append({"page": i + 1, "text": page.get_text()[:5000]})
+            doc.close()
+            return {"source": source, "page_count": len(pages), "pages": pages[:50]}
+
+        elif action == "page_count":
+            source = kwargs.get("source", "")
+            if not source:
+                return {"error": "source required"}
+            try:
+                import pymupdf
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pymupdf"],
+                               capture_output=True, timeout=120)
+                import pymupdf
+            doc = pymupdf.open(source)
+            count = len(doc)
+            doc.close()
+            return {"source": source, "page_count": count}
+
+        elif action == "merge":
+            files = kwargs.get("files", [])
+            output = kwargs.get("output", "/tmp/merged.pdf")
+            if len(files) < 2:
+                return {"error": "files (list of >=2) required"}
+            try:
+                import pymupdf
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pymupdf"],
+                               capture_output=True, timeout=120)
+                import pymupdf
+            merged = pymupdf.open()
+            for f in files:
+                src = pymupdf.open(f)
+                merged.insert_pdf(src)
+                src.close()
+            merged.save(output)
+            total = len(merged)
+            merged.close()
+            return {"merged": output, "page_count": total}
+
+        elif action == "split":
+            source = kwargs.get("source", "")
+            output_dir = kwargs.get("output_dir", "/tmp/pdf_pages")
+            if not source:
+                return {"error": "source required"}
+            try:
+                import pymupdf
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pymupdf"],
+                               capture_output=True, timeout=120)
+                import pymupdf
+            os.makedirs(output_dir, exist_ok=True)
+            doc = pymupdf.open(source)
+            out_files = []
+            for i in range(len(doc)):
+                out = pymupdf.open()
+                out.insert_pdf(doc, from_page=i, to_page=i)
+                p = os.path.join(output_dir, f"page_{i+1:04d}.pdf")
+                out.save(p)
+                out.close()
+                out_files.append(p)
+            doc.close()
+            return {"source": source, "pages_split": len(out_files), "files": out_files[:20]}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use create, extract_text, page_count, merge, split."}
+    except Exception as e:
+        return {"error": f"pdf_tools failed: {e}"}
+
+
+# --- ssh_remote ---
+def _ssh_remote(action: str, **kwargs) -> dict:
+    """Execute commands on remote hosts via SSH."""
+    try:
+        host = kwargs.get("host", "")
+        if not host:
+            return {"error": "host required (user@hostname or hostname)"}
+
+        if action == "exec":
+            command = kwargs.get("command", "")
+            if not command:
+                return {"error": "command required"}
+            timeout = min(int(kwargs.get("timeout", 30)), 120)
+            ssh_cmd = ["ssh", "-o", "StrictHostKeyChecking=accept-new",
+                       "-o", f"ConnectTimeout={min(timeout, 10)}",
+                       host, command]
+            r = subprocess.run(ssh_cmd, capture_output=True, text=True, timeout=timeout)
+            return {
+                "host": host,
+                "command": command,
+                "exit_code": r.returncode,
+                "stdout": r.stdout[:5000],
+                "stderr": r.stderr[:2000],
+            }
+
+        elif action == "copy_to":
+            source = kwargs.get("source", "")
+            destination = kwargs.get("destination", "")
+            if not source or not destination:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["scp", "-o", "StrictHostKeyChecking=accept-new",
+                                source, f"{host}:{destination}"],
+                               capture_output=True, text=True, timeout=120)
+            return {"host": host, "copied": source, "to": destination,
+                    "exit_code": r.returncode, "stderr": r.stderr[:500]}
+
+        elif action == "copy_from":
+            source = kwargs.get("source", "")
+            destination = kwargs.get("destination", "")
+            if not source or not destination:
+                return {"error": "source and destination required"}
+            r = subprocess.run(["scp", "-o", "StrictHostKeyChecking=accept-new",
+                                f"{host}:{source}", destination],
+                               capture_output=True, text=True, timeout=120)
+            return {"host": host, "copied": source, "to": destination,
+                    "exit_code": r.returncode, "stderr": r.stderr[:500]}
+
+        elif action == "test":
+            r = subprocess.run(["ssh", "-o", "StrictHostKeyChecking=accept-new",
+                                "-o", "ConnectTimeout=5", host, "echo OK"],
+                               capture_output=True, text=True, timeout=10)
+            reachable = r.returncode == 0 and "OK" in r.stdout
+            return {"host": host, "reachable": reachable,
+                    "stderr": r.stderr[:300] if not reachable else ""}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use exec, copy_to, copy_from, test."}
+    except subprocess.TimeoutExpired:
+        return {"error": f"SSH to {host} timed out"}
+    except Exception as e:
+        return {"error": f"ssh_remote failed: {e}"}
+
+
+# --- secret_vault ---
+_VAULT_PATH = Path(ARMY_HOME) / "data" / "vault.enc"
+_VAULT_KEY_PATH = Path(ARMY_HOME) / "data" / ".vault_key"
+
+
+def _get_vault_key():
+    """Get or create the Fernet encryption key."""
+    try:
+        from cryptography.fernet import Fernet
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "cryptography"],
+                       capture_output=True, timeout=60)
+        from cryptography.fernet import Fernet
+    if _VAULT_KEY_PATH.exists():
+        return Fernet(_VAULT_KEY_PATH.read_bytes().strip())
+    key = Fernet.generate_key()
+    _VAULT_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _VAULT_KEY_PATH.write_bytes(key)
+    os.chmod(str(_VAULT_KEY_PATH), 0o600)
+    return Fernet(key)
+
+
+def _load_vault() -> dict:
+    if not _VAULT_PATH.exists():
+        return {}
+    f = _get_vault_key()
+    data = f.decrypt(_VAULT_PATH.read_bytes())
+    return json.loads(data)
+
+
+def _save_vault(secrets: dict):
+    f = _get_vault_key()
+    data = f.encrypt(json.dumps(secrets).encode())
+    _VAULT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _VAULT_PATH.write_bytes(data)
+    os.chmod(str(_VAULT_PATH), 0o600)
+
+
+def _secret_vault(action: str, **kwargs) -> dict:
+    """Encrypted secrets management."""
+    try:
+        if action == "store":
+            key = kwargs.get("key", "")
+            value = kwargs.get("value", "")
+            if not key or not value:
+                return {"error": "key and value required"}
+            secrets = _load_vault()
+            secrets[key] = value
+            _save_vault(secrets)
+            return {"stored": key, "detail": "OK"}
+
+        elif action == "retrieve":
+            key = kwargs.get("key", "")
+            if not key:
+                return {"error": "key required"}
+            secrets = _load_vault()
+            if key not in secrets:
+                return {"error": f"Secret '{key}' not found"}
+            return {"key": key, "value": secrets[key]}
+
+        elif action == "list":
+            secrets = _load_vault()
+            return {"secrets": list(secrets.keys()), "count": len(secrets)}
+
+        elif action == "delete":
+            key = kwargs.get("key", "")
+            if not key:
+                return {"error": "key required"}
+            secrets = _load_vault()
+            if key not in secrets:
+                return {"error": f"Secret '{key}' not found"}
+            del secrets[key]
+            _save_vault(secrets)
+            return {"deleted": key, "detail": "OK"}
+
+        elif action == "rotate_key":
+            # Re-encrypt all secrets with a new key
+            secrets = _load_vault()
+            if _VAULT_KEY_PATH.exists():
+                _VAULT_KEY_PATH.unlink()
+            _save_vault(secrets)
+            return {"detail": "Vault key rotated", "secrets_count": len(secrets)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use store, retrieve, list, delete, rotate_key."}
+    except Exception as e:
+        return {"error": f"secret_vault failed: {e}"}
+
+
+# --- test_runner ---
+def _test_runner(action: str, **kwargs) -> dict:
+    """Execute tests and return structured results."""
+    try:
+        if action == "pytest":
+            target = kwargs.get("target", ".")
+            args = kwargs.get("args", "")
+            timeout = min(int(kwargs.get("timeout", 120)), 600)
+            cmd = [sys.executable, "-m", "pytest", target, "-v", "--tb=short", "--no-header"]
+            if args:
+                cmd.extend(args.split())
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                               cwd=kwargs.get("cwd", ARMY_HOME))
+            lines = r.stdout.strip().split("\n")
+            passed = sum(1 for l in lines if " PASSED" in l)
+            failed = sum(1 for l in lines if " FAILED" in l)
+            errors = sum(1 for l in lines if " ERROR" in l)
+            skipped = sum(1 for l in lines if " SKIPPED" in l)
+            return {
+                "exit_code": r.returncode,
+                "passed": passed,
+                "failed": failed,
+                "errors": errors,
+                "skipped": skipped,
+                "output": r.stdout[:5000],
+                "stderr": r.stderr[:2000],
+            }
+
+        elif action == "unittest":
+            target = kwargs.get("target", "")
+            if not target:
+                return {"error": "target required (module path or file)"}
+            timeout = min(int(kwargs.get("timeout", 120)), 600)
+            cmd = [sys.executable, "-m", "unittest", target, "-v"]
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                               cwd=kwargs.get("cwd", ARMY_HOME))
+            return {
+                "exit_code": r.returncode,
+                "output": r.stdout[:5000],
+                "stderr": r.stderr[:5000],
+            }
+
+        elif action == "script":
+            target = kwargs.get("target", "")
+            if not target:
+                return {"error": "target script path required"}
+            timeout = min(int(kwargs.get("timeout", 120)), 600)
+            cmd = [sys.executable, target]
+            if kwargs.get("args"):
+                cmd.extend(kwargs["args"].split())
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                               cwd=kwargs.get("cwd", ARMY_HOME))
+            return {
+                "exit_code": r.returncode,
+                "output": r.stdout[:5000],
+                "stderr": r.stderr[:2000],
+            }
+
+        elif action == "discover":
+            target = kwargs.get("target", ".")
+            r = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", target],
+                               capture_output=True, text=True, timeout=30,
+                               cwd=kwargs.get("cwd", ARMY_HOME))
+            tests = [l.strip() for l in r.stdout.strip().split("\n") if "::" in l]
+            return {"tests": tests[:100], "count": len(tests)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use pytest, unittest, script, discover."}
+    except subprocess.TimeoutExpired:
+        return {"error": "Test execution timed out"}
+    except Exception as e:
+        return {"error": f"test_runner failed: {e}"}
+
+
+# --- dependency_analysis ---
+def _dependency_analysis(action: str, **kwargs) -> dict:
+    """Analyze Python imports and dependencies."""
+    import ast as _ast
+
+    try:
+        if action == "imports":
+            target = kwargs.get("target", "")
+            if not target:
+                return {"error": "target file path required"}
+            source = Path(target).read_text()
+            tree = _ast.parse(source)
+            imports = []
+            for node in _ast.walk(tree):
+                if isinstance(node, _ast.Import):
+                    for alias in node.names:
+                        imports.append({"module": alias.name, "alias": alias.asname, "line": node.lineno})
+                elif isinstance(node, _ast.ImportFrom):
+                    for alias in node.names:
+                        imports.append({"module": f"{node.module}.{alias.name}" if node.module else alias.name,
+                                        "alias": alias.asname, "line": node.lineno, "from": node.module})
+            return {"target": target, "imports": imports, "count": len(imports)}
+
+        elif action == "circular":
+            target_dir = kwargs.get("target", ".")
+            # Build import graph for .py files
+            graph = {}
+            py_files = list(Path(target_dir).rglob("*.py"))[:200]
+            for fp in py_files:
+                try:
+                    tree = _ast.parse(fp.read_text())
+                except Exception:
+                    continue
+                mod_name = fp.stem
+                deps = set()
+                for node in _ast.walk(tree):
+                    if isinstance(node, _ast.Import):
+                        for alias in node.names:
+                            deps.add(alias.name.split(".")[0])
+                    elif isinstance(node, _ast.ImportFrom) and node.module:
+                        deps.add(node.module.split(".")[0])
+                graph[mod_name] = deps
+
+            # Detect cycles via DFS
+            cycles = []
+            visited = set()
+            path_set = set()
+
+            def _dfs(node, path):
+                if node in path_set:
+                    cycle_start = path.index(node)
+                    cycles.append(path[cycle_start:] + [node])
+                    return
+                if node in visited or node not in graph:
+                    return
+                visited.add(node)
+                path_set.add(node)
+                path.append(node)
+                for dep in graph.get(node, []):
+                    if dep in graph:
+                        _dfs(dep, path)
+                path.pop()
+                path_set.discard(node)
+
+            for mod in graph:
+                _dfs(mod, [])
+
+            return {"directory": target_dir, "modules_scanned": len(graph),
+                    "circular_deps": cycles[:20], "count": len(cycles)}
+
+        elif action == "unused":
+            target = kwargs.get("target", "")
+            if not target:
+                return {"error": "target file path required"}
+            source = Path(target).read_text()
+            tree = _ast.parse(source)
+            imported_names = {}
+            for node in _ast.walk(tree):
+                if isinstance(node, _ast.Import):
+                    for alias in node.names:
+                        name = alias.asname or alias.name.split(".")[0]
+                        imported_names[name] = alias.name
+                elif isinstance(node, _ast.ImportFrom):
+                    for alias in node.names:
+                        name = alias.asname or alias.name
+                        imported_names[name] = f"{node.module}.{alias.name}" if node.module else alias.name
+
+            # Check usage in the source
+            all_names = set()
+            for node in _ast.walk(tree):
+                if isinstance(node, _ast.Name):
+                    all_names.add(node.id)
+                elif isinstance(node, _ast.Attribute):
+                    if isinstance(node.value, _ast.Name):
+                        all_names.add(node.value.id)
+
+            unused = {name: mod for name, mod in imported_names.items()
+                      if name not in all_names - set(imported_names.keys()) and name not in all_names}
+            # Re-check: a name used as Name(id=...) counts
+            truly_unused = {}
+            for name, mod in imported_names.items():
+                if name not in all_names:
+                    truly_unused[name] = mod
+
+            return {"target": target, "unused_imports": truly_unused, "count": len(truly_unused)}
+
+        elif action == "graph":
+            target = kwargs.get("target", "")
+            if not target:
+                return {"error": "target file path required"}
+            source = Path(target).read_text()
+            tree = _ast.parse(source)
+            stdlib = set(sys.stdlib_module_names) if hasattr(sys, "stdlib_module_names") else set()
+            stdlib_deps = []
+            third_party = []
+            local_deps = []
+            for node in _ast.walk(tree):
+                mod = None
+                if isinstance(node, _ast.Import):
+                    for alias in node.names:
+                        mod = alias.name.split(".")[0]
+                elif isinstance(node, _ast.ImportFrom) and node.module:
+                    mod = node.module.split(".")[0]
+                if mod:
+                    if mod in stdlib:
+                        if mod not in [d["module"] for d in stdlib_deps]:
+                            stdlib_deps.append({"module": mod, "category": "stdlib"})
+                    elif Path(target).parent.joinpath(mod + ".py").exists() or Path(target).parent.joinpath(mod).is_dir():
+                        local_deps.append({"module": mod, "category": "local"})
+                    else:
+                        if mod not in [d["module"] for d in third_party]:
+                            third_party.append({"module": mod, "category": "third_party"})
+            return {"target": target, "stdlib": stdlib_deps, "third_party": third_party,
+                    "local": local_deps}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use imports, circular, unused, graph."}
+    except Exception as e:
+        return {"error": f"dependency_analysis failed: {e}"}
+
+
+# --- resource_monitor ---
+def _resource_monitor(action: str, **kwargs) -> dict:
+    """CPU/memory/disk monitoring with thresholds and alerts."""
+    try:
+        try:
+            import psutil
+        except ImportError:
+            subprocess.run([sys.executable, "-m", "pip", "install", "psutil"],
+                           capture_output=True, timeout=60)
+            import psutil
+
+        if action == "snapshot":
+            cpu = psutil.cpu_percent(interval=1)
+            mem = psutil.virtual_memory()
+            disk = psutil.disk_usage("/")
+            return {
+                "cpu_percent": cpu,
+                "memory": {
+                    "total_gb": round(mem.total / (1024**3), 2),
+                    "used_gb": round(mem.used / (1024**3), 2),
+                    "available_gb": round(mem.available / (1024**3), 2),
+                    "percent": mem.percent,
+                },
+                "disk": {
+                    "total_gb": round(disk.total / (1024**3), 2),
+                    "used_gb": round(disk.used / (1024**3), 2),
+                    "free_gb": round(disk.free / (1024**3), 2),
+                    "percent": disk.percent,
+                },
+            }
+
+        elif action == "processes":
+            limit = int(kwargs.get("limit", 10))
+            sort_by = kwargs.get("sort_by", "memory")
+            procs = []
+            for p in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+                try:
+                    info = p.info
+                    procs.append(info)
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            key = "memory_percent" if sort_by == "memory" else "cpu_percent"
+            procs.sort(key=lambda x: x.get(key, 0) or 0, reverse=True)
+            return {"processes": procs[:limit], "sort_by": sort_by}
+
+        elif action == "check_thresholds":
+            cpu_thresh = float(kwargs.get("cpu_threshold", 90))
+            mem_thresh = float(kwargs.get("memory_threshold", 90))
+            disk_thresh = float(kwargs.get("disk_threshold", 90))
+            cpu = psutil.cpu_percent(interval=1)
+            mem = psutil.virtual_memory().percent
+            disk = psutil.disk_usage("/").percent
+            alerts = []
+            if cpu > cpu_thresh:
+                alerts.append({"resource": "cpu", "value": cpu, "threshold": cpu_thresh})
+            if mem > mem_thresh:
+                alerts.append({"resource": "memory", "value": mem, "threshold": mem_thresh})
+            if disk > disk_thresh:
+                alerts.append({"resource": "disk", "value": disk, "threshold": disk_thresh})
+            return {
+                "cpu": cpu, "memory": mem, "disk": disk,
+                "alerts": alerts, "alert_count": len(alerts),
+                "status": "ALERT" if alerts else "OK",
+            }
+
+        elif action == "network":
+            net = psutil.net_io_counters()
+            conns = len(psutil.net_connections())
+            return {
+                "bytes_sent": net.bytes_sent,
+                "bytes_recv": net.bytes_recv,
+                "packets_sent": net.packets_sent,
+                "packets_recv": net.packets_recv,
+                "active_connections": conns,
+            }
+
+        elif action == "temperatures":
+            temps = psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}
+            if not temps:
+                # macOS fallback
+                r = subprocess.run(["sudo", "powermetrics", "--samplers", "smc", "-n", "1", "-i", "1"],
+                                   capture_output=True, text=True, timeout=5)
+                if r.returncode == 0:
+                    return {"raw": r.stdout[:2000]}
+                return {"detail": "Temperature sensors not available without sudo on macOS"}
+            return {"temperatures": {k: [{"label": s.label, "current": s.current, "high": s.high} for s in v] for k, v in temps.items()}}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use snapshot, processes, check_thresholds, network, temperatures."}
+    except Exception as e:
+        return {"error": f"resource_monitor failed: {e}"}
+
+
+# --- sqlite_query ---
+def _sqlite_query(action: str, **kwargs) -> dict:
+    """Local SQLite database operations."""
+    import sqlite3 as _sqlite3
+
+    db_path = kwargs.get("database", os.path.join(ARMY_HOME, "data", "local.db"))
+    try:
+        if action == "query":
+            sql = kwargs.get("sql", "")
+            if not sql:
+                return {"error": "sql required"}
+            conn = _sqlite3.connect(db_path)
+            conn.row_factory = _sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(sql)
+            if sql.strip().upper().startswith("SELECT") or sql.strip().upper().startswith("PRAGMA"):
+                rows = [dict(r) for r in cur.fetchmany(500)]
+                result = {"rows": rows, "count": len(rows)}
+            else:
+                conn.commit()
+                result = {"rows_affected": cur.rowcount}
+            conn.close()
+            return result
+
+        elif action == "execute":
+            sql = kwargs.get("sql", "")
+            params = kwargs.get("params", [])
+            if not sql:
+                return {"error": "sql required"}
+            conn = _sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
+            result = {"rows_affected": cur.rowcount, "lastrowid": cur.lastrowid}
+            conn.close()
+            return result
+
+        elif action == "tables":
+            conn = _sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            tables = [r[0] for r in cur.fetchall()]
+            conn.close()
+            return {"database": db_path, "tables": tables, "count": len(tables)}
+
+        elif action == "schema":
+            table = kwargs.get("table", "")
+            if not table:
+                return {"error": "table required"}
+            conn = _sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute(f"PRAGMA table_info({table})")
+            cols = [{"cid": r[0], "name": r[1], "type": r[2], "notnull": bool(r[3]),
+                      "default": r[4], "pk": bool(r[5])} for r in cur.fetchall()]
+            conn.close()
+            return {"table": table, "columns": cols, "count": len(cols)}
+
+        elif action == "import_csv":
+            csv_path = kwargs.get("csv_path", "")
+            table = kwargs.get("table", "")
+            if not csv_path or not table:
+                return {"error": "csv_path and table required"}
+            import csv
+            with open(csv_path, "r") as f:
+                reader = csv.DictReader(f)
+                rows_data = list(reader)
+            if not rows_data:
+                return {"error": "CSV is empty"}
+            conn = _sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cols = list(rows_data[0].keys())
+            col_defs = ", ".join(f'"{c}" TEXT' for c in cols)
+            cur.execute(f'CREATE TABLE IF NOT EXISTS "{table}" ({col_defs})')
+            placeholders = ", ".join(["?"] * len(cols))
+            col_names = ", ".join(f'"{c}"' for c in cols)
+            for row in rows_data:
+                cur.execute(f'INSERT INTO "{table}" ({col_names}) VALUES ({placeholders})',
+                            [row.get(c, "") for c in cols])
+            conn.commit()
+            conn.close()
+            return {"table": table, "rows_imported": len(rows_data), "columns": cols}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use query, execute, tables, schema, import_csv."}
+    except Exception as e:
+        return {"error": f"sqlite_query failed: {e}"}
+
+
+# --- file_watch ---
+_FILE_WATCHERS: dict[str, dict] = {}
+
+
+async def _file_watch(action: str, **kwargs) -> dict:
+    """Watch directories for file changes."""
+    try:
+        if action == "start":
+            path = kwargs.get("path", "")
+            watch_id = kwargs.get("watch_id", str(uuid.uuid4())[:8])
+            if not path:
+                return {"error": "path required"}
+            if not os.path.isdir(path):
+                return {"error": f"Directory not found: {path}"}
+            if watch_id in _FILE_WATCHERS:
+                return {"error": f"Watcher '{watch_id}' already running"}
+
+            log_path = os.path.join(ARMY_HOME, "data", "file_watch", f"{watch_id}.jsonl")
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+            cancel_event = asyncio.Event()
+
+            async def _watcher():
+                from watchfiles import awatch, Change
+                change_map = {Change.added: "added", Change.modified: "modified", Change.deleted: "deleted"}
+                try:
+                    async for changes in awatch(path, stop_event=cancel_event):
+                        entries = []
+                        for change_type, change_path in changes:
+                            entry = {
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "type": change_map.get(change_type, str(change_type)),
+                                "path": change_path,
+                            }
+                            entries.append(entry)
+                        with open(log_path, "a") as f:
+                            for e in entries:
+                                f.write(json.dumps(e) + "\n")
+                except asyncio.CancelledError:
+                    pass
+
+            task = asyncio.create_task(_watcher())
+            _FILE_WATCHERS[watch_id] = {
+                "path": path, "log_path": log_path, "task": task,
+                "cancel": cancel_event, "started": datetime.now(timezone.utc).isoformat()
+            }
+            return {"watch_id": watch_id, "path": path, "log_path": log_path, "status": "watching"}
+
+        elif action == "stop":
+            watch_id = kwargs.get("watch_id", "")
+            if not watch_id or watch_id not in _FILE_WATCHERS:
+                return {"error": f"Watcher '{watch_id}' not found"}
+            w = _FILE_WATCHERS.pop(watch_id)
+            w["cancel"].set()
+            w["task"].cancel()
+            return {"watch_id": watch_id, "stopped": True}
+
+        elif action == "list":
+            watchers = []
+            for wid, w in _FILE_WATCHERS.items():
+                watchers.append({"watch_id": wid, "path": w["path"],
+                                 "log_path": w["log_path"], "started": w["started"]})
+            return {"watchers": watchers, "count": len(watchers)}
+
+        elif action == "events":
+            watch_id = kwargs.get("watch_id", "")
+            limit = int(kwargs.get("limit", 50))
+            if not watch_id or watch_id not in _FILE_WATCHERS:
+                return {"error": f"Watcher '{watch_id}' not found"}
+            log_path = _FILE_WATCHERS[watch_id]["log_path"]
+            if not os.path.exists(log_path):
+                return {"watch_id": watch_id, "events": [], "count": 0}
+            with open(log_path) as f:
+                lines = f.readlines()
+            events = []
+            for line in lines[-limit:]:
+                try:
+                    events.append(json.loads(line))
+                except Exception:
+                    pass
+            return {"watch_id": watch_id, "events": events, "count": len(events)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use start, stop, list, events."}
+    except Exception as e:
+        return {"error": f"file_watch failed: {e}"}
+
+
+# ── Round 8 Tools ──────────────────────────────────────────────────────────
+
+# --- email_parse ---
+def _email_parse(action: str, **kwargs) -> dict:
+    """Parse emails and read IMAP inboxes."""
+    import email as _email
+    from email import policy as _policy
+    try:
+        if action == "parse_file":
+            path = kwargs.get("path", "")
+            if not path:
+                return {"error": "path required"}
+            with open(path, "rb") as f:
+                msg = _email.message_from_binary_file(f, policy=_policy.default)
+            result = {
+                "subject": str(msg.get("subject", "")),
+                "from": str(msg.get("from", "")),
+                "to": str(msg.get("to", "")),
+                "date": str(msg.get("date", "")),
+                "cc": str(msg.get("cc", "")),
+                "message_id": str(msg.get("message-id", "")),
+            }
+            if msg.is_multipart():
+                parts = []
+                for part in msg.walk():
+                    ct = part.get_content_type()
+                    fn = part.get_filename()
+                    if fn:
+                        parts.append({"type": "attachment", "filename": fn, "content_type": ct,
+                                       "size": len(part.get_payload(decode=True) or b"")})
+                    elif ct == "text/plain":
+                        parts.append({"type": "text", "content": (part.get_payload(decode=True) or b"").decode("utf-8", errors="replace")[:5000]})
+                    elif ct == "text/html":
+                        parts.append({"type": "html", "content": (part.get_payload(decode=True) or b"").decode("utf-8", errors="replace")[:5000]})
+                result["parts"] = parts
+            else:
+                result["body"] = (msg.get_payload(decode=True) or b"").decode("utf-8", errors="replace")[:5000]
+            return result
+
+        elif action == "extract_attachments":
+            path = kwargs.get("path", "")
+            output_dir = kwargs.get("output_dir", "/tmp/email_attachments")
+            if not path:
+                return {"error": "path required"}
+            os.makedirs(output_dir, exist_ok=True)
+            with open(path, "rb") as f:
+                msg = _email.message_from_binary_file(f, policy=_policy.default)
+            saved = []
+            for part in msg.walk():
+                fn = part.get_filename()
+                if fn:
+                    out_path = os.path.join(output_dir, fn)
+                    with open(out_path, "wb") as f:
+                        f.write(part.get_payload(decode=True) or b"")
+                    saved.append({"filename": fn, "path": out_path, "size": os.path.getsize(out_path)})
+            return {"attachments": saved, "count": len(saved)}
+
+        elif action == "imap_list":
+            import imaplib
+            host = kwargs.get("host", "")
+            user = kwargs.get("user", "")
+            password = kwargs.get("password", "")
+            if not all([host, user, password]):
+                return {"error": "host, user, password required"}
+            conn = imaplib.IMAP4_SSL(host, timeout=15)
+            conn.login(user, password)
+            _, folders = conn.list()
+            conn.logout()
+            folder_list = []
+            for f in (folders or []):
+                if isinstance(f, bytes):
+                    folder_list.append(f.decode("utf-8", errors="replace"))
+            return {"folders": folder_list, "count": len(folder_list)}
+
+        elif action == "imap_inbox":
+            import imaplib
+            host = kwargs.get("host", "")
+            user = kwargs.get("user", "")
+            password = kwargs.get("password", "")
+            folder = kwargs.get("folder", "INBOX")
+            limit = int(kwargs.get("limit", 10))
+            if not all([host, user, password]):
+                return {"error": "host, user, password required"}
+            conn = imaplib.IMAP4_SSL(host, timeout=15)
+            conn.login(user, password)
+            conn.select(folder, readonly=True)
+            _, data = conn.search(None, "ALL")
+            ids = data[0].split()
+            recent = ids[-limit:] if len(ids) > limit else ids
+            messages = []
+            for mid in reversed(recent):
+                _, msg_data = conn.fetch(mid, "(RFC822.SIZE BODY[HEADER.FIELDS (SUBJECT FROM DATE)])")
+                if msg_data and msg_data[0] and isinstance(msg_data[0], tuple):
+                    header = msg_data[0][1].decode("utf-8", errors="replace")
+                    messages.append({"id": mid.decode(), "header": header.strip()})
+            conn.logout()
+            return {"folder": folder, "messages": messages, "count": len(messages)}
+
+        elif action == "parse_string":
+            raw = kwargs.get("raw", "")
+            if not raw:
+                return {"error": "raw email string required"}
+            msg = _email.message_from_string(raw, policy=_policy.default)
+            return {
+                "subject": str(msg.get("subject", "")),
+                "from": str(msg.get("from", "")),
+                "to": str(msg.get("to", "")),
+                "date": str(msg.get("date", "")),
+                "body": (msg.get_payload(decode=True) or b"").decode("utf-8", errors="replace")[:5000] if not msg.is_multipart() else "[multipart]",
+            }
+
+        else:
+            return {"error": f"Unknown action: {action}. Use parse_file, extract_attachments, imap_list, imap_inbox, parse_string."}
+    except Exception as e:
+        return {"error": f"email_parse failed: {e}"}
+
+
+# --- qr_code ---
+def _qr_code(action: str, **kwargs) -> dict:
+    """Generate and decode QR codes."""
+    try:
+        if action == "generate":
+            data = kwargs.get("data", "")
+            output = kwargs.get("output", "/tmp/qrcode.png")
+            size = int(kwargs.get("size", 10))
+            if not data:
+                return {"error": "data required"}
+            try:
+                import qrcode
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "qrcode[pil]"],
+                               capture_output=True, timeout=60)
+                import qrcode
+            qr = qrcode.QRCode(version=1, box_size=size, border=4)
+            qr.add_data(data)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
+            img.save(output)
+            return {"output": output, "data_length": len(data), "detail": "OK"}
+
+        elif action == "generate_svg":
+            data = kwargs.get("data", "")
+            output = kwargs.get("output", "/tmp/qrcode.svg")
+            if not data:
+                return {"error": "data required"}
+            try:
+                import qrcode
+                import qrcode.image.svg
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "qrcode[pil]"],
+                               capture_output=True, timeout=60)
+                import qrcode
+                import qrcode.image.svg
+            qr = qrcode.QRCode(version=1, border=4)
+            qr.add_data(data)
+            qr.make(fit=True)
+            img = qr.make_image(image_factory=qrcode.image.svg.SvgPathImage)
+            os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
+            img.save(output)
+            return {"output": output, "format": "svg", "detail": "OK"}
+
+        elif action == "decode":
+            source = kwargs.get("source", "")
+            if not source:
+                return {"error": "source image path required"}
+            # Use zbarimg if available, else try pyzbar
+            r = subprocess.run(["which", "zbarimg"], capture_output=True)
+            if r.returncode == 0:
+                r = subprocess.run(["zbarimg", "--raw", "-q", source],
+                                   capture_output=True, text=True, timeout=10)
+                if r.returncode == 0 and r.stdout.strip():
+                    return {"decoded": r.stdout.strip(), "method": "zbarimg"}
+            # Fallback: use pyzbar
+            try:
+                from pyzbar.pyzbar import decode as _pyzbar_decode
+                from PIL import Image
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pyzbar", "Pillow"],
+                               capture_output=True, timeout=60)
+                from pyzbar.pyzbar import decode as _pyzbar_decode
+                from PIL import Image
+            img = Image.open(source)
+            results = _pyzbar_decode(img)
+            if not results:
+                return {"error": "No QR code found in image"}
+            decoded = [{"data": r.data.decode("utf-8", errors="replace"), "type": r.type} for r in results]
+            return {"decoded": decoded, "count": len(decoded)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use generate, generate_svg, decode."}
+    except Exception as e:
+        return {"error": f"qr_code failed: {e}"}
+
+
+# --- http_server ---
+_HTTP_SERVERS: dict[str, dict] = {}
+
+
+def _http_server(action: str, **kwargs) -> dict:
+    """Manage ephemeral HTTP file servers."""
+    try:
+        if action == "start":
+            directory = kwargs.get("directory", "/tmp")
+            port = int(kwargs.get("port", 0))
+            server_id = kwargs.get("server_id", str(uuid.uuid4())[:8])
+            if not os.path.isdir(directory):
+                return {"error": f"Directory not found: {directory}"}
+            if server_id in _HTTP_SERVERS:
+                return {"error": f"Server '{server_id}' already running"}
+
+            import http.server
+            import socketserver
+            import threading
+
+            class QuietHandler(http.server.SimpleHTTPRequestHandler):
+                def __init__(self, *a, **kw):
+                    super().__init__(*a, directory=directory, **kw)
+                def log_message(self, format, *args):
+                    pass  # Suppress logs
+
+            httpd = socketserver.TCPServer(("0.0.0.0", port), QuietHandler)
+            actual_port = httpd.server_address[1]
+            thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+            thread.start()
+            _HTTP_SERVERS[server_id] = {
+                "httpd": httpd, "thread": thread, "directory": directory,
+                "port": actual_port, "started": datetime.now(timezone.utc).isoformat(),
+            }
+            return {"server_id": server_id, "port": actual_port, "directory": directory,
+                    "url": f"http://localhost:{actual_port}", "status": "running"}
+
+        elif action == "stop":
+            server_id = kwargs.get("server_id", "")
+            if not server_id or server_id not in _HTTP_SERVERS:
+                return {"error": f"Server '{server_id}' not found"}
+            srv = _HTTP_SERVERS.pop(server_id)
+            srv["httpd"].shutdown()
+            return {"server_id": server_id, "stopped": True}
+
+        elif action == "list":
+            servers = []
+            for sid, s in _HTTP_SERVERS.items():
+                servers.append({"server_id": sid, "port": s["port"],
+                                "directory": s["directory"], "started": s["started"]})
+            return {"servers": servers, "count": len(servers)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use start, stop, list."}
+    except Exception as e:
+        return {"error": f"http_server failed: {e}"}
+
+
+# --- json_schema ---
+def _json_schema(action: str, **kwargs) -> dict:
+    """JSON Schema validation and generation."""
+    try:
+        if action == "validate":
+            data = kwargs.get("data")
+            schema = kwargs.get("schema")
+            if data is None or schema is None:
+                return {"error": "data and schema required"}
+            if isinstance(data, str):
+                data = json.loads(data)
+            if isinstance(schema, str):
+                schema = json.loads(schema)
+            try:
+                import jsonschema as _js
+            except ImportError:
+                subprocess.run([sys.executable, "-m", "pip", "install", "jsonschema"],
+                               capture_output=True, timeout=60)
+                import jsonschema as _js
+            errors = list(_js.Draft7Validator(schema).iter_errors(data))
+            if not errors:
+                return {"valid": True, "errors": []}
+            return {"valid": False, "errors": [{"path": list(e.absolute_path), "message": e.message} for e in errors[:20]]}
+
+        elif action == "generate":
+            data = kwargs.get("data")
+            if data is None:
+                return {"error": "data required"}
+            if isinstance(data, str):
+                data = json.loads(data)
+
+            def _infer(val):
+                if isinstance(val, dict):
+                    props = {}
+                    required = []
+                    for k, v in val.items():
+                        props[k] = _infer(v)
+                        required.append(k)
+                    return {"type": "object", "properties": props, "required": required}
+                elif isinstance(val, list):
+                    if val:
+                        return {"type": "array", "items": _infer(val[0])}
+                    return {"type": "array"}
+                elif isinstance(val, bool):
+                    return {"type": "boolean"}
+                elif isinstance(val, int):
+                    return {"type": "integer"}
+                elif isinstance(val, float):
+                    return {"type": "number"}
+                elif isinstance(val, str):
+                    return {"type": "string"}
+                elif val is None:
+                    return {"type": "null"}
+                return {}
+
+            schema = {"$schema": "http://json-schema.org/draft-07/schema#"}
+            schema.update(_infer(data))
+            return {"schema": schema}
+
+        elif action == "diff":
+            schema_a = kwargs.get("schema_a")
+            schema_b = kwargs.get("schema_b")
+            if schema_a is None or schema_b is None:
+                return {"error": "schema_a and schema_b required"}
+            if isinstance(schema_a, str):
+                schema_a = json.loads(schema_a)
+            if isinstance(schema_b, str):
+                schema_b = json.loads(schema_b)
+
+            def _flat(d, prefix=""):
+                items = {}
+                for k, v in d.items():
+                    key = f"{prefix}.{k}" if prefix else k
+                    if isinstance(v, dict):
+                        items.update(_flat(v, key))
+                    else:
+                        items[key] = v
+                return items
+
+            flat_a = _flat(schema_a)
+            flat_b = _flat(schema_b)
+            all_keys = set(flat_a) | set(flat_b)
+            diffs = []
+            for k in sorted(all_keys):
+                va = flat_a.get(k, "<missing>")
+                vb = flat_b.get(k, "<missing>")
+                if va != vb:
+                    diffs.append({"path": k, "schema_a": va, "schema_b": vb})
+            return {"differences": diffs, "count": len(diffs), "identical": len(diffs) == 0}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use validate, generate, diff."}
+    except Exception as e:
+        return {"error": f"json_schema failed: {e}"}
+
+
+# --- cache_manager ---
+def _cache_manager(action: str, **kwargs) -> dict:
+    """Smart caching layer over Redis with TTL and namespaces."""
+    import redis as _redis_mod
+    try:
+        r = _redis_mod.Redis(host="localhost", port=6379, decode_responses=True, socket_timeout=5)
+
+        ns = kwargs.get("namespace", "cache")
+        prefix = f"ocache:{ns}:"
+
+        if action == "get":
+            key = kwargs.get("key", "")
+            if not key:
+                return {"error": "key required"}
+            val = r.get(f"{prefix}{key}")
+            ttl = r.ttl(f"{prefix}{key}")
+            if val is None:
+                return {"key": key, "hit": False}
+            try:
+                val = json.loads(val)
+            except (json.JSONDecodeError, TypeError):
+                pass
+            return {"key": key, "value": val, "hit": True, "ttl_seconds": ttl}
+
+        elif action == "set":
+            key = kwargs.get("key", "")
+            value = kwargs.get("value")
+            ttl = int(kwargs.get("ttl", 3600))
+            if not key or value is None:
+                return {"error": "key and value required"}
+            serialized = json.dumps(value) if not isinstance(value, str) else value
+            r.setex(f"{prefix}{key}", ttl, serialized)
+            return {"key": key, "stored": True, "ttl_seconds": ttl, "namespace": ns}
+
+        elif action == "delete":
+            key = kwargs.get("key", "")
+            if not key:
+                return {"error": "key required"}
+            deleted = r.delete(f"{prefix}{key}")
+            return {"key": key, "deleted": bool(deleted)}
+
+        elif action == "clear":
+            keys = r.keys(f"{prefix}*")
+            if keys:
+                r.delete(*keys)
+            return {"namespace": ns, "cleared": len(keys)}
+
+        elif action == "keys":
+            keys = r.keys(f"{prefix}*")
+            clean = [k.replace(prefix, "", 1) for k in keys]
+            return {"namespace": ns, "keys": sorted(clean), "count": len(clean)}
+
+        elif action == "stats":
+            keys = r.keys(f"{prefix}*")
+            total_size = 0
+            with_ttl = 0
+            for k in keys:
+                total_size += r.memory_usage(k) or 0
+                if r.ttl(k) > 0:
+                    with_ttl += 1
+            all_ns = set()
+            for k in r.keys("ocache:*"):
+                parts = k.split(":")
+                if len(parts) >= 2:
+                    all_ns.add(parts[1])
+            return {
+                "namespace": ns, "key_count": len(keys),
+                "memory_bytes": total_size, "keys_with_ttl": with_ttl,
+                "all_namespaces": sorted(all_ns),
+            }
+
+        else:
+            return {"error": f"Unknown action: {action}. Use get, set, delete, clear, keys, stats."}
+    except Exception as e:
+        return {"error": f"cache_manager failed: {e}"}
+
+
+# --- math_compute ---
+def _math_compute(action: str, **kwargs) -> dict:
+    """Advanced math computations using sympy and numpy."""
+    try:
+        if action == "symbolic":
+            expr_str = kwargs.get("expression", "")
+            variable = kwargs.get("variable", "x")
+            if not expr_str:
+                return {"error": "expression required"}
+            import sympy
+            x = sympy.Symbol(variable)
+            expr = sympy.sympify(expr_str)
+            return {
+                "expression": str(expr),
+                "simplified": str(sympy.simplify(expr)),
+                "expanded": str(sympy.expand(expr)),
+                "factored": str(sympy.factor(expr)),
+                "latex": sympy.latex(expr),
+            }
+
+        elif action == "solve":
+            equation = kwargs.get("equation", "")
+            variable = kwargs.get("variable", "x")
+            if not equation:
+                return {"error": "equation required (e.g., 'x**2 - 4')"}
+            import sympy
+            x = sympy.Symbol(variable)
+            expr = sympy.sympify(equation)
+            solutions = sympy.solve(expr, x)
+            return {"equation": equation, "variable": variable,
+                    "solutions": [str(s) for s in solutions]}
+
+        elif action == "derivative":
+            expr_str = kwargs.get("expression", "")
+            variable = kwargs.get("variable", "x")
+            order = int(kwargs.get("order", 1))
+            if not expr_str:
+                return {"error": "expression required"}
+            import sympy
+            x = sympy.Symbol(variable)
+            expr = sympy.sympify(expr_str)
+            result = sympy.diff(expr, x, order)
+            return {"expression": expr_str, "derivative": str(result),
+                    "order": order, "latex": sympy.latex(result)}
+
+        elif action == "integrate":
+            expr_str = kwargs.get("expression", "")
+            variable = kwargs.get("variable", "x")
+            lower = kwargs.get("lower")
+            upper = kwargs.get("upper")
+            if not expr_str:
+                return {"error": "expression required"}
+            import sympy
+            x = sympy.Symbol(variable)
+            expr = sympy.sympify(expr_str)
+            if lower is not None and upper is not None:
+                result = sympy.integrate(expr, (x, sympy.sympify(lower), sympy.sympify(upper)))
+                return {"expression": expr_str, "definite_integral": str(result),
+                        "bounds": [str(lower), str(upper)], "numeric": float(result) if result.is_number else None}
+            else:
+                result = sympy.integrate(expr, x)
+                return {"expression": expr_str, "integral": str(result), "latex": sympy.latex(result)}
+
+        elif action == "matrix":
+            data = kwargs.get("data", [])
+            operation = kwargs.get("operation", "info")
+            if not data:
+                return {"error": "data (2D array) required"}
+            import numpy as np
+            m = np.array(data, dtype=float)
+            if operation == "info":
+                result = {"shape": list(m.shape), "rank": int(np.linalg.matrix_rank(m)),
+                          "trace": float(np.trace(m)) if m.shape[0] == m.shape[1] else None}
+                if m.shape[0] == m.shape[1]:
+                    result["determinant"] = float(np.linalg.det(m))
+                return result
+            elif operation == "inverse":
+                inv = np.linalg.inv(m)
+                return {"inverse": inv.tolist()}
+            elif operation == "eigenvalues":
+                vals, vecs = np.linalg.eig(m)
+                return {"eigenvalues": vals.tolist(), "eigenvectors": vecs.tolist()}
+            elif operation == "multiply":
+                data_b = kwargs.get("data_b", [])
+                if not data_b:
+                    return {"error": "data_b required for multiply"}
+                b = np.array(data_b, dtype=float)
+                result = np.matmul(m, b)
+                return {"result": result.tolist()}
+            else:
+                return {"error": f"Unknown operation: {operation}. Use info, inverse, eigenvalues, multiply."}
+
+        elif action == "statistics":
+            data = kwargs.get("data", [])
+            if not data:
+                return {"error": "data (array of numbers) required"}
+            import numpy as np
+            arr = np.array(data, dtype=float)
+            return {
+                "count": len(arr), "mean": float(np.mean(arr)),
+                "median": float(np.median(arr)), "std": float(np.std(arr)),
+                "variance": float(np.var(arr)),
+                "min": float(np.min(arr)), "max": float(np.max(arr)),
+                "q25": float(np.percentile(arr, 25)),
+                "q75": float(np.percentile(arr, 75)),
+                "sum": float(np.sum(arr)),
+            }
+
+        else:
+            return {"error": f"Unknown action: {action}. Use symbolic, solve, derivative, integrate, matrix, statistics."}
+    except Exception as e:
+        return {"error": f"math_compute failed: {e}"}
+
+
+# --- regex_builder ---
+def _regex_builder(action: str, **kwargs) -> dict:
+    """Regex pattern building, testing, and explanation."""
+    try:
+        if action == "test":
+            pattern = kwargs.get("pattern", "")
+            text = kwargs.get("text", "")
+            flags_str = kwargs.get("flags", "")
+            if not pattern:
+                return {"error": "pattern required"}
+            flags = 0
+            if "i" in flags_str:
+                flags |= re.IGNORECASE
+            if "m" in flags_str:
+                flags |= re.MULTILINE
+            if "s" in flags_str:
+                flags |= re.DOTALL
+            try:
+                compiled = re.compile(pattern, flags)
+            except re.error as e:
+                return {"valid": False, "error": str(e)}
+            matches = []
+            for m in compiled.finditer(text):
+                match_info = {"match": m.group(), "start": m.start(), "end": m.end()}
+                if m.groups():
+                    match_info["groups"] = list(m.groups())
+                if m.groupdict():
+                    match_info["named_groups"] = m.groupdict()
+                matches.append(match_info)
+            return {"pattern": pattern, "valid": True, "matches": matches,
+                    "match_count": len(matches), "full_match": bool(compiled.fullmatch(text))}
+
+        elif action == "replace":
+            pattern = kwargs.get("pattern", "")
+            text = kwargs.get("text", "")
+            replacement = kwargs.get("replacement", "")
+            flags_str = kwargs.get("flags", "")
+            count = int(kwargs.get("count", 0))
+            if not pattern:
+                return {"error": "pattern required"}
+            flags = 0
+            if "i" in flags_str:
+                flags |= re.IGNORECASE
+            if "m" in flags_str:
+                flags |= re.MULTILINE
+            result = re.sub(pattern, replacement, text, count=count, flags=flags)
+            return {"original": text, "result": result, "replacements_made": text != result}
+
+        elif action == "extract":
+            pattern = kwargs.get("pattern", "")
+            text = kwargs.get("text", "")
+            if not pattern:
+                return {"error": "pattern required"}
+            matches = re.findall(pattern, text)
+            return {"pattern": pattern, "extracted": matches, "count": len(matches)}
+
+        elif action == "split":
+            pattern = kwargs.get("pattern", "")
+            text = kwargs.get("text", "")
+            if not pattern:
+                return {"error": "pattern required"}
+            parts = re.split(pattern, text)
+            return {"pattern": pattern, "parts": parts, "count": len(parts)}
+
+        elif action == "explain":
+            pattern = kwargs.get("pattern", "")
+            if not pattern:
+                return {"error": "pattern required"}
+            explanations = {
+                ".": "any character except newline",
+                "*": "0 or more of previous",
+                "+": "1 or more of previous",
+                "?": "0 or 1 of previous",
+                "^": "start of string/line",
+                "$": "end of string/line",
+                "\\d": "any digit [0-9]",
+                "\\w": "any word character [a-zA-Z0-9_]",
+                "\\s": "any whitespace",
+                "\\b": "word boundary",
+                "\\D": "any non-digit",
+                "\\W": "any non-word character",
+                "\\S": "any non-whitespace",
+                "|": "OR (alternation)",
+            }
+            tokens = []
+            i = 0
+            while i < len(pattern):
+                if pattern[i] == "\\" and i + 1 < len(pattern):
+                    tok = pattern[i:i+2]
+                    tokens.append({"token": tok, "meaning": explanations.get(tok, f"escaped '{pattern[i+1]}'")})
+                    i += 2
+                elif pattern[i] == "[":
+                    end = pattern.find("]", i)
+                    if end != -1:
+                        tok = pattern[i:end+1]
+                        tokens.append({"token": tok, "meaning": f"character class: one of {tok}"})
+                        i = end + 1
+                    else:
+                        tokens.append({"token": "[", "meaning": "unclosed character class"})
+                        i += 1
+                elif pattern[i] == "(":
+                    end = pattern.find(")", i)
+                    if end != -1:
+                        tok = pattern[i:end+1]
+                        if tok.startswith("(?:"):
+                            tokens.append({"token": tok, "meaning": "non-capturing group"})
+                        elif tok.startswith("(?P<"):
+                            name = tok[4:tok.index(">")]
+                            tokens.append({"token": tok, "meaning": f"named group '{name}'"})
+                        elif tok.startswith("(?="):
+                            tokens.append({"token": tok, "meaning": "positive lookahead"})
+                        elif tok.startswith("(?!"):
+                            tokens.append({"token": tok, "meaning": "negative lookahead"})
+                        else:
+                            tokens.append({"token": tok, "meaning": f"capturing group"})
+                        i = end + 1
+                    else:
+                        tokens.append({"token": "(", "meaning": "unclosed group"})
+                        i += 1
+                elif pattern[i] == "{":
+                    end = pattern.find("}", i)
+                    if end != -1:
+                        tok = pattern[i:end+1]
+                        tokens.append({"token": tok, "meaning": f"quantifier: repeat {tok[1:-1]} times"})
+                        i = end + 1
+                    else:
+                        tokens.append({"token": "{", "meaning": "literal {"})
+                        i += 1
+                else:
+                    c = pattern[i]
+                    tokens.append({"token": c, "meaning": explanations.get(c, f"literal '{c}'")})
+                    i += 1
+            try:
+                re.compile(pattern)
+                valid = True
+            except re.error:
+                valid = False
+            return {"pattern": pattern, "valid": valid, "tokens": tokens}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use test, replace, extract, split, explain."}
+    except Exception as e:
+        return {"error": f"regex_builder failed: {e}"}
+
+
+# --- cert_check ---
+def _cert_check(action: str, **kwargs) -> dict:
+    """SSL certificate inspection and generation."""
+    try:
+        if action == "inspect":
+            host = kwargs.get("host", "")
+            port = int(kwargs.get("port", 443))
+            if not host:
+                return {"error": "host required"}
+            import ssl
+            import socket
+            ctx = ssl.create_default_context()
+            with ctx.wrap_socket(socket.socket(), server_hostname=host) as s:
+                s.settimeout(10)
+                s.connect((host, port))
+                cert = s.getpeercert()
+            subject = dict(x[0] for x in cert.get("subject", ()))
+            issuer = dict(x[0] for x in cert.get("issuer", ()))
+            not_before = cert.get("notBefore", "")
+            not_after = cert.get("notAfter", "")
+            san = [entry[1] for entry in cert.get("subjectAltName", ())]
+            # Check expiry
+            from datetime import datetime as _dt
+            expire_dt = _dt.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
+            days_left = (expire_dt - _dt.utcnow()).days
+            return {
+                "host": host, "port": port,
+                "subject": subject, "issuer": issuer,
+                "not_before": not_before, "not_after": not_after,
+                "days_until_expiry": days_left,
+                "expired": days_left < 0,
+                "san": san,
+                "serial": cert.get("serialNumber", ""),
+            }
+
+        elif action == "check_expiry":
+            host = kwargs.get("host", "")
+            port = int(kwargs.get("port", 443))
+            warn_days = int(kwargs.get("warn_days", 30))
+            if not host:
+                return {"error": "host required"}
+            import ssl
+            import socket
+            ctx = ssl.create_default_context()
+            with ctx.wrap_socket(socket.socket(), server_hostname=host) as s:
+                s.settimeout(10)
+                s.connect((host, port))
+                cert = s.getpeercert()
+            not_after = cert.get("notAfter", "")
+            from datetime import datetime as _dt
+            expire_dt = _dt.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
+            days_left = (expire_dt - _dt.utcnow()).days
+            status = "EXPIRED" if days_left < 0 else "WARNING" if days_left < warn_days else "OK"
+            return {"host": host, "expires": not_after, "days_left": days_left, "status": status}
+
+        elif action == "generate_self_signed":
+            output_cert = kwargs.get("output_cert", "/tmp/selfsigned.crt")
+            output_key = kwargs.get("output_key", "/tmp/selfsigned.key")
+            cn = kwargs.get("cn", "localhost")
+            days = int(kwargs.get("days", 365))
+            r = subprocess.run([
+                "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                "-keyout", output_key, "-out", output_cert,
+                "-days", str(days), "-subj", f"/CN={cn}"
+            ], capture_output=True, text=True, timeout=30)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return {"cert": output_cert, "key": output_key, "cn": cn, "days": days, "detail": "OK"}
+
+        elif action == "decode_pem":
+            path = kwargs.get("path", "")
+            if not path:
+                return {"error": "path to PEM file required"}
+            r = subprocess.run(["openssl", "x509", "-in", path, "-text", "-noout"],
+                               capture_output=True, text=True, timeout=10)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return {"path": path, "details": r.stdout[:5000]}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use inspect, check_expiry, generate_self_signed, decode_pem."}
+    except Exception as e:
+        return {"error": f"cert_check failed: {e}"}
+
+
+# --- system_profiler ---
+def _system_profiler(action: str, **kwargs) -> dict:
+    """macOS system profiling via system_profiler."""
+    try:
+        if action == "hardware":
+            r = subprocess.run(["system_profiler", "SPHardwareDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "software":
+            r = subprocess.run(["system_profiler", "SPSoftwareDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "network":
+            r = subprocess.run(["system_profiler", "SPNetworkDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "storage":
+            r = subprocess.run(["system_profiler", "SPStorageDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "usb":
+            r = subprocess.run(["system_profiler", "SPUSBDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "displays":
+            r = subprocess.run(["system_profiler", "SPDisplaysDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "battery":
+            r = subprocess.run(["system_profiler", "SPPowerDataType", "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "custom":
+            data_type = kwargs.get("data_type", "")
+            if not data_type:
+                return {"error": "data_type required (e.g., 'SPBluetoothDataType')"}
+            r = subprocess.run(["system_profiler", data_type, "-json"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                return {"error": r.stderr[:500]}
+            return json.loads(r.stdout)
+
+        elif action == "list_types":
+            r = subprocess.run(["system_profiler", "-listDataTypes"],
+                               capture_output=True, text=True, timeout=10)
+            types = [l.strip() for l in r.stdout.strip().split("\n") if l.strip().startswith("SP")]
+            return {"data_types": types, "count": len(types)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use hardware, software, network, storage, usb, displays, battery, custom, list_types."}
+    except Exception as e:
+        return {"error": f"system_profiler failed: {e}"}
+
+
+# --- url_tools ---
+def _url_tools(action: str, **kwargs) -> dict:
+    """URL parsing, validation, encoding, and link checking."""
+    from urllib.parse import urlparse, urlencode, quote, unquote, parse_qs, urlunparse
+    try:
+        if action == "parse":
+            url = kwargs.get("url", "")
+            if not url:
+                return {"error": "url required"}
+            parsed = urlparse(url)
+            return {
+                "url": url,
+                "scheme": parsed.scheme,
+                "netloc": parsed.netloc,
+                "hostname": parsed.hostname,
+                "port": parsed.port,
+                "path": parsed.path,
+                "query": parsed.query,
+                "fragment": parsed.fragment,
+                "params": parse_qs(parsed.query),
+            }
+
+        elif action == "build":
+            scheme = kwargs.get("scheme", "https")
+            host = kwargs.get("host", "")
+            path = kwargs.get("path", "/")
+            params = kwargs.get("params", {})
+            fragment = kwargs.get("fragment", "")
+            if not host:
+                return {"error": "host required"}
+            query = urlencode(params) if params else ""
+            url = urlunparse((scheme, host, path, "", query, fragment))
+            return {"url": url}
+
+        elif action == "encode":
+            text = kwargs.get("text", "")
+            if not text:
+                return {"error": "text required"}
+            return {"original": text, "encoded": quote(text)}
+
+        elif action == "decode":
+            text = kwargs.get("text", "")
+            if not text:
+                return {"error": "text required"}
+            return {"original": text, "decoded": unquote(text)}
+
+        elif action == "validate":
+            url = kwargs.get("url", "")
+            if not url:
+                return {"error": "url required"}
+            parsed = urlparse(url)
+            valid = bool(parsed.scheme and parsed.netloc)
+            result = {"url": url, "valid": valid, "scheme": parsed.scheme, "host": parsed.hostname}
+            if valid and kwargs.get("check_live"):
+                try:
+                    import urllib.request
+                    req = urllib.request.Request(url, method="HEAD")
+                    req.add_header("User-Agent", "OpenClaw-Army/1.0")
+                    resp = urllib.request.urlopen(req, timeout=10)
+                    result["status_code"] = resp.status
+                    result["reachable"] = True
+                except Exception as e:
+                    result["reachable"] = False
+                    result["check_error"] = str(e)[:200]
+            return result
+
+        elif action == "extract_links":
+            text = kwargs.get("text", "")
+            if not text:
+                return {"error": "text required"}
+            url_pattern = re.compile(r'https?://[^\s<>"\')\]]+')
+            links = url_pattern.findall(text)
+            unique = list(dict.fromkeys(links))
+            return {"links": unique, "count": len(unique)}
+
+        elif action == "sitemap":
+            url = kwargs.get("url", "")
+            if not url:
+                return {"error": "sitemap url required"}
+            import urllib.request
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "OpenClaw-Army/1.0")
+            resp = urllib.request.urlopen(req, timeout=15)
+            content = resp.read().decode("utf-8", errors="replace")[:100000]
+            urls = re.findall(r"<loc>(.*?)</loc>", content)
+            return {"sitemap_url": url, "urls": urls[:200], "count": len(urls)}
+
+        else:
+            return {"error": f"Unknown action: {action}. Use parse, build, encode, decode, validate, extract_links, sitemap."}
+    except Exception as e:
+        return {"error": f"url_tools failed: {e}"}
 
 
 # ── Dynamic Tool & Agent Registry ──────────────────────────────────────────

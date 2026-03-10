@@ -13325,4 +13325,10 @@ async def startup():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=ORCHESTRATOR_PORT, log_level="info")
+    import socket
+    # Dual-stack: bind to :: with IPV6_V6ONLY=False so both IPv4 and IPv6 work
+    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("::", ORCHESTRATOR_PORT))
+    uvicorn.run(app, fd=sock.fileno(), log_level="info")

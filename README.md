@@ -1,6 +1,6 @@
 # OpenClaw Army
 
-A 16-agent hierarchical AI system with 6 supporting services and a self-evolving orchestrator with **99 internal tools** (12,756 lines), running on free NVIDIA API models (Kimi K2.5).
+A 16-agent hierarchical AI system with 6 supporting services and a self-evolving orchestrator with **101 internal tools** (13,328 lines), running on free NVIDIA API models (Kimi K2.5).
 
 ## Architecture
 
@@ -32,7 +32,7 @@ A 16-agent hierarchical AI system with 6 supporting services and a self-evolving
 
 ## Orchestrator Capabilities (99 Internal Tools)
 
-The orchestrator (`services/orchestrator-api/main.py`, 12,756 lines) is self-evolving — it can inspect, modify, and extend its own code at runtime. Its 99 tools span:
+The orchestrator (`services/orchestrator-api/main.py`, 13,328 lines) is self-evolving — it can inspect, modify, and extend its own code at runtime. Its 101 tools span:
 
 | Category | Tools |
 |----------|-------|
@@ -51,6 +51,7 @@ The orchestrator (`services/orchestrator-api/main.py`, 12,756 lines) is self-evo
 | **Desktop & GUI** | `desktop_control` (pyautogui + OCR), `browser_automate` (Playwright), `accessibility` (macOS AX API) |
 | **Security & Ops** | `secret_vault`, `ssh_remote`, `webhook_register`, `manage_config`, `log_query`, `metrics_collect`, `text_process`, `date_calc`, `batch_delegate`, `manage_workflow_manifest` |
 | **LLM** | `llm_fallback` (multi-provider routing with failover) |
+| **Desktop & Glasses** | `screen_share` (screen capture + annotation), `visionclaw` (Meta Ray-Ban smart glasses via VisionClaw iOS app) |
 
 ## Services
 
@@ -149,6 +150,9 @@ All configuration is in `.env`. Key sections:
 | GET | `/plan/{id}` | Get workflow details |
 | GET | `/plans` | List all workflows |
 | POST | `/classify` | Preview task classification |
+| POST | `/v1/chat/completions` | OpenAI-compatible chat (VisionClaw / smart glasses) |
+| GET | `/v1/chat/completions` | VisionClaw health check |
+| GET | `/v1/models` | OpenAI-compatible model listing |
 | GET | `/agents` | List all agents |
 | GET | `/agents/{name}/status` | Check agent liveness |
 | GET | `/workflows/manifests` | List YAML workflow manifests |

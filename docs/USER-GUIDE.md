@@ -19,8 +19,9 @@
 10. [Budget & Cost Management](#budget--cost-management)
 11. [Monitoring Health](#monitoring-health)
 12. [Workflows](#workflows)
-13. [Troubleshooting](#troubleshooting)
-14. [FAQ](#faq)
+13. [VisionClaw (Smart Glasses)](#visionclaw-smart-glasses)
+14. [Troubleshooting](#troubleshooting)
+15. [FAQ](#faq)
 
 ---
 
@@ -521,6 +522,76 @@ steps:
 ```
 
 The orchestrator automatically loads all `.yaml` files from `config/workflows/` on startup.
+
+---
+
+## VisionClaw (Smart Glasses)
+
+OpenClaw Army integrates with **VisionClaw**, an iOS app for Meta Ray-Ban smart glasses. When connected, your glasses become a hands-free interface to all 101 orchestrator tools — ask questions, run commands, take notes, and control your system by voice.
+
+### How It Works
+
+```
+Meta Ray-Ban Glasses
+        │ (Bluetooth audio + camera)
+        ▼
+  VisionClaw iOS App
+        │ (Gemini Live API — real-time audio + video)
+        ▼
+  Gemini "execute" tool call
+        │
+        ▼
+  OpenClaw Army Orchestrator (:18830)
+        │ /v1/chat/completions (OpenAI-compatible)
+        ▼
+  101 Tools Available
+```
+
+The orchestrator exposes an **OpenAI-compatible** `/v1/chat/completions` endpoint. VisionClaw sends requests here using Bearer token authentication and an `x-openclaw-session-key` header for session continuity.
+
+### Setup
+
+1. **Ensure the orchestrator is running** on port 18830
+2. **Configure VisionClaw's `Secrets.swift`** to point at the orchestrator:
+   ```swift
+   static let openClawHost = "http://YOUR-MAC-HOSTNAME.local"
+   static let openClawPort = 18830
+   static let openClawGatewayToken = "YOUR_OPENCLAW_TOKEN"
+   ```
+3. **Set gateway bind to LAN** so your iPhone can reach the Mac:
+   - Edit `~/.openclaw/openclaw.json` → set `"bind": "lan"`
+   - Restart the OpenClaw gateway
+4. **Build and run VisionClaw** in Xcode on your iPhone
+5. **Pair your Meta Ray-Ban glasses** via the Meta View app
+
+### Using the VisionClaw Tool
+
+The orchestrator includes a `visionclaw` tool for managing glass connections:
+
+| Action | Description |
+|--------|-------------|
+| `status` | Show active glass sessions, gateway config, LAN URL |
+| `sessions` | List all VisionClaw sessions with message counts |
+| `config` | Show gateway configuration and recommended settings |
+| `configure` | Update gateway bind mode (lan/loopback) |
+| `send` | Push a proactive message to a glass session |
+| `history` | Get conversation history for a glass session |
+
+Example: *"Check if my glasses are connected"* → orchestrator uses `visionclaw(action: "status")`
+
+### Verifying the Connection
+
+```bash
+# Health check — should return {"status": "ok", "tools": 101}
+curl http://localhost:18830/v1/chat/completions
+
+# Test a request (simulating VisionClaw)
+curl -X POST http://localhost:18830/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "x-openclaw-session-key: test-session" \
+  -d '{"model":"openclaw","messages":[{"role":"user","content":"Hello from glasses"}]}'
+```
 
 ---
 

@@ -11695,3 +11695,10 @@
 {"timestamp":"2026-03-10T03:22:27.649Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
 {"timestamp":"2026-03-10T03:22:36.042Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T03:22:36.042Z"}}
 {"timestamp":"2026-03-10T03:22:36.058Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-10T03:22:37.852Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-10T03:22:37.859Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1894,"error":null}
+{"timestamp":"2026-03-10T03:22:48.649Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-10T03:22:48.685Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-10T03:22:48.690Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"process","durationMs":259,"error":null}
+{"timestamp":"2026-03-10T03:22:48.767Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-10T03:22:48.767Z"}}
+{"timestamp":"2026-03-10T03:22:48.768Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}

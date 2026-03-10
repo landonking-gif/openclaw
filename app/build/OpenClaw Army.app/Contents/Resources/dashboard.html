@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Army — Command Interface</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #e0e0e0;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Starfield ── */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* ── Chat container ── */
+  #app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 24px;
+  }
+
+  #title {
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+
+  #title span {
+    color: #7c8aff;
+  }
+
+  #chat-box {
+    width: 100%;
+    max-width: 700px;
+    height: 65vh;
+    border: 1px solid #1a1a2e;
+    border-radius: 12px;
+    background: rgba(8, 8, 20, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  #messages::-webkit-scrollbar { width: 4px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: #1a1a3e;
+    color: #c8cbff;
+    border-bottom-right-radius: 3px;
+  }
+
+  .msg.system {
+    align-self: flex-start;
+    background: #111;
+    color: #8a8aad;
+    border-bottom-left-radius: 3px;
+    border: 1px solid #1a1a28;
+  }
+
+  .msg.system .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #5560b0;
+    margin-bottom: 4px;
+  }
+
+  .delegation-badge {
+    display: inline-block;
+    margin-top: 10px;
+    margin-right: 6px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    background: rgba(92, 80, 200, 0.15);
+    color: #7c8aff;
+    border: 1px solid rgba(92, 80, 200, 0.25);
+  }
+
+  .delegation-badge.dispatched { border-color: rgba(60, 160, 60, 0.3); color: #5a9a5a; background: rgba(60, 160, 60, 0.08); }
+
+  .thinking-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    color: #4a4a6a;
+    font-size: 13px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .thinking-indicator .dots span {
+    animation: blink 1.4s infinite;
+    opacity: 0.2;
+  }
+  .thinking-indicator .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+
+  .msg.event {
+    align-self: center;
+    background: none;
+    color: #3a3a5a;
+    font-size: 11px;
+    padding: 4px 0;
+    text-align: center;
+  }
+
+  .subtask-list {
+    margin-top: 8px;
+    padding-left: 6px;
+    list-style: none;
+  }
+
+  .subtask-list li {
+    padding: 3px 0;
+    font-size: 13px;
+    color: #8888b0;
+  }
+
+  .subtask-list li::before {
+    content: '→ ';
+    color: #5560b0;
+  }
+
+  .subtask-list .manager {
+    color: #7c8aff;
+    font-weight: 600;
+  }
+
+  /* ── Input area ── */
+  #input-area {
+    display: flex;
+    border-top: 1px solid #1a1a2e;
+    padding: 12px 14px;
+    gap: 10px;
+    background: rgba(6, 6, 16, 0.9);
+  }
+
+  #input {
+    flex: 1;
+    background: #0a0a18;
+    border: 1px solid #1a1a2e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #d0d0e8;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 20px;
+    max-height: 120px;
+    transition: border-color 0.2s;
+  }
+
+  #input:focus {
+    border-color: #3a3a6e;
+  }
+
+  #input::placeholder {
+    color: #2a2a44;
+  }
+
+  #send-btn {
+    background: #1a1a3e;
+    border: 1px solid #2a2a50;
+    border-radius: 8px;
+    color: #7c8aff;
+    padding: 0 18px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+
+  #send-btn:hover {
+    background: #24244a;
+    border-color: #4a4a70;
+  }
+
+  #send-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  /* ── Status bar ── */
+  #status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #333;
+    user-select: none;
+  }
+
+  #status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #333;
+    transition: background 0.3s;
+  }
+
+  #status-dot.connected { background: #3a7a3a; }
+  #status-dot.error { background: #7a3a3a; }
+
+  /* ── Activity Log Panel ── */
+  #activity-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(20, 20, 40, 0.9);
+    border: 1px solid #1a1a2e;
+    color: #6a6a8a;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  #activity-toggle:hover { color: #9a9af0; border-color: #3a3a6e; }
+  #activity-toggle.has-new { color: #7c8aff; border-color: #5560b0; }
+
+  #activity-panel {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 410px;
+    height: 100vh;
+    z-index: 9;
+    background: rgba(6, 6, 16, 0.95);
+    border-left: 1px solid #1a1a2e;
+    backdrop-filter: blur(14px);
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s ease;
+    font-size: 12px;
+  }
+  #activity-panel.open { right: 0; }
+
+  #activity-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #1a1a2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6a6a8a;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  #activity-header .filter-row {
+    display: flex;
+    gap: 6px;
+  }
+  #activity-header .filter-btn {
+    background: transparent;
+    border: 1px solid #1a1a2e;
+    color: #4a4a6a;
+    font-family: inherit;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #activity-header .filter-btn:hover,
+  #activity-header .filter-btn.active { color: #7c8aff; border-color: #3a3a6e; }
+
+  #activity-entries {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  #activity-entries::-webkit-scrollbar { width: 3px; }
+  #activity-entries::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 2px; }
+
+  .act-entry {
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-radius: 5px;
+    border-left: 2px solid #1a1a2e;
+    animation: fadeIn 0.2s ease;
+  }
+  .act-entry .act-time { color: #3a3a5a; font-size: 10px; }
+  .act-entry .act-type {
+    display: inline-block;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+  .act-entry .act-body { color: #7a7a9a; margin-top: 3px; word-break: break-word; line-height: 1.4; }
+
+  /* type colors */
+  .act-entry.t-user_message   { border-color: #3a5a8a; }
+  .act-entry.t-llm_call       { border-color: #4a4a6a; }
+  .act-entry.t-llm_thinking   { border-color: #6a5aaa; }
+  .act-entry.t-llm_tool_calls { border-color: #7c8aff; }
+  .act-entry.t-delegation     { border-color: #5a9a5a; }
+  .act-entry.t-response       { border-color: #8a8ae0; }
+  .act-entry.t-error          { border-color: #9a4a4a; }
+  .act-entry.t-system         { border-color: #555; }
+
+  .act-entry.t-user_message   .act-type { background: rgba(58,90,138,0.2); color: #5a8aba; }
+  .act-entry.t-llm_call       .act-type { background: rgba(74,74,106,0.2); color: #6a6a8a; }
+  .act-entry.t-llm_thinking   .act-type { background: rgba(106,90,170,0.2); color: #8a7aca; }
+  .act-entry.t-llm_tool_calls .act-type { background: rgba(124,138,255,0.15); color: #7c8aff; }
+  .act-entry.t-delegation     .act-type { background: rgba(90,154,90,0.15); color: #5a9a5a; }
+  .act-entry.t-response       .act-type { background: rgba(138,138,224,0.15); color: #8a8ae0; }
+  .act-entry.t-error          .act-type { background: rgba(154,74,74,0.2); color: #ba5a5a; }
+  .act-entry.t-system         .act-type { background: rgba(85,85,85,0.2); color: #777; }
+
+  #activity-stats {
+    padding: 8px 12px;
+    border-top: 1px solid #1a1a2e;
+    color: #3a3a5a;
+    font-size: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<button id="activity-toggle" onclick="toggleActivity()">&#9776; Activity Log</button>
+
+<div id="activity-panel">
+  <div id="activity-header">
+    <span>Activity Log</span>
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-filter="thinking" onclick="setFilter('thinking',this)">Thinking</button>
+      <button class="filter-btn" data-filter="delegation" onclick="setFilter('delegation',this)">Delegations</button>
+      <button class="filter-btn" data-filter="error" onclick="setFilter('error',this)">Errors</button>
+    </div>
+  </div>
+  <div id="activity-entries"></div>
+  <div id="activity-stats"><span id="act-stat-text">Loading...</span></div>
+</div>
+
+<div id="app">
+  <div id="title"><span>OpenClaw Army</span> &mdash; Command Interface</div>
+
+  <div id="chat-box">
+    <div id="messages">
+      <div class="msg system">
+        <div class="label">Meta-Orchestrator</div>
+        I'm online and ready. Ask me anything or give me a task — I'll think through it and delegate to my team when real work needs doing.
+      </div>
+    </div>
+    <div id="input-area">
+      <textarea id="input" rows="1" placeholder="Talk to the Meta-Orchestrator..." autofocus></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <div id="status-bar">
+    <div id="status-dot"></div>
+    <span id="status-text">Connecting…</span>
+  </div>
+</div>
+
+<script>
+// ── Starfield ──────────────────────────────────────────────────────────────
+
+(function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  const STAR_COUNT = 260;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.3,
+      a: Math.random(),
+      da: (Math.random() - 0.5) * 0.008,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      s.a += s.da;
+      if (s.a > 1 || s.a < 0.15) s.da *= -1;
+      s.a = Math.max(0.15, Math.min(1, s.a));
+
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180, 185, 255, ${s.a * 0.7})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Chat Logic ─────────────────────────────────────────────────────────────
+
+const ORCHESTRATOR = 'http://localhost:18830';
+const messages = document.getElementById('messages');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send-btn');
+const statusDot = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
+
+// Auto-resize textarea
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+
+function addMessage(type, html) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + type;
+  div.innerHTML = html;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ── WebSocket for live events ──────────────────────────────────────────────
+
+let ws;
+function connectWS() {
+  ws = new WebSocket('ws://localhost:18830/ws');
+
+  ws.onopen = () => {
+    statusDot.className = 'connected';
+    statusText.textContent = 'Connected to orchestrator';
+  };
+
+  ws.onmessage = (e) => {
+    if (e.data === 'pong') return;
+    try {
+      const evt = JSON.parse(e.data);
+      // Route activity events to the activity log panel
+      if (evt.event === 'activity') {
+        addActivityEntry(evt);
+        return;
+      }
+      const evtType = evt.event || 'update';
+      let text = evtType;
+      if (evt.workflow_id) text += ` [${evt.workflow_id}]`;
+      if (evt.subtask_id) text += ` subtask ${evt.subtask_id}`;
+      if (evt.status) text += ` → ${evt.status}`;
+      addMessage('event', escapeHtml(text));
+    } catch {
+      addMessage('event', escapeHtml(e.data));
+    }
+  };
+
+  ws.onclose = () => {
+    statusDot.className = 'error';
+    statusText.textContent = 'Disconnected — reconnecting…';
+    setTimeout(connectWS, 3000);
+  };
+
+  ws.onerror = () => {
+    statusDot.className = 'error';
+    statusText.textContent = 'Connection error';
+  };
+}
+connectWS();
+
+// Keep alive
+setInterval(() => { if (ws && ws.readyState === 1) ws.send('ping'); }, 25000);
+
+// ── Session ────────────────────────────────────────────────────────────────
+
+let sessionId = null;
+
+// ── Send message ───────────────────────────────────────────────────────────
+
+function showThinking() {
+  const div = document.createElement('div');
+  div.className = 'thinking-indicator';
+  div.id = 'thinking';
+  div.innerHTML = 'Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function hideThinking() {
+  const el = document.getElementById('thinking');
+  if (el) el.remove();
+}
+
+function renderResponse(text) {
+  // Trim leading whitespace the LLM sometimes adds
+  text = text.trim();
+
+  // Process line-by-line to handle block elements (headers, bullets, etc.)
+  const lines = text.split('\n');
+  const htmlLines = [];
+
+  for (let line of lines) {
+    // Headers: ### → h4, ## → h3, # → h2
+    const h3 = line.match(/^###\s+(.+)$/);
+    const h2 = line.match(/^##\s+(.+)$/);
+    const h1 = line.match(/^#\s+(.+)$/);
+    if (h3) {
+      htmlLines.push('<div style="color:#8a8ae0;font-size:13px;font-weight:600;margin:8px 0 2px">' + inlineFormat(h3[1]) + '</div>');
+    } else if (h2) {
+      htmlLines.push('<div style="color:#9a9af0;font-size:14px;font-weight:600;margin:10px 0 3px">' + inlineFormat(h2[1]) + '</div>');
+    } else if (h1) {
+      htmlLines.push('<div style="color:#b0b0ff;font-size:15px;font-weight:700;margin:12px 0 4px">' + inlineFormat(h1[1]) + '</div>');
+    } else if (line.match(/^[\-•\*]\s+/)) {
+      // Bullet list items
+      const content = line.replace(/^[\-•\*]\s+/, '');
+      htmlLines.push('<div style="padding-left:12px"><span style="color:#5560b0">→</span> ' + inlineFormat(content) + '</div>');
+    } else if (line.match(/^\d+\.\s+/)) {
+      // Numbered list
+      htmlLines.push('<div style="padding-left:12px">' + inlineFormat(line) + '</div>');
+    } else if (line.match(/^\|/)) {
+      // Table rows — render as-is with monospace
+      htmlLines.push('<div style="font-size:12px;color:#6a6a8a">' + escapeHtml(line) + '</div>');
+    } else if (line.trim() === '') {
+      htmlLines.push('<div style="height:8px"></div>');
+    } else {
+      htmlLines.push('<div>' + inlineFormat(line) + '</div>');
+    }
+  }
+  return htmlLines.join('');
+}
+
+function inlineFormat(text) {
+  let html = escapeHtml(text);
+  // Bold: **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#b0b0d8">$1</strong>');
+  // Inline code: `text`
+  html = html.replace(/`([^`]+)`/g, '<code style="background:#1a1a2e;padding:1px 5px;border-radius:3px;font-size:12px">$1</code>');
+  return html;
+}
+
+async function sendTask() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage('user', escapeHtml(text));
+  input.value = '';
+  input.style.height = 'auto';
+  sendBtn.disabled = true;
+  showThinking();
+
+  try {
+    const body = { message: text };
+    if (sessionId) body.session_id = sessionId;
+
+    const res = await fetch(ORCHESTRATOR + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    hideThinking();
+
+    if (!res.ok) {
+      const err = await res.text();
+      addMessage('system', `<div class="label">Error ${res.status}</div>${escapeHtml(err)}`);
+      return;
+    }
+
+    const data = await res.json();
+    sessionId = data.session_id;
+
+    // Build response HTML
+    let html = `<div class="label">Meta-Orchestrator</div>`;
+    html += renderResponse(data.response || '(no response)');
+
+    // Show delegations as badges
+    if (data.delegations && data.delegations.length > 0) {
+      html += '<div style="margin-top:8px">';
+      for (const d of data.delegations) {
+        const cls = d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
+        html += `<span class="${cls}">→ ${escapeHtml(d.manager)}: ${escapeHtml(d.task.substring(0, 80))}${d.task.length > 80 ? '…' : ''}</span> `;
+      }
+      html += '</div>';
+    }
+
+    addMessage('system', html);
+
+  } catch (err) {
+    hideThinking();
+    addMessage('system', `<div class="label">Connection Error</div>${escapeHtml(err.message)}`);
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+sendBtn.addEventListener('click', sendTask);
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendTask();
+  }
+});
+
+// ── Activity Log ───────────────────────────────────────────────────────────
+
+const actPanel = document.getElementById('activity-panel');
+const actEntries = document.getElementById('activity-entries');
+const actToggle = document.getElementById('activity-toggle');
+const actStatText = document.getElementById('act-stat-text');
+let actOpen = false;
+let actFilter = 'all';
+let actNewCount = 0;
+
+function toggleActivity() {
+  actOpen = !actOpen;
+  actPanel.classList.toggle('open', actOpen);
+  if (actOpen) {
+    actNewCount = 0;
+    actToggle.classList.remove('has-new');
+    actToggle.textContent = '\u2715 Close Log';
+    loadActivityHistory();
+  } else {
+    actToggle.innerHTML = '&#9776; Activity Log';
+  }
+}
+
+function setFilter(f, btn) {
+  actFilter = f;
+  document.querySelectorAll('#activity-header .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Re-render from scratch
+  loadActivityHistory();
+}
+
+const TYPE_LABELS = {
+  user_message: 'User',
+  llm_call: 'LLM Call',
+  llm_thinking: 'Thinking',
+  llm_tool_calls: 'Tool Calls',
+  llm_followup: 'Follow-up',
+  delegation: 'Delegation',
+  response: 'Response',
+  error: 'Error',
+  error_response: 'Error',
+  system: 'System',
+};
+
+function matchesFilter(type) {
+  if (actFilter === 'all') return true;
+  if (actFilter === 'thinking') return type === 'llm_thinking' || type === 'llm_call' || type === 'llm_followup';
+  if (actFilter === 'delegation') return type === 'delegation' || type === 'llm_tool_calls';
+  if (actFilter === 'error') return type === 'error' || type === 'error_response';
+  return true;
+}
+
+function renderActivityEntry(entry) {
+  if (!matchesFilter(entry.type)) return null;
+  const div = document.createElement('div');
+  const tClass = 't-' + (entry.type || 'system').replace('_response', '');
+  div.className = 'act-entry ' + tClass;
+
+  const ts = entry.ts ? new Date(entry.ts).toLocaleTimeString() : '';
+  const label = TYPE_LABELS[entry.type] || entry.type;
+  let body = escapeHtml(entry.content || '').substring(0, 400);
+  // Highlight delegated manager names
+  body = body.replace(/(alpha-manager|beta-manager|gamma-manager)/g, '<strong style="color:#7c8aff">$1</strong>');
+
+  let metaHtml = '';
+  if (entry.meta) {
+    if (entry.meta.dispatched === true) metaHtml = ' <span style="color:#5a9a5a">✓ dispatched</span>';
+    else if (entry.meta.dispatched === false) metaHtml = ' <span style="color:#9a4a4a">✗ failed</span>';
+    if (entry.meta.attempt > 1) metaHtml += ` <span style="color:#aa8a3a">retry #${entry.meta.attempt}</span>`;
+    if (entry.meta.is_rate_limit) metaHtml += ' <span style="color:#aa8a3a">429</span>';
+  }
+
+  div.innerHTML = `<span class="act-time">${ts}</span><span class="act-type">${label}</span>${metaHtml}<div class="act-body">${body}</div>`;
+  return div;
+}
+
+function addActivityEntry(entry) {
+  const el = renderActivityEntry(entry);
+  if (!el) return;
+  actEntries.appendChild(el);
+  // Auto-scroll if near bottom
+  if (actEntries.scrollHeight - actEntries.scrollTop - actEntries.clientHeight < 100) {
+    actEntries.scrollTop = actEntries.scrollHeight;
+  }
+  if (!actOpen) {
+    actNewCount++;
+    actToggle.classList.add('has-new');
+    actToggle.innerHTML = `&#9776; Activity (${actNewCount})`;
+  }
+}
+
+async function loadActivityHistory() {
+  try {
+    const res = await fetch(ORCHESTRATOR + '/activity?limit=200');
+    if (!res.ok) return;
+    const data = await res.json();
+    actEntries.innerHTML = '';
+    for (const entry of data.entries) {
+      const el = renderActivityEntry(entry);
+      if (el) actEntries.appendChild(el);
+    }
+    actEntries.scrollTop = actEntries.scrollHeight;
+
+    // Stats
+    const statsRes = await fetch(ORCHESTRATOR + '/activity/stats');
+    if (statsRes.ok) {
+      const stats = await statsRes.json();
+      actStatText.textContent = `${stats.total_in_memory} events · ${stats.unique_sessions} sessions`;
+    }
+  } catch (e) {
+    actEntries.innerHTML = '<div style="color:#555;padding:12px">Failed to load activity log</div>';
+  }
+}
+
+// ── Initial health check ───────────────────────────────────────────────────
+
+(async function checkHealth() {
+  try {
+    const res = await fetch(ORCHESTRATOR + '/health');
+    if (res.ok) {
+      const d = await res.json();
+      const sessions = d.active_chat_sessions || 0;
+      statusText.textContent = `Connected — orchestrator online`;
+      statusDot.className = 'connected';
+    }
+  } catch {
+    statusDot.className = 'error';
+    statusText.textContent = 'Orchestrator unreachable — is deploy.sh running?';
+  }
+})();
+</script>
+
+</body>
+</html>

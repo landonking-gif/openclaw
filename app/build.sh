@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-# Build OpenClaw Army macOS app
+# Build King AI macOS app
 APP_DIR="/Users/landonking/openclaw-army/app"
 SRC_DIR="$APP_DIR/OpenClawArmy"
 BUILD_DIR="$APP_DIR/build"
-APP_BUNDLE="$BUILD_DIR/OpenClaw Army.app"
+APP_BUNDLE="$BUILD_DIR/King AI.app"
 
-echo "=== Building OpenClaw Army ==="
+echo "=== Building King AI ==="
 
 # Clean
 rm -rf "$BUILD_DIR"
@@ -23,7 +23,7 @@ cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/"
 # Compile Swift files
 echo "Compiling Swift sources..."
 swiftc \
-  -o "$APP_BUNDLE/Contents/MacOS/OpenClawArmy" \
+  -o "$APP_BUNDLE/Contents/MacOS/KingAI" \
   -target arm64-apple-macosx14.0 \
   -sdk "$(xcrun --show-sdk-path)" \
   -framework SwiftUI \

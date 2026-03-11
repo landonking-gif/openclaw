@@ -151,7 +151,7 @@ struct NeuralNode: Identifiable {
     var radius: CGFloat = 6
     var pulsePhase: Double = 0
     var isActive: Bool = false
-    var category: NodeCategory = .agent
+    var category: NodeCategory = .worker
 
     enum NodeCategory {
         case king, manager, worker, memory, tool

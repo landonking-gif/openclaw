@@ -1,0 +1,11 @@
+{
+  "ts": "20260311_024535",
+  "label": "pre-reset-auth-failure-2026-03-11",
+  "contents": [
+    "main.py",
+    "data/",
+    "agents/",
+    ".env",
+    "redis_dump.rdb"
+  ]
+}

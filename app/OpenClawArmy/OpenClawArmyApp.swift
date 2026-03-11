@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct OpenClawArmyApp: App {
+struct KingAIApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var orchestrator = OrchestratorService()
 
@@ -9,11 +9,11 @@ struct OpenClawArmyApp: App {
         WindowGroup {
             DashboardView()
                 .environmentObject(orchestrator)
-                .frame(minWidth: 900, minHeight: 600)
+                .frame(minWidth: 1000, minHeight: 700)
         }
         .windowStyle(.titleBar)
-        .windowToolbarStyle(.unified(showsTitle: true))
-        .defaultSize(width: 1100, height: 750)
+        .windowToolbarStyle(.unified(showsTitle: false))
+        .defaultSize(width: 1200, height: 800)
         .commands {
             CommandGroup(replacing: .newItem) {}
         }
@@ -39,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            let image = NSImage(systemSymbolName: "ant.circle.fill", accessibilityDescription: "OpenClaw Army")
+            let image = NSImage(systemSymbolName: "crown.fill", accessibilityDescription: "King AI")
             image?.isTemplate = true
             button.image = image
             button.action = #selector(togglePopover)
@@ -47,7 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 340, height: 420)
+        popover.contentSize = NSSize(width: 360, height: 440)
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(
             rootView: MenuBarPopoverView().environmentObject(orchestrator)
@@ -62,5 +62,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate(ignoringOtherApps: true)
         }
+    }
+}
+
+struct SettingsView: View {
+    @EnvironmentObject var orchestrator: OrchestratorService
+    @State private var urlInput = ""
+
+    var body: some View {
+        Form {
+            Section("Connection") {
+                TextField("API Base URL", text: $urlInput)
+                    .onAppear { urlInput = orchestrator.baseURL }
+                Button("Save") {
+                    orchestrator.baseURL = urlInput
+                    orchestrator.fetchAll()
+                }
+            }
+        }
+        .padding(20)
+        .frame(width: 400, height: 150)
     }
 }

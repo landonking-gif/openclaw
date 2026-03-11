@@ -16435,3 +16435,35 @@
 {"timestamp":"2026-03-11T10:45:40.632Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":112,"error":null}
 {"timestamp":"2026-03-11T10:45:48.127Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-11T10:45:48.127Z"}}
 {"timestamp":"2026-03-11T10:45:48.128Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:48.623Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:48.625Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":504,"error":null}
+{"timestamp":"2026-03-11T10:45:51.485Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-11T10:45:51.485Z"}}
+{"timestamp":"2026-03-11T10:45:51.485Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:52.790Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:52.791Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1313,"error":null}
+{"timestamp":"2026-03-11T10:45:52.792Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-11T10:45:52.792Z"}}
+{"timestamp":"2026-03-11T10:45:52.792Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:52.813Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:52.814Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":23,"error":null}
+{"timestamp":"2026-03-11T10:45:55.284Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T10:45:55.284Z"}}
+{"timestamp":"2026-03-11T10:45:55.284Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:55.364Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:55.365Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":91,"error":null}
+{"timestamp":"2026-03-11T10:45:55.367Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-11T10:45:55.367Z"}}
+{"timestamp":"2026-03-11T10:45:55.367Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:55.401Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:55.402Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":37,"error":null}
+{"timestamp":"2026-03-11T10:45:56.320Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T10:45:56.320Z"}}
+{"timestamp":"2026-03-11T10:45:56.320Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:56.386Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:56.387Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":74,"error":null}
+{"timestamp":"2026-03-11T10:45:56.389Z","agent":"gamma-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T10:45:56.389Z"}}
+{"timestamp":"2026-03-11T10:45:56.390Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:45:56.493Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:45:56.494Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":106,"error":null}
+{"timestamp":"2026-03-11T10:46:04.106Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T10:46:04.106Z"}}
+{"timestamp":"2026-03-11T10:46:04.106Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T10:46:04.148Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T10:46:04.150Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":50,"error":null}
+{"timestamp":"2026-03-11T10:46:13.205Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-11T10:46:13.205Z"}}
+{"timestamp":"2026-03-11T10:46:13.205Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

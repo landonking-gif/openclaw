@@ -31,7 +31,7 @@ import shutil
 import hashlib
 import textwrap
 from collections import deque, Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 from enum import Enum
@@ -171,6 +171,12 @@ def _rotate_key():
     global _key_index
     with _key_lock:
         _key_index = (_key_index + 1) % max(len(_NVAPI_KEYS), 1)
+
+def _next_key() -> str:
+    """Rotate to the next key and return it. Call before every LLM request
+    to spread load proactively across all keys."""
+    _rotate_key()
+    return _get_api_key()
 
 NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
@@ -3070,6 +3076,8 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         response = None
         for attempt in range(max_retries):
             try:
+                # Proactive key rotation: fresh key every call to spread load
+                llm_client.api_key = _next_key()
                 await activity.record("llm_call", session_id,
                                       f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
                                       {"attempt": attempt + 1, "turn": _tool_turn + 1,
@@ -3092,12 +3100,10 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                                       f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
                                       {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
                 if is_rate_limit and attempt < max_retries - 1:
-                    # Rotate to a different API key
-                    _rotate_key()
-                    new_key = _get_api_key()
-                    llm_client.api_key = new_key
-                    wait = min(2 ** attempt, 8)  # 1s, 2s, 4s, 8s, 8s... (faster with more keys)
-                    log.warning(f"Rate limited (429), rotating key ({_key_index % len(_NVAPI_KEYS) + 1}/{len(_NVAPI_KEYS)}) and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                    # Key already rotated proactively — just wait briefly
+                    # Short fixed delay since next attempt uses a different key
+                    wait = 1 if attempt < len(_NVAPI_KEYS) else min(2 ** (attempt - len(_NVAPI_KEYS)), 8)
+                    log.warning(f"Rate limited (429), key {_key_index % len(_NVAPI_KEYS) + 1}/{len(_NVAPI_KEYS)}, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
                     await asyncio.sleep(wait)
                     continue
                 log.error(f"LLM call failed: {e}")
@@ -4124,8 +4130,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
 
             for _synth_attempt in range(3):
                 try:
-                    _rotate_key()
-                    llm_client.api_key = _get_api_key()
+                    llm_client.api_key = _next_key()
                     # Use a CLEAN message chain without tool context to prevent
                     # Kimi K2.5 from trying to make tool calls in the synthesis
                     synth_messages = [
@@ -4277,6 +4282,116 @@ async def chat(req: ChatMessage):
 # Track active VisionClaw (glass) sessions
 _visionclaw_sessions: dict[str, dict] = {}
 
+# Async task queue for long-running VisionClaw tasks
+_async_tasks: dict[str, dict] = {}
+_ASYNC_TASK_TTL = 600  # seconds to keep completed tasks before cleanup
+
+
+@app.post("/v1/tasks")
+async def submit_async_task(req: Request):
+    """
+    Submit a task for async background processing.
+    Returns immediately with a task_id that can be polled via GET /v1/tasks/{task_id}.
+    """
+    request = await req.json()
+    messages = request.get("messages", [])
+    if not messages:
+        raise HTTPException(status_code=400, detail="messages array is required")
+
+    user_message = ""
+    for msg in reversed(messages):
+        if msg.get("role") == "user":
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                text_parts = [p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text"]
+                user_message = " ".join(text_parts).strip()
+            else:
+                user_message = content
+            break
+
+    if not user_message:
+        raise HTTPException(status_code=400, detail="No user message found")
+
+    session_key = req.headers.get("x-openclaw-session-key", "")
+    if not session_key:
+        session_key = f"glass-{uuid.uuid4().hex[:8]}"
+    session_id = f"vc-{hashlib.md5(session_key.encode()).hexdigest()[:10]}"
+
+    task_id = f"task-{uuid.uuid4().hex[:16]}"
+    now = datetime.now(timezone.utc).isoformat()
+
+    _async_tasks[task_id] = {
+        "status": "processing",
+        "result": None,
+        "created_at": now,
+        "completed_at": None,
+        "session_id": session_id,
+        "task_preview": user_message[:100],
+    }
+
+    log.info(f"Async task [{task_id}] submitted for [{session_id}]: {user_message[:120]}...")
+
+    async def _process():
+        try:
+            _visionclaw_sessions[session_id] = {
+                "session_key": session_key,
+                "last_active": datetime.now(timezone.utc).isoformat(),
+                "message_count": _visionclaw_sessions.get(session_id, {}).get("message_count", 0) + 1,
+                "source": "visionclaw",
+            }
+            await activity.record("visionclaw_request", session_id, user_message[:500],
+                                  {"source": "glasses_async", "task_id": task_id})
+
+            result = await call_llm(session_id, user_message)
+            response_text = result.get("response", "")
+
+            _async_tasks[task_id]["status"] = "completed"
+            _async_tasks[task_id]["result"] = response_text
+            _async_tasks[task_id]["completed_at"] = datetime.now(timezone.utc).isoformat()
+
+            await activity.record("visionclaw_response", session_id, response_text[:300],
+                                  {"task_id": task_id, "delegations": len(result.get("delegations", []))})
+            log.info(f"Async task [{task_id}] completed: {response_text[:100]}...")
+        except Exception as e:
+            _async_tasks[task_id]["status"] = "failed"
+            _async_tasks[task_id]["result"] = str(e)
+            _async_tasks[task_id]["completed_at"] = datetime.now(timezone.utc).isoformat()
+            log.error(f"Async task [{task_id}] failed: {e}")
+        finally:
+            # Purge old completed tasks
+            cutoff = (datetime.now(timezone.utc) - timedelta(seconds=_ASYNC_TASK_TTL)).isoformat()
+            stale = [k for k, v in _async_tasks.items()
+                     if v.get("completed_at") and v["completed_at"] < cutoff]
+            for k in stale:
+                _async_tasks.pop(k, None)
+
+    asyncio.create_task(_process())
+
+    return {
+        "task_id": task_id,
+        "status": "processing",
+        "message": "Task received and processing has begun.",
+    }
+
+
+@app.get("/v1/tasks/{task_id}")
+async def get_async_task(task_id: str):
+    """Poll for async task status and result."""
+    task = _async_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    response = {
+        "task_id": task_id,
+        "status": task["status"],
+        "created_at": task["created_at"],
+    }
+    if task["status"] in ("completed", "failed"):
+        response["result"] = task["result"]
+        response["completed_at"] = task["completed_at"]
+
+    return response
+
 
 @app.post("/v1/chat/completions")
 async def chat_completions(req: Request):
@@ -4292,11 +4407,17 @@ async def chat_completions(req: Request):
     if not messages:
         raise HTTPException(status_code=400, detail="messages array is required")
 
-    # Extract the last user message
+    # Extract the last user message (handles both string and multimodal array content)
     user_message = ""
     for msg in reversed(messages):
         if msg.get("role") == "user":
-            user_message = msg.get("content", "")
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                # Multimodal content from VisionClaw: [{"type":"text","text":"..."},{"type":"image_url",...}]
+                text_parts = [p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text"]
+                user_message = " ".join(text_parts).strip()
+            else:
+                user_message = content
             break
 
     if not user_message:
@@ -12795,9 +12916,7 @@ async def self_heal(reason: str = "manual trigger"):
                 _record_failure("restart_fail", restart["detail"], mgr)
 
     # 3. Rotate API key if current one might be rate-limited
-    _rotate_key()
-    new_key = _get_api_key()
-    llm_client.api_key = new_key
+    llm_client.api_key = _next_key()
     actions.append("Rotated API key to next in pool")
 
     await activity.record("self_heal", "", f"Self-heal executed: {reason}",

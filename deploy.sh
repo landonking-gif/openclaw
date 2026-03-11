@@ -36,27 +36,27 @@ fi
 # Agent definitions: name:port:model_env_key
 AGENT_DEFS=(
     "main:${KING_PORT:-18789}:NVAPI_KIMI_KEY_1"
-    "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_KIMI_KEY_1"
+    "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_DEEPSEEK_KEY_2"
     "beta-manager:${BETA_PORT:-18801}:NVAPI_DEEPSEEK_KEY_1"
     "gamma-manager:${GAMMA_PORT:-18802}:NVAPI_KIMI_KEY_2"
-    "coding-1:${CODING_1_PORT:-18803}:NVAPI_DEEPSEEK_KEY_2"
-    "coding-2:${CODING_2_PORT:-18804}:NVAPI_DEEPSEEK_KEY_3"
-    "coding-3:${CODING_3_PORT:-18805}:NVAPI_DEEPSEEK_KEY_4"
-    "coding-4:${CODING_4_PORT:-18806}:NVAPI_DEEPSEEK_KEY_5"
+    "coding-1:${CODING_1_PORT:-18803}:NVAPI_DEEPSEEK_KEY_3"
+    "coding-2:${CODING_2_PORT:-18804}:NVAPI_DEEPSEEK_KEY_4"
+    "coding-3:${CODING_3_PORT:-18805}:NVAPI_DEEPSEEK_KEY_5"
+    "coding-4:${CODING_4_PORT:-18806}:NVAPI_DEEPSEEK_KEY_6"
     "agentic-1:${AGENTIC_1_PORT:-18807}:NVAPI_GLM5_KEY_1"
     "agentic-2:${AGENTIC_2_PORT:-18808}:NVAPI_GLM5_KEY_2"
-    "agentic-3:${AGENTIC_3_PORT:-18809}:NVAPI_KIMI_KEY_1"
-    "agentic-4:${AGENTIC_4_PORT:-18810}:NVAPI_KIMI_KEY_2"
-    "general-1:${GENERAL_1_PORT:-18811}:NVAPI_KIMI_KEY_1"
-    "general-2:${GENERAL_2_PORT:-18812}:NVAPI_KIMI_KEY_2"
-    "general-3:${GENERAL_3_PORT:-18813}:NVAPI_KIMI_KEY_1"
-    "general-4:${GENERAL_4_PORT:-18814}:NVAPI_KIMI_KEY_2"
+    "agentic-3:${AGENTIC_3_PORT:-18809}:NVAPI_DEEPSEEK_KEY_3"
+    "agentic-4:${AGENTIC_4_PORT:-18810}:NVAPI_DEEPSEEK_KEY_4"
+    "general-1:${GENERAL_1_PORT:-18811}:NVAPI_DEEPSEEK_KEY_5"
+    "general-2:${GENERAL_2_PORT:-18812}:NVAPI_DEEPSEEK_KEY_6"
+    "general-3:${GENERAL_3_PORT:-18813}:NVAPI_GLM5_KEY_1"
+    "general-4:${GENERAL_4_PORT:-18814}:NVAPI_GLM5_KEY_2"
 )
 
 # Service definitions: name:port:command
 SERVICE_DEFS=(
     "memory-service:${MEMORY_SERVICE_PORT:-18820}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${MEMORY_SERVICE_PORT:-18820}"
-    "orchestrator-api:${ORCHESTRATOR_API_PORT:-18830}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${ORCHESTRATOR_API_PORT:-18830}"
+    "orchestrator-api:${ORCHESTRATOR_API_PORT:-18830}:$PYTHON run_dualstack.py ${ORCHESTRATOR_API_PORT:-18830}"
     "ralph:${RALPH_PORT:-18840}:$PYTHON -m uvicorn ralph:app --host 127.0.0.1 --port ${RALPH_PORT:-18840}"
     "knowledge-bridge:${KNOWLEDGE_BRIDGE_PORT:-18850}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${KNOWLEDGE_BRIDGE_PORT:-18850}"
     "agent-registry:${AGENT_REGISTRY_PORT:-18860}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${AGENT_REGISTRY_PORT:-18860}"
@@ -265,7 +265,7 @@ _start_agents() {
         fi
 
         # Resolve the NVAPI key
-        local api_key="${(P)key_name}"
+        local api_key="${!key_name}"
         if [[ -z "$api_key" ]]; then
             api_key="${NVIDIA_API_KEY:-}"
         fi

@@ -265,7 +265,7 @@ _start_agents() {
         fi
 
         # Resolve the NVAPI key
-        local api_key="${!key_name}"
+        local api_key="${(P)key_name}"
         if [[ -z "$api_key" ]]; then
             api_key="${NVIDIA_API_KEY:-}"
         fi

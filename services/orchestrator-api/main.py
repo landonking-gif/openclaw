@@ -202,9 +202,33 @@ NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
 LLM_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
+# Fallback model used when Kimi is unavailable (e.g. NVIDIA outage / timeout)
+FALLBACK_MODEL = "deepseek-ai/deepseek-r1"
+_DEEPSEEK_KEYS = [k for k in [
+    os.getenv("NVAPI_DEEPSEEK_KEY_1", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_2", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_3", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_4", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_5", ""),
+    os.getenv("NVAPI_DEEPSEEK_KEY_6", ""),
+] if k] or _NVAPI_KEYS
+_deepseek_key_index = 0
+
+def _next_deepseek_key() -> str:
+    """Rotate within the DeepSeek-authorized key pool for fallback calls."""
+    global _deepseek_key_index
+    pool = _DEEPSEEK_KEYS
+    with _key_lock:
+        _deepseek_key_index = (_deepseek_key_index + 1) % max(len(pool), 1)
+        return pool[_deepseek_key_index % max(len(pool), 1)] if pool else ""
+
+import httpx as _httpx
+_LLM_TIMEOUT = _httpx.Timeout(timeout=90.0, connect=10.0)
+
 llm_client = AsyncOpenAI(
     base_url=LLM_BASE_URL,
     api_key=NVAPI_KEY,
+    timeout=_LLM_TIMEOUT,
 )
 
 SYSTEM_PROMPT = """You are the Meta-Orchestrator of the OpenClaw Army — a 16-agent AI system owned by Landon King. You are the supreme intelligence at the top of the hierarchy.
@@ -3129,6 +3153,28 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     await asyncio.sleep(wait)
                     continue
                 log.error(f"LLM call failed: {e}")
+                # ── Fallback: try DeepSeek R1 when Kimi is unavailable ──────
+                is_timeout = ("timeout" in err_str.lower() or "timed out" in err_str.lower()
+                              or "APITimeoutError" in type(e).__name__)
+                if is_timeout and _DEEPSEEK_KEYS:
+                    log.warning("Kimi timed out — falling back to DeepSeek R1")
+                    await activity.record("llm_fallback", session_id,
+                                          f"Kimi unavailable, retrying with {FALLBACK_MODEL}",
+                                          {"primary_error": err_str[:200]})
+                    try:
+                        _fb_client = llm_client.with_options(api_key=_next_deepseek_key())
+                        response = await _fb_client.chat.completions.create(
+                            model=FALLBACK_MODEL,
+                            messages=messages,
+                            tools=all_tools,
+                            tool_choice="auto",
+                            temperature=0.7,
+                            max_tokens=4096,
+                        )
+                        break  # Fallback succeeded
+                    except Exception as fb_err:
+                        log.error(f"Fallback model also failed: {fb_err}")
+                        err_str = str(fb_err)
                 error_response = f"I'm having trouble connecting to my reasoning engine right now. Error: {err_str[:200]}"
                 await activity.record("error_response", session_id, error_response)
                 return {

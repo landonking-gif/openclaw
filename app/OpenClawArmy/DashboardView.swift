@@ -352,6 +352,9 @@ struct OverviewTab: View {
                     InfoRow(label: "Endpoint", value: orchestrator.baseURL, color: .white)
                     InfoRow(label: "Connected", value: orchestrator.isConnected ? "Yes" : "No",
                            color: orchestrator.isConnected ? .green : .red)
+                    if let updated = orchestrator.lastUpdated {
+                        InfoRow(label: "Last Sync", value: formatDate(updated), color: .gray)
+                    }
                     if let error = orchestrator.lastError {
                         Text(error)
                             .font(.system(size: 10))
@@ -370,10 +373,17 @@ struct OverviewTab: View {
                                 Circle()
                                     .fill(activityColor(entry.type ?? ""))
                                     .frame(width: 5, height: 5)
-                                Text(entry.content ?? "")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .lineLimit(1)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(entry.content ?? "")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .lineLimit(1)
+                                    if let ts = entry.ts {
+                                        Text(formatTimestamp(ts))
+                                            .font(.system(size: 9, design: .monospaced))
+                                            .foregroundColor(.gray.opacity(0.4))
+                                    }
+                                }
                                 Spacer()
                                 Text(entry.type ?? "")
                                     .font(.system(size: 9))
@@ -680,6 +690,10 @@ struct ChatBubble: View {
                     .foregroundColor(isError ? .red.opacity(0.8) : .white.opacity(0.9))
                     .textSelection(.enabled)
                     .lineSpacing(3)
+
+                Text(formatDate(message.timestamp))
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundColor(roleLabelColor.opacity(0.35))
             }
             .padding(14)
             .background(
@@ -1014,7 +1028,7 @@ struct ActivityTab: View {
                                 }
 
                                 if let ts = entry.ts {
-                                    Text(ts.suffix(8))
+                                    Text(formatTimestamp(ts))
                                         .font(.system(size: 9, design: .monospaced))
                                         .foregroundColor(.gray.opacity(0.4))
                                 }
@@ -1123,6 +1137,42 @@ struct NeuralMapTab: View {
             }
         }
     }
+}
+
+// MARK: - Timestamp Helpers
+
+private let _chicagoTZ = TimeZone(identifier: "America/Chicago") ?? .current
+
+private let _utcParseFmt: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.timeZone = TimeZone(identifier: "UTC")
+    f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    return f
+}()
+
+private let _tsDisplayFmt: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.timeZone = _chicagoTZ
+    f.dateFormat = "HH:mm:ss"
+    return f
+}()
+
+func formatDate(_ d: Date) -> String {
+    _tsDisplayFmt.string(from: d)
+}
+
+func formatTimestamp(_ ts: String) -> String {
+    // Strip fractional seconds if present: "2026-03-11T07:36:00.123456" → "2026-03-11T07:36:00"
+    let stripped = String(ts.prefix(19))
+    if let date = _utcParseFmt.date(from: stripped) {
+        return _tsDisplayFmt.string(from: date)
+    }
+    // Fallback: just take the time portion as-is
+    let parts = ts.split(separator: "T")
+    guard parts.count >= 2 else { return ts }
+    return String(parts[1].prefix(8))
 }
 
 struct NeuralNodeView: View {

@@ -157,7 +157,17 @@ _NVAPI_KEYS = [k for k in [
     os.getenv("NVAPI_GLM5_KEY_2", ""),
     os.getenv("NVIDIA_API_KEY", ""),
 ] if k]
+
+# Keys that are authorized for the Kimi K2.5 model — DEEPSEEK/GLM5 keys will
+# return 403 if used with moonshotai/kimi-k2.5, so we keep a dedicated pool.
+_KIMI_KEYS = [k for k in [
+    os.getenv("NVAPI_KIMI_KEY_1", ""),
+    os.getenv("NVAPI_KIMI_KEY_2", ""),
+    os.getenv("NVIDIA_API_KEY", ""),
+] if k] or _NVAPI_KEYS  # fallback to full pool if no kimi keys configured
+
 _key_index = 0
+_kimi_key_index = 0
 import threading
 _key_lock = threading.Lock()
 
@@ -177,6 +187,14 @@ def _next_key() -> str:
     to spread load proactively across all keys."""
     _rotate_key()
     return _get_api_key()
+
+def _next_kimi_key() -> str:
+    """Rotate within the Kimi-authorized key pool only. Prevents 403 errors
+    that occur when DEEPSEEK/GLM5 keys are used with moonshotai/kimi-k2.5."""
+    global _kimi_key_index
+    with _key_lock:
+        _kimi_key_index = (_kimi_key_index + 1) % max(len(_KIMI_KEYS), 1)
+        return _KIMI_KEYS[_kimi_key_index % len(_KIMI_KEYS)]
 
 NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
@@ -3076,8 +3094,9 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         response = None
         for attempt in range(max_retries):
             try:
-                # Proactive key rotation: fresh key every call to spread load
-                llm_client.api_key = _next_key()
+                # Rotate within Kimi-authorized keys only (DEEPSEEK/GLM5 keys
+                # return 403 for moonshotai/kimi-k2.5)
+                llm_client.api_key = _next_kimi_key()
                 await activity.record("llm_call", session_id,
                                       f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
                                       {"attempt": attempt + 1, "turn": _tool_turn + 1,
@@ -4130,7 +4149,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
 
             for _synth_attempt in range(3):
                 try:
-                    llm_client.api_key = _next_key()
+                    llm_client.api_key = _next_kimi_key()
                     # Use a CLEAN message chain without tool context to prevent
                     # Kimi K2.5 from trying to make tool calls in the synthesis
                     synth_messages = [

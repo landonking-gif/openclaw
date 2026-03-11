@@ -173,6 +173,7 @@ class OrchestratorService: ObservableObject {
 
     @Published var baseURL = "http://localhost:18830"
     @Published var isConnected = false
+    @Published var lastUpdated: Date?
     @Published var health: HealthResponse?
     @Published var activityStats: ActivityStatsResponse?
     @Published var recentActivity: [ActivityEntry] = []
@@ -243,6 +244,7 @@ class OrchestratorService: ObservableObject {
                     self?.health = h
                     self?.isConnected = true
                     self?.lastError = nil
+                    self?.lastUpdated = Date()
                 case .failure(let e):
                     self?.isConnected = false
                     self?.lastError = e.localizedDescription
@@ -264,7 +266,8 @@ class OrchestratorService: ObservableObject {
     func fetchRecentActivity() {
         get("/activity?limit=100") { [weak self] (result: Result<ActivityResponse, Error>) in
             DispatchQueue.main.async {
-                if case .success(let a) = result { self?.recentActivity = a.entries }
+                // Reverse so newest entries appear first
+                if case .success(let a) = result { self?.recentActivity = a.entries.reversed() }
             }
         }
     }
@@ -485,6 +488,8 @@ class OrchestratorService: ObservableObject {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        // Chat endpoint waits for LLM — override session-level timeout
+        if path == "/chat" { request.timeoutInterval = 180 }
         session.dataTask(with: request) { data, _, error in
             if let error { completion(.failure(error)); return }
             guard let data else { completion(.failure(URLError(.badServerResponse))); return }

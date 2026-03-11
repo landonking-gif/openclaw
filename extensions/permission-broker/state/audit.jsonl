@@ -15254,3 +15254,48 @@
 {"timestamp":"2026-03-11T01:25:12.016Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":10,"error":null}
 {"timestamp":"2026-03-11T01:25:12.026Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:12.026Z"}}
 {"timestamp":"2026-03-11T01:25:12.026Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:13.177Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:13.183Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1165,"error":null}
+{"timestamp":"2026-03-11T01:25:16.010Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-11T01:25:19.483Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-11T01:25:19.483Z"}}
+{"timestamp":"2026-03-11T01:25:19.484Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:19.685Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:19.688Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":228,"error":null}
+{"timestamp":"2026-03-11T01:25:21.924Z","agent":"general-1","role":"worker","action":"TOOL_BLOCKED","toolName":"enterprise_execute","params":{"task":"Sync OpenClaw repository to GitHub by committing all changes and pushing to origin. First check git status, then add all files, commit with timestamp \"Version save: 2026-03-10 20:24\", and push to GitHub.","risk_level":"medium","stakeholders":"OpenClaw repository, GitHub","rollback_plan":"If push fails, check remote URL and authentication. If needed, reset to last known good state with git reset."},"reason":"Permission denied: 'worker' role cannot use 'enterprise_execute'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T01:25:21.953Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"enterprise_execute","error":"Permission denied: 'worker' role cannot use 'enterprise_execute'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T01:25:21.963Z","agent":"general-1","role":"worker","action":"TOOL_COMPLETED","toolName":"enterprise_execute","durationMs":77,"error":"Permission denied: 'worker' role cannot use 'enterprise_execute'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T01:25:31.030Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-11T01:25:31.035Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":15062,"error":null}
+{"timestamp":"2026-03-11T01:25:31.040Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:31.040Z"}}
+{"timestamp":"2026-03-11T01:25:31.040Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:31.095Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:31.098Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":61,"error":null}
+{"timestamp":"2026-03-11T01:25:34.082Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-11T01:25:34.086Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-11T01:25:34.088Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":8,"error":null}
+{"timestamp":"2026-03-11T01:25:34.091Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":70,"factors":["Risky tool: exec","Write to device file"],"recommendation":"king-review","timestamp":"2026-03-11T01:25:34.091Z"}}
+{"timestamp":"2026-03-11T01:25:34.091Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:35.323Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:35.327Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1237,"error":null}
+{"timestamp":"2026-03-11T01:25:40.933Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:40.933Z"}}
+{"timestamp":"2026-03-11T01:25:40.933Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:40.999Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:41.002Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":82,"error":null}
+{"timestamp":"2026-03-11T01:25:47.056Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:47.056Z"}}
+{"timestamp":"2026-03-11T01:25:47.057Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:47.247Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:47.249Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":201,"error":null}
+{"timestamp":"2026-03-11T01:25:47.548Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:47.548Z"}}
+{"timestamp":"2026-03-11T01:25:47.548Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:47.606Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:47.609Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":68,"error":null}
+{"timestamp":"2026-03-11T01:25:47.611Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:47.611Z"}}
+{"timestamp":"2026-03-11T01:25:47.612Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:47.654Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:47.656Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":46,"error":null}
+{"timestamp":"2026-03-11T01:25:47.659Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:47.659Z"}}
+{"timestamp":"2026-03-11T01:25:47.659Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T01:25:47.891Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T01:25:47.894Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":237,"error":null}
+{"timestamp":"2026-03-11T01:25:48.868Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T01:25:48.868Z"}}
+{"timestamp":"2026-03-11T01:25:48.868Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

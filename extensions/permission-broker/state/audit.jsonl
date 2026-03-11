@@ -16899,3 +16899,235 @@
 {"timestamp":"2026-03-11T16:46:02.368Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
 {"timestamp":"2026-03-11T16:46:06.246Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T16:46:06.245Z"}}
 {"timestamp":"2026-03-11T16:46:06.247Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T16:46:07.672Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T16:46:07.719Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1662,"error":null}
+{"timestamp":"2026-03-11T16:46:12.556Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T16:46:12.724Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":10349,"error":null}
+{"timestamp":"2026-03-11T16:46:18.116Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"process"}
+{"timestamp":"2026-03-11T16:46:18.148Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","error":null}
+{"timestamp":"2026-03-11T16:46:18.155Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"process","durationMs":67,"error":null}
+{"timestamp":"2026-03-11T16:46:28.077Z","agent":"main","role":"king","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-11T16:46:28.077Z"}}
+{"timestamp":"2026-03-11T16:46:28.087Z","agent":"main","role":"king","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T16:46:29.043Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T16:46:29.058Z","agent":"main","role":"king","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1082,"error":null}
+{"timestamp":"2026-03-11T16:46:59.761Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T16:53:50.619Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:00:49.285Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:03:55.905Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:05:45.227Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:07:59.153Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:11:43.326Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:12:29.960Z","agent":"beta-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:15:31.871Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:20:01.394Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:24:37.287Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:26:53.134Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:29:40.550Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:29:43.788Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-11T17:29:43.943Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":7406,"error":null}
+{"timestamp":"2026-03-11T17:30:01.532Z","agent":"agentic-3","role":"worker","action":"TOOL_ALLOWED","toolName":"get_memory_context"}
+{"timestamp":"2026-03-11T17:30:09.924Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"get_memory_context","error":null}
+{"timestamp":"2026-03-11T17:30:11.420Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"get_memory_context","durationMs":12280,"error":null}
+{"timestamp":"2026-03-11T17:30:14.329Z","agent":"agentic-3","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"ls -la /Users/landonking/openclaw-army/agents/agentic-3/memory/ 2>/dev/null || echo \"No memory directory\"","host":"gateway"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:30:14.887Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:30:14.926Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":3484,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:31:40.080Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:34:15.069Z","agent":"beta-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:37:36.779Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:39:22.607Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:39:24.292Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"Landon King\" for discord."}
+{"timestamp":"2026-03-11T17:39:24.347Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":3481,"error":"Unknown target \"Landon King\" for discord."}
+{"timestamp":"2026-03-11T17:39:32.601Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:39:34.759Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"user\" for discord."}
+{"timestamp":"2026-03-11T17:39:35.163Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":5031,"error":"Unknown target \"user\" for discord."}
+{"timestamp":"2026-03-11T17:39:45.558Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:39:47.363Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":4211,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:39:49.619Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-11T17:39:49.735Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","durationMs":14842,"error":null}
+{"timestamp":"2026-03-11T17:39:53.065Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:39:54.521Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/alpha-manager/memory/2026-03-11.md'"}
+{"timestamp":"2026-03-11T17:39:54.744Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","durationMs":4951,"error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/alpha-manager/memory/2026-03-11.md'"}
+{"timestamp":"2026-03-11T17:39:59.879Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-11T17:39:59.902Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":5121,"error":null}
+{"timestamp":"2026-03-11T17:40:05.439Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:40:08.289Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:40:08.378Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":13651,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:40:30.944Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":2613,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:40:35.179Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:40:35.424Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:40:35.433Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":929,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:40:38.416Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":1216,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:40:59.397Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:05.234Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:05.425Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":15505,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:11.033Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:11.256Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:11.273Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1887,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:20.212Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":1854,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:41:21.574Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:41:23.501Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:24.419Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"Landon King\" for discord."}
+{"timestamp":"2026-03-11T17:41:24.429Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1639,"error":"Unknown target \"Landon King\" for discord."}
+{"timestamp":"2026-03-11T17:41:29.059Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:29.706Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:29.767Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":3548,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:47.876Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:48.007Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:48.011Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":2298,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:52.015Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:52.459Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:52.501Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1174,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:41:56.866Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:41:57.093Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:41:57.136Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":688,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:42:01.329Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":754,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:42:03.895Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:04.090Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:04.106Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":852,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:07.724Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:08.128Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:08.211Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1927,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:11.770Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:11.820Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:11.825Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1395,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:22.887Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:23.032Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:42:23.039Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":936,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:42:28.934Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":482,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:42:34.351Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:34.823Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:34.850Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":865,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:43.950Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:44.589Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:44.622Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":5031,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:47.521Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:47.670Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:47.715Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1016,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:42:50.985Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:42:51.081Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:42:51.084Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":170,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:42:55.191Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":437,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:43:16.758Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:43:16.939Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:16.982Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1572,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:21.102Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:43:21.351Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:21.382Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":826,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:23.925Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:43:23.987Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:23.998Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":212,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:43:51.035Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:43:51.299Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:43:51.312Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":717,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:44:00.328Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":980,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:44:13.516Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:44:13.580Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:13.591Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":172,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:25.166Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:44:25.459Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:25.475Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1242,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:28.091Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:44:28.191Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:28.199Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":419,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:44:31.847Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:44:31.951Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:44:31.965Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":520,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:44:48.115Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":743,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:45:04.104Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:45:04.543Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:04.568Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":3560,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:09.553Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:45:10.187Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:10.262Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":2294,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:34.360Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:45:37.163Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:45:37.395Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:37.464Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":2127,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:46.633Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:45:46.890Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:45:46.945Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":1854,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:45:52.658Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":2058,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:45:56.447Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:45:56.503Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:45:56.512Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":239,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:47:10.124Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:47:12.746Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:47:12.952Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":9350,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:47:38.780Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:47:43.231Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:47:44.153Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":10767,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:47:55.990Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:47:58.893Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:47:59.597Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":7841,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:48:11.747Z","agent":"agentic-3","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && pwd && ls -la"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:12.551Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:12.700Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":2859,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:12.886Z","agent":"agentic-3","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:13.098Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:13.178Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":386,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:48.176Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":8793,"error":"Validation failed for tool \"sessions_list\":"}
+{"timestamp":"2026-03-11T17:48:50.088Z","agent":"general-2","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status","timeout":30},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:51.130Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:48:51.194Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":2445,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T17:49:06.998Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:49:07.011Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-11T17:49:07.050Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","durationMs":846,"error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-11T17:49:07.774Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:49:07.871Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":6541,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:49:09.127Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:49:31.777Z","agent":"beta-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T17:49:37.146Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-11T17:49:41.187Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":5133,"error":null}
+{"timestamp":"2026-03-11T17:49:54.013Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-11T17:49:54.764Z","agent":"agentic-3","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":1098,"error":null}
+{"timestamp":"2026-03-11T17:50:30.542Z","agent":"general-2","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:50:30.561Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-11T17:50:30.562Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":1276,"error":null}
+{"timestamp":"2026-03-11T17:50:30.673Z","agent":"general-2","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:50:30.689Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/general-2/memory/2026-03-11.md'"}
+{"timestamp":"2026-03-11T17:50:30.695Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":131,"error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/general-2/memory/2026-03-11.md'"}
+{"timestamp":"2026-03-11T17:50:30.918Z","agent":"general-2","role":"worker","action":"TOOL_ALLOWED","toolName":"sessions_list"}
+{"timestamp":"2026-03-11T17:50:31.444Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_list","error":null}
+{"timestamp":"2026-03-11T17:50:31.451Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":753,"error":null}
+{"timestamp":"2026-03-11T17:51:45.877Z","agent":"general-2","role":"worker","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T17:51:47.003Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","error":null}
+{"timestamp":"2026-03-11T17:51:47.041Z","agent":"general-2","role":"worker","action":"TOOL_COMPLETED","toolName":"read","durationMs":3336,"error":null}
+{"timestamp":"2026-03-11T17:53:39.785Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"sessions_history"}
+{"timestamp":"2026-03-11T17:53:48.581Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_history","error":null}
+{"timestamp":"2026-03-11T17:53:48.670Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_history","durationMs":13632,"error":null}
+{"timestamp":"2026-03-11T17:53:48.827Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"get_memory_context"}
+{"timestamp":"2026-03-11T17:53:56.893Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"get_memory_context","error":null}
+{"timestamp":"2026-03-11T17:53:57.641Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"get_memory_context","durationMs":8934,"error":null}
+{"timestamp":"2026-03-11T17:58:26.485Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:58:28.277Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:58:28.452Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":12813,"error":"Unknown target \"heartbeat\" for discord."}
+{"timestamp":"2026-03-11T17:58:57.806Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T17:58:59.492Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:58:59.572Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":5930,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-11T17:59:20.797Z","agent":"gamma-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"sessions_list"}
+{"timestamp":"2026-03-11T17:59:23.856Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","error":null}
+{"timestamp":"2026-03-11T17:59:23.879Z","agent":"gamma-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","durationMs":7470,"error":null}
+{"timestamp":"2026-03-11T21:38:11.448Z","agent":"gamma-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T21:38:24.693Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"read"}
+{"timestamp":"2026-03-11T21:38:28.485Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","error":"ENOENT: no such file or directory, access '/Users/landonking/openclaw-army/agents/gamma-manager/memory/2026-03-11.md'"}
+{"timestamp":"2026-03-11T21:38:28.692Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"sessions_list"}
+{"timestamp":"2026-03-11T21:38:32.486Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"sessions_list","error":null}
+{"timestamp":"2026-03-11T21:38:50.596Z","agent":"agentic-4","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git status"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:50.962Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:50.997Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1002,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:51.027Z","agent":"agentic-4","role":"worker","action":"TOOL_BLOCKED","toolName":"exec","params":{"command":"cd /Users/landonking/openclaw-army && git log --oneline -5"},"reason":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:51.077Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:51.103Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"exec","durationMs":86,"error":"Permission denied: 'worker' role cannot use 'exec'. Use request_elevation to request temporary access."}
+{"timestamp":"2026-03-11T21:38:56.490Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-11T21:38:56.599Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"request_elevation","durationMs":698,"error":"Cannot read properties of undefined (reading 'toLowerCase')"}
+{"timestamp":"2026-03-11T21:38:59.537Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-11T21:38:59.725Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Unknown target \"Landon King\" for discord."}
+{"timestamp":"2026-03-11T21:39:29.299Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","error":null}
+{"timestamp":"2026-03-11T21:39:32.264Z","agent":"agentic-4","role":"worker","action":"TOOL_COMPLETED","toolName":"check_permissions","durationMs":3281,"error":null}
+{"timestamp":"2026-03-11T21:39:44.056Z","agent":"alpha-manager","role":"manager","action":"PLUGIN_LOADED","denyList":[]}
+{"timestamp":"2026-03-11T21:39:44.998Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T21:39:44.997Z"}}
+{"timestamp":"2026-03-11T21:39:44.999Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-11T21:39:45.588Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-11T21:39:45.611Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":815,"error":null}
+{"timestamp":"2026-03-11T21:39:50.535Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-11T21:39:50.534Z"}}
+{"timestamp":"2026-03-11T21:39:50.536Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

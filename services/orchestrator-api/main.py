@@ -190,11 +190,13 @@ def _next_key() -> str:
 
 def _next_kimi_key() -> str:
     """Rotate within the Kimi-authorized key pool only. Prevents 403 errors
-    that occur when DEEPSEEK/GLM5 keys are used with moonshotai/kimi-k2.5."""
+    that occur when DEEPSEEK/GLM5 keys are used with moonshotai/kimi-k2.5.
+    Falls back to the general pool if no Kimi keys are configured."""
     global _kimi_key_index
+    pool = _KIMI_KEYS if _KIMI_KEYS else _NVAPI_KEYS
     with _key_lock:
-        _kimi_key_index = (_kimi_key_index + 1) % max(len(_KIMI_KEYS), 1)
-        return _KIMI_KEYS[_kimi_key_index % len(_KIMI_KEYS)]
+        _kimi_key_index = (_kimi_key_index + 1) % max(len(pool), 1)
+        return pool[_kimi_key_index % max(len(pool), 1)] if pool else ""
 
 NVAPI_KEY = _get_api_key()
 LLM_MODEL = "moonshotai/kimi-k2.5"
@@ -3094,14 +3096,15 @@ async def call_llm(session_id: str, user_message: str) -> dict:
         response = None
         for attempt in range(max_retries):
             try:
-                # Rotate within Kimi-authorized keys only (DEEPSEEK/GLM5 keys
-                # return 403 for moonshotai/kimi-k2.5)
-                llm_client.api_key = _next_kimi_key()
+                # Use a scoped client per attempt — avoids race condition where
+                # concurrent coroutines mutate the shared llm_client.api_key
+                # causing DEEPSEEK/GLM5 keys to be used with moonshotai/kimi-k2.5
+                _attempt_client = llm_client.with_options(api_key=_next_kimi_key())
                 await activity.record("llm_call", session_id,
                                       f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
                                       {"attempt": attempt + 1, "turn": _tool_turn + 1,
                                        "history_len": len(messages)})
-                response = await llm_client.chat.completions.create(
+                response = await _attempt_client.chat.completions.create(
                     model=LLM_MODEL,
                     messages=messages,
                     tools=all_tools,
@@ -4149,7 +4152,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
 
             for _synth_attempt in range(3):
                 try:
-                    llm_client.api_key = _next_kimi_key()
+                    _synth_client = llm_client.with_options(api_key=_next_kimi_key())
                     # Use a CLEAN message chain without tool context to prevent
                     # Kimi K2.5 from trying to make tool calls in the synthesis
                     synth_messages = [
@@ -4165,7 +4168,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                             "Include specific data, numbers, and findings from the tool results."
                         )},
                     ]
-                    synthesis = await llm_client.chat.completions.create(
+                    synthesis = await _synth_client.chat.completions.create(
                         model=LLM_MODEL,
                         messages=synth_messages,
                         temperature=0.7,
@@ -12934,9 +12937,9 @@ async def self_heal(reason: str = "manual trigger"):
                 actions.append(f"FAILED to restart {mgr}: {restart['detail']}")
                 _record_failure("restart_fail", restart["detail"], mgr)
 
-    # 3. Rotate API key if current one might be rate-limited
-    llm_client.api_key = _next_key()
-    actions.append("Rotated API key to next in pool")
+    # 3. Key rotation is now handled per-request via scoped clients (with_options).
+    #    No global mutation needed — avoids race conditions with concurrent requests.
+    actions.append("Key rotation handled per-request (no global mutation)")
 
     await activity.record("self_heal", "", f"Self-heal executed: {reason}",
                           {"reason": reason, "actions": actions, "manager_status": manager_status})

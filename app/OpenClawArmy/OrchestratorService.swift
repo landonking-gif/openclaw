@@ -202,7 +202,8 @@ class OrchestratorService: ObservableObject {
     init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
-        config.timeoutIntervalForResource = 180
+        // Keep resource timeout above worst-case orchestrator chat latency.
+        config.timeoutIntervalForResource = 420
         self.session = URLSession(configuration: config)
 
         chatMessages.append(ChatMessage(
@@ -489,7 +490,7 @@ class OrchestratorService: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         // Chat endpoint waits for LLM — override session-level timeout
-        if path == "/chat" { request.timeoutInterval = 180 }
+        if path == "/chat" { request.timeoutInterval = 360 }
         session.dataTask(with: request) { data, _, error in
             if let error { completion(.failure(error)); return }
             guard let data else { completion(.failure(URLError(.badServerResponse))); return }

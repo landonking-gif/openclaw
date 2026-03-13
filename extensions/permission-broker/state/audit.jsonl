@@ -17298,3 +17298,23 @@
 {"timestamp":"2026-03-13T02:31:03.778Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"read","durationMs":17,"error":null}
 {"timestamp":"2026-03-13T02:31:08.283Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"high","score":60,"factors":["Risky tool: exec","Force push / push to main"],"recommendation":"king-review","timestamp":"2026-03-13T02:31:08.283Z"}}
 {"timestamp":"2026-03-13T02:31:08.284Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-13T02:31:09.804Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-13T02:31:09.816Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":1549,"error":null}
+{"timestamp":"2026-03-13T02:31:26.009Z","agent":"alpha-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-13T02:31:26.009Z"}}
+{"timestamp":"2026-03-13T02:31:26.009Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-13T02:31:26.373Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-13T02:31:26.376Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":369,"error":null}
+{"timestamp":"2026-03-13T02:31:36.263Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-13T02:31:36.263Z"}}
+{"timestamp":"2026-03-13T02:31:36.264Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-13T02:31:36.377Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-13T02:31:36.381Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":123,"error":null}
+{"timestamp":"2026-03-13T02:31:36.386Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-13T02:31:36.386Z"}}
+{"timestamp":"2026-03-13T02:31:36.386Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}
+{"timestamp":"2026-03-13T02:31:36.460Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","error":null}
+{"timestamp":"2026-03-13T02:31:36.464Z","agent":"beta-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"exec","durationMs":81,"error":null}
+{"timestamp":"2026-03-13T02:31:53.234Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":405,"error":"Validation failed for tool \"message\":"}
+{"timestamp":"2026-03-13T02:32:03.386Z","agent":"alpha-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"message"}
+{"timestamp":"2026-03-13T02:32:03.421Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-13T02:32:03.424Z","agent":"alpha-manager","role":"manager","action":"TOOL_COMPLETED","toolName":"message","durationMs":482,"error":"Channel is required (no configured channels detected)."}
+{"timestamp":"2026-03-13T02:33:18.359Z","agent":"beta-manager","role":"manager","action":"RISK_ASSESSED","toolName":"exec","risk":{"level":"medium","score":30,"factors":["Risky tool: exec"],"recommendation":"manager-review","timestamp":"2026-03-13T02:33:18.359Z"}}
+{"timestamp":"2026-03-13T02:33:18.360Z","agent":"beta-manager","role":"manager","action":"TOOL_ALLOWED","toolName":"exec"}

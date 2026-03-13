@@ -1,0 +1,619 @@
+{"ts": "2026-03-08T20:44:50.686885+00:00", "category": "restart_fail", "detail": "gamma-manager started but not responding after 20s", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:45:46.795999+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:47:10.116705+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:48:09.774120+00:00", "category": "restart_fail", "detail": "gamma-manager started but not responding after 20s", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:48:31.761955+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:49:52.728524+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:51:13.401322+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:52:33.952074+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:53:54.623502+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:55:17.202451+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T20:55:37.847591+00:00", "category": "restart_fail", "detail": "gamma-manager started but not responding after 20s", "manager": "gamma-manager"}
+{"ts": "2026-03-08T21:01:19.352975+00:00", "category": "dispatch_fail", "detail": "ClientConnectorError: Cannot connect to host 127.0.0.1:18801 ssl:default [Connect call failed ('127.0.0.1', 18801)]", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:01:25.758338+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:04:02.431899+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:04:10.497077+00:00", "category": "dispatch_fail", "detail": "ClientConnectorError: Cannot connect to host 127.0.0.1:18801 ssl:default [Connect call failed ('127.0.0.1', 18801)]", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:04:21.489179+00:00", "category": "dispatch_fail", "detail": "HTTP 401 from beta-manager: {\"error\":{\"message\":\"Unauthorized\",\"type\":\"unauthorized\"}}", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:07:42.766243+00:00", "category": "dispatch_fail", "detail": "ClientConnectorError: Cannot connect to host 127.0.0.1:18801 ssl:default [Connect call failed ('127.0.0.1', 18801)]", "manager": "beta-manager"}
+{"ts": "2026-03-08T21:50:37.864068+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T21:50:41.418896+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T21:50:46.966552+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T21:51:18.077599+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T21:51:21.615528+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T21:51:27.121430+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-08T23:51:26.749224+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-08T23:52:06.451054+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-08T23:52:17.051404+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-08T23:52:55.657753+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-08T23:53:05.489758+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-08T23:53:51.185276+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T00:09:56.936902+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T00:11:06.396453+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T00:11:15.632558+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T00:37:03.741249+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T00:47:36.320496+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T00:48:27.599398+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:09:34.566986+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:16:29.730948+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:18:58.560421+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:21:31.573040+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:24:23.581621+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:27:37.572930+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:34:06.456250+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T01:38:56.854731+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:41:34.742616+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:42:34.062521+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T01:44:02.713629+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:44:57.724704+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:46:38.728704+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:47:55.216113+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:50:01.676065+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:52:59.113769+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:53:24.696896+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T01:53:31.530895+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T01:59:11.604361+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T02:02:12.531662+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T02:05:15.239226+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:05:18.734634+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:05:24.209790+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:05:29.012896+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:05:32.626770+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:05:38.271553+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:13:25.510524+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T02:14:59.043351+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:18:15.223286+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:18:56.808527+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:00.466392+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:06.441458+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:12.058282+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:15.635509+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:21.207601+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:26.010404+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:29.517429+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:35.074851+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:40.254354+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:43.746066+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:49.306308+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:54.281645+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:19:57.948954+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:20:03.300321+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T02:35:20.568816+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-09T02:43:31.576834+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-09T02:48:32.643759+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-09T02:51:45.585428+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T02:56:46.601640+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T03:32:35.538076+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:32:39.065012+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:32:48.492897+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:31.921293+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:36.377298+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:36.381061+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:39.869727+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:41.999475+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:45.421467+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:51.546566+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:33:54.939967+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:34:09.346743+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 5: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T03:34:12.460918+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 5: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:10:17.630148+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-09T04:30:49.621371+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:31:48.209840+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:31:51.877541+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:31:57.643298+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:32:07.690162+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:32:25.257019+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 5: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:33:10.092932+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T04:33:13.462750+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-09T12:20:45.459879+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T13:34:01.026108+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T14:52:30.869519+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T15:54:08.892727+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T16:40:31.477607+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T16:46:31.982938+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:10:27.911488+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:18:33.089746+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:29:30.318294+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:30:43.607005+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:33:02.268169+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:35:16.650083+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:37:26.935384+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:37:36.926865+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:39:51.120223+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:41:46.723803+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:42:56.144823+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:44:00.155152+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:45:57.809778+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:46:59.787438+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:47:53.911362+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:49:56.051700+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T18:51:02.909033+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T18:51:58.435036+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T18:53:53.153710+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T20:57:32.409395+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T21:44:58.528884+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T21:48:52.635458+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T21:50:03.639003+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T21:52:35.073786+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T21:53:44.786145+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T21:56:08.612877+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T21:56:56.836209+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T22:52:16.646760+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T23:01:30.979481+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T23:03:30.773018+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T23:10:43.436858+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T23:19:23.060042+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T23:25:00.848486+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T23:26:14.941156+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T23:28:17.306771+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T23:39:57.200283+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-09T23:56:48.619386+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-09T23:56:54.676100+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-09T23:57:00.743659+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T00:05:53.216073+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:05:56.720200+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:06:02.420403+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:06:55.952592+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:06:59.543577+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:07:05.233506+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:07:15.253111+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T00:08:05.781882+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T02:22:15.678819+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T02:22:54.372344+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T02:23:04.837448+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T02:24:56.041124+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T02:52:42.765910+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T02:54:42.038509+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T03:11:04.623026+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T03:13:02.179896+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T03:13:52.378023+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T03:14:35.209934+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T03:16:03.558952+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T03:17:25.356401+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T03:21:22.837357+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T03:22:34.476796+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T03:23:23.402620+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T03:25:23.264194+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T03:26:16.869360+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T12:43:30.745161+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T12:43:43.742965+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T12:47:47.608641+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T12:55:20.245409+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T12:57:13.807981+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T13:01:28.993881+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T13:03:27.705299+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T13:04:22.298546+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T13:06:24.762022+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T13:07:18.462783+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T13:09:16.982093+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T13:09:31.090808+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T13:09:37.764103+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T13:09:45.344752+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T13:09:58.163926+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T13:10:20.062414+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 5: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T14:42:03.783172+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T15:22:15.177585+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T15:23:14.633870+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T15:25:13.469091+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T15:29:26.267719+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T15:30:11.457991+00:00", "category": "restart_fail", "detail": "alpha-manager started but not responding after 45s", "manager": "alpha-manager"}
+{"ts": "2026-03-10T16:33:57.211675+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T16:34:03.273053+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T16:34:06.423529+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T17:50:11.487038+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T17:50:15.408908+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T17:51:09.146974+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T17:51:13.409680+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T17:51:20.291543+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-10T18:14:23.347651+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:14:29.886812+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:14:39.050674+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:34:20.224837+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:35:09.088237+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:35:57.748796+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:37:55.621774+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:38:49.281718+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:39:45.702308+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:41:49.424234+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:42:48.569994+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:43:46.784527+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:45:50.372349+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:46:43.890375+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:47:37.039177+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:49:35.002310+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:50:27.394210+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:51:16.970579+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:53:15.108637+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:54:09.789520+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:55:12.650168+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T18:57:22.416491+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T18:58:26.078152+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 8 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T18:59:21.950596+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T19:05:15.635945+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T19:06:04.071547+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T19:06:52.418445+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T19:08:42.512781+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T19:09:33.067709+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T19:10:20.715305+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T19:12:13.217558+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T19:46:23.415996+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T20:19:26.807293+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:29:43.409786+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T21:36:19.239726+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T21:37:11.072940+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:39:12.965524+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T21:40:34.609976+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T21:41:48.705164+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:43:32.320268+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T21:45:05.646015+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T21:45:39.849505+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:52:19.235120+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T21:53:08.401457+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T21:53:59.057585+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:55:51.882671+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T21:56:40.225298+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T21:57:28.641236+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T21:59:28.968313+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:00:21.980684+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:01:19.397076+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:03:25.127404+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:04:15.197265+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:05:07.008324+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:07:00.115131+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:07:51.997309+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:08:46.420431+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:10:51.978278+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:12:02.377967+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:12:57.164695+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:15:06.464702+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:16:05.125514+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 8 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:17:10.350574+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:19:25.382013+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 9 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:20:40.509843+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 9 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:21:51.552861+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:24:16.305192+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 10 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:25:14.628325+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 10 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:26:12.351845+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:28:25.555632+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 11 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:29:39.865950+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 11 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:30:45.011489+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 11 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:32:50.663224+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 12 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:34:18.178181+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 12 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:34:32.466602+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 12 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:37:08.372155+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 13 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:38:20.523211+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 13 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:38:30.665734+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 13 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:41:08.806478+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 14 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:41:21.950179+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 14 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:42:33.013464+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 14 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:44:53.686121+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 15 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:46:47.985708+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 15 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:47:08.672442+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 15 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:49:58.831783+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 16 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:50:35.230444+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 16 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:52:25.744913+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 16 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:54:02.777035+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 17 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T22:56:19.828717+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 17 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T22:56:59.946734+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 17 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-10T22:59:31.055994+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 18 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T23:13:53.328519+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-10T23:14:22.229466+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-10T23:14:45.517678+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T00:07:58.481484+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-11T00:13:28.772449+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-11T00:43:00.951672+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-11T00:43:07.213861+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-11T00:47:39.029391+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-11T00:52:41.799354+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-11T01:33:25.710754+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-11T01:33:25.727095+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:02:34.699895+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:03:29.043414+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T02:12:00.899021+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:12:56.465290+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T02:17:24.001415+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T02:17:50.378896+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T02:24:52.322280+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:26:45.541158+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T02:30:22.980644+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:31:43.575892+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T02:38:38.587139+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T02:57:45.174803+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T03:04:55.076130+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T03:19:05.673743+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T03:51:54.234135+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T03:52:53.922215+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T03:54:57.883628+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T03:55:46.502399+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T03:56:41.935740+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T03:58:49.695425+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T03:59:34.893915+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:00:32.047271+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:02:38.752978+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:03:37.763120+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:05:41.625638+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:06:44.379539+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:07:38.313111+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:09:30.953579+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:10:37.539614+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:13:11.287676+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:13:25.179409+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:15:30.742555+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:16:37.084786+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:17:34.701308+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:19:38.244603+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:20:59.083015+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:21:58.140329+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:24:26.621841+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:25:49.174032+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 11 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:27:59.915425+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:29:10.838843+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:30:02.636769+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 12 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:34:09.118872+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:35:16.598637+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:37:23.992921+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:38:23.412998+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:39:21.193235+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:41:36.422512+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:42:31.449749+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:43:52.907720+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:46:02.000302+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:46:23.707533+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:47:23.038701+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:49:22.849415+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T04:50:18.572835+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T04:52:15.473858+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T04:53:14.610861+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:17:45.203196+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:32:10.491588+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:32:29.613536+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:37:43.514687+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:38:33.172305+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:39:25.876677+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:41:16.558512+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:42:18.765041+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:43:26.272209+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:45:40.228280+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:46:42.700370+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:47:43.379136+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:49:39.269331+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:50:39.128409+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:51:38.493762+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:53:53.906939+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:54:53.167892+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:55:59.592480+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T05:58:05.168806+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T05:59:01.676930+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T05:59:58.148508+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T06:02:09.834914+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T06:03:24.422813+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 8 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T06:04:53.399312+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T06:07:06.703966+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 9 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T06:08:15.382145+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 9 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T06:09:17.240479+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T06:12:03.184900+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 10 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T06:13:30.564599+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 10 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T06:15:06.348050+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T06:16:42.007509+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 11 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T06:16:56.944209+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 11 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T06:26:23.216983+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T06:26:29.261996+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T06:26:35.305434+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T13:56:18.753599+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T13:57:47.955380+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T13:58:40.220793+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T14:04:28.567971+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T14:06:13.706314+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T14:11:56.410088+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T14:12:38.437403+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T14:17:34.987779+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T14:22:04.691963+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T14:26:47.798392+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T14:30:45.182244+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T14:33:31.064629+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T14:39:33.208259+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T14:45:12.087757+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T14:52:06.156073+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T14:55:53.447460+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T15:01:36.844938+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T15:06:47.421719+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T15:10:02.562048+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T15:11:17.690491+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T15:14:36.010262+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T15:16:24.583002+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T15:23:11.607725+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T15:50:52.728485+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T16:21:15.714727+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T16:27:12.685804+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T16:34:43.490786+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T16:41:53.754352+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T16:46:21.707567+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T16:53:24.837040+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:00:30.679504+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:03:34.749312+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T17:05:23.540638+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:07:36.497581+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T17:11:25.561511+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:12:02.838948+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T17:15:14.648306+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:19:43.683257+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T17:24:20.831775+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:26:33.221634+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T17:31:02.608506+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:33:46.423265+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T17:37:10.297761+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:40:45.392611+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:45:22.096566+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:48:25.725815+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T17:49:20.843227+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T21:36:53.640182+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T21:39:09.266092+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T21:40:16.679533+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T21:43:18.979416+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T21:46:04.855306+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T21:47:49.021084+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T21:49:52.519692+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T21:50:42.262535+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T21:52:53.067313+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T21:57:34.095710+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T21:58:23.900674+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:01:38.944055+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:02:35.747072+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T22:03:41.743105+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:06:51.407486+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:07:39.930278+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T22:08:36.180342+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:13:03.070000+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:13:54.398278+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:18:44.222001+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:20:34.611577+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:24:47.071106+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T22:25:42.856849+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T22:27:38.793249+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:46:00.946671+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-11T22:48:14.477153+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-11T22:55:47.178795+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-11T23:07:18.717849+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T02:30:19.920196+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T02:30:29.805392+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T02:30:40.149544+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T02:50:37.908362+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T02:51:49.854093+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T02:53:29.475980+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T02:55:32.767542+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T02:56:33.932406+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T02:57:47.082578+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T02:59:30.433423+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:06:08.796284+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:07:37.348384+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:08:49.128874+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:11:18.084981+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:12:19.114959+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:12:27.128973+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:14:44.907080+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:14:58.370329+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:16:16.386505+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:17:58.394437+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:19:34.328394+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:21:01.013868+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:22:21.931758+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:41:37.924415+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:43:35.723195+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:48:09.104066+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:49:13.503218+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T03:50:17.938328+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:52:26.716328+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:53:32.160688+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:56:16.082678+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 9 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T03:57:20.799373+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T03:59:32.548616+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 10 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:00:49.710794+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:02:06.150951+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T04:04:10.099623+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 11 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:05:13.906976+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:25:00.912421+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:25:11.852006+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:26:51.952810+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:27:07.707128+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:28:08.258157+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T04:32:53.442675+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:34:07.014929+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:35:10.803485+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T04:36:41.685893+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:51:17.892812+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:51:35.216469+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:51:56.614138+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T04:53:36.187160+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T04:53:57.045186+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T04:54:54.863120+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:02:33.124886+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:15:44.359480+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:16:01.484859+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:16:15.740050+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:17:43.444198+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:18:50.653481+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:20:23.582318+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:22:39.991616+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:23:47.452220+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:25:02.505320+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:26:27.302349+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:26:45.824486+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:28:15.878442+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:30:24.038492+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:31:54.426533+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:33:08.934394+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:35:13.205734+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:35:20.672780+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:36:35.408136+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:36:47.323691+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 8 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:36:59.601066+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T05:56:51.782909+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T05:57:53.050132+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T05:59:23.166375+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:02:03.793119+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:03:24.530451+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T06:04:47.251652+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:06:57.769071+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:08:24.091195+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T06:09:39.028489+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:12:31.539349+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:14:07.807225+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T06:15:26.042553+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:18:09.035956+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:19:41.415238+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:22:34.912532+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:24:06.133206+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:26:30.347040+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 8 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:27:25.518917+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T06:29:26.543415+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:32:04.850571+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 9 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T06:34:54.064364+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T06:36:57.331659+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T13:18:07.698745+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T13:21:25.772318+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T13:23:48.736866+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T13:26:08.538435+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T13:27:32.551876+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T13:29:05.909847+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T13:31:15.804507+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T13:42:29.764853+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T13:55:19.816873+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T14:00:24.332174+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T14:36:37.205596+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T14:37:33.951997+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T14:38:28.466181+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T14:40:30.852418+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T14:41:59.649562+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T14:43:14.280203+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T14:45:28.200871+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T14:45:55.538013+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T14:47:41.808911+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T14:49:43.781102+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T14:50:22.615451+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T15:12:48.536436+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T15:13:12.242867+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T15:13:28.907199+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T16:48:01.016167+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T16:48:23.069694+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T17:26:12.510162+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T17:28:17.458291+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 4 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T17:28:36.014373+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T17:31:28.695523+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T17:35:24.887173+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 5 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T17:35:45.750788+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T17:42:22.096234+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T17:47:22.747354+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 6 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T17:48:06.826016+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 6 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T17:48:20.266970+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T17:54:19.434798+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 7 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T17:54:30.344530+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 7 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T18:00:11.828450+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T18:48:53.379640+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T18:50:53.219625+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T18:53:42.175952+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T19:14:17.469934+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T19:23:44.475992+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T19:31:36.223966+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-13T21:40:28.022541+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-13T21:40:53.969738+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T22:07:33.821840+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-13T22:14:57.852512+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}

@@ -1,0 +1,52 @@
+{
+  "id": "T1-03",
+  "tier": 1,
+  "category": "multi-manager",
+  "prompt": "I need three things done simultaneously: (1) Write a haiku about artificial intelligence to ~/Desktop/ai_haiku.txt, (2) Create a bash script at ~/Desktop/sysinfo.sh that outputs CPU model, total RAM, and disk usage, (3) Research and explain the differences between WebSockets, SSE, and long polling for real-time communication.",
+  "description": "Parallel multi-manager delegation",
+  "result": "PASS",
+  "error": "",
+  "response": "Self-heal complete. Retrying research task now.",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "Shell: echo -e \"Silicon dreams flow\\nLearning patterns in the void\\nMind born from code",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"stdout\": \"Haiku written successfully\\n\", \"stderr\": \"\", \"returncode\": 0}",
+      "error": ""
+    },
+    {
+      "manager": "beta-manager",
+      "task": "Create a bash script at ~/Desktop/sysinfo.sh that outputs: (1) CPU model name, (2) Total RAM in GB, (3) Disk usage percentage for the root filesystem. Make the script executable and include clear formatting with labels for each piece of information.",
+      "priority": 2,
+      "workflow_id": "7cbe207e-42a",
+      "dispatched": true,
+      "agent_response": "This is a bash/scripting task \u2014 routing to **coding-3** (B",
+      "error": null
+    },
+    {
+      "manager": "gamma-manager",
+      "task": "Research and provide a comprehensive comparison of WebSockets, Server-Sent Events (SSE), and long polling for real-time communication. Cover: how each works technically, pros/cons of each approach, best use cases for each, and when to choose one over the others. Include practical considerations like browser support, scalability, and resource usage.",
+      "priority": 2,
+      "workflow_id": "60901542-24c",
+      "dispatched": true,
+      "agent_response": "Cannot read properties of undefined (reading 'filter')\n\nI'll research this comprehensive comparison for you. Let me gather current\n\nWeb search isn't available. Let me check on my workers and delegate this research task to them",
+      "error": null
+    },
+    {
+      "manager": "self",
+      "task": "Self-heal: Gamma manager delegation failed with error: Cannot read properties of undefined (reading 'filter')",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"reason\": \"Gamma manager delegation failed with error: Cannot read properties of undefined (reading 'filter')\", \"actions_taken\": [\"Rotated API key to next in pool\"], \"manager_status\": {\"alpha-manager\": \"up\", \"beta-manager\": \"up\", \"gamma-manager\": \"up\"}, \"api_key_rotated\": true}",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 65,
+    "grade": "C"
+  }
+}

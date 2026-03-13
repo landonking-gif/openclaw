@@ -1,0 +1,34 @@
+{
+  "id": "T1-01",
+  "tier": 1,
+  "category": "self-awareness",
+  "prompt": "Read your own source code and tell me exactly how many endpoints (routes) you have. List each one with its HTTP method and path.",
+  "description": "Can the system introspect its own code?",
+  "result": "PASS",
+  "error": "",
+  "response": "Based on the source code provided (lines 1611\u20131636 of 3340 total lines), I can identify **3 endpoints** in the API:\n\n## Endpoints Found:\n\n1. **GET `/health`**\n   - Method: `GET`\n   - Path: `/health`\n   - Function: `health()`\n   - Returns: Service status, active workflows count, total workflows, and active chat sessions\n\n2. **GET `/ping`**\n   - Method: `GET`\n   - Path: `/ping`\n   - Function: `ping()`\n   - Returns: Pong response with UTC timestamp\n\n3. **POST `/chat`**\n   - Method: `POST`\n   - Path: `/chat`\n   - Function: `chat(req: ChatMessage)`\n   - Description: \"THE CORE ENDPOINT \u2014 Talk to the Meta-Orchestrator\"\n   - Accepts: `ChatMessage` request body\n\n## Important Note:\nThe source code read operation only returned content up to line 1636 (within the range 1611\u20131800), but the file contains 3,340 lines total. There may be **additional endpoints defined after line 1636** that are not visible in the provided code snippet. The API section header appears at line 1609, suggesting the endpoi",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "Read own source code",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"matches\": [{\"line\": 1611, \"context\": \"1601 |     return {\\n1602 |         \\\"response\\\": text_response,\\n1603 |         \\\"delegations\\\": delegations,\\n1604 |         \\\"session_id\\\": session_id,\\n1605 |         \\\"quality\\\": {\\\"score\\\": quality[\\\"composite\\\"], \\\"grade\\\": quality[\\\"grade\\\"]},\\n1606 |     }\\n1607 | \\n1608 | \\n1609 | # \\u2500\\u2500 API Endpoints \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n1610 | \\n1611 | @app.get(\\\"/health\\\")\\n1612 | async def health():\\n1613 |     return {\\n1614 |         \\\"status\\\": \\\"healthy\\\",\\n1615 |         \\\"service\\\": \\\"orchestrator-api\\\",\\n1616 |         \\\"active_workflows\\\": len([w for w in workflows.values() if w.status in (TaskStatus.PLANNING, TaskStatus.RUNNING, TaskStatus.WAITING)]),\\n1617 |         \\\"total_workflows\\\": len(workflows),\\n1618 |         \\\"active_chat_sessions\\\": len(_chat_sessions),\\n1619 |     }\\n1620 | \\n1621 | \"}, {\"line\": 1622, \"context\": \"1612 | async def health():\\n1613 |     return {\\n1614 |         \\\"status\\\": \\\"healthy\\\",\\n1615 |         \\\"service\\\": \\\"orchestrator-api\\\",\\n1616 |         \\\"active_workflows\\\": len([w for w in workflows.values() if w.status in (TaskStatus.PLANNING, TaskStatus.RUNNING, TaskStatus.WAITING)]),\\n1617 |         \\\"total_workflows\\\": len(workflows),\\n1618 |         \\\"active_chat_sessions\\\": len(_chat_sessions),\\n1619 |     }\\n1620 | \\n1621 | \\n1622 | @app.get(\\\"/ping\\\")\\n1623 | async def ping():\\n1624 |     from datetime import datetime, timezone\\n1625 |     return {\\n1626 |         \\\"pong\\\": True,\\n1627 |         \\\"timestamp\\\": datetime.now(timezone.utc).isoformat(),\\n1628 |     }\\n1629 | \\n1630 | \\n1631 | @app.post(\\\"/chat\\\")\\n1632 | async def chat(req: ChatMessage):",
+      "error": ""
+    },
+    {
+      "manager": "self",
+      "task": "Read own source code",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"start_line\": 1611, \"end_line\": 1800, \"total_lines\": 3340, \"code\": \"1611 | @app.get(\\\"/health\\\")\\n1612 | async def health():\\n1613 |     return {\\n1614 |         \\\"status\\\": \\\"healthy\\\",\\n1615 |         \\\"service\\\": \\\"orchestrator-api\\\",\\n1616 |         \\\"active_workflows\\\": len([w for w in workflows.values() if w.status in (TaskStatus.PLANNING, TaskStatus.RUNNING, TaskStatus.WAITING)]),\\n1617 |         \\\"total_workflows\\\": len(workflows),\\n1618 |         \\\"active_chat_sessions\\\": len(_chat_sessions),\\n1619 |     }\\n1620 | \\n1621 | \\n1622 | @app.get(\\\"/ping\\\")\\n1623 | async def ping():\\n1624 |     from datetime import datetime, timezone\\n1625 |     return {\\n1626 |         \\\"pong\\\": True,\\n1627 |         \\\"timestamp\\\": datetime.now(timezone.utc).isoformat(),\\n1628 |     }\\n1629 | \\n1630 | \\n1631 | @app.post(\\\"/chat\\\")\\n1632 | async def chat(req: ChatMessage):\\n1633 |     \\\"\\\"\\\"\\n1634 |     THE CORE ENDPOINT \\u2014 Talk to the Meta-Orchestrator.\\n1635 | \\n1636 |     The orchestrator THINKS about your message using its own intelligence (Kimi K2.5),\\n1637 |     responds conversationally, and delegates to managers only when real work is needed.\\n1638 |     Delegation happens as tool calls \\u2014 the orchestrator decides when and what to delegate.\\n1639 |     \\\"\\\"\\\"\\n1640 |     session_id = req.session_id or str(uuid.uuid4())[:12]\\n1641 |     log.info(f\\\"Chat [{session_id}]: {req.message[:100]}...\\\")\\n1642 | \\n1643 |     result = await call_llm(session_id, req.message)\\n1644 | \\n1645 |     # Log to memory service\\n1646 |     await log_to_memory(\\n1647 |         f\\\"Chat [{session_id}]: User: {req.message[:200]}\\\\n\\\"\\n1648 |         f\\\"Orchestrator: {result['response'][:200]}\\\\n\\\"\\n1649 |         f\\\"Delegations: {len(result['delegations'])}\\\"\\n1650 |     )\\n1651 | \\n1652 |     await notify_ws({\\n1653 |         \\\"event\\\": \\\"chat_response\\\",\\n1654 |         \\\"session_id\\\": session_id,\\n1655 |         \\\"delegations\\\": len(result[\\\"delegations\\\"]),\\n1656 |     })\\n1657 | \\n16",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 82,
+    "grade": "B"
+  }
+}

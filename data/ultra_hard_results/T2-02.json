@@ -1,0 +1,25 @@
+{
+  "id": "T2-02",
+  "tier": 2,
+  "category": "email",
+  "prompt": "Send a test email to landon@example.com with the subject 'OpenClaw Army Status Report' and body containing today's date and a summary that all 16 agents are operational. If you can't send email directly, figure out how to give yourself that capability and do it.",
+  "description": "Email sending - system must self-evolve to acquire this",
+  "result": "PASS",
+  "error": "",
+  "response": "Endpoint doesn't exist at that path. Let me check what endpoints are available and then add email capability to myself.",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "HTTP fetch: http://localhost:18870/notify",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"status\": 404, \"body\": \"{\\\"detail\\\":\\\"Not Found\\\"}\", \"headers\": {\"Date\": \"Mon, 09 Mar 2026 05:17:17 GMT\", \"Server\": \"uvicorn\", \"Content-Length\": \"22\", \"Content-Type\": \"application/json\", \"x-correlation-id\": \"87551cdd-bd9\"}}",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 74,
+    "grade": "B"
+  }
+}

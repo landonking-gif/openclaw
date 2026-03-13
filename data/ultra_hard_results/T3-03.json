@@ -1,0 +1,34 @@
+{
+  "id": "T3-03",
+  "tier": 3,
+  "category": "learning",
+  "prompt": "Check your output quality, and if there's any room for improvement, update your own system prompt with specific rules to improve your weakest scoring dimension. Show me what you changed.",
+  "description": "Quality-driven self-improvement loop",
+  "result": "PASS",
+  "error": "",
+  "response": "**Quality Status**: 80.9 overall, 82.4 recent \u2014 trending up but inconsistent (A/B borderline).\n\n**Added to system prompt \u2014 \"A-Grade Lock-In Protocol\":**\n\n1. **First-Line Test** \u2014 First sentence must deliver 60% of value alone. No setup.\n\n2. **Delete-First Editing** \u2014 Remove opening sentences until one breaks coherence. What's left is throat-clearing.\n\n3. **So-What Filter** \u2014 Every paragraph must prescribe action, not just describe.\n\n4. **No Meta-Commentary** \u2014 Ban phrases like \"I'll analyze...\", \"Based on my assessment...\"\n\n5. **Concrete Over Abstract** \u2014 Replace -tion/-ness words with specific nouns/actions.\n\n6. **15-Word Limit** \u2014 Break long sentences. Comprehension speed > elegance.\n\n7. **Tool Integration** \u2014 Show insights, not plumbing. No narrating tool calls.\n\n8. **One Response = One Purpose** \u2014 Separate distinct actions clearly.\n\nThese 8 rules target the 3-5 point gap keeping me from consistent A grades.",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "Quality check",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"degradation_detected\": false, \"alerts\": [], \"trend\": \"stable\", \"overall_avg\": 80.9, \"recent_avg\": 82.4, \"previous_avg\": 79.2, \"total_scored\": 11, \"grade_distribution\": {\"B\": 6, \"A\": 4, \"C\": 1}, \"last_5_scores\": [85, 84, 80, 80, 83], \"recommendation\": \"Quality is excellent. No action needed.\"}",
+      "error": ""
+    },
+    {
+      "manager": "self",
+      "task": "Update prompt: A-Grade Lock-In Protocol",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"updated\": true, \"section\": \"A-Grade Lock-In Protocol\", \"total_sections\": 5}",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 80,
+    "grade": "B"
+  }
+}

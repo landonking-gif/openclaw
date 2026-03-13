@@ -273,6 +273,7 @@ _start_agents() {
         # Start the agent via gateway subcommand
         OPENCLAW_SERVICE_LABEL="$name" \
         OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
+        OPENCLAW_DISABLE_BONJOUR=1 \
         NVIDIA_API_KEY="$api_key" \
         nohup openclaw gateway --port "$port" --force > "$logfile" 2>&1 &
 
@@ -485,6 +486,7 @@ cmd_restart() {
 
                 OPENCLAW_SERVICE_LABEL="$name" \
                 OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
+                OPENCLAW_DISABLE_BONJOUR=1 \
                 NVIDIA_API_KEY="$api_key" \
                 nohup openclaw gateway --port "$port" --force > "$logfile" 2>&1 &
 

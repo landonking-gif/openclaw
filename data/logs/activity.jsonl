@@ -4527,3 +4527,8 @@
 {"ts": "2026-03-14T22:37:06.310070+00:00", "type": "watchdog", "session": "", "content": "Failed to restart beta-manager", "meta": {"manager": "beta-manager", "error": "beta-manager started but not responding after 45s"}}
 {"ts": "2026-03-14T22:38:25.276435+00:00", "type": "watchdog", "session": "", "content": "Failed to restart gamma-manager", "meta": {"manager": "gamma-manager", "error": "gamma-manager started but not responding after 45s"}}
 {"ts": "2026-03-14T22:39:52.154422+00:00", "type": "watchdog", "session": "", "content": "Auto-restarted gamma-manager", "meta": {"manager": "gamma-manager", "result": "success"}}
+{"ts": "2026-03-14T22:46:49.116478+00:00", "type": "user_message", "session": "kingai-87390A58", "content": "give me a status update on the program.", "meta": {}}
+{"ts": "2026-03-14T22:46:49.126970+00:00", "type": "llm_call", "session": "kingai-87390A58", "content": "Calling moonshotai/kimi-k2.5 (turn 1, attempt 1)", "meta": {"attempt": 1, "turn": 1, "history_len": 2}}
+{"ts": "2026-03-14T22:46:54.848283+00:00", "type": "llm_thinking", "session": "kingai-87390A58", "content": "(no text — tool calls only)", "meta": {"finish_reason": "tool_calls", "has_tool_calls": true, "tool_call_count": 1, "turn": 1}}
+{"ts": "2026-03-14T22:46:54.849024+00:00", "type": "llm_tool_calls", "session": "kingai-87390A58", "content": "LLM requested 1 tool call(s) (turn 1)", "meta": {"tool_calls": [{"function": "run_diagnostic", "args": "{}"}], "turn": 1}}
+{"ts": "2026-03-14T22:46:55.425588+00:00", "type": "llm_call", "session": "kingai-87390A58", "content": "Calling moonshotai/kimi-k2.5 (turn 2, attempt 1)", "meta": {"attempt": 1, "turn": 2, "history_len": 4}}

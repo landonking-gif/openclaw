@@ -378,11 +378,12 @@ When you encounter a task you CANNOT currently do, follow this protocol:
    b. If a simple computation or data transform → use register_new_tool (FULLY UNRESTRICTED — can use any import, file I/O, subprocess, network, etc.)
    c. If it needs deep integration or new endpoints → use modify_own_code to ADD a new function to main.py
    d. If it's a pattern of behavior → use update_system_prompt to teach yourself
+   e. If the capability is REUSABLE across agents and involves multi-step workflows, scripts, or domain knowledge → use learn_new_skill to create a full OpenClaw skill package
 3. IMPLEMENT the fix using the chosen approach
 4. VERIFY it works by actually using the new capability
 5. REPORT to the user what you built and why
 
-The KEY insight: You have NO permanent limitations. register_new_tool gives you FULL Python access (all imports, subprocess, file I/O, networking). install_package lets you add ANY library. modify_own_code lets you rewrite anything. You are a self-evolving system — if you can't do something, BUILD the capability and then do it.
+The KEY insight: You have NO permanent limitations. register_new_tool gives you FULL Python access (all imports, subprocess, file I/O, networking). install_package lets you add ANY library. modify_own_code lets you rewrite anything. learn_new_skill creates reusable skill packages available to ALL agents. You are a self-evolving system — if you can't do something, BUILD the capability and then do it.
 
 WHEN TO SELF-MODIFY:
 - If you notice a pattern of failures that a code change could fix → modify_own_code.
@@ -392,6 +393,8 @@ WHEN TO SELF-MODIFY:
 - If you learn something important about the user or system → update_system_prompt.
 - If your quality scores are declining → investigate and fix the cause.
 - If a task requires a capability you don't have → INSTALL what you need, BUILD the tool, and DO the task.
+- If a new capability should be reusable across ALL agents → learn_new_skill to create a skill package.
+- If you need scripts, references, and structured workflows for a domain → learn_new_skill.
 - ALWAYS read_own_code first to find the exact insertion point, then modify_own_code to add.
 - ALWAYS describe what you're changing and why before making a modification.
 - After modifying code, tell the user. Transparency is critical for self-modifying systems.
@@ -856,6 +859,24 @@ MANAGER_TOOLS += [
                     "limit": {"type": "integer", "description": "Max entries to return. Default 10.", "default": 10}
                 },
                 "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "learn_new_skill",
+            "description": "Create a complete OpenClaw skill package in ~/openclaw-core/skills/. Skills are reusable, multi-file packages (SKILL.md + optional scripts/ + references/) available to ALL agents. Use this when you need a NEW REUSABLE CAPABILITY that involves workflows, domain knowledge, scripts, or structured procedures. For quick one-off Python functions, use register_new_tool instead.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Skill name in kebab-case (e.g., 'data-analysis', 'api-testing', 'pdf-editor')"},
+                    "description": {"type": "string", "description": "What the skill does and when to use it. This appears in SKILL.md frontmatter and determines when agents trigger this skill. Be clear and comprehensive."},
+                    "instructions": {"type": "string", "description": "Markdown body of SKILL.md — step-by-step instructions for how to use this skill. Include workflow steps, examples, and guidance."},
+                    "scripts": {"type": "object", "description": "Optional dict of {filename: code} for executable scripts to include in scripts/ directory."},
+                    "references": {"type": "object", "description": "Optional dict of {filename: content} for reference docs to include in references/ directory."}
+                },
+                "required": ["name", "description", "instructions"]
             }
         }
     },
@@ -2541,6 +2562,7 @@ INTERNAL_TOOLS = {
     "accessibility",
     "screen_share",
     "visionclaw",
+    "learn_new_skill",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -4025,6 +4047,18 @@ async def call_llm(session_id: str, user_message: str) -> dict:
             elif fn_name == "visionclaw":
                 internal_result = await _visionclaw(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
                 internal_task = f"VisionClaw: {fn_args.get('action', '')}"
+            elif fn_name == "learn_new_skill":
+                internal_result = _create_skill(
+                    fn_args.get("name", ""),
+                    fn_args.get("description", ""),
+                    fn_args.get("instructions", ""),
+                    fn_args.get("scripts", {}),
+                    fn_args.get("references", {}),
+                )
+                internal_task = f"Learn skill: {fn_args.get('name', '')}"
+                if internal_result.get("created"):
+                    await activity.record("skill_create", session_id,
+                                          f"Created skill: {fn_args.get('name', '')}")
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -12495,6 +12529,83 @@ async def _execute_dynamic_tool(name: str, args: dict) -> str:
         return str(result) if result is not None else "Done"
     except Exception as e:
         return json.dumps({"error": f"Tool execution failed: {type(e).__name__}: {e}"})
+
+
+# ── Skill Creation ──────────────────────────────────────────────────────────
+
+_SKILLS_DIR = Path(os.path.expanduser("~/openclaw-core/skills"))
+
+
+def _create_skill(name: str, description: str, instructions: str,
+                  scripts: dict = None, references: dict = None) -> dict:
+    """
+    Create a complete OpenClaw skill package at ~/openclaw-core/skills/<name>/.
+    Creates SKILL.md with proper frontmatter + optional scripts/ and references/ dirs.
+    """
+    if not name or not description or not instructions:
+        return {"created": False, "detail": "name, description, and instructions are required"}
+
+    # Validate name is kebab-case
+    import re as _re
+    if not _re.match(r'^[a-z0-9][a-z0-9-]*[a-z0-9]$', name) and len(name) > 2:
+        # Try to normalize
+        name = _re.sub(r'[^a-z0-9-]', '-', name.lower().strip())
+        name = _re.sub(r'-+', '-', name).strip('-')
+
+    skill_dir = _SKILLS_DIR / name
+
+    # Don't overwrite existing skills without explicit intent
+    if skill_dir.exists():
+        # Update existing skill
+        log.info(f"Updating existing skill: {name}")
+
+    try:
+        skill_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create SKILL.md with proper frontmatter
+        skill_md = f"""---
+name: {name}
+description: {description}
+---
+
+{instructions}
+"""
+        (skill_dir / "SKILL.md").write_text(skill_md)
+
+        files_created = ["SKILL.md"]
+
+        # Create scripts/ directory with executable files
+        if scripts:
+            scripts_dir = skill_dir / "scripts"
+            scripts_dir.mkdir(exist_ok=True)
+            for filename, code in scripts.items():
+                script_path = scripts_dir / filename
+                script_path.write_text(code)
+                # Make scripts executable
+                script_path.chmod(0o755)
+                files_created.append(f"scripts/{filename}")
+
+        # Create references/ directory with documentation
+        if references:
+            refs_dir = skill_dir / "references"
+            refs_dir.mkdir(exist_ok=True)
+            for filename, content in references.items():
+                (refs_dir / filename).write_text(content)
+                files_created.append(f"references/{filename}")
+
+        log.info(f"Created skill '{name}' at {skill_dir} with {len(files_created)} files")
+        return {
+            "created": True,
+            "skill_name": name,
+            "path": str(skill_dir),
+            "files": files_created,
+            "detail": f"Skill '{name}' created successfully at {skill_dir}. "
+                      f"It is now available to all OpenClaw agents. "
+                      f"Files: {', '.join(files_created)}"
+        }
+    except Exception as e:
+        log.error(f"Failed to create skill '{name}': {e}")
+        return {"created": False, "detail": f"Failed to create skill: {e}"}
 
 
 def register_agent(name: str, port: int, description: str,

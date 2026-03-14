@@ -41,5 +41,70 @@
     },
     "handler_code": "\nfrom fpdf import FPDF\nimport os\n\noutput = args.get('output', '/tmp/output.pdf')\ntitle = args.get('title', 'Document')\ncontent = args.get('content', '')\nmargin = args.get('margin', 10)\n\npdf = FPDF()\npdf.set_auto_page_break(auto=True, margin=margin)\npdf.add_page()\n\n# Set margins explicitly\npdf.set_left_margin(margin)\npdf.set_right_margin(margin)\npdf.set_top_margin(margin)\n\n# Add title\npdf.set_font(\"Helvetica\", 'B', 16)\npdf.cell(0, 10, title, ln=True, align='C')\npdf.ln(5)\n\n# Add content\npdf.set_font(\"Helvetica\", '', 12)\nfor line in content.split('\\n'):\n    pdf.multi_cell(0, 6, line)\n    pdf.ln(2)\n\npdf.output(output)\nreturn f\"PDF created: {output} ({os.path.getsize(output)} bytes)\"\n",
     "created_at": "2026-03-10T00:54:47.214598+00:00"
+  },
+  {
+    "name": "word_counter",
+    "description": "Count words, characters, and sentences in text. Returns JSON with word_count, char_count, and sentence_count.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Text to analyze"
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "handler_code": "\nimport json\nimport re\n\ntext = args.get(\"text\", \"\")\n\n# Word count: split on whitespace\nword_count = len(text.split())\n\n# Character count\nchar_count = len(text)\n\n# Sentence count: split on sentence-ending punctuation followed by space or end\n# Handles . ! ? followed by space, newline, or end of string\nsentences = re.split(r'[.!?]+(?:\\s+|$)', text.strip())\n# Filter out empty strings\nsentences = [s for s in sentences if s.strip()]\nsentence_count = len(sentences) if text.strip() else 0\n\nresult = {\n    \"word_count\": word_count,\n    \"char_count\": char_count,\n    \"sentence_count\": sentence_count\n}\n\nreturn json.dumps(result)\n",
+    "created_at": "2026-03-13T22:54:57.152084+00:00"
+  },
+  {
+    "name": "ping_sweeper",
+    "description": "Runs a ping sweep to 8.8.8.8 (Google DNS) to check network connectivity. Executes the scripts/ping.sh shell script.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "handler_code": "\nimport subprocess\nimport os\n\nscript_path = os.path.expanduser(\"~/Desktop/OpenClawArmy/scripts/ping.sh\")\n\n# Ensure script is executable\nif os.path.exists(script_path):\n    os.chmod(script_path, 0o755)\n    result = subprocess.run(\n        [script_path],\n        capture_output=True,\n        text=True,\n        timeout=30\n    )\n    return f\"Exit code: {result.returncode}\\n\\nSTDOUT:\\n{result.stdout}\\n\\nSTDERR:\\n{result.stderr}\"\nelse:\n    return f\"Error: Script not found at {script_path}\"\n",
+    "created_at": "2026-03-14T02:16:34.850941+00:00"
+  },
+  {
+    "name": "csv_to_json",
+    "description": "Converts a CSV string to a JSON array of objects. First row is treated as headers.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "csv_string": {
+          "type": "string",
+          "description": "CSV formatted string with header row"
+        }
+      },
+      "required": [
+        "csv_string"
+      ]
+    },
+    "handler_code": "\nimport csv\nimport json\nimport io\n\ncsv_string = args.get(\"csv_string\", \"\")\nif not csv_string:\n    return \"Error: No CSV string provided\"\n\n# Parse CSV using DictReader\nreader = csv.DictReader(io.StringIO(csv_string))\nresult = list(reader)\n\n# Return as JSON string\nreturn json.dumps(result, indent=2)\n",
+    "created_at": "2026-03-14T02:28:12.236485+00:00"
+  },
+  {
+    "name": "reverse_words",
+    "description": "Reverses the letters of every word in a sentence while preserving word order and whitespace",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The sentence to reverse word letters in"
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "handler_code": "\ndef reverse_word_letters(text):\n    \"\"\"Reverse letters in each word, preserving non-letters at word boundaries.\"\"\"\n    import re\n    \n    def reverse_word(match):\n        word = match.group(0)\n        # Find the core letters and any trailing punctuation\n        core = re.match(r'^([a-zA-Z]+)([^a-zA-Z]*)$', word)\n        if core:\n            letters, trailing = core.groups()\n            return letters[::-1] + trailing\n        return word[::-1]\n    \n    # Match words (letters possibly followed by non-letters)\n    result = re.sub(r'[a-zA-Z]+[^a-zA-Z]*', reverse_word, text)\n    return result\n\nreturn reverse_word_letters(args.get(\"text\", \"\"))\n",
+    "created_at": "2026-03-14T02:30:19.928498+00:00"
   }
 ]

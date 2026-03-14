@@ -106,5 +106,23 @@
     },
     "handler_code": "\ndef reverse_word_letters(text):\n    \"\"\"Reverse letters in each word, preserving non-letters at word boundaries.\"\"\"\n    import re\n    \n    def reverse_word(match):\n        word = match.group(0)\n        # Find the core letters and any trailing punctuation\n        core = re.match(r'^([a-zA-Z]+)([^a-zA-Z]*)$', word)\n        if core:\n            letters, trailing = core.groups()\n            return letters[::-1] + trailing\n        return word[::-1]\n    \n    # Match words (letters possibly followed by non-letters)\n    result = re.sub(r'[a-zA-Z]+[^a-zA-Z]*', reverse_word, text)\n    return result\n\nreturn reverse_word_letters(args.get(\"text\", \"\"))\n",
     "created_at": "2026-03-14T02:30:19.928498+00:00"
+  },
+  {
+    "name": "analyze_sentiment",
+    "description": "Analyze sentiment of text and return a float score between -1.0 (negative) and 1.0 (positive)",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Text to analyze for sentiment"
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "handler_code": "\nimport random\nimport hashlib\n\n# Get text from args\ntext_input = args.get('text', '')\n\nif not text_input or len(text_input.strip()) == 0:\n    return \"0.0\"\n\n# Use hash of text to generate consistent sentiment for same text\ntext_hash = hashlib.md5(text_input.encode()).hexdigest()\nhash_int = int(text_hash[:8], 16)\n\n# Map to -1.0 to 1.0 range\nsentiment = (hash_int / 0xffffffff) * 2 - 1\n\n# Round to 4 decimal places\nsentiment = round(sentiment, 4)\n\nreturn str(sentiment)\n",
+    "created_at": "2026-03-14T05:01:38.510540+00:00"
   }
 ]

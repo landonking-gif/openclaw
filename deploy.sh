@@ -24,8 +24,8 @@ LOG_DIR="$DATA_DIR/logs"
 PID_DIR="$DATA_DIR"
 PYTHON="python3.14"
 
-# Ensure PostgreSQL 17 (keg-only) is in PATH
-export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
+# Ensure required dependencies are in PATH (PostgreSQL, Redis, OpenClaw Node modules)
+export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@17/bin:$HOME/.npm-global/bin:$PATH"
 
 # Use virtual environment if available
 if [[ -f "$ARMY_HOME/.venv/bin/activate" ]]; then

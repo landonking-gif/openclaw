@@ -94,7 +94,31 @@
     white-space: pre-wrap;
     word-break: break-word;
     animation: fadeSlide 0.3s ease;
+    position: relative;
+    user-select: text;
   }
+
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(100, 200, 255, 0.08);
+    border: 1px solid rgba(100, 200, 255, 0.2);
+    border-radius: 4px;
+    color: rgba(100, 200, 255, 0.6);
+    font-size: 10px;
+    padding: 2px 6px;
+    cursor: pointer;
+    z-index: 2;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .msg:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: rgba(100, 200, 255, 0.15); color: rgba(100, 200, 255, 1); }
 
   @keyframes fadeSlide {
     from { opacity: 0; transform: translateY(8px); }
@@ -331,12 +355,38 @@ input.addEventListener('input', () => {
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-function addMsg(cls, html) {
+function addMsg(cls, html, textToCopy = '') {
   const d = document.createElement('div');
   d.className = 'msg ' + cls;
-  d.innerHTML = html;
+  
+  if (cls !== 'event') {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    const raw = textToCopy || html.replace(/<div class="label">.*?<\/div>/, '').replace(/<[^>]*>/g, '').trim();
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      copyToClipboard(btn, raw);
+    };
+    d.appendChild(btn);
+  }
+
+  const content = document.createElement('div');
+  content.innerHTML = html;
+  d.appendChild(content);
+  
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
+}
+
+function copyToClipboard(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = old; }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Error';
+  });
 }
 
 function toggleThinking() {
@@ -374,7 +424,7 @@ function connectWS() {
       const evt = JSON.parse(e.data);
       if (showThinking && evt.event === 'activity' && evt.content) {
         const typeLabel = (evt.type || 'system').replace(/_/g,' ').toUpperCase();
-        addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(evt.content).substring(0,300));
+        addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(evt.content).substring(0,300), evt.content);
       }
     } catch {}
   };
@@ -388,7 +438,7 @@ setInterval(() => { if (ws?.readyState === 1) ws.send('ping'); }, 25000);
 async function send() {
   const text = input.value.trim();
   if (!text) return;
-  addMsg('user', '<div class="label">YOU</div>' + esc(text));
+  addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
 
@@ -405,7 +455,8 @@ async function send() {
     if (!res.ok) { addMsg('assistant', '<div class="label">ERROR</div>' + esc(await res.text())); return; }
     const data = await res.json();
     sessionId = data.session_id;
-    let html = '<div class="label">👑 King AI</div>' + renderMd(data.response || '(no response)');
+    const responseText = data.response || '(no response)';
+    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
     if (data.delegations?.length) {
       html += '<div style="margin-top:8px">';
       for (const d of data.delegations) {
@@ -414,7 +465,7 @@ async function send() {
       }
       html += '</div>';
     }
-    addMsg('assistant', html);
+    addMsg('assistant', html, responseText);
   } catch (err) {
     document.getElementById('thinking')?.remove();
     addMsg('assistant', '<div class="label">ERROR</div>' + esc(err.message));

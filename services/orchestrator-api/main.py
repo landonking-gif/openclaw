@@ -142,34 +142,80 @@ MANAGER_POOLS = {
 
 # ── LLM Configuration ──────────────────────────────────────────────────────
 
-# Key rotation pool — cycle through when one gets 429'd
-# Include ALL NVIDIA keys (they work across models) for maximum throughput
-_NVAPI_KEYS = [k for k in [
-    os.getenv("NVAPI_KIMI_KEY_1", ""),
-    os.getenv("NVAPI_KIMI_KEY_2", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_1", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_2", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_3", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_4", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_5", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_6", ""),
-    os.getenv("NVAPI_GLM5_KEY_1", ""),
-    os.getenv("NVAPI_GLM5_KEY_2", ""),
-    os.getenv("NVIDIA_API_KEY", ""),
-] if k]
+# Key rotation pool — cycle through when one gets 429'd.
+# Keys are model-scoped, so we keep per-model pools and pick the right pool
+# for each model call (Kimi, DeepSeek R1/v3.2, GLM5).
+def _collect_env_keys(*names: str) -> list[str]:
+    return [k for k in [os.getenv(name, "") for name in names] if k]
 
-# Keys that are authorized for the Kimi K2.5 model — DEEPSEEK/GLM5 keys will
-# return 403 if used with moonshotai/kimi-k2.5, so we keep a dedicated pool.
-_KIMI_KEYS = [k for k in [
-    os.getenv("NVAPI_KIMI_KEY_1", ""),
-    os.getenv("NVAPI_KIMI_KEY_2", ""),
-    os.getenv("NVIDIA_API_KEY", ""),
-] if k] or _NVAPI_KEYS  # fallback to full pool if no kimi keys configured
+
+_NVAPI_KEYS = _collect_env_keys(
+    "NVAPI_KIMI_KEY_1",
+    "NVAPI_KIMI_KEY_2",
+    "NVAPI_DEEPSEEK_KEY_1",
+    "NVAPI_DEEPSEEK_KEY_2",
+    "NVAPI_DEEPSEEK_KEY_3",
+    "NVAPI_DEEPSEEK_KEY_4",
+    "NVAPI_DEEPSEEK_KEY_5",
+    "NVAPI_DEEPSEEK_KEY_6",
+    "NVAPI_GLM5_KEY_1",
+    "NVAPI_GLM5_KEY_2",
+    "NVIDIA_API_KEY",
+)
+
+_KIMI_KEYS = _collect_env_keys(
+    "NVAPI_KIMI_KEY_1",
+    "NVAPI_KIMI_KEY_2",
+    "NVIDIA_API_KEY",
+) or _NVAPI_KEYS
+
+_DEEPSEEK_KEYS = _collect_env_keys(
+    "NVAPI_DEEPSEEK_KEY_1",
+    "NVAPI_DEEPSEEK_KEY_2",
+    "NVAPI_DEEPSEEK_KEY_3",
+    "NVAPI_DEEPSEEK_KEY_4",
+    "NVAPI_DEEPSEEK_KEY_5",
+    "NVAPI_DEEPSEEK_KEY_6",
+    "NVIDIA_API_KEY",
+) or _NVAPI_KEYS
+
+_GLM_KEYS = _collect_env_keys(
+    "NVAPI_GLM5_KEY_1",
+    "NVAPI_GLM5_KEY_2",
+    "NVIDIA_API_KEY",
+) or _NVAPI_KEYS
 
 _key_index = 0
 _kimi_key_index = 0
+_deepseek_key_index = 0
+_glm_key_index = 0
 import threading
 _key_lock = threading.Lock()
+
+
+def _normalize_model_id(raw_model: str, default_model: str) -> str:
+    model = (raw_model or "").strip()
+    if not model:
+        model = default_model
+    # Legacy env values used "nvidia/<model-id>" prefixes.
+    if model.startswith("nvidia/"):
+        model = model[len("nvidia/"):]
+    # Handle historical typo/alias used in env files.
+    if model == "z-ai/glm-5":
+        model = "z-ai/glm5"
+    return model
+
+
+def _unique_ordered(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        out.append(item)
+    return out
+
 
 def _get_api_key():
     with _key_lock:
@@ -177,50 +223,82 @@ def _get_api_key():
             return ""
         return _NVAPI_KEYS[_key_index % len(_NVAPI_KEYS)]
 
+
 def _rotate_key():
     global _key_index
     with _key_lock:
         _key_index = (_key_index + 1) % max(len(_NVAPI_KEYS), 1)
 
+
 def _next_key() -> str:
-    """Rotate to the next key and return it. Call before every LLM request
-    to spread load proactively across all keys."""
+    """Rotate to the next key and return it from the full pool."""
     _rotate_key()
     return _get_api_key()
 
+
 def _next_kimi_key() -> str:
-    """Rotate within the Kimi-authorized key pool only. Prevents 403 errors
-    that occur when DEEPSEEK/GLM5 keys are used with moonshotai/kimi-k2.5.
-    Falls back to the general pool if no Kimi keys are configured."""
+    """Rotate within Kimi-authorized keys."""
     global _kimi_key_index
     pool = _KIMI_KEYS if _KIMI_KEYS else _NVAPI_KEYS
     with _key_lock:
         _kimi_key_index = (_kimi_key_index + 1) % max(len(pool), 1)
         return pool[_kimi_key_index % max(len(pool), 1)] if pool else ""
 
-NVAPI_KEY = _get_api_key()
-LLM_MODEL = "moonshotai/kimi-k2.5"
-LLM_BASE_URL = "https://integrate.api.nvidia.com/v1"
-
-# Fallback model used when Kimi is unavailable (e.g. NVIDIA outage / timeout)
-FALLBACK_MODEL = "deepseek-ai/deepseek-r1"
-_DEEPSEEK_KEYS = [k for k in [
-    os.getenv("NVAPI_DEEPSEEK_KEY_1", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_2", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_3", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_4", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_5", ""),
-    os.getenv("NVAPI_DEEPSEEK_KEY_6", ""),
-] if k] or _NVAPI_KEYS
-_deepseek_key_index = 0
 
 def _next_deepseek_key() -> str:
-    """Rotate within the DeepSeek-authorized key pool for fallback calls."""
+    """Rotate within DeepSeek-authorized keys."""
     global _deepseek_key_index
-    pool = _DEEPSEEK_KEYS
+    pool = _DEEPSEEK_KEYS if _DEEPSEEK_KEYS else _NVAPI_KEYS
     with _key_lock:
         _deepseek_key_index = (_deepseek_key_index + 1) % max(len(pool), 1)
         return pool[_deepseek_key_index % max(len(pool), 1)] if pool else ""
+
+
+def _next_glm_key() -> str:
+    """Rotate within GLM-authorized keys."""
+    global _glm_key_index
+    pool = _GLM_KEYS if _GLM_KEYS else _NVAPI_KEYS
+    with _key_lock:
+        _glm_key_index = (_glm_key_index + 1) % max(len(pool), 1)
+        return pool[_glm_key_index % max(len(pool), 1)] if pool else ""
+
+
+def _next_key_for_model(model_id: str) -> str:
+    """Select key pool based on NVIDIA model family."""
+    m = (model_id or "").lower()
+    if "moonshotai/kimi" in m:
+        return _next_kimi_key()
+    if "deepseek-ai/deepseek" in m:
+        return _next_deepseek_key()
+    if "z-ai/glm" in m:
+        return _next_glm_key()
+    return _next_key()
+
+
+NVAPI_KEY = _get_api_key()
+LLM_MODEL = _normalize_model_id(os.getenv("MODEL_KIMI", "moonshotai/kimi-k2.5"), "moonshotai/kimi-k2.5")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/")
+
+MODEL_R1 = _normalize_model_id(
+    os.getenv("MODEL_DEEPSEEK", os.getenv("MODEL_R1", "deepseek-ai/deepseek-r1-distill-qwen-32b")),
+    "deepseek-ai/deepseek-r1-distill-qwen-32b",
+)
+MODEL_GLM5 = _normalize_model_id(os.getenv("MODEL_GLM5", "z-ai/glm5"), "z-ai/glm5")
+MODEL_DEEPSEEK_V32 = _normalize_model_id(
+    os.getenv("MODEL_DEEPSEEK_V32", "deepseek-ai/deepseek-v3.2"),
+    "deepseek-ai/deepseek-v3.2",
+)
+
+# NVIDIA-cloud fallback chain for Kimi outages/timeouts.
+FALLBACK_MODELS = [
+    m for m in _unique_ordered([
+        _normalize_model_id(os.getenv("FALLBACK_MODEL_1", MODEL_R1), MODEL_R1),
+        _normalize_model_id(os.getenv("FALLBACK_MODEL_2", MODEL_GLM5), MODEL_GLM5),
+        _normalize_model_id(os.getenv("FALLBACK_MODEL_3", MODEL_DEEPSEEK_V32), MODEL_DEEPSEEK_V32),
+    ])
+    if m and m != LLM_MODEL
+]
+FALLBACK_MODEL = FALLBACK_MODELS[0] if FALLBACK_MODELS else LLM_MODEL
 
 import httpx as _httpx
 _LLM_TIMEOUT = _httpx.Timeout(timeout=90.0, connect=10.0)
@@ -3144,8 +3222,8 @@ async def call_llm(session_id: str, user_message: str) -> dict:
             try:
                 # Use a scoped client per attempt — avoids race condition where
                 # concurrent coroutines mutate the shared llm_client.api_key
-                # causing DEEPSEEK/GLM5 keys to be used with moonshotai/kimi-k2.5
-                _attempt_client = llm_client.with_options(api_key=_next_kimi_key())
+                # causing cross-model key mismatches (403). Pick key by model.
+                _attempt_client = llm_client.with_options(api_key=_next_key_for_model(LLM_MODEL))
                 await activity.record("llm_call", session_id,
                                       f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
                                       {"attempt": attempt + 1, "turn": _tool_turn + 1,
@@ -3162,41 +3240,68 @@ async def call_llm(session_id: str, user_message: str) -> dict:
             except Exception as e:
                 err_str = str(e)
                 is_rate_limit = "429" in err_str or "Too Many Requests" in err_str
+                is_auth_error = "403" in err_str or "Authorization failed" in err_str
+                is_connection_error = ("Connection error" in err_str or "ConnectionError" in type(e).__name__
+                                       or "connect" in err_str.lower() or "ConnectError" in type(e).__name__)
+                is_server_error = ("500" in err_str or "502" in err_str or "503" in err_str
+                                   or "504" in err_str or "APIStatusError" in type(e).__name__)
+                is_transient = is_rate_limit or is_connection_error or is_server_error or is_auth_error
                 if is_rate_limit:
                     _record_failure("429_rate_limit", f"Rate limited on attempt {attempt + 1}: {err_str[:100]}")
+                if is_connection_error:
+                    _record_failure("connection_error", f"Connection error on attempt {attempt + 1}: {err_str[:100]}")
+                if is_auth_error:
+                    _record_failure("403_auth", f"Auth failure on attempt {attempt + 1}: {err_str[:100]}")
                 await activity.record("error", session_id,
                                       f"LLM call failed (attempt {attempt + 1}): {err_str[:300]}",
-                                      {"attempt": attempt + 1, "is_rate_limit": is_rate_limit})
-                if is_rate_limit and attempt < max_retries - 1:
-                    # Key already rotated proactively — just wait briefly
-                    # Short fixed delay since next attempt uses a different key
-                    wait = 1 if attempt < len(_NVAPI_KEYS) else min(2 ** (attempt - len(_NVAPI_KEYS)), 8)
-                    log.warning(f"Rate limited (429), key {_key_index % len(_NVAPI_KEYS) + 1}/{len(_NVAPI_KEYS)}, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                                      {"attempt": attempt + 1, "is_rate_limit": is_rate_limit,
+                                       "is_connection_error": is_connection_error})
+                if is_transient and attempt < max_retries - 1:
+                    # Rotate key and wait briefly before retry
+                    key_pool_size = max(len(_NVAPI_KEYS), 1)  # guard against div-by-zero
+                    wait = 0 if is_auth_error else (1 if attempt < key_pool_size else min(2 ** (attempt - key_pool_size), 8))
+                    if is_rate_limit:
+                        log.warning(f"Rate limited (429), key {(_key_index % key_pool_size) + 1}/{key_pool_size}, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                    elif is_connection_error:
+                        log.warning(f"Connection error, rotating key and retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                    elif is_auth_error:
+                        log.warning(f"Authorization failed for current key, rotating key immediately (attempt {attempt + 1}/{max_retries})")
+                    else:
+                        log.warning(f"Server error, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
                     await asyncio.sleep(wait)
                     continue
                 log.error(f"LLM call failed: {e}")
-                # ── Fallback: try DeepSeek R1 when Kimi is unavailable ──────
+                # ── Fallback: try backup models when Kimi is unavailable ─────
                 is_timeout = ("timeout" in err_str.lower() or "timed out" in err_str.lower()
                               or "APITimeoutError" in type(e).__name__)
-                if is_timeout and _DEEPSEEK_KEYS:
-                    log.warning("Kimi timed out — falling back to DeepSeek R1")
-                    await activity.record("llm_fallback", session_id,
-                                          f"Kimi unavailable, retrying with {FALLBACK_MODEL}",
-                                          {"primary_error": err_str[:200]})
-                    try:
-                        _fb_client = llm_client.with_options(api_key=_next_deepseek_key())
-                        response = await _fb_client.chat.completions.create(
-                            model=FALLBACK_MODEL,
-                            messages=messages,
-                            tools=all_tools,
-                            tool_choice="auto",
-                            temperature=0.7,
-                            max_tokens=4096,
+                if (is_timeout or is_connection_error or is_auth_error) and _NVAPI_KEYS:
+                    reason = "timed out" if is_timeout else ("connection error" if is_connection_error else "authorization error")
+                    log.warning(f"Kimi {reason} — trying fallback model chain")
+                    fallback_succeeded = False
+                    for fb_model in FALLBACK_MODELS:
+                        await activity.record(
+                            "llm_fallback",
+                            session_id,
+                            f"Kimi unavailable, retrying with {fb_model}",
+                            {"primary_error": err_str[:200], "fallback_model": fb_model},
                         )
-                        break  # Fallback succeeded
-                    except Exception as fb_err:
-                        log.error(f"Fallback model also failed: {fb_err}")
-                        err_str = str(fb_err)
+                        try:
+                            _fb_client = llm_client.with_options(api_key=_next_key_for_model(fb_model))
+                            response = await _fb_client.chat.completions.create(
+                                model=fb_model,
+                                messages=messages,
+                                tools=all_tools,
+                                tool_choice="auto",
+                                temperature=0.7,
+                                max_tokens=4096,
+                            )
+                            fallback_succeeded = True
+                            break
+                        except Exception as fb_err:
+                            log.error(f"Fallback model failed ({fb_model}): {fb_err}")
+                            err_str = str(fb_err)
+                    if fallback_succeeded:
+                        break
                 error_response = f"I'm having trouble connecting to my reasoning engine right now. Error: {err_str[:200]}"
                 await activity.record("error_response", session_id, error_response)
                 return {

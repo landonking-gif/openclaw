@@ -25,11 +25,13 @@ import asyncpg
 import redis.asyncio as aioredis
 try:
     import chromadb
+    from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
     CHROMADB_AVAILABLE = True
 except Exception:
     chromadb = None  # type: ignore
+    SentenceTransformerEmbeddingFunction = None # type: ignore
     CHROMADB_AVAILABLE = False
-    logging.getLogger("memory-service").warning("ChromaDB unavailable (Python 3.14 compat issue) — Tier 3 disabled")
+    logging.getLogger("memory-service").warning("ChromaDB or sentence-transformers unavailable — Tier 3 disabled")
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
@@ -222,15 +224,20 @@ async def startup():
     if CHROMADB_AVAILABLE:
         try:
             chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+            
+            # Use local embeddings instead of defaulting to OpenAI
+            embedding_function = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+            
             chroma_collection = chroma_client.get_or_create_collection(
                 name="openclaw_memory",
-                metadata={"hnsw:space": "cosine"}
+                metadata={"hnsw:space": "cosine"},
+                embedding_function=embedding_function
             )
-            logger.info(f"ChromaDB initialized at {CHROMA_PATH} ({chroma_collection.count()} vectors)")
+            logger.info(f"ChromaDB initialized at {CHROMA_PATH} ({chroma_collection.count()} vectors) using local embeddings")
         except Exception as e:
             logger.error(f"ChromaDB initialization failed: {e}")
     else:
-        logger.warning("ChromaDB not available — Tier 3 vector search disabled")
+        logger.warning("ChromaDB or sentence-transformers not available — Tier 3 vector search disabled")
 
 
 @app.on_event("shutdown")

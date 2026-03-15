@@ -704,6 +704,12 @@ struct ChatBubble: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(borderColor, lineWidth: 1)
             )
+            .contextMenu {
+                Button("Copy Message") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(message.text, forType: .string)
+                }
+            }
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 8)
 
@@ -795,6 +801,7 @@ struct ThinkingBubble: View {
                 Text(entry.content ?? "")
                     .font(.system(size: 11))
                     .foregroundColor(.gray)
+                    .textSelection(.enabled)
                     .lineLimit(3)
             }
 
@@ -809,6 +816,13 @@ struct ThinkingBubble: View {
                         .stroke(typeColor.opacity(0.1), lineWidth: 1)
                 )
         )
+        .contextMenu {
+            Button("Copy Thinking Entry") {
+                let line = entry.content ?? ""
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(line, forType: .string)
+            }
+        }
     }
 }
 

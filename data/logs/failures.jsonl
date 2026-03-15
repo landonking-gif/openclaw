@@ -695,3 +695,7 @@
 {"ts": "2026-03-15T04:21:29.797892+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-15T04:31:03.745170+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
 {"ts": "2026-03-15T04:57:55.657869+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-15T05:31:36.145916+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-15T05:32:28.506778+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-15T05:34:44.132054+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-15T05:36:07.878331+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}

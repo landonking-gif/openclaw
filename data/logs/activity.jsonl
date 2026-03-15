@@ -4859,3 +4859,7 @@
 {"ts": "2026-03-15T05:05:07.860247+00:00", "type": "llm_call", "session": "nvidia-only-final-check", "content": "Calling moonshotai/kimi-k2.5 (turn 1, attempt 1)", "meta": {"attempt": 1, "turn": 1, "history_len": 2}}
 {"ts": "2026-03-15T05:06:06.312112+00:00", "type": "llm_thinking", "session": "nvidia-only-final-check", "content": " Hello Landon. What do you need?", "meta": {"finish_reason": "stop", "has_tool_calls": false, "tool_call_count": 0, "turn": 1}}
 {"ts": "2026-03-15T05:06:06.341710+00:00", "type": "response", "session": "nvidia-only-final-check", "content": "Hello Landon. What do you need?", "meta": {"delegation_count": 0, "delegations_dispatched": 0, "response_length": 31, "quality_score": 84, "quality_grade": "B"}}
+{"ts": "2026-03-15T05:32:25.154753+00:00", "type": "watchdog", "session": "", "content": "Auto-restarted beta-manager", "meta": {"manager": "beta-manager", "result": "success"}}
+{"ts": "2026-03-15T05:33:29.763942+00:00", "type": "watchdog", "session": "", "content": "Failed to restart gamma-manager", "meta": {"manager": "gamma-manager", "error": "gamma-manager started but not responding after 45s"}}
+{"ts": "2026-03-15T05:36:05.612743+00:00", "type": "watchdog", "session": "", "content": "Failed to restart alpha-manager", "meta": {"manager": "alpha-manager", "error": "alpha-manager started but not responding after 45s"}}
+{"ts": "2026-03-15T05:36:49.332499+00:00", "type": "watchdog", "session": "", "content": "Auto-restarted gamma-manager", "meta": {"manager": "gamma-manager", "result": "success"}}

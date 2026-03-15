@@ -1584,5 +1584,15 @@
       "role": "assistant",
       "content": "Hello. I'm the OpenClaw Army Meta-Orchestrator, running on Kimi K2.5. Ready to execute.\n\nWhat do you need?"
     }
+  ],
+  "nvidia-only-final-check": [
+    {
+      "role": "user",
+      "content": "hello"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello Landon. What do you need?"
+    }
   ]
 }

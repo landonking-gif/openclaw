@@ -414,17 +414,65 @@ function activitySession(evt) {
 }
 
 function toThinkingEntry(evt) {
-  if (!evt || evt.event !== 'activity') return null;
-  const entryType = String(evt.type || 'system').toLowerCase();
-  if (entryType === 'response' || entryType === 'user_message') return null;
-  const content = String(evt.content || '').trim();
-  if (!content) return null;
-  return {
-    ts: evt.ts || '',
-    type: String(evt.type || 'system'),
-    content,
-    session: activitySession(evt),
-  };
+  if (!evt) return null;
+
+  const eventName = String(evt.event || 'activity').toLowerCase();
+  const session = activitySession(evt);
+  const ts = evt.ts || '';
+
+  if (eventName === 'activity') {
+    const entryType = String(evt.type || 'system').toLowerCase();
+    if (entryType === 'response' || entryType === 'user_message') return null;
+    const content = String(evt.content || '').trim();
+    if (!content) return null;
+    return {
+      ts,
+      type: String(evt.type || 'system'),
+      content,
+      session,
+    };
+  }
+
+  if (eventName === 'delegation') {
+    const manager = String(evt.manager || 'manager').trim();
+    const task = String(evt.task || '').trim();
+    const dispatched = evt.dispatched === false ? 'Dispatch failed' : 'Delegated';
+    const content = task ? (dispatched + ': ' + manager + ' -> ' + task) : (dispatched + ': ' + manager);
+    return { ts, type: 'delegation', content, session };
+  }
+
+  if (eventName === 'chat_pending') {
+    return { ts, type: 'chat_action', content: 'Chat is still processing.', session };
+  }
+
+  if (eventName === 'chat_response') {
+    return { ts, type: 'chat_action', content: 'Final chat response received.', session };
+  }
+
+  if (eventName === 'subtasks_dispatched') {
+    const dispatched = Array.isArray(evt.dispatched) ? evt.dispatched.length : 0;
+    const failed = Array.isArray(evt.failed) ? evt.failed.length : 0;
+    return {
+      ts,
+      type: 'workflow_action',
+      content: 'Subtasks dispatched: ' + dispatched + ', failed: ' + failed,
+      session,
+    };
+  }
+
+  if (eventName === 'subtask_updated') {
+    const sid = String(evt.subtask_id || '').trim();
+    const status = String(evt.new_status || '').trim();
+    if (!sid && !status) return null;
+    return {
+      ts,
+      type: 'workflow_action',
+      content: 'Subtask ' + sid + ' -> ' + status,
+      session,
+    };
+  }
+
+  return null;
 }
 
 function rememberThinking(entry) {
@@ -448,12 +496,13 @@ function renderThinkingEntry(entry) {
   if (renderedThinking.has(key)) return;
   renderedThinking.add(key);
   const typeLabel = (entry.type || 'system').replace(/_/g, ' ').toUpperCase();
-  addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(entry.content).substring(0, 300), entry.content);
+  const icon = /delegation|action|workflow/.test(String(entry.type || '').toLowerCase()) ? '⚙️' : '🧠';
+  addMsg('thinking', '<div class="label">' + icon + ' ' + typeLabel + '</div>' + esc(entry.content).substring(0, 300), entry.content);
 }
 
 function renderCachedThinking() {
   if (!showThinking) return;
-  const recent = thinkingCache.filter(isCurrentSessionEntry).slice(-12);
+  const recent = thinkingCache.filter(isCurrentSessionEntry).slice(-80);
   for (const entry of recent) renderThinkingEntry(entry);
 }
 
@@ -473,7 +522,7 @@ async function backfillThinking() {
   backfillInFlight = true;
   try {
     const res = await fetchWithTimeout(
-      API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=40',
+      API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=160',
       {},
       20000
     );

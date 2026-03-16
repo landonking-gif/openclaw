@@ -60,6 +60,21 @@ struct ActivityEntry: Codable, Identifiable {
         event = try container.decodeIfPresent(String.self, forKey: .event)
     }
 
+    init(ts: String? = nil,
+         type: String? = nil,
+         content: String? = nil,
+         sessionId: String? = nil,
+         meta: ActivityMeta? = nil,
+         event: String? = nil) {
+        self.id = UUID()
+        self.ts = ts
+        self.type = type
+        self.content = content
+        self.sessionId = sessionId
+        self.meta = meta
+        self.event = event
+    }
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(ts, forKey: .ts)
@@ -239,10 +254,11 @@ class OrchestratorService: ObservableObject {
     // Thinking stream
     @Published var thinkingEntries: [ActivityEntry] = []
     @Published var isThinkingVisible = false
+    @Published var isThinkingLoading = false
 
     var currentSessionThinkingEntries: [ActivityEntry] {
         thinkingEntries.filter { entry in
-            let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
+            let sameSession = (entry.sessionId ?? "") == sessionId
             guard sameSession else { return false }
             guard let type = entry.type?.lowercased(), !type.isEmpty else { return false }
             if type == "response" || type == "user_message" { return false }
@@ -264,8 +280,11 @@ class OrchestratorService: ObservableObject {
 
     init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15
-        // Keep resource timeout above worst-case orchestrator chat latency.
+        // timeoutIntervalForRequest is the per-chunk idle timeout, NOT the total
+        // request duration. With the default of 60s (or 15s as previously set)
+        // URLSession kills the /chat connection before the LLM can respond.
+        // Set it high enough to match the LLM's worst-case think time.
+        config.timeoutIntervalForRequest = 720
         config.timeoutIntervalForResource = 720
         self.session = URLSession(configuration: config)
 
@@ -340,7 +359,9 @@ class OrchestratorService: ObservableObject {
         let targetSessionId = sessionId
         let safeLimit = max(20, min(limit, 300))
         let encodedSession = targetSessionId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? targetSessionId
+        DispatchQueue.main.async { self.isThinkingLoading = true }
         get("/activity/session/\(encodedSession)?limit=\(safeLimit)") { [weak self] (result: Result<ActivityResponse, Error>) in
+            DispatchQueue.main.async { self?.isThinkingLoading = false }
             if case .success(let activity) = result {
                 self?.mergeThinkingEntries(activity.entries, expectedSessionId: targetSessionId)
             }
@@ -567,8 +588,8 @@ class OrchestratorService: ObservableObject {
     private func recoverChatResponse(
         sessionId: String,
         notBefore: Date,
-        attemptsRemaining: Int = 90,
-        delaySeconds: TimeInterval = 3,
+        attemptsRemaining: Int = 30,
+        delaySeconds: TimeInterval = 4,
         completion: @escaping (String?) -> Void
     ) {
         guard attemptsRemaining > 0 else {
@@ -642,7 +663,7 @@ class OrchestratorService: ObservableObject {
     private func mergeThinkingEntries(_ entries: [ActivityEntry], expectedSessionId: String) {
         DispatchQueue.main.async {
             for entry in entries {
-                let sameSession = entry.sessionId == nil || entry.sessionId == expectedSessionId
+                let sameSession = (entry.sessionId ?? "") == expectedSessionId
                 guard sameSession else { continue }
                 guard self.isThinkingEventEntry(entry) else { continue }
                 self.appendThinkingEntryIfNeeded(entry)
@@ -781,12 +802,11 @@ class OrchestratorService: ObservableObject {
             case .success(let message):
                 if case .string(let text) = message, text != "pong" {
                     if let data = text.data(using: .utf8) {
-                        if let entry = try? JSONDecoder().decode(ActivityEntry.self, from: data) {
+                        if let entry = self?.parseWebSocketThinkingEntry(from: data) {
                             DispatchQueue.main.async {
-                                let isActivityEvent = entry.event == nil || entry.event == "activity"
-                                let sameSession = entry.sessionId == nil || entry.sessionId == self?.sessionId
+                                let sameSession = (entry.sessionId ?? "") == self?.sessionId
 
-                                if isActivityEvent && sameSession {
+                                if sameSession {
                                     if let self, self.isThinkingEventEntry(entry) {
                                         self.appendThinkingEntryIfNeeded(entry)
                                     }
@@ -804,6 +824,67 @@ class OrchestratorService: ObservableObject {
                     self?.connectWebSocket()
                 }
             }
+        }
+    }
+
+    private func parseWebSocketThinkingEntry(from data: Data) -> ActivityEntry? {
+        if let entry = try? JSONDecoder().decode(ActivityEntry.self, from: data) {
+            if entry.event == nil || entry.event == "activity" {
+                return entry
+            }
+        }
+
+        guard let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        return synthesizeActionEntry(from: payload)
+    }
+
+    private func synthesizeActionEntry(from payload: [String: Any]) -> ActivityEntry? {
+        guard let eventNameRaw = payload["event"] as? String else {
+            return nil
+        }
+        let eventName = eventNameRaw.lowercased()
+        let session = (payload["session_id"] as? String) ?? (payload["session"] as? String)
+        let ts = payload["ts"] as? String
+
+        switch eventName {
+        case "delegation":
+            let manager = (payload["manager"] as? String) ?? "manager"
+            let task = (payload["task"] as? String) ?? "task"
+            let dispatched = payload["dispatched"] as? Bool
+            let verb = (dispatched == false) ? "Dispatch failed" : "Delegated"
+            return ActivityEntry(
+                ts: ts,
+                type: "delegation",
+                content: "\(verb): \(manager) -> \(task)",
+                sessionId: session,
+                meta: nil,
+                event: "activity"
+            )
+
+        case "chat_pending":
+            return ActivityEntry(
+                ts: ts,
+                type: "chat_action",
+                content: "Chat is still processing.",
+                sessionId: session,
+                meta: nil,
+                event: "activity"
+            )
+
+        case "chat_response":
+            return ActivityEntry(
+                ts: ts,
+                type: "chat_action",
+                content: "Final chat response received.",
+                sessionId: session,
+                meta: nil,
+                event: "activity"
+            )
+
+        default:
+            return nil
         }
     }
 

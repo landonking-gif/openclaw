@@ -2806,7 +2806,6 @@ class ChatMessage(BaseModel):
 workflows: dict[str, WorkflowPlan] = {}
 ws_subscribers: list[WebSocket] = []
 _pending_chat_tasks: dict[str, asyncio.Task] = {}
-CHAT_SYNC_TIMEOUT_SECONDS = float(os.getenv("CHAT_SYNC_TIMEOUT_SECONDS", "45"))
 
 # ── App ─────────────────────────────────────────────────────────────────────
 
@@ -4258,6 +4257,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                                    "error": dispatch_error})
             await notify_ws({
                 "event": "delegation",
+                "session_id": session_id,
                 "manager": manager,
                 "task": task_desc[:100],
                 "workflow_id": plan.id,
@@ -4542,34 +4542,12 @@ async def chat(req: ChatMessage):
 
     chat_task = asyncio.create_task(_run_chat_pipeline(session_id, req.message))
     _track_pending_chat_task(session_id, chat_task)
-
-    try:
-        result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_SYNC_TIMEOUT_SECONDS)
-        response = dict(result)
-        response.setdefault("session_id", session_id)
-        response["pending"] = False
-        response["status"] = "completed"
-        return response
-    except asyncio.TimeoutError:
-        await activity.record(
-            "chat_pending",
-            session_id,
-            "Chat still processing in background",
-            {"sync_timeout_s": CHAT_SYNC_TIMEOUT_SECONDS},
-        )
-        await notify_ws({
-            "event": "chat_pending",
-            "session_id": session_id,
-            "status": "processing",
-            "sync_timeout_s": CHAT_SYNC_TIMEOUT_SECONDS,
-        })
-        return {
-            "response": "Still processing your request. I will continue in the background and publish the final response shortly.",
-            "delegations": [],
-            "session_id": session_id,
-            "pending": True,
-            "status": "processing",
-        }
+    result = await asyncio.shield(chat_task)
+    response = dict(result)
+    response.setdefault("session_id", session_id)
+    response["pending"] = False
+    response["status"] = "completed"
+    return response
 
 
 # ── VisionClaw / OpenAI-Compatible Chat Completions ────────────────────────

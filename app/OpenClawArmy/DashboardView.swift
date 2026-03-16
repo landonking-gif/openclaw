@@ -514,11 +514,36 @@ struct ChatTab: View {
 
                             // Keep recent thinking visible whenever the toggle is on.
                             if orchestrator.isThinkingVisible {
-                                ForEach(Array(orchestrator.currentSessionThinkingEntries.suffix(12))) { entry in
+                                ForEach(Array(orchestrator.currentSessionThinkingEntries.suffix(80))) { entry in
                                     ThinkingBubble(entry: entry)
                                         .id("thinking-\(entry.id.uuidString)")
                                 }
-                                if orchestrator.isSending && orchestrator.currentSessionThinkingEntries.isEmpty {
+                                // Loading state
+                                if orchestrator.isThinkingLoading {
+                                    HStack(spacing: 8) {
+                                        ProgressView()
+                                            .scaleEffect(0.6)
+                                            .tint(Color(red: 0.6, green: 0.5, blue: 0.9))
+                                        Text("Loading thinking stream...")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding(8)
+                                } else if orchestrator.currentSessionThinkingEntries.isEmpty {
+                                    // Empty state — server hasn't sent any thinking for this session yet
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "brain")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(Color(red: 0.4, green: 0.35, blue: 0.6))
+                                        Text("No thinking data for this session yet. Send a message to see the AI's reasoning.")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(Color.gray.opacity(0.6))
+                                    }
+                                    .padding(10)
+                                    .background(Color(red: 0.05, green: 0.04, blue: 0.1).opacity(0.6))
+                                    .cornerRadius(8)
+                                }
+                                if orchestrator.isSending && orchestrator.currentSessionThinkingEntries.isEmpty && !orchestrator.isThinkingLoading {
                                     ThinkingIndicator()
                                 }
                             }
@@ -577,12 +602,23 @@ struct ChatTab: View {
                             }
                         }
                     }) {
-                        Image(systemName: orchestrator.isThinkingVisible ? "brain.fill" : "brain")
-                            .font(.system(size: 14))
-                            .foregroundColor(orchestrator.isThinkingVisible ? .cyan : .gray)
+                        ZStack {
+                            Image(systemName: orchestrator.isThinkingVisible ? "brain.fill" : "brain")
+                                .font(.system(size: 14))
+                                .foregroundColor(
+                                    orchestrator.isThinkingLoading ? Color(red: 0.6, green: 0.5, blue: 0.9) :
+                                    orchestrator.isThinkingVisible ? .cyan : .gray
+                                )
+                            if orchestrator.isThinkingLoading {
+                                ProgressView()
+                                    .scaleEffect(0.5)
+                                    .tint(Color(red: 0.6, green: 0.5, blue: 0.9))
+                                    .offset(x: 8, y: -8)
+                            }
+                        }
                     }
                     .buttonStyle(.plain)
-                    .help("Toggle thinking view")
+                    .help(orchestrator.isThinkingVisible ? "Hide thinking stream" : "Show AI thinking stream")
 
                     TextField("Talk to King AI...", text: $chatInput)
                         .textFieldStyle(.plain)
@@ -783,6 +819,7 @@ struct ThinkingBubble: View {
         case "llm_thinking": return Color(red: 0.6, green: 0.5, blue: 0.9)
         case "llm_tool_calls": return .cyan
         case "delegation": return .green
+        case "chat_action": return Color(red: 0.7, green: 0.6, blue: 0.9)
         case "error": return .red
         default: return .gray
         }
@@ -793,6 +830,7 @@ struct ThinkingBubble: View {
         case "llm_thinking": return "brain"
         case "llm_tool_calls": return "wrench.and.screwdriver"
         case "delegation": return "arrow.triangle.branch"
+        case "chat_action": return "bolt.horizontal.circle"
         case "error": return "exclamationmark.triangle"
         default: return "circle"
         }
@@ -815,7 +853,6 @@ struct ThinkingBubble: View {
                     .font(.system(size: 11))
                     .foregroundColor(.gray)
                     .textSelection(.enabled)
-                    .lineLimit(3)
             }
 
             Spacer()

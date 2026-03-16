@@ -357,6 +357,7 @@ let thinkingCache = [];
 const renderedThinking = new Set();
 const MAX_THINKING_CACHE = 250;
 const CHAT_TIMEOUT_MS = 600000;
+let backfillInFlight = false;
 
 input.addEventListener('input', () => {
   input.style.height = 'auto';
@@ -468,6 +469,8 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = CHAT_TIMEOUT_MS) 
 
 async function backfillThinking() {
   if (!sessionId) return;
+  if (backfillInFlight) return;
+  backfillInFlight = true;
   try {
     const res = await fetchWithTimeout(
       API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=40',
@@ -485,6 +488,8 @@ async function backfillThinking() {
     if (showThinking) renderCachedThinking();
   } catch {
     // Keep chat usable even if backfill fails.
+  } finally {
+    backfillInFlight = false;
   }
 }
 

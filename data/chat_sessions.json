@@ -1854,6 +1854,14 @@
     {
       "role": "assistant",
       "content": "FIRST-CHECK"
+    },
+    {
+      "role": "user",
+      "content": "Reply with ONLY SECOND-CHECK"
+    },
+    {
+      "role": "assistant",
+      "content": "SECOND-CHECK"
     }
   ],
   "kingai-web-mmso7iav-9h4yosub": [
@@ -1872,6 +1880,16 @@
     {
       "role": "assistant",
       "content": "TOGGLE-MID-TEST"
+    }
+  ],
+  "kingai-web-mmsoiprw-9pto6aiz": [
+    {
+      "role": "user",
+      "content": "Reply with exactly: FINAL-WEB-PATCH-CHECK"
+    },
+    {
+      "role": "assistant",
+      "content": "FINAL-WEB-PATCH-CHECK"
     }
   ]
 }

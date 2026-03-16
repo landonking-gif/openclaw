@@ -104,6 +104,8 @@ struct ChatAPIResponse: Codable {
     let response: String
     let sessionId: String?
     let delegations: [Delegation]?
+    let pending: Bool?
+    let status: String?
 
     enum CodingKeys: String, CodingKey {
         case response
@@ -111,6 +113,8 @@ struct ChatAPIResponse: Codable {
         case sessionId = "session_id"
         case session = "session"
         case delegations
+        case pending
+        case status
     }
 
     init(from decoder: Decoder) throws {
@@ -121,6 +125,8 @@ struct ChatAPIResponse: Codable {
         sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
             ?? container.decodeIfPresent(String.self, forKey: .session)
         delegations = try? container.decode([Delegation].self, forKey: .delegations)
+        pending = try container.decodeIfPresent(Bool.self, forKey: .pending)
+        status = try container.decodeIfPresent(String.self, forKey: .status)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -128,6 +134,8 @@ struct ChatAPIResponse: Codable {
         try container.encode(response, forKey: .response)
         try container.encodeIfPresent(sessionId, forKey: .sessionId)
         try container.encodeIfPresent(delegations, forKey: .delegations)
+        try container.encodeIfPresent(pending, forKey: .pending)
+        try container.encodeIfPresent(status, forKey: .status)
     }
 }
 
@@ -236,11 +244,14 @@ class OrchestratorService: ObservableObject {
         thinkingEntries.filter { entry in
             let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
             guard sameSession else { return false }
-            guard let type = entry.type, !type.isEmpty else { return false }
+            guard let type = entry.type?.lowercased(), !type.isEmpty else { return false }
+            if type == "response" || type == "user_message" { return false }
             let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             return !text.isEmpty
         }
     }
+
+    private var thinkingEntryKeys: Set<String> = []
 
     // Neural graph
     @Published var neuralNodes: [NeuralNode] = []
@@ -324,6 +335,17 @@ class OrchestratorService: ObservableObject {
         }
     }
 
+    func refreshThinkingFromSessionActivity(limit: Int = 120) {
+        let targetSessionId = sessionId
+        let safeLimit = max(20, min(limit, 300))
+        let encodedSession = targetSessionId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? targetSessionId
+        get("/activity/session/\(encodedSession)?limit=\(safeLimit)") { [weak self] (result: Result<ActivityResponse, Error>) in
+            if case .success(let activity) = result {
+                self?.mergeThinkingEntries(activity.entries, expectedSessionId: targetSessionId)
+            }
+        }
+    }
+
     // MARK: - Agents
 
     func fetchAgents() {
@@ -396,18 +418,51 @@ class OrchestratorService: ObservableObject {
     }
 
     private func handleChatResult(_ result: Result<ChatAPIResponse, Error>) {
-        DispatchQueue.main.async {
-            self.isSending = false
-            switch result {
-            case .success(let response):
-                if let returnedSession = response.sessionId, !returnedSession.isEmpty {
-                    self.sessionId = returnedSession
-                }
+        switch result {
+        case .success(let response):
+            if let returnedSession = response.sessionId, !returnedSession.isEmpty {
+                sessionId = returnedSession
+            }
 
-                var text = response.response.trimmingCharacters(in: .whitespacesAndNewlines)
-                if text.isEmpty {
-                    text = "I completed your request, but no response text was returned."
+            var text = response.response.trimmingCharacters(in: .whitespacesAndNewlines)
+            let shouldRecoverFromActivity = response.pending == true || text.isEmpty || looksLikeTimeoutResponse(text)
+
+            if shouldRecoverFromActivity {
+                recoverChatResponse(sessionId: sessionId) { [weak self] recovered in
+                    guard let self else { return }
+                    DispatchQueue.main.async {
+                        self.isSending = false
+
+                        if let recovered, !recovered.isEmpty {
+                            self.chatMessages.append(ChatMessage(
+                                id: UUID(), role: .assistant, text: recovered, timestamp: Date()
+                            ))
+                            self.pulseNeuralActivity()
+                            return
+                        }
+
+                        if text.isEmpty {
+                            text = "King AI is still processing this request. Please wait a few seconds and retry if needed."
+                        }
+
+                        if let delegations = response.delegations, !delegations.isEmpty {
+                            text += "\n\n"
+                            for d in delegations {
+                                let icon = d.dispatched == true ? "✓" : "→"
+                                text += "\(icon) \(d.manager): \(d.task)\n"
+                            }
+                        }
+
+                        self.chatMessages.append(ChatMessage(
+                            id: UUID(), role: .assistant, text: text, timestamp: Date()
+                        ))
+                    }
                 }
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.isSending = false
 
                 if let delegations = response.delegations, !delegations.isEmpty {
                     text += "\n\n"
@@ -421,20 +476,158 @@ class OrchestratorService: ObservableObject {
                     id: UUID(), role: .assistant, text: text, timestamp: Date()
                 ))
                 self.pulseNeuralActivity()
-            case .failure(let error):
+            }
+
+        case .failure(let error):
+            let description = (error as NSError).localizedDescription.lowercased()
+            let isTimeoutFailure = (error as? URLError)?.code == .timedOut
+                || description.contains("timed out")
+                || description.contains("reasoning engine")
+
+            if isTimeoutFailure {
+                recoverChatResponse(sessionId: sessionId) { [weak self] recovered in
+                    guard let self else { return }
+                    DispatchQueue.main.async {
+                        self.isSending = false
+                        if let recovered, !recovered.isEmpty {
+                            self.chatMessages.append(ChatMessage(
+                                id: UUID(), role: .assistant, text: recovered, timestamp: Date()
+                            ))
+                            self.pulseNeuralActivity()
+                        } else {
+                            self.chatMessages.append(ChatMessage(
+                                id: UUID(), role: .error,
+                                text: self.userFacingChatError(error), timestamp: Date()
+                            ))
+                        }
+                    }
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.isSending = false
                 self.chatMessages.append(ChatMessage(
                     id: UUID(), role: .error,
                     text: self.userFacingChatError(error), timestamp: Date()
                 ))
             }
         }
+
     }
 
     private func userFacingChatError(_ error: Error) -> String {
         if let urlError = error as? URLError, urlError.code == .timedOut {
-            return "Request timed out while waiting for King AI. Please try again."
+            return "Request timed out while waiting for King AI. The response may still appear shortly from activity sync."
         }
         return "Error: \(error.localizedDescription)"
+    }
+
+    private func looksLikeTimeoutResponse(_ text: String) -> Bool {
+        let normalized = text.lowercased()
+        return normalized.contains("timed out")
+            || normalized.contains("trouble connecting to my reasoning engine")
+    }
+
+    private func recoverChatResponse(
+        sessionId: String,
+        attemptsRemaining: Int = 90,
+        delaySeconds: TimeInterval = 3,
+        completion: @escaping (String?) -> Void
+    ) {
+        guard attemptsRemaining > 0 else {
+            completion(nil)
+            return
+        }
+
+        fetchLatestSessionResponse(sessionId: sessionId) { [weak self] text in
+            if let text, !text.isEmpty {
+                completion(text)
+                return
+            }
+
+            guard attemptsRemaining > 1, let self else {
+                completion(nil)
+                return
+            }
+
+            DispatchQueue.global().asyncAfter(deadline: .now() + delaySeconds) {
+                self.recoverChatResponse(
+                    sessionId: sessionId,
+                    attemptsRemaining: attemptsRemaining - 1,
+                    delaySeconds: delaySeconds,
+                    completion: completion
+                )
+            }
+        }
+    }
+
+    private func fetchLatestSessionResponse(sessionId: String, completion: @escaping (String?) -> Void) {
+        let encodedSession = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? sessionId
+        get("/activity/session/\(encodedSession)?limit=120") { (result: Result<ActivityResponse, Error>) in
+            switch result {
+            case .success(let activity):
+                self.mergeThinkingEntries(activity.entries, expectedSessionId: sessionId)
+                let candidate = activity.entries.reversed().first(where: { entry in
+                    let type = entry.type?.lowercased() ?? ""
+                    let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
+                    let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    return type == "response" && sameSession && !text.isEmpty
+                })
+                completion(candidate?.content?.trimmingCharacters(in: .whitespacesAndNewlines))
+
+            case .failure:
+                completion(nil)
+            }
+        }
+    }
+
+    private func mergeThinkingEntries(_ entries: [ActivityEntry], expectedSessionId: String) {
+        DispatchQueue.main.async {
+            for entry in entries {
+                let sameSession = entry.sessionId == nil || entry.sessionId == expectedSessionId
+                guard sameSession else { continue }
+                guard self.isThinkingEventEntry(entry) else { continue }
+                self.appendThinkingEntryIfNeeded(entry)
+                if entry.type == "delegation" || entry.type == "llm_tool_calls" {
+                    self.pulseNeuralActivity()
+                }
+            }
+        }
+    }
+
+    private func isThinkingEventEntry(_ entry: ActivityEntry) -> Bool {
+        let type = (entry.type ?? "").lowercased()
+        guard !type.isEmpty else { return false }
+        if type == "response" || type == "user_message" { return false }
+        let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return !text.isEmpty
+    }
+
+    private func appendThinkingEntryIfNeeded(_ entry: ActivityEntry) {
+        let key = thinkingEntryKey(for: entry)
+        guard !key.isEmpty else { return }
+        guard !thinkingEntryKeys.contains(key) else { return }
+
+        thinkingEntryKeys.insert(key)
+        thinkingEntries.append(entry)
+
+        if thinkingEntries.count > 700 {
+            thinkingEntries.removeFirst(200)
+            rebuildThinkingEntryKeyIndex()
+        }
+    }
+
+    private func thinkingEntryKey(for entry: ActivityEntry) -> String {
+        let ts = entry.ts ?? ""
+        let type = entry.type ?? ""
+        let session = entry.sessionId ?? ""
+        let content = entry.content?.prefix(280) ?? ""
+        return "\(session)|\(ts)|\(type)|\(content)"
+    }
+
+    private func rebuildThinkingEntryKeyIndex() {
+        thinkingEntryKeys = Set(thinkingEntries.map { thinkingEntryKey(for: $0) })
     }
 
     // MARK: - Neural Graph
@@ -535,13 +728,10 @@ class OrchestratorService: ObservableObject {
                             DispatchQueue.main.async {
                                 let isActivityEvent = entry.event == nil || entry.event == "activity"
                                 let sameSession = entry.sessionId == nil || entry.sessionId == self?.sessionId
-                                let hasType = !(entry.type?.isEmpty ?? true)
-                                let hasContent = !((entry.content?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) ?? true)
 
-                                if isActivityEvent && sameSession && hasType && hasContent {
-                                    self?.thinkingEntries.append(entry)
-                                    if (self?.thinkingEntries.count ?? 0) > 500 {
-                                        self?.thinkingEntries.removeFirst(100)
+                                if isActivityEvent && sameSession {
+                                    if let self, self.isThinkingEventEntry(entry) {
+                                        self.appendThinkingEntryIfNeeded(entry)
                                     }
                                     if entry.type == "delegation" || entry.type == "llm_tool_calls" {
                                         self?.pulseNeuralActivity()

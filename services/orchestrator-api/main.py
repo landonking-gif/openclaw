@@ -2805,6 +2805,8 @@ class ChatMessage(BaseModel):
 
 workflows: dict[str, WorkflowPlan] = {}
 ws_subscribers: list[WebSocket] = []
+_pending_chat_tasks: dict[str, asyncio.Task] = {}
+CHAT_SYNC_TIMEOUT_SECONDS = float(os.getenv("CHAT_SYNC_TIMEOUT_SECONDS", "45"))
 
 # ── App ─────────────────────────────────────────────────────────────────────
 
@@ -4463,6 +4465,69 @@ async def ping():
     }
 
 
+def _track_pending_chat_task(session_id: str, task: asyncio.Task):
+    """Track in-flight chat task for observability and cleanup."""
+    _pending_chat_tasks[session_id] = task
+
+    def _cleanup(done_task: asyncio.Task):
+        current = _pending_chat_tasks.get(session_id)
+        if current is done_task:
+            _pending_chat_tasks.pop(session_id, None)
+
+    task.add_done_callback(_cleanup)
+
+
+async def _finalize_chat_exchange(session_id: str, user_message: str, result: dict):
+    """Finalize chat side effects once LLM orchestration completes."""
+    response_text = str(result.get("response", ""))
+    delegations = result.get("delegations") or []
+
+    await log_to_memory(
+        f"Chat [{session_id}]: User: {user_message[:200]}\n"
+        f"Orchestrator: {response_text[:200]}\n"
+        f"Delegations: {len(delegations)}"
+    )
+
+    await notify_ws({
+        "event": "chat_response",
+        "session_id": session_id,
+        "delegations": len(delegations),
+        "status": "completed",
+    })
+
+
+async def _run_chat_pipeline(session_id: str, user_message: str) -> dict:
+    """Run full chat processing and always emit completion side effects."""
+    try:
+        result = await call_llm(session_id, user_message)
+    except Exception as e:
+        log.exception(f"Chat pipeline failed [{session_id}]: {e}")
+        fallback_text = (
+            "I encountered an internal error while processing your request. "
+            "Please try again."
+        )
+        await activity.record(
+            "error",
+            session_id,
+            f"Chat pipeline failed: {type(e).__name__}: {str(e)[:200]}",
+            {"stage": "chat_pipeline"},
+        )
+        await activity.record(
+            "response",
+            session_id,
+            fallback_text,
+            {"generated_from": "chat_pipeline_exception"},
+        )
+        result = {
+            "response": fallback_text,
+            "delegations": [],
+            "session_id": session_id,
+        }
+
+    await _finalize_chat_exchange(session_id, user_message, result)
+    return result
+
+
 @app.post("/chat")
 async def chat(req: ChatMessage):
     """
@@ -4475,22 +4540,36 @@ async def chat(req: ChatMessage):
     session_id = req.session_id or str(uuid.uuid4())[:12]
     log.info(f"Chat [{session_id}]: {req.message[:100]}...")
 
-    result = await call_llm(session_id, req.message)
+    chat_task = asyncio.create_task(_run_chat_pipeline(session_id, req.message))
+    _track_pending_chat_task(session_id, chat_task)
 
-    # Log to memory service
-    await log_to_memory(
-        f"Chat [{session_id}]: User: {req.message[:200]}\n"
-        f"Orchestrator: {result['response'][:200]}\n"
-        f"Delegations: {len(result['delegations'])}"
-    )
-
-    await notify_ws({
-        "event": "chat_response",
-        "session_id": session_id,
-        "delegations": len(result["delegations"]),
-    })
-
-    return result
+    try:
+        result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_SYNC_TIMEOUT_SECONDS)
+        response = dict(result)
+        response.setdefault("session_id", session_id)
+        response["pending"] = False
+        response["status"] = "completed"
+        return response
+    except asyncio.TimeoutError:
+        await activity.record(
+            "chat_pending",
+            session_id,
+            "Chat still processing in background",
+            {"sync_timeout_s": CHAT_SYNC_TIMEOUT_SECONDS},
+        )
+        await notify_ws({
+            "event": "chat_pending",
+            "session_id": session_id,
+            "status": "processing",
+            "sync_timeout_s": CHAT_SYNC_TIMEOUT_SECONDS,
+        })
+        return {
+            "response": "Still processing your request. I will continue in the background and publish the final response shortly.",
+            "delegations": [],
+            "session_id": session_id,
+            "pending": True,
+            "status": "processing",
+        }
 
 
 # ── VisionClaw / OpenAI-Compatible Chat Completions ────────────────────────

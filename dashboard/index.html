@@ -345,7 +345,13 @@ const input = document.getElementById('input');
 const sendBtn = document.getElementById('send-btn');
 const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
-let sessionId = null;
+
+function createClientSessionId() {
+  const nonce = Math.random().toString(36).slice(2, 10);
+  return 'kingai-web-' + Date.now().toString(36) + '-' + nonce;
+}
+
+let sessionId = createClientSessionId();
 let showThinking = false;
 let thinkingCache = [];
 const renderedThinking = new Set();
@@ -396,7 +402,10 @@ function copyToClipboard(btn, text) {
 function toggleThinking() {
   showThinking = !showThinking;
   document.getElementById('thinking-toggle').classList.toggle('active', showThinking);
-  if (showThinking) renderCachedThinking();
+  if (showThinking) {
+    renderCachedThinking();
+    backfillThinking();
+  }
 }
 
 function activitySession(evt) {
@@ -405,6 +414,8 @@ function activitySession(evt) {
 
 function toThinkingEntry(evt) {
   if (!evt || evt.event !== 'activity') return null;
+  const entryType = String(evt.type || 'system').toLowerCase();
+  if (entryType === 'response' || entryType === 'user_message') return null;
   const content = String(evt.content || '').trim();
   if (!content) return null;
   return {
@@ -456,7 +467,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = CHAT_TIMEOUT_MS) 
 }
 
 async function backfillThinking() {
-  if (!showThinking || !sessionId) return;
+  if (!sessionId) return;
   try {
     const res = await fetchWithTimeout(
       API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=40',
@@ -471,10 +482,50 @@ async function backfillThinking() {
       if (!entry) continue;
       rememberThinking(entry);
     }
-    renderCachedThinking();
+    if (showThinking) renderCachedThinking();
   } catch {
     // Keep chat usable even if backfill fails.
   }
+}
+
+async function latestSessionResponse(session, limit = 120) {
+  if (!session) return '';
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(session) + '?limit=' + limit,
+      {},
+      20000
+    );
+    if (!res.ok) return '';
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const entry = entries[i];
+      const entryType = String(entry?.type || '').toLowerCase();
+      const entryText = String(entry?.content || '').trim();
+      const entrySession = activitySession(entry);
+      const sameSession = !entrySession || !session || entrySession === session;
+      if (entryType === 'response' && sameSession && entryText) {
+        return entryText;
+      }
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+async function recoverResponseFromActivity(session, attempts = 80, delayMs = 3000) {
+  if (!session) return '';
+  for (let i = 0; i < attempts; i++) {
+    const text = await latestSessionResponse(session);
+    if (text) return text;
+    await backfillThinking();
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return '';
 }
 
 function delegationsHtml(delegations) {
@@ -496,8 +547,7 @@ function looksLikeTimeoutResponse(text) {
 }
 
 async function postChat(text) {
-  const body = { message: text };
-  if (sessionId) body.session_id = sessionId;
+  const body = { message: text, session_id: sessionId };
   const res = await fetchWithTimeout(
     API + '/chat',
     {
@@ -561,6 +611,7 @@ setInterval(() => { if (ws?.readyState === 1) ws.send('ping'); }, 25000);
 async function send() {
   const text = input.value.trim();
   if (!text) return;
+  if (!sessionId) sessionId = createClientSessionId();
   addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
@@ -570,6 +621,10 @@ async function send() {
   thinking.className = 'thinking-indicator'; thinking.id = 'thinking';
   thinking.innerHTML = '🧠 Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
   msgs.appendChild(thinking); msgs.scrollTop = msgs.scrollHeight;
+
+  const thinkingBackfillTimer = setInterval(() => {
+    if (sessionId) backfillThinking();
+  }, 2500);
 
   try {
     let data = await postChat(text);
@@ -584,18 +639,46 @@ async function send() {
 
     await backfillThinking();
 
-    const responseText = typeof data?.response === 'string' && data.response.trim()
+    let responseText = typeof data?.response === 'string' && data.response.trim()
       ? data.response
-      : '(no response)';
+      : '';
+
+    if ((data?.pending === true || !responseText || looksLikeTimeoutResponse(responseText)) && sessionId) {
+      addMsg('event', 'Recovering final response from activity...');
+      const recovered = await recoverResponseFromActivity(sessionId);
+      if (recovered) {
+        responseText = recovered;
+      }
+    }
+
+    if (!responseText) {
+      responseText = '(no response yet - still processing)';
+    }
+
     let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
     html += delegationsHtml(data?.delegations);
     addMsg('assistant', html, responseText);
   } catch (err) {
-    const msg = err?.name === 'AbortError'
-      ? 'The chat request timed out before completion. Please try again.'
-      : (err?.message || 'Unknown error');
-    addMsg('assistant', '<div class="label">ERROR</div>' + esc(msg), msg);
+    const errMsg = String(err?.message || '');
+    const timeoutLikeError = err?.name === 'AbortError' || /timed out|reasoning engine/i.test(errMsg);
+
+    if (timeoutLikeError && sessionId) {
+      addMsg('event', 'Request timed out. Attempting response recovery from activity...');
+      await backfillThinking();
+      const recovered = await recoverResponseFromActivity(sessionId, 100, 3500);
+      if (recovered) {
+        const html = '<div class="label">👑 King AI</div>' + renderMd(recovered);
+        addMsg('assistant', html, recovered);
+      } else {
+        const timeoutMsg = 'The chat request timed out before completion, and no final response was recovered yet.';
+        addMsg('assistant', '<div class="label">ERROR</div>' + esc(timeoutMsg), timeoutMsg);
+      }
+    } else {
+      const msg = err?.message || 'Unknown error';
+      addMsg('assistant', '<div class="label">ERROR</div>' + esc(msg), msg);
+    }
   } finally {
+    clearInterval(thinkingBackfillTimer);
     document.getElementById('thinking')?.remove();
     sendBtn.disabled = false;
     input.focus();

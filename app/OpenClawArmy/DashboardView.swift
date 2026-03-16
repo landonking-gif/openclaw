@@ -572,6 +572,9 @@ struct ChatTab: View {
                     Button(action: {
                         withAnimation(.spring(response: 0.3)) {
                             orchestrator.isThinkingVisible.toggle()
+                            if orchestrator.isThinkingVisible {
+                                orchestrator.refreshThinkingFromSessionActivity(limit: 140)
+                            }
                         }
                     }) {
                         Image(systemName: orchestrator.isThinkingVisible ? "brain.fill" : "brain")

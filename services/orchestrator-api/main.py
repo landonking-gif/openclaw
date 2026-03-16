@@ -160,12 +160,16 @@ _NVAPI_KEYS = _collect_env_keys(
     "NVAPI_DEEPSEEK_KEY_6",
     "NVAPI_GLM5_KEY_1",
     "NVAPI_GLM5_KEY_2",
+    "NVIDIA_API_KEY_1",
+    "NVIDIA_API_KEY_2",
     "NVIDIA_API_KEY",
 )
 
 _KIMI_KEYS = _collect_env_keys(
     "NVAPI_KIMI_KEY_1",
     "NVAPI_KIMI_KEY_2",
+    "NVIDIA_API_KEY_1",
+    "NVIDIA_API_KEY_2",
     "NVIDIA_API_KEY",
 ) or _NVAPI_KEYS
 
@@ -176,12 +180,16 @@ _DEEPSEEK_KEYS = _collect_env_keys(
     "NVAPI_DEEPSEEK_KEY_4",
     "NVAPI_DEEPSEEK_KEY_5",
     "NVAPI_DEEPSEEK_KEY_6",
+    "NVIDIA_API_KEY_1",
+    "NVIDIA_API_KEY_2",
     "NVIDIA_API_KEY",
 ) or _NVAPI_KEYS
 
 _GLM_KEYS = _collect_env_keys(
     "NVAPI_GLM5_KEY_1",
     "NVAPI_GLM5_KEY_2",
+    "NVIDIA_API_KEY_1",
+    "NVIDIA_API_KEY_2",
     "NVIDIA_API_KEY",
 ) or _NVAPI_KEYS
 

@@ -345,8 +345,19 @@ const input = document.getElementById('input');
 const sendBtn = document.getElementById('send-btn');
 const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
-let sessionId = null;
+
+function createClientSessionId() {
+  const nonce = Math.random().toString(36).slice(2, 10);
+  return 'kingai-web-' + Date.now().toString(36) + '-' + nonce;
+}
+
+let sessionId = createClientSessionId();
 let showThinking = false;
+let thinkingCache = [];
+const renderedThinking = new Set();
+const MAX_THINKING_CACHE = 250;
+const CHAT_TIMEOUT_MS = 600000;
+let backfillInFlight = false;
 
 input.addEventListener('input', () => {
   input.style.height = 'auto';
@@ -392,6 +403,174 @@ function copyToClipboard(btn, text) {
 function toggleThinking() {
   showThinking = !showThinking;
   document.getElementById('thinking-toggle').classList.toggle('active', showThinking);
+  if (showThinking) {
+    renderCachedThinking();
+    backfillThinking();
+  }
+}
+
+function activitySession(evt) {
+  return evt?.session_id || evt?.session || null;
+}
+
+function toThinkingEntry(evt) {
+  if (!evt || evt.event !== 'activity') return null;
+  const entryType = String(evt.type || 'system').toLowerCase();
+  if (entryType === 'response' || entryType === 'user_message') return null;
+  const content = String(evt.content || '').trim();
+  if (!content) return null;
+  return {
+    ts: evt.ts || '',
+    type: String(evt.type || 'system'),
+    content,
+    session: activitySession(evt),
+  };
+}
+
+function rememberThinking(entry) {
+  thinkingCache.push(entry);
+  if (thinkingCache.length > MAX_THINKING_CACHE) {
+    thinkingCache = thinkingCache.slice(-MAX_THINKING_CACHE);
+  }
+}
+
+function isCurrentSessionEntry(entry) {
+  if (!sessionId) return true;
+  return !entry.session || entry.session === sessionId;
+}
+
+function thinkingKey(entry) {
+  return [entry.session || '', entry.ts || '', entry.type || '', entry.content.slice(0, 240)].join('|');
+}
+
+function renderThinkingEntry(entry) {
+  const key = thinkingKey(entry);
+  if (renderedThinking.has(key)) return;
+  renderedThinking.add(key);
+  const typeLabel = (entry.type || 'system').replace(/_/g, ' ').toUpperCase();
+  addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(entry.content).substring(0, 300), entry.content);
+}
+
+function renderCachedThinking() {
+  if (!showThinking) return;
+  const recent = thinkingCache.filter(isCurrentSessionEntry).slice(-12);
+  for (const entry of recent) renderThinkingEntry(entry);
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = CHAT_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function backfillThinking() {
+  if (!sessionId) return;
+  if (backfillInFlight) return;
+  backfillInFlight = true;
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=40',
+      {},
+      20000
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (const raw of entries) {
+      const entry = toThinkingEntry({ event: 'activity', ...raw });
+      if (!entry) continue;
+      rememberThinking(entry);
+    }
+    if (showThinking) renderCachedThinking();
+  } catch {
+    // Keep chat usable even if backfill fails.
+  } finally {
+    backfillInFlight = false;
+  }
+}
+
+async function latestSessionResponse(session, limit = 120, notBeforeMs = null) {
+  if (!session) return '';
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(session) + '?limit=' + limit,
+      {},
+      20000
+    );
+    if (!res.ok) return '';
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const entry = entries[i];
+      const entryType = String(entry?.type || '').toLowerCase();
+      const entryText = String(entry?.content || '').trim();
+      const entrySession = activitySession(entry);
+      const sameSession = !entrySession || !session || entrySession === session;
+      const entryTsMs = Date.parse(String(entry?.ts || ''));
+      const isRecentForRequest = notBeforeMs == null
+        || (Number.isFinite(entryTsMs) && entryTsMs + 1000 >= notBeforeMs);
+      if (entryType === 'response' && sameSession && entryText) {
+        if (!isRecentForRequest) continue;
+        return entryText;
+      }
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+async function recoverResponseFromActivity(session, attempts = 80, delayMs = 3000, notBeforeMs = null) {
+  if (!session) return '';
+  for (let i = 0; i < attempts; i++) {
+    const text = await latestSessionResponse(session, 120, notBeforeMs);
+    if (text) return text;
+    await backfillThinking();
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return '';
+}
+
+function delegationsHtml(delegations) {
+  if (!Array.isArray(delegations) || !delegations.length) return '';
+  let html = '<div style="margin-top:8px">';
+  for (const d of delegations) {
+    const cls = d && d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
+    const manager = typeof d?.manager === 'string' ? d.manager : 'manager';
+    const taskRaw = typeof d?.task === 'string' ? d.task : JSON.stringify(d?.task || '');
+    html += '<span class="' + cls + '">→ ' + esc(manager) + ': ' + esc(taskRaw.slice(0, 80)) + '</span> ';
+  }
+  html += '</div>';
+  return html;
+}
+
+function looksLikeTimeoutResponse(text) {
+  const norm = String(text || '').toLowerCase();
+  return norm.includes('timed out') || norm.includes('trouble connecting to my reasoning engine');
+}
+
+async function postChat(text) {
+  const body = { message: text, session_id: sessionId };
+  const res = await fetchWithTimeout(
+    API + '/chat',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    CHAT_TIMEOUT_MS
+  );
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || ('HTTP ' + res.status));
+  }
+  return await res.json();
 }
 
 function renderMd(text) {
@@ -422,9 +601,12 @@ function connectWS() {
     if (e.data === 'pong') return;
     try {
       const evt = JSON.parse(e.data);
-      if (showThinking && evt.event === 'activity' && evt.content) {
-        const typeLabel = (evt.type || 'system').replace(/_/g,' ').toUpperCase();
-        addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(evt.content).substring(0,300), evt.content);
+      const entry = toThinkingEntry(evt);
+      if (entry) {
+        rememberThinking(entry);
+        if (showThinking && isCurrentSessionEntry(entry)) {
+          renderThinkingEntry(entry);
+        }
       }
     } catch {}
   };
@@ -438,40 +620,79 @@ setInterval(() => { if (ws?.readyState === 1) ws.send('ping'); }, 25000);
 async function send() {
   const text = input.value.trim();
   if (!text) return;
+  if (!sessionId) sessionId = createClientSessionId();
+  const requestStartedAtMs = Date.now();
   addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
+  statusText.textContent = 'King AI is thinking...';
 
   const thinking = document.createElement('div');
   thinking.className = 'thinking-indicator'; thinking.id = 'thinking';
   thinking.innerHTML = '🧠 Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
   msgs.appendChild(thinking); msgs.scrollTop = msgs.scrollHeight;
 
+  const thinkingBackfillTimer = setInterval(() => {
+    if (sessionId) backfillThinking();
+  }, 2500);
+
   try {
-    const body = { message: text };
-    if (sessionId) body.session_id = sessionId;
-    const res = await fetch(API + '/chat', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    document.getElementById('thinking')?.remove();
-    if (!res.ok) { addMsg('assistant', '<div class="label">ERROR</div>' + esc(await res.text())); return; }
-    const data = await res.json();
-    sessionId = data.session_id;
-    const responseText = data.response || '(no response)';
-    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
-    if (data.delegations?.length) {
-      html += '<div style="margin-top:8px">';
-      for (const d of data.delegations) {
-        const cls = d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
-        html += '<span class="' + cls + '">→ ' + esc(d.manager) + ': ' + esc(d.task.substring(0,80)) + '</span> ';
-      }
-      html += '</div>';
+    let data = await postChat(text);
+    if (looksLikeTimeoutResponse(data?.response || '')) {
+      addMsg('event', 'Timeout detected, retrying once...');
+      data = await postChat(text);
     }
+
+    if (typeof data?.session_id === 'string' && data.session_id) {
+      sessionId = data.session_id;
+    }
+
+    await backfillThinking();
+
+    let responseText = typeof data?.response === 'string' && data.response.trim()
+      ? data.response
+      : '';
+
+    if ((data?.pending === true || !responseText || looksLikeTimeoutResponse(responseText)) && sessionId) {
+      addMsg('event', 'Recovering final response from activity...');
+      const recovered = await recoverResponseFromActivity(sessionId, 80, 3000, requestStartedAtMs);
+      if (recovered) {
+        responseText = recovered;
+      }
+    }
+
+    if (!responseText) {
+      responseText = '(no response yet - still processing)';
+    }
+
+    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
+    html += delegationsHtml(data?.delegations);
     addMsg('assistant', html, responseText);
   } catch (err) {
-    document.getElementById('thinking')?.remove();
-    addMsg('assistant', '<div class="label">ERROR</div>' + esc(err.message));
+    const errMsg = String(err?.message || '');
+    const timeoutLikeError = err?.name === 'AbortError' || /timed out|reasoning engine/i.test(errMsg);
+
+    if (timeoutLikeError && sessionId) {
+      addMsg('event', 'Request timed out. Attempting response recovery from activity...');
+      await backfillThinking();
+      const recovered = await recoverResponseFromActivity(sessionId, 100, 3500, requestStartedAtMs);
+      if (recovered) {
+        const html = '<div class="label">👑 King AI</div>' + renderMd(recovered);
+        addMsg('assistant', html, recovered);
+      } else {
+        const timeoutMsg = 'The chat request timed out before completion, and no final response was recovered yet.';
+        addMsg('assistant', '<div class="label">ERROR</div>' + esc(timeoutMsg), timeoutMsg);
+      }
+    } else {
+      const msg = err?.message || 'Unknown error';
+      addMsg('assistant', '<div class="label">ERROR</div>' + esc(msg), msg);
+    }
   } finally {
+    clearInterval(thinkingBackfillTimer);
+    document.getElementById('thinking')?.remove();
     sendBtn.disabled = false;
     input.focus();
+    statusText.textContent = 'Connected to King AI';
   }
 }
 

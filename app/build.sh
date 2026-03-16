@@ -20,12 +20,35 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 # Copy Info.plist
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/"
 
+# Resolve SDK path robustly. Prefer known locations first because xcrun can
+# hang on some machines.
+SDK_PATH=""
+for CANDIDATE in \
+  "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" \
+  "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"; do
+  if [ -d "$CANDIDATE" ]; then
+    SDK_PATH="$CANDIDATE"
+    break
+  fi
+done
+
+if [ -z "$SDK_PATH" ] && command -v xcrun >/dev/null 2>&1; then
+  SDK_PATH="$(xcrun --show-sdk-path 2>/dev/null || true)"
+fi
+
+if [ -z "$SDK_PATH" ]; then
+  echo "Error: Could not locate a macOS SDK."
+  exit 1
+fi
+
+echo "Using SDK: $SDK_PATH"
+
 # Compile Swift files
 echo "Compiling Swift sources..."
 swiftc \
   -o "$APP_BUNDLE/Contents/MacOS/KingAI" \
   -target arm64-apple-macosx14.0 \
-  -sdk "$(xcrun --show-sdk-path)" \
+  -sdk "$SDK_PATH" \
   -framework SwiftUI \
   -framework AppKit \
   -framework WebKit \

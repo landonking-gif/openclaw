@@ -119,9 +119,9 @@ struct ChatAPIResponse: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        response = (try container.decodeIfPresent(String.self, forKey: .response))
-            ?? (try container.decodeIfPresent(String.self, forKey: .result))
-            ?? ""
+        let primaryResponse = try container.decodeIfPresent(String.self, forKey: .response)
+        let fallbackResponse = try container.decodeIfPresent(String.self, forKey: .result)
+        response = primaryResponse ?? fallbackResponse ?? ""
         sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
             ?? container.decodeIfPresent(String.self, forKey: .session)
         delegations = try? container.decode([Delegation].self, forKey: .delegations)

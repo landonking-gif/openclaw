@@ -90,10 +90,20 @@ struct ActivityMeta: Codable {
     let dispatched: Bool?
     let attempt: Int?
     let isRateLimit: Bool?
+    let finishReason: String?
 
     enum CodingKeys: String, CodingKey {
         case dispatched, attempt
         case isRateLimit = "is_rate_limit"
+        case finishReason = "finish_reason"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        dispatched = try container.decodeIfPresent(Bool.self, forKey: .dispatched)
+        attempt = try container.decodeIfPresent(Int.self, forKey: .attempt)
+        isRateLimit = try container.decodeIfPresent(Bool.self, forKey: .isRateLimit)
+        finishReason = try container.decodeIfPresent(String.self, forKey: .finishReason)
     }
 }
 
@@ -258,8 +268,6 @@ class OrchestratorService: ObservableObject {
 
     var currentSessionThinkingEntries: [ActivityEntry] {
         thinkingEntries.filter { entry in
-            let sameSession = (entry.sessionId ?? "") == sessionId
-            guard sameSession else { return false }
             guard let type = entry.type?.lowercased(), !type.isEmpty else { return false }
             if type == "response" || type == "user_message" { return false }
             let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -458,7 +466,9 @@ class OrchestratorService: ObservableObject {
             let targetSessionId = (response.sessionId?.isEmpty == false)
                 ? response.sessionId!
                 : requestedSessionId
-            sessionId = targetSessionId
+                
+            // Update the global active session ID to match what the server actually used
+            DispatchQueue.main.async { self.sessionId = targetSessionId }
 
             var text = response.response.trimmingCharacters(in: .whitespacesAndNewlines)
             let shouldRecoverFromActivity = response.pending == true || text.isEmpty || looksLikeTimeoutResponse(text)
@@ -661,10 +671,11 @@ class OrchestratorService: ObservableObject {
     }
 
     private func mergeThinkingEntries(_ entries: [ActivityEntry], expectedSessionId: String) {
+        // Note: we no longer drop entries if entry.sessionId != expectedSessionId,
+        // because the server's response.sessionId often rewrites the client's requested ID.
+        // We trust that the caller fetched the correct scope.
         DispatchQueue.main.async {
             for entry in entries {
-                let sameSession = (entry.sessionId ?? "") == expectedSessionId
-                guard sameSession else { continue }
                 guard self.isThinkingEventEntry(entry) else { continue }
                 self.appendThinkingEntryIfNeeded(entry)
                 if entry.type == "delegation" || entry.type == "llm_tool_calls" {
@@ -941,6 +952,7 @@ class OrchestratorService: ObservableObject {
                 let decoded = try JSONDecoder().decode(T.self, from: data)
                 completion(.success(decoded))
             } catch {
+                print("OrchestratorService JSON Decoding error for \(request.url?.absoluteString ?? "unknown"): \(error)")
                 completion(.failure(error))
             }
         }.resume()

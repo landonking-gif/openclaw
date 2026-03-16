@@ -309,7 +309,8 @@ FALLBACK_MODELS = [
 FALLBACK_MODEL = FALLBACK_MODELS[0] if FALLBACK_MODELS else LLM_MODEL
 
 import httpx as _httpx
-_LLM_TIMEOUT = _httpx.Timeout(timeout=90.0, connect=10.0)
+# Increased from 90s to 300s to handle complex multi-tool operations
+_LLM_TIMEOUT = _httpx.Timeout(timeout=300.0, connect=10.0)
 
 llm_client = AsyncOpenAI(
     base_url=LLM_BASE_URL,

@@ -821,3 +821,22 @@
 {"ts": "2026-03-16T00:42:42.181756+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
 {"ts": "2026-03-16T00:45:52.652911+00:00", "category": "restart_fail", "detail": "alpha-manager started but not responding after 45s", "manager": "alpha-manager"}
 {"ts": "2026-03-16T00:48:00.849041+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-16T01:29:23.411873+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:29:26.177533+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:16.725708+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:19.286818+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:22.819533+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:51.972198+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:54.586902+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:57.154490+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:30:59.690243+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:31:43.271999+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:37:43.455636+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:46:18.277374+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:46:43.216106+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:46:45.660814+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:47:06.190611+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:47:18.567238+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:47:21.083363+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:47:23.770695+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-16T01:47:26.282435+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}

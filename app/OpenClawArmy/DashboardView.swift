@@ -512,10 +512,14 @@ struct ChatTab: View {
                                     .id(msg.id)
                             }
 
-                            // Thinking entries inline when visible
-                            if orchestrator.isThinkingVisible && orchestrator.isSending {
-                                ForEach(orchestrator.thinkingEntries.suffix(10)) { entry in
+                            // Keep recent thinking visible whenever the toggle is on.
+                            if orchestrator.isThinkingVisible {
+                                ForEach(Array(orchestrator.currentSessionThinkingEntries.suffix(12))) { entry in
                                     ThinkingBubble(entry: entry)
+                                        .id("thinking-\(entry.id.uuidString)")
+                                }
+                                if orchestrator.isSending && orchestrator.currentSessionThinkingEntries.isEmpty {
+                                    ThinkingIndicator()
                                 }
                             }
 
@@ -532,8 +536,14 @@ struct ChatTab: View {
                     }
                     .onChange(of: orchestrator.thinkingEntries.count) {
                         if orchestrator.isThinkingVisible {
-                            withAnimation {
-                                proxy.scrollTo(orchestrator.chatMessages.last?.id, anchor: .bottom)
+                            if let lastThinking = orchestrator.currentSessionThinkingEntries.last {
+                                withAnimation {
+                                    proxy.scrollTo("thinking-\(lastThinking.id.uuidString)", anchor: .bottom)
+                                }
+                            } else {
+                                withAnimation {
+                                    proxy.scrollTo(orchestrator.chatMessages.last?.id, anchor: .bottom)
+                                }
                             }
                         }
                     }

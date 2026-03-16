@@ -347,6 +347,10 @@ const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
 let sessionId = null;
 let showThinking = false;
+let thinkingCache = [];
+const renderedThinking = new Set();
+const MAX_THINKING_CACHE = 250;
+const CHAT_TIMEOUT_MS = 600000;
 
 input.addEventListener('input', () => {
   input.style.height = 'auto';
@@ -392,6 +396,122 @@ function copyToClipboard(btn, text) {
 function toggleThinking() {
   showThinking = !showThinking;
   document.getElementById('thinking-toggle').classList.toggle('active', showThinking);
+  if (showThinking) renderCachedThinking();
+}
+
+function activitySession(evt) {
+  return evt?.session_id || evt?.session || null;
+}
+
+function toThinkingEntry(evt) {
+  if (!evt || evt.event !== 'activity') return null;
+  const content = String(evt.content || '').trim();
+  if (!content) return null;
+  return {
+    ts: evt.ts || '',
+    type: String(evt.type || 'system'),
+    content,
+    session: activitySession(evt),
+  };
+}
+
+function rememberThinking(entry) {
+  thinkingCache.push(entry);
+  if (thinkingCache.length > MAX_THINKING_CACHE) {
+    thinkingCache = thinkingCache.slice(-MAX_THINKING_CACHE);
+  }
+}
+
+function isCurrentSessionEntry(entry) {
+  if (!sessionId) return true;
+  return !entry.session || entry.session === sessionId;
+}
+
+function thinkingKey(entry) {
+  return [entry.session || '', entry.ts || '', entry.type || '', entry.content.slice(0, 240)].join('|');
+}
+
+function renderThinkingEntry(entry) {
+  const key = thinkingKey(entry);
+  if (renderedThinking.has(key)) return;
+  renderedThinking.add(key);
+  const typeLabel = (entry.type || 'system').replace(/_/g, ' ').toUpperCase();
+  addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(entry.content).substring(0, 300), entry.content);
+}
+
+function renderCachedThinking() {
+  if (!showThinking) return;
+  const recent = thinkingCache.filter(isCurrentSessionEntry).slice(-12);
+  for (const entry of recent) renderThinkingEntry(entry);
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = CHAT_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function backfillThinking() {
+  if (!showThinking || !sessionId) return;
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=40',
+      {},
+      20000
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (const raw of entries) {
+      const entry = toThinkingEntry({ event: 'activity', ...raw });
+      if (!entry) continue;
+      rememberThinking(entry);
+    }
+    renderCachedThinking();
+  } catch {
+    // Keep chat usable even if backfill fails.
+  }
+}
+
+function delegationsHtml(delegations) {
+  if (!Array.isArray(delegations) || !delegations.length) return '';
+  let html = '<div style="margin-top:8px">';
+  for (const d of delegations) {
+    const cls = d && d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
+    const manager = typeof d?.manager === 'string' ? d.manager : 'manager';
+    const taskRaw = typeof d?.task === 'string' ? d.task : JSON.stringify(d?.task || '');
+    html += '<span class="' + cls + '">→ ' + esc(manager) + ': ' + esc(taskRaw.slice(0, 80)) + '</span> ';
+  }
+  html += '</div>';
+  return html;
+}
+
+function looksLikeTimeoutResponse(text) {
+  const norm = String(text || '').toLowerCase();
+  return norm.includes('timed out') || norm.includes('trouble connecting to my reasoning engine');
+}
+
+async function postChat(text) {
+  const body = { message: text };
+  if (sessionId) body.session_id = sessionId;
+  const res = await fetchWithTimeout(
+    API + '/chat',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    CHAT_TIMEOUT_MS
+  );
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || ('HTTP ' + res.status));
+  }
+  return await res.json();
 }
 
 function renderMd(text) {
@@ -422,9 +542,12 @@ function connectWS() {
     if (e.data === 'pong') return;
     try {
       const evt = JSON.parse(e.data);
-      if (showThinking && evt.event === 'activity' && evt.content) {
-        const typeLabel = (evt.type || 'system').replace(/_/g,' ').toUpperCase();
-        addMsg('thinking', '<div class="label">🧠 ' + typeLabel + '</div>' + esc(evt.content).substring(0,300), evt.content);
+      const entry = toThinkingEntry(evt);
+      if (entry) {
+        rememberThinking(entry);
+        if (showThinking && isCurrentSessionEntry(entry)) {
+          renderThinkingEntry(entry);
+        }
       }
     } catch {}
   };
@@ -441,6 +564,7 @@ async function send() {
   addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
+  statusText.textContent = 'King AI is thinking...';
 
   const thinking = document.createElement('div');
   thinking.className = 'thinking-indicator'; thinking.id = 'thinking';
@@ -448,30 +572,34 @@ async function send() {
   msgs.appendChild(thinking); msgs.scrollTop = msgs.scrollHeight;
 
   try {
-    const body = { message: text };
-    if (sessionId) body.session_id = sessionId;
-    const res = await fetch(API + '/chat', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    document.getElementById('thinking')?.remove();
-    if (!res.ok) { addMsg('assistant', '<div class="label">ERROR</div>' + esc(await res.text())); return; }
-    const data = await res.json();
-    sessionId = data.session_id;
-    const responseText = data.response || '(no response)';
-    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
-    if (data.delegations?.length) {
-      html += '<div style="margin-top:8px">';
-      for (const d of data.delegations) {
-        const cls = d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
-        html += '<span class="' + cls + '">→ ' + esc(d.manager) + ': ' + esc(d.task.substring(0,80)) + '</span> ';
-      }
-      html += '</div>';
+    let data = await postChat(text);
+    if (looksLikeTimeoutResponse(data?.response || '')) {
+      addMsg('event', 'Timeout detected, retrying once...');
+      data = await postChat(text);
     }
+
+    if (typeof data?.session_id === 'string' && data.session_id) {
+      sessionId = data.session_id;
+    }
+
+    await backfillThinking();
+
+    const responseText = typeof data?.response === 'string' && data.response.trim()
+      ? data.response
+      : '(no response)';
+    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
+    html += delegationsHtml(data?.delegations);
     addMsg('assistant', html, responseText);
   } catch (err) {
-    document.getElementById('thinking')?.remove();
-    addMsg('assistant', '<div class="label">ERROR</div>' + esc(err.message));
+    const msg = err?.name === 'AbortError'
+      ? 'The chat request timed out before completion. Please try again.'
+      : (err?.message || 'Unknown error');
+    addMsg('assistant', '<div class="label">ERROR</div>' + esc(msg), msg);
   } finally {
+    document.getElementById('thinking')?.remove();
     sendBtn.disabled = false;
     input.focus();
+    statusText.textContent = 'Connected to King AI';
   }
 }
 

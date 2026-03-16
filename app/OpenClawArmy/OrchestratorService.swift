@@ -41,11 +41,33 @@ struct ActivityEntry: Codable, Identifiable {
     let content: String?
     let sessionId: String?
     let meta: ActivityMeta?
+    let event: String?
 
     enum CodingKeys: String, CodingKey {
-        case ts, type, content
+        case ts, type, content, meta, event
         case sessionId = "session_id"
-        case meta
+        case session = "session"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        ts = try container.decodeIfPresent(String.self, forKey: .ts)
+        type = try container.decodeIfPresent(String.self, forKey: .type)
+        content = try container.decodeIfPresent(String.self, forKey: .content)
+        sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
+            ?? container.decodeIfPresent(String.self, forKey: .session)
+        meta = try container.decodeIfPresent(ActivityMeta.self, forKey: .meta)
+        event = try container.decodeIfPresent(String.self, forKey: .event)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(ts, forKey: .ts)
+        try container.encodeIfPresent(type, forKey: .type)
+        try container.encodeIfPresent(content, forKey: .content)
+        try container.encodeIfPresent(sessionId, forKey: .sessionId)
+        try container.encodeIfPresent(meta, forKey: .meta)
+        try container.encodeIfPresent(event, forKey: .event)
     }
 }
 
@@ -85,8 +107,27 @@ struct ChatAPIResponse: Codable {
 
     enum CodingKeys: String, CodingKey {
         case response
+        case result
         case sessionId = "session_id"
+        case session = "session"
         case delegations
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        response = (try container.decodeIfPresent(String.self, forKey: .response))
+            ?? (try container.decodeIfPresent(String.self, forKey: .result))
+            ?? ""
+        sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
+            ?? container.decodeIfPresent(String.self, forKey: .session)
+        delegations = try? container.decode([Delegation].self, forKey: .delegations)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(response, forKey: .response)
+        try container.encodeIfPresent(sessionId, forKey: .sessionId)
+        try container.encodeIfPresent(delegations, forKey: .delegations)
     }
 }
 
@@ -191,6 +232,16 @@ class OrchestratorService: ObservableObject {
     @Published var thinkingEntries: [ActivityEntry] = []
     @Published var isThinkingVisible = false
 
+    var currentSessionThinkingEntries: [ActivityEntry] {
+        thinkingEntries.filter { entry in
+            let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
+            guard sameSession else { return false }
+            guard let type = entry.type, !type.isEmpty else { return false }
+            let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return !text.isEmpty
+        }
+    }
+
     // Neural graph
     @Published var neuralNodes: [NeuralNode] = []
     @Published var neuralEdges: [NeuralEdge] = []
@@ -203,7 +254,7 @@ class OrchestratorService: ObservableObject {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         // Keep resource timeout above worst-case orchestrator chat latency.
-        config.timeoutIntervalForResource = 420
+        config.timeoutIntervalForResource = 720
         self.session = URLSession(configuration: config)
 
         chatMessages.append(ChatMessage(
@@ -322,32 +373,68 @@ class OrchestratorService: ObservableObject {
         }
 
         let body: [String: Any] = ["message": message, "session_id": sessionId]
+        executeChatRequest(body: body) { [weak self] result in
+            self?.handleChatResult(result)
+        }
+    }
+
+    private func executeChatRequest(
+        body: [String: Any],
+        didRetry: Bool = false,
+        completion: @escaping (Result<ChatAPIResponse, Error>) -> Void
+    ) {
         post("/chat", body: body) { [weak self] (result: Result<ChatAPIResponse, Error>) in
-            DispatchQueue.main.async {
-                self?.isSending = false
-                switch result {
-                case .success(let response):
-                    var text = response.response
-                    if let delegations = response.delegations, !delegations.isEmpty {
-                        text += "\n\n"
-                        for d in delegations {
-                            let icon = d.dispatched == true ? "✓" : "→"
-                            text += "\(icon) \(d.manager): \(d.task)\n"
-                        }
-                    }
-                    self?.chatMessages.append(ChatMessage(
-                        id: UUID(), role: .assistant, text: text, timestamp: Date()
-                    ))
-                    // Pulse neural graph
-                    self?.pulseNeuralActivity()
-                case .failure(let error):
-                    self?.chatMessages.append(ChatMessage(
-                        id: UUID(), role: .error,
-                        text: "Error: \(error.localizedDescription)", timestamp: Date()
-                    ))
+            if case .failure(let error) = result,
+               !didRetry,
+               let urlError = error as? URLError,
+               urlError.code == .timedOut {
+                self?.executeChatRequest(body: body, didRetry: true, completion: completion)
+                return
+            }
+            completion(result)
+        }
+    }
+
+    private func handleChatResult(_ result: Result<ChatAPIResponse, Error>) {
+        DispatchQueue.main.async {
+            self.isSending = false
+            switch result {
+            case .success(let response):
+                if let returnedSession = response.sessionId, !returnedSession.isEmpty {
+                    self.sessionId = returnedSession
                 }
+
+                var text = response.response.trimmingCharacters(in: .whitespacesAndNewlines)
+                if text.isEmpty {
+                    text = "I completed your request, but no response text was returned."
+                }
+
+                if let delegations = response.delegations, !delegations.isEmpty {
+                    text += "\n\n"
+                    for d in delegations {
+                        let icon = d.dispatched == true ? "✓" : "→"
+                        text += "\(icon) \(d.manager): \(d.task)\n"
+                    }
+                }
+
+                self.chatMessages.append(ChatMessage(
+                    id: UUID(), role: .assistant, text: text, timestamp: Date()
+                ))
+                self.pulseNeuralActivity()
+            case .failure(let error):
+                self.chatMessages.append(ChatMessage(
+                    id: UUID(), role: .error,
+                    text: self.userFacingChatError(error), timestamp: Date()
+                ))
             }
         }
+    }
+
+    private func userFacingChatError(_ error: Error) -> String {
+        if let urlError = error as? URLError, urlError.code == .timedOut {
+            return "Request timed out while waiting for King AI. Please try again."
+        }
+        return "Error: \(error.localizedDescription)"
     }
 
     // MARK: - Neural Graph
@@ -446,13 +533,19 @@ class OrchestratorService: ObservableObject {
                     if let data = text.data(using: .utf8) {
                         if let entry = try? JSONDecoder().decode(ActivityEntry.self, from: data) {
                             DispatchQueue.main.async {
-                                self?.thinkingEntries.append(entry)
-                                if (self?.thinkingEntries.count ?? 0) > 500 {
-                                    self?.thinkingEntries.removeFirst(100)
-                                }
-                                // Pulse neural graph on delegation events
-                                if entry.type == "delegation" || entry.type == "llm_tool_calls" {
-                                    self?.pulseNeuralActivity()
+                                let isActivityEvent = entry.event == nil || entry.event == "activity"
+                                let sameSession = entry.sessionId == nil || entry.sessionId == self?.sessionId
+                                let hasType = !(entry.type?.isEmpty ?? true)
+                                let hasContent = !((entry.content?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) ?? true)
+
+                                if isActivityEvent && sameSession && hasType && hasContent {
+                                    self?.thinkingEntries.append(entry)
+                                    if (self?.thinkingEntries.count ?? 0) > 500 {
+                                        self?.thinkingEntries.removeFirst(100)
+                                    }
+                                    if entry.type == "delegation" || entry.type == "llm_tool_calls" {
+                                        self?.pulseNeuralActivity()
+                                    }
                                 }
                             }
                         }
@@ -471,8 +564,19 @@ class OrchestratorService: ObservableObject {
 
     private func get<T: Codable>(_ path: String, completion: @escaping (Result<T, Error>) -> Void) {
         guard let url = URL(string: baseURL + path) else { return }
-        session.dataTask(with: url) { data, _, error in
+        session.dataTask(with: url) { data, response, error in
             if let error { completion(.failure(error)); return }
+            if let http = response as? HTTPURLResponse,
+               !(200...299).contains(http.statusCode) {
+                let body = data.flatMap { String(data: $0, encoding: .utf8) }
+                    ?? HTTPURLResponse.localizedString(forStatusCode: http.statusCode)
+                completion(.failure(NSError(
+                    domain: "OrchestratorService",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: body]
+                )))
+                return
+            }
             guard let data else { completion(.failure(URLError(.badServerResponse))); return }
             do {
                 let decoded = try JSONDecoder().decode(T.self, from: data)
@@ -490,9 +594,20 @@ class OrchestratorService: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         // Chat endpoint waits for LLM — override session-level timeout
-        if path == "/chat" { request.timeoutInterval = 360 }
-        session.dataTask(with: request) { data, _, error in
+        if path == "/chat" { request.timeoutInterval = 600 }
+        session.dataTask(with: request) { data, response, error in
             if let error { completion(.failure(error)); return }
+            if let http = response as? HTTPURLResponse,
+               !(200...299).contains(http.statusCode) {
+                let body = data.flatMap { String(data: $0, encoding: .utf8) }
+                    ?? HTTPURLResponse.localizedString(forStatusCode: http.statusCode)
+                completion(.failure(NSError(
+                    domain: "OrchestratorService",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: body]
+                )))
+                return
+            }
             guard let data else { completion(.failure(URLError(.badServerResponse))); return }
             do {
                 let decoded = try JSONDecoder().decode(T.self, from: data)

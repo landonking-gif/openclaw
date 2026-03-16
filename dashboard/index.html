@@ -488,7 +488,7 @@ async function backfillThinking() {
   }
 }
 
-async function latestSessionResponse(session, limit = 120) {
+async function latestSessionResponse(session, limit = 120, notBeforeMs = null) {
   if (!session) return '';
   try {
     const res = await fetchWithTimeout(
@@ -505,7 +505,11 @@ async function latestSessionResponse(session, limit = 120) {
       const entryText = String(entry?.content || '').trim();
       const entrySession = activitySession(entry);
       const sameSession = !entrySession || !session || entrySession === session;
+      const entryTsMs = Date.parse(String(entry?.ts || ''));
+      const isRecentForRequest = notBeforeMs == null
+        || (Number.isFinite(entryTsMs) && entryTsMs + 1000 >= notBeforeMs);
       if (entryType === 'response' && sameSession && entryText) {
+        if (!isRecentForRequest) continue;
         return entryText;
       }
     }
@@ -515,10 +519,10 @@ async function latestSessionResponse(session, limit = 120) {
   }
 }
 
-async function recoverResponseFromActivity(session, attempts = 80, delayMs = 3000) {
+async function recoverResponseFromActivity(session, attempts = 80, delayMs = 3000, notBeforeMs = null) {
   if (!session) return '';
   for (let i = 0; i < attempts; i++) {
-    const text = await latestSessionResponse(session);
+    const text = await latestSessionResponse(session, 120, notBeforeMs);
     if (text) return text;
     await backfillThinking();
     if (i < attempts - 1) {
@@ -612,6 +616,7 @@ async function send() {
   const text = input.value.trim();
   if (!text) return;
   if (!sessionId) sessionId = createClientSessionId();
+  const requestStartedAtMs = Date.now();
   addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
@@ -645,7 +650,7 @@ async function send() {
 
     if ((data?.pending === true || !responseText || looksLikeTimeoutResponse(responseText)) && sessionId) {
       addMsg('event', 'Recovering final response from activity...');
-      const recovered = await recoverResponseFromActivity(sessionId);
+      const recovered = await recoverResponseFromActivity(sessionId, 80, 3000, requestStartedAtMs);
       if (recovered) {
         responseText = recovered;
       }
@@ -665,7 +670,7 @@ async function send() {
     if (timeoutLikeError && sessionId) {
       addMsg('event', 'Request timed out. Attempting response recovery from activity...');
       await backfillThinking();
-      const recovered = await recoverResponseFromActivity(sessionId, 100, 3500);
+      const recovered = await recoverResponseFromActivity(sessionId, 100, 3500, requestStartedAtMs);
       if (recovered) {
         const html = '<div class="label">👑 King AI</div>' + renderMd(recovered);
         addMsg('assistant', html, recovered);

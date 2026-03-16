@@ -260,6 +260,7 @@ class OrchestratorService: ObservableObject {
     private var timer: Timer?
     private var wsTask: URLSessionWebSocketTask?
     private let session: URLSession
+    private var thinkingBackfillTask: Task<Void, Never>?
 
     init() {
         let config = URLSessionConfiguration.default
@@ -388,15 +389,24 @@ class OrchestratorService: ObservableObject {
     // MARK: - Chat
 
     func sendChat(message: String) {
+        let requestedSessionId = sessionId
+        let requestStartedAt = Date()
+
         let userMsg = ChatMessage(id: UUID(), role: .user, text: message, timestamp: Date())
         DispatchQueue.main.async {
             self.chatMessages.append(userMsg)
             self.isSending = true
         }
 
-        let body: [String: Any] = ["message": message, "session_id": sessionId]
+        startThinkingBackfillLoop()
+
+        let body: [String: Any] = ["message": message, "session_id": requestedSessionId]
         executeChatRequest(body: body) { [weak self] result in
-            self?.handleChatResult(result)
+            self?.handleChatResult(
+                result,
+                requestStartedAt: requestStartedAt,
+                requestedSessionId: requestedSessionId
+            )
         }
     }
 
@@ -417,21 +427,27 @@ class OrchestratorService: ObservableObject {
         }
     }
 
-    private func handleChatResult(_ result: Result<ChatAPIResponse, Error>) {
+    private func handleChatResult(
+        _ result: Result<ChatAPIResponse, Error>,
+        requestStartedAt: Date,
+        requestedSessionId: String
+    ) {
         switch result {
         case .success(let response):
-            if let returnedSession = response.sessionId, !returnedSession.isEmpty {
-                sessionId = returnedSession
-            }
+            let targetSessionId = (response.sessionId?.isEmpty == false)
+                ? response.sessionId!
+                : requestedSessionId
+            sessionId = targetSessionId
 
             var text = response.response.trimmingCharacters(in: .whitespacesAndNewlines)
             let shouldRecoverFromActivity = response.pending == true || text.isEmpty || looksLikeTimeoutResponse(text)
 
             if shouldRecoverFromActivity {
-                recoverChatResponse(sessionId: sessionId) { [weak self] recovered in
+                recoverChatResponse(sessionId: targetSessionId, notBefore: requestStartedAt) { [weak self] recovered in
                     guard let self else { return }
                     DispatchQueue.main.async {
                         self.isSending = false
+                        self.stopThinkingBackfillLoop()
 
                         if let recovered, !recovered.isEmpty {
                             self.chatMessages.append(ChatMessage(
@@ -463,6 +479,7 @@ class OrchestratorService: ObservableObject {
 
             DispatchQueue.main.async {
                 self.isSending = false
+                self.stopThinkingBackfillLoop()
 
                 if let delegations = response.delegations, !delegations.isEmpty {
                     text += "\n\n"
@@ -485,10 +502,11 @@ class OrchestratorService: ObservableObject {
                 || description.contains("reasoning engine")
 
             if isTimeoutFailure {
-                recoverChatResponse(sessionId: sessionId) { [weak self] recovered in
+                recoverChatResponse(sessionId: requestedSessionId, notBefore: requestStartedAt) { [weak self] recovered in
                     guard let self else { return }
                     DispatchQueue.main.async {
                         self.isSending = false
+                        self.stopThinkingBackfillLoop()
                         if let recovered, !recovered.isEmpty {
                             self.chatMessages.append(ChatMessage(
                                 id: UUID(), role: .assistant, text: recovered, timestamp: Date()
@@ -507,6 +525,7 @@ class OrchestratorService: ObservableObject {
 
             DispatchQueue.main.async {
                 self.isSending = false
+                self.stopThinkingBackfillLoop()
                 self.chatMessages.append(ChatMessage(
                     id: UUID(), role: .error,
                     text: self.userFacingChatError(error), timestamp: Date()
@@ -514,6 +533,22 @@ class OrchestratorService: ObservableObject {
             }
         }
 
+    }
+
+    private func startThinkingBackfillLoop() {
+        stopThinkingBackfillLoop()
+        thinkingBackfillTask = Task { [weak self] in
+            for _ in 0..<240 {
+                guard !Task.isCancelled else { return }
+                self?.refreshThinkingFromSessionActivity(limit: 160)
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+            }
+        }
+    }
+
+    private func stopThinkingBackfillLoop() {
+        thinkingBackfillTask?.cancel()
+        thinkingBackfillTask = nil
     }
 
     private func userFacingChatError(_ error: Error) -> String {
@@ -531,6 +566,7 @@ class OrchestratorService: ObservableObject {
 
     private func recoverChatResponse(
         sessionId: String,
+        notBefore: Date,
         attemptsRemaining: Int = 90,
         delaySeconds: TimeInterval = 3,
         completion: @escaping (String?) -> Void
@@ -540,7 +576,7 @@ class OrchestratorService: ObservableObject {
             return
         }
 
-        fetchLatestSessionResponse(sessionId: sessionId) { [weak self] text in
+        fetchLatestSessionResponse(sessionId: sessionId, notBefore: notBefore) { [weak self] text in
             if let text, !text.isEmpty {
                 completion(text)
                 return
@@ -554,6 +590,7 @@ class OrchestratorService: ObservableObject {
             DispatchQueue.global().asyncAfter(deadline: .now() + delaySeconds) {
                 self.recoverChatResponse(
                     sessionId: sessionId,
+                    notBefore: notBefore,
                     attemptsRemaining: attemptsRemaining - 1,
                     delaySeconds: delaySeconds,
                     completion: completion
@@ -562,7 +599,11 @@ class OrchestratorService: ObservableObject {
         }
     }
 
-    private func fetchLatestSessionResponse(sessionId: String, completion: @escaping (String?) -> Void) {
+    private func fetchLatestSessionResponse(
+        sessionId: String,
+        notBefore: Date,
+        completion: @escaping (String?) -> Void
+    ) {
         let encodedSession = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? sessionId
         get("/activity/session/\(encodedSession)?limit=120") { (result: Result<ActivityResponse, Error>) in
             switch result {
@@ -572,7 +613,9 @@ class OrchestratorService: ObservableObject {
                     let type = entry.type?.lowercased() ?? ""
                     let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
                     let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    return type == "response" && sameSession && !text.isEmpty
+                    guard type == "response" && sameSession && !text.isEmpty else { return false }
+                    guard let tsDate = self.parseActivityTimestamp(entry.ts) else { return false }
+                    return tsDate >= notBefore.addingTimeInterval(-1)
                 })
                 completion(candidate?.content?.trimmingCharacters(in: .whitespacesAndNewlines))
 
@@ -580,6 +623,20 @@ class OrchestratorService: ObservableObject {
                 completion(nil)
             }
         }
+    }
+
+    private func parseActivityTimestamp(_ raw: String?) -> Date? {
+        guard let raw, !raw.isEmpty else { return nil }
+
+        let withFractional = ISO8601DateFormatter()
+        withFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let parsed = withFractional.date(from: raw) {
+            return parsed
+        }
+
+        let standard = ISO8601DateFormatter()
+        standard.formatOptions = [.withInternetDateTime]
+        return standard.date(from: raw)
     }
 
     private func mergeThinkingEntries(_ entries: [ActivityEntry], expectedSessionId: String) {

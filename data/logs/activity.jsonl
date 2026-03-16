@@ -5596,3 +5596,6 @@
 {"ts": "2026-03-16T04:30:45.201160+00:00", "type": "watchdog", "session": "", "content": "Auto-restarted gamma-manager", "meta": {"manager": "gamma-manager", "result": "success"}}
 {"ts": "2026-03-16T04:37:20.956253+00:00", "type": "watchdog", "session": "", "content": "Failed to restart gamma-manager", "meta": {"manager": "gamma-manager", "error": "gamma-manager started but not responding after 45s"}}
 {"ts": "2026-03-16T04:50:27.640357+00:00", "type": "watchdog", "session": "", "content": "Auto-restarted gamma-manager", "meta": {"manager": "gamma-manager", "result": "success"}}
+{"ts": "2026-03-16T05:55:13.386565+00:00", "type": "watchdog", "session": "", "content": "Failed to restart beta-manager", "meta": {"manager": "beta-manager", "error": "beta-manager started but not responding after 45s"}}
+{"ts": "2026-03-16T06:41:24.507916+00:00", "type": "watchdog", "session": "", "content": "Failed to restart alpha-manager", "meta": {"manager": "alpha-manager", "error": "alpha-manager started but not responding after 45s"}}
+{"ts": "2026-03-16T07:17:04.039625+00:00", "type": "watchdog", "session": "", "content": "Failed to restart beta-manager", "meta": {"manager": "beta-manager", "error": "beta-manager started but not responding after 45s"}}

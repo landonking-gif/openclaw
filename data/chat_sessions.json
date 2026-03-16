@@ -1845,5 +1845,33 @@
       "role": "assistant",
       "content": "ONLY SECOND-CHECK"
     }
+  ],
+  "recovery-check-1773634549": [
+    {
+      "role": "user",
+      "content": "Reply with ONLY FIRST-CHECK"
+    },
+    {
+      "role": "assistant",
+      "content": "FIRST-CHECK"
+    }
+  ],
+  "kingai-web-mmso7iav-9h4yosub": [
+    {
+      "role": "user",
+      "content": "Reply with exactly: WEB-UI-RECOVERY-CHECK"
+    },
+    {
+      "role": "assistant",
+      "content": "WEB-UI-RECOVERY-CHECK"
+    },
+    {
+      "role": "user",
+      "content": "Reply with exactly: TOGGLE-MID-TEST"
+    },
+    {
+      "role": "assistant",
+      "content": "TOGGLE-MID-TEST"
+    }
   ]
 }

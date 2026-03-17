@@ -11,10 +11,24 @@
             "id": "8acb433cb16615da",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "projects/openclaw-army/index.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "index"
             }
           }
         ]
@@ -190,17 +204,21 @@
   },
   "active": "8acb433cb16615da",
   "lastOpenFiles": [
-    "decisions/ADR-001-architecture.md",
+    "openclaw-army/landon-king.md",
     "README.md",
+    "templates/project.md",
     "templates/daily-log.md",
     "templates/code-pattern.md",
+    "openclaw-army/memory-architecture.md",
+    "openclaw-army/README.md",
+    "openclaw-army/meta-orchestrator.md",
+    "decisions/ADR-001-architecture.md",
     "templates/research.md",
     "inbox/e2e-deploy-test-1.md",
     "inbox/e2e-deploy-test.md",
     "inbox/test-note.md",
     "Welcome.md",
     "inbox",
-    "templates/project.md",
     "templates/decision.md",
     "templates",
     "projects",

@@ -2025,5 +2025,15 @@
       "role": "assistant",
       "content": "**Done.** Registered `github_copilot_cli` tool.\n\n**What it does:**\n- `suggest` \u2014 Generate code completions from Copilot CLI\n- `explain` \u2014 Get explanations for code snippets\n- `install_extension` \u2014 Install the Copilot extension for `gh`\n- `auth_status` \u2014 Check if authenticated\n- `version` \u2014 Check Copilot version\n\n**Current blocker:** GitHub CLI needs authentication.\n\n**To activate:**\n1. Run `gh auth login` in a terminal (or I can do it via `run_shell_command`)\n2. Or set `GH_TOKEN` in environment\n\nWant me to initiate the auth flow?"
     }
+  ],
+  "copilot-test-456": [
+    {
+      "role": "user",
+      "content": "Can you use the github_copilot tool to write me a bash script that lists all mp4 files?"
+    },
+    {
+      "role": "assistant",
+      "content": "Here's the bash script from Copilot:\n\n**Best option (most portable):**\n```bash\n#!/bin/bash\nfind . -type f -name \"*.mp4\"\n```\n\n**Alternative with full paths and sorted:**\n```bash\n#!/bin/bash\nfind . -type f -name \"*.mp4\" | sort\n```\n\n**To save it as a script file:**\n```bash\ncat > list_mp4s.sh << 'EOF'\n#!/bin/bash\nfind . -type f -name \"*.mp4\"\nEOF\nchmod +x list_mp4s.sh\n./list_mp4s.sh\n```\n\nThe `find . -type f -name \"*.mp4\"` command is recommended \u2014 it's portable, efficient, and explicitly filters for files only (not directories).\n\nWant me to create this script file for you?"
+    }
   ]
 }

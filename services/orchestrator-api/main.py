@@ -12467,11 +12467,11 @@ async def _github_copilot(action: str, prompt: str, shell: str = "zsh") -> dict:
 
     try:
         if action == "ask":
-            cmd = [gh_path, "copilot", "-p", prompt]
+            cmd = [gh_path, "copilot", "-s", "-p", prompt]
         elif action == "suggest":
-            cmd = [gh_path, "copilot", "-p", f"Suggest a {shell} command to: {prompt}"]
+            cmd = [gh_path, "copilot", "-s", "-p", f"Suggest a {shell} command to: {prompt}"]
         elif action == "explain":
-            cmd = [gh_path, "copilot", "-p", f"Explain this command: {prompt}"]
+            cmd = [gh_path, "copilot", "-s", "-p", f"Explain this command: {prompt}"]
         else:
             return {"error": f"Unknown action: {action}. Use ask, suggest, or explain."}
 
@@ -12481,7 +12481,7 @@ async def _github_copilot(action: str, prompt: str, shell: str = "zsh") -> dict:
             stderr=_aio.subprocess.PIPE,
             env={**os.environ, "GH_PROMPT_DISABLED": "1"},
         )
-        stdout, stderr = await _aio.wait_for(proc.communicate(), timeout=60)
+        stdout, stderr = await _aio.wait_for(proc.communicate(), timeout=120)
         output = stdout.decode("utf-8", errors="replace").strip()
         err = stderr.decode("utf-8", errors="replace").strip()
 

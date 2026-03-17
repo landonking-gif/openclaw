@@ -124,5 +124,47 @@
     },
     "handler_code": "\nimport random\nimport hashlib\n\n# Get text from args\ntext_input = args.get('text', '')\n\nif not text_input or len(text_input.strip()) == 0:\n    return \"0.0\"\n\n# Use hash of text to generate consistent sentiment for same text\ntext_hash = hashlib.md5(text_input.encode()).hexdigest()\nhash_int = int(text_hash[:8], 16)\n\n# Map to -1.0 to 1.0 range\nsentiment = (hash_int / 0xffffffff) * 2 - 1\n\n# Round to 4 decimal places\nsentiment = round(sentiment, 4)\n\nreturn str(sentiment)\n",
     "created_at": "2026-03-14T05:01:38.510540+00:00"
+  },
+  {
+    "name": "github_copilot_cli",
+    "description": "GitHub Copilot CLI interface for AI-powered code assistance. Provides commands like 'gh copilot suggest' for generating code suggestions, explanations, and completions. Requires 'gh auth login' to be run first or GH_TOKEN environment variable to be set.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "install_extension",
+            "auth_status",
+            "version"
+          ],
+          "description": "Copilot CLI command to run"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The code prompt or question for suggest/explain commands"
+        },
+        "language": {
+          "type": "string",
+          "description": "Programming language for code suggestions (e.g., python, javascript, go)"
+        },
+        "target": {
+          "type": "string",
+          "description": "For explain: file path or code snippet to explain"
+        },
+        "wait_for_auth": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, waits for user to complete browser auth flow"
+        }
+      },
+      "required": [
+        "command"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport os\nimport asyncio\n\nasync def run_command(cmd, timeout=30):\n    \"\"\"Run a shell command and return output\"\"\"\n    proc = await asyncio.create_subprocess_shell(\n        cmd,\n        stdout=asyncio.subprocess.PIPE,\n        stderr=asyncio.subprocess.PIPE\n    )\n    try:\n        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)\n        return stdout.decode().strip(), stderr.decode().strip(), proc.returncode\n    except asyncio.TimeoutError:\n        proc.kill()\n        await proc.communicate()\n        return \"\", \"Command timed out\", 1\n\ncommand = args.get(\"command\")\nprompt = args.get(\"prompt\", \"\")\nlanguage = args.get(\"language\", \"\")\ntarget = args.get(\"target\", \"\")\nwait_for_auth = args.get(\"wait_for_auth\", False)\n\n# Check if gh is installed\nstdout, stderr, code = await run_command(\"which gh\")\nif code != 0:\n    return \"Error: GitHub CLI (gh) is not installed. Install it with: brew install gh\"\n\n# Check auth status first\nstdout, stderr, code = await run_command(\"gh auth status 2>&1\")\nif \"not logged\" in stderr.lower() or \"not logged\" in stdout.lower() or code != 0:\n    if wait_for_auth:\n        # Try to initiate login\n        return \"GitHub CLI needs authentication. Run 'gh auth login' in a terminal and complete the browser flow, or set GH_TOKEN environment variable.\"\n    else:\n        return \"Error: GitHub CLI not authenticated. Run 'gh auth login' or set GH_TOKEN env var.\"\n\n# Handle different commands\nif command == \"auth_status\":\n    stdout, stderr, code = await run_command(\"gh auth status\")\n    return stdout if stdout else stderr\n\nelif command == \"install_extension\":\n    stdout, stderr, code = await run_command(\"gh extension install github/gh-copilot --force\")\n    if code == 0:\n        return \"GitHub Copilot extension installed successfully.\"\n    else:\n        return f\"Installation result: {stdout}\\n{stderr}\"\n\nelif command == \"version\":\n    stdout, stderr, code = await run_command(\"gh copilot --version 2>&1 || gh extension list | grep copilot\")\n    return stdout if stdout else stderr\n\nelif command == \"suggest\":\n    if not prompt:\n        return \"Error: 'prompt' is required for suggest command\"\n    \n    # Build the suggest command\n    cmd = f\"gh copilot suggest -t '{prompt}'\"\n    if language:\n        cmd += f\" -l {language}\"\n    \n    stdout, stderr, code = await run_command(cmd, timeout=60)\n    \n    if \"not found\" in stderr.lower() or \"not installed\" in stderr.lower():\n        return f\"Copilot extension not installed. Run with command='install_extension' first.\\n\\nError: {stderr}\"\n    \n    if code != 0:\n        return f\"Error: {stderr}\\nStdout: {stdout}\"\n    \n    return stdout\n\nelif command == \"explain\":\n    target_code = target or prompt\n    if not target_code:\n        return \"Error: 'target' or 'prompt' is required for explain command\"\n    \n    cmd = f\"gh copilot explain '{target_code}'\"\n    stdout, stderr, code = await run_command(cmd, timeout=60)\n    \n    if code != 0:\n        return f\"Error: {stderr}\\nStdout: {stdout}\"\n    \n    return stdout\n\nelse:\n    return f\"Unknown command: {command}\"\n",
+    "created_at": "2026-03-17T13:23:41.351982+00:00"
   }
 ]

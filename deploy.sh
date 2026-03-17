@@ -23,6 +23,7 @@ DATA_DIR="$ARMY_HOME/data"
 LOG_DIR="$DATA_DIR/logs"
 PID_DIR="$DATA_DIR"
 PYTHON="python3.14"
+OPENCLAW_CLI="node $HOME/openclaw-core/openclaw.mjs"
 
 # Ensure required dependencies are in PATH (PostgreSQL, Redis, OpenClaw Node modules)
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@17/bin:$HOME/.npm-global/bin:$PATH"
@@ -275,7 +276,7 @@ _start_agents() {
         OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
         OPENCLAW_DISABLE_BONJOUR=1 \
         NVIDIA_API_KEY="$api_key" \
-        nohup openclaw gateway --port "$port" --force > "$logfile" 2>&1 &
+        eval nohup $OPENCLAW_CLI gateway --port "$port" --force > "$logfile" 2>&1 &
 
         local pid=$!
         echo "$pid" > "$pidfile"
@@ -488,7 +489,7 @@ cmd_restart() {
                 OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
                 OPENCLAW_DISABLE_BONJOUR=1 \
                 NVIDIA_API_KEY="$api_key" \
-                nohup openclaw gateway --port "$port" --force > "$logfile" 2>&1 &
+                eval nohup $OPENCLAW_CLI gateway --port "$port" --force > "$logfile" 2>&1 &
 
                 echo "$!" > "$PID_DIR/pids/agent-${name}.pid"
                 log_ok "Restarted $name on port $port"

@@ -56,7 +56,8 @@ struct ActivityEntry: Codable, Identifiable {
         content = try container.decodeIfPresent(String.self, forKey: .content)
         sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
             ?? container.decodeIfPresent(String.self, forKey: .session)
-        meta = try container.decodeIfPresent(ActivityMeta.self, forKey: .meta)
+        // Backend meta dict may contain unexpected fields — gracefully fall back to nil
+        meta = try? container.decodeIfPresent(ActivityMeta.self, forKey: .meta)
         event = try container.decodeIfPresent(String.self, forKey: .event)
     }
 
@@ -815,7 +816,10 @@ class OrchestratorService: ObservableObject {
                     if let data = text.data(using: .utf8) {
                         if let entry = self?.parseWebSocketThinkingEntry(from: data) {
                             DispatchQueue.main.async {
-                                let sameSession = (entry.sessionId ?? "") == self?.sessionId
+                                // Accept entries with matching session OR nil session
+                                // (server may rewrite session IDs)
+                                let entrySession = entry.sessionId ?? ""
+                                let sameSession = entrySession.isEmpty || entrySession == self?.sessionId
 
                                 if sameSession {
                                     if let self, self.isThinkingEventEntry(entry) {

@@ -2596,6 +2596,22 @@ MANAGER_TOOLS += [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "github_copilot",
+            "description": "GitHub Copilot CLI — AI-powered coding assistant via the `gh copilot` command line. Ask questions about code, get shell command suggestions, or explain commands. Actions: 'ask' (ask Copilot a coding question), 'suggest' (get a shell command suggestion for a task), 'explain' (explain what a command does).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: ask, suggest, explain"},
+                    "prompt": {"type": "string", "description": "The question, task description, or command to explain"},
+                    "shell": {"type": "string", "description": "Target shell for suggest (default: zsh)"}
+                },
+                "required": ["action", "prompt"]
+            }
+        }
+    },
 ]
 
 TOOL_TO_MANAGER = {
@@ -2650,6 +2666,7 @@ INTERNAL_TOOLS = {
     "screen_share",
     "visionclaw",
     "learn_new_skill",
+    "github_copilot",
 }
 
 # ── Logging ─────────────────────────────────────────────────────────────────
@@ -4174,6 +4191,13 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 if internal_result.get("created"):
                     await activity.record("skill_create", session_id,
                                           f"Created skill: {fn_args.get('name', '')}")
+            elif fn_name == "github_copilot":
+                internal_result = await _github_copilot(
+                    fn_args.get("action", "ask"),
+                    fn_args.get("prompt", ""),
+                    fn_args.get("shell", "zsh"),
+                )
+                internal_task = f"GitHub Copilot: {fn_args.get('action', 'ask')}"
             else:
                 # Dynamic tool execution
                 result_str = await _execute_dynamic_tool(fn_name, fn_args)
@@ -12429,6 +12453,50 @@ async def _screen_share(action: str, **kwargs) -> dict:
 
 
 # ── Tool #101: visionclaw ──────────────────────────────────────────────────
+
+# ── Tool #102: github_copilot ─────────────────────────────────────────────
+
+async def _github_copilot(action: str, prompt: str, shell: str = "zsh") -> dict:
+    """GitHub Copilot CLI — ask questions, get suggestions, or explain commands."""
+    import asyncio as _aio
+    if not prompt.strip():
+        return {"error": "prompt is required"}
+
+    action = action.lower().strip()
+    gh_path = "/opt/homebrew/bin/gh"
+
+    try:
+        if action == "ask":
+            cmd = [gh_path, "copilot", "-p", prompt]
+        elif action == "suggest":
+            cmd = [gh_path, "copilot", "-p", f"Suggest a {shell} command to: {prompt}"]
+        elif action == "explain":
+            cmd = [gh_path, "copilot", "-p", f"Explain this command: {prompt}"]
+        else:
+            return {"error": f"Unknown action: {action}. Use ask, suggest, or explain."}
+
+        proc = await _aio.create_subprocess_exec(
+            *cmd,
+            stdout=_aio.subprocess.PIPE,
+            stderr=_aio.subprocess.PIPE,
+            env={**os.environ, "GH_PROMPT_DISABLED": "1"},
+        )
+        stdout, stderr = await _aio.wait_for(proc.communicate(), timeout=60)
+        output = stdout.decode("utf-8", errors="replace").strip()
+        err = stderr.decode("utf-8", errors="replace").strip()
+
+        if proc.returncode != 0:
+            return {"error": err or f"gh copilot exited with code {proc.returncode}", "output": output}
+
+        return {"action": action, "result": output}
+    except _aio.TimeoutError:
+        return {"error": "GitHub Copilot CLI timed out after 60 seconds"}
+    except FileNotFoundError:
+        return {"error": "gh CLI not found. Install GitHub CLI: brew install gh"}
+    except Exception as e:
+        return {"error": f"GitHub Copilot failed: {str(e)}"}
+
+
 
 _OPENCLAW_CONFIG_PATH = Path.home() / ".openclaw" / "openclaw.json"
 

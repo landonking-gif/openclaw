@@ -165,6 +165,9 @@ cmd_start() {
     # 3. Start all agents
     _start_agents
 
+    # 4. Build and install Mac app
+    _build_mac_app
+
     log_head "All Systems Online"
     cmd_status
 }
@@ -222,12 +225,13 @@ _start_services() {
         cd "$SERVICES_DIR/$name"
 
         # Source .env in the service context
-        ARMY_HOME="$ARMY_HOME" \
-        POSTGRES_URL="${POSTGRES_URL:-postgresql://openclaw:openclaw@localhost:5432/openclaw_army}" \
-        REDIS_URL="${REDIS_URL:-redis://localhost:6379/0}" \
-        CHROMA_PATH="$DATA_DIR/chroma" \
-        VAULT_PATH="$ARMY_HOME/data/obsidian database" \
-        eval nohup $cmd > "$logfile" 2>&1 &
+        eval "env ARMY_HOME=\"$ARMY_HOME\" \
+        POSTGRES_URL=\"${POSTGRES_URL:-postgresql://openclaw:openclaw@localhost:5432/openclaw_army}\" \
+        REDIS_URL=\"${REDIS_URL:-redis://localhost:6379/0}\" \
+        CHROMA_PATH=\"$DATA_DIR/chroma\" \
+        VAULT_PATH=\"$ARMY_HOME/data/obsidian database\" \
+        NVIDIA_API_KEY=\"${NVIDIA_API_KEY:-}\" \
+        nohup $cmd > \"$logfile\" 2>&1 &"
 
         local pid=$!
         echo "$pid" > "$pidfile"
@@ -242,6 +246,24 @@ _start_services() {
         cd "$ARMY_HOME"
     done
 }
+
+_build_mac_app() {
+    log_info "Building Mac App..."
+    if [[ -d "$ARMY_HOME/app" ]]; then
+        cd "$ARMY_HOME/app" && ./build.sh >/dev/null
+        if [[ -d "build/King AI.app" ]]; then
+            log_ok "App built. Installing to /Applications/"
+            killall "KingAI" 2>/dev/null || true
+            rm -rf "/Applications/King AI.app"
+            cp -R "build/King AI.app" "/Applications/"
+            log_ok "App installed to /Applications/King AI.app"
+        else
+            log_warn "App build failed."
+        fi
+        cd "$ARMY_HOME"
+    fi
+}
+
 
 _start_agents() {
     local started=0
@@ -271,12 +293,20 @@ _start_agents() {
             api_key="${NVIDIA_API_KEY:-}"
         fi
 
+        # Kill anything on port first
+        pids=$(lsof -ti :$port 2>/dev/null || true)
+        if [ ! -z "$pids" ]; then
+            echo "Stopping previous agent on port $port (PIDs: $pids)"
+            echo "$pids" | xargs kill -9 >/dev/null 2>&1
+            sleep 1
+        fi
+
         # Start the agent via gateway subcommand
-        OPENCLAW_SERVICE_LABEL="$name" \
-        OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
+        eval "env OPENCLAW_SERVICE_LABEL=\"$name\" \
+        OPENCLAW_CONFIG_PATH=\"$agent_dir/openclaw.json\" \
         OPENCLAW_DISABLE_BONJOUR=1 \
-        NVIDIA_API_KEY="$api_key" \
-        eval nohup $OPENCLAW_CLI gateway --port "$port" --force > "$logfile" 2>&1 &
+        NVIDIA_API_KEY=\"$api_key\" \
+        nohup $OPENCLAW_CLI gateway --port \"$port\" --force > \"$logfile\" 2>&1 &"
 
         local pid=$!
         echo "$pid" > "$pidfile"

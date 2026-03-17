@@ -77,6 +77,38 @@
             },
             "contextWindow": 131072,
             "maxTokens": 8192
+          },
+          {
+            "id": "meta/llama-3.3-70b-instruct",
+            "name": "Llama 3.3 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          },
+          {
+            "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+            "name": "Nemotron 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
           }
         ]
       }
@@ -90,8 +122,8 @@
       "model": {
         "primary": "nvidia/moonshotai/kimi-k2.5",
         "fallbacks": [
-          "nvidia/meta/llama-3.3-70b-instruct",
-          "nvidia/nvidia/llama-3.1-nemotron-70b-instruct"
+          "nvidia/deepseek-ai/deepseek-r1",
+          "nvidia/z-ai/glm-5"
         ]
       },
       "workspace": "/Users/landonking/openclaw-army/agents/alpha-manager",

@@ -4976,6 +4976,7 @@ async def _restart_manager(name: str) -> dict:
         env = os.environ.copy()
         env["OPENCLAW_SERVICE_LABEL"] = name
         env["OPENCLAW_CONFIG_PATH"] = str(agent_dir / "openclaw.json")
+        env["OPENCLAW_DISABLE_BONJOUR"] = "1"
         api_key = os.environ.get(info.get("api_key_env", ""), "") or os.environ.get("NVIDIA_API_KEY", "")
         if api_key:
             env["NVIDIA_API_KEY"] = api_key
@@ -13806,18 +13807,7 @@ async def _health_watchdog():
     while True:
         await asyncio.sleep(60)
         try:
-            # Clear stale locks
-            for profile_dir in [".openclaw", ".openclaw-alpha", ".openclaw-beta", ".openclaw-gamma"]:
-                lock_base = Path.home() / profile_dir
-                if lock_base.exists():
-                    for lock in lock_base.rglob("*.lock"):
-                        try:
-                            lock.unlink()
-                            log.info(f"Watchdog cleared lock: {lock}")
-                        except Exception:
-                            pass
-
-            # Check managers and auto-restart dead ones
+            # Auto-restart dead ones (lock clearing now happens inside _restart_manager)
             for mgr_name, port in [("alpha-manager", 18800), ("beta-manager", 18801), ("gamma-manager", 18802)]:
                 try:
                     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3)) as sess:

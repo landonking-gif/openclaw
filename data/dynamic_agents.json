@@ -1,0 +1,68 @@
+{
+  "delta-manager": {
+    "port": 18815,
+    "description": "Marketing, sales, and growth strategy specialist manager. Handles GTM strategy, content marketing, brand positioning, pricing strategy, and customer acquisition.",
+    "capabilities": [
+      "marketing",
+      "sales",
+      "gtm-strategy",
+      "content-marketing",
+      "brand-positioning",
+      "pricing-strategy",
+      "customer-acquisition",
+      "copywriting",
+      "conversion-optimization"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T18:51:43.922316+00:00"
+  },
+  "epsilon-manager": {
+    "port": 18816,
+    "description": "Product and UX design specialist manager. Handles user research, wireframes, user flows, design systems, and product specifications.",
+    "capabilities": [
+      "product-design",
+      "ux-research",
+      "wireframing",
+      "user-flows",
+      "design-systems",
+      "product-specs",
+      "user-personas",
+      "journey-mapping",
+      "prototyping"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T18:58:15.455533+00:00"
+  },
+  "zeta-manager": {
+    "port": 18817,
+    "description": "Infrastructure and DevOps specialist manager. Handles service deployment, health monitoring, log analysis, and infrastructure automation. Manages infrastructure-1 through infrastructure-4 agents.",
+    "capabilities": [
+      "infrastructure",
+      "devops",
+      "monitoring",
+      "health-checks",
+      "deployment",
+      "logging",
+      "service-restart"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:14:14.621898+00:00"
+  },
+  "eta-manager": {
+    "port": 18818,
+    "description": "Legal compliance and regulatory specialist manager. Handles legal ethics, bar compliance, data privacy, and regulatory requirements for legal tech products.",
+    "capabilities": [
+      "legal-compliance",
+      "regulatory",
+      "data-privacy",
+      "gdpr",
+      "ccpa",
+      "bar-compliance",
+      "legal-ethics",
+      "attorney-privilege",
+      "compliance-audit"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T18:58:15.459214+00:00"
+  }
+}

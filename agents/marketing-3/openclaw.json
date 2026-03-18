@@ -1,0 +1,53 @@
+{
+  "agent": {
+    "id": "marketing-3",
+    "name": "Marketing-3 (PR & Communications)",
+    "role": "worker",
+    "manager": "marketing-manager",
+    "port": 18903,
+    "specialty": "PR and communications",
+    "description": "Public relations, media relations, crisis communications, and executive messaging"
+  },
+  "model": {
+    "default": "nvidiadeepseekai/deepseek-r1",
+    "fallback": "nvidia/moonshotai/kimi-k2.5"
+  },
+  "nvidia": {
+    "apiKeyEnv": "NVAPI_KEY",
+    "baseUrl": "https://integrate.api.nvidia.com/v1",
+    "maxTokens": 8192,
+    "temperature": 0.7
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 18903,
+    "timeoutMs": 300000
+  },
+  "memory": {
+    "enabled": true,
+    "servicePort": 18820,
+    "contextWindow": 20
+  },
+  "permissions": {
+    "tools": [
+      "web_search",
+      "web_fetch",
+      "memory_commit",
+      "memory_query",
+      "diary",
+      "reflect",
+      "get_memory_context",
+      "sessions_send",
+      "sessions_list",
+      "read",
+      "write",
+      "edit",
+      "message"
+    ],
+    "elevationRequired": ["exec", "sessions_spawn", "cron"]
+  },
+  "integrations": {
+    "obsidianVault": "/Users/landonking/openclaw-army/knowledge-vault",
+    "knowledgeBridgePort": 18850
+  }
+}

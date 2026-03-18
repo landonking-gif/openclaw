@@ -1,19 +1,17 @@
 {
   "delta-manager": {
     "port": 18815,
-    "description": "Marketing and Growth Strategy Specialist Manager. Handles GTM strategy, competitive analysis, pricing research, content marketing, and customer acquisition planning. Manages marketing-1 through marketing-4 workers.",
+    "description": "Marketing and Growth Strategy Specialist Manager. Handles GTM strategy, competitive analysis, pricing research, content marketing, and customer acquisition planning.",
     "capabilities": [
-      "market_research",
+      "marketing",
+      "gtm_strategy",
       "competitive_analysis",
-      "pricing_strategy",
+      "pricing_research",
       "content_marketing",
-      "gtm_planning",
-      "customer_acquisition",
-      "brand_positioning",
-      "launch_strategy"
+      "customer_acquisition"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:21:33.725941+00:00"
+    "registered_at": "2026-03-18T21:54:44.696030+00:00"
   },
   "epsilon-manager": {
     "port": 18816,
@@ -22,14 +20,12 @@
       "product_design",
       "ux_research",
       "wireframing",
-      "prototyping",
-      "design_systems",
       "user_flows",
-      "delegation",
-      "task_coordination"
+      "design_systems",
+      "product_specs"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:20:59.041713+00:00"
+    "registered_at": "2026-03-18T21:54:44.700519+00:00"
   },
   "zeta-manager": {
     "port": 18817,
@@ -37,32 +33,27 @@
     "capabilities": [
       "infrastructure",
       "devops",
-      "cicd",
+      "deployment",
       "monitoring",
-      "security",
-      "cost_optimization",
-      "delegation",
-      "task_coordination"
+      "logging",
+      "automation",
+      "ci_cd"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:20:59.044855+00:00"
+    "registered_at": "2026-03-18T21:54:44.701358+00:00"
   },
   "eta-manager": {
     "port": 18818,
     "description": "Legal compliance and regulatory specialist manager. Handles legal ethics, bar compliance, data privacy, and regulatory requirements for legal tech products.",
     "capabilities": [
-      "legal-compliance",
+      "legal_compliance",
       "regulatory",
-      "data-privacy",
-      "gdpr",
-      "ccpa",
-      "bar-compliance",
-      "legal-ethics",
-      "attorney-privilege",
-      "compliance-audit"
+      "data_privacy",
+      "bar_compliance",
+      "legal_ethics"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T18:58:15.459214+00:00"
+    "registered_at": "2026-03-18T21:54:44.702133+00:00"
   },
   "marketing-1": {
     "port": 18901,

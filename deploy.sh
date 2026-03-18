@@ -36,22 +36,53 @@ fi
 
 # Agent definitions: name:port:model_env_key
 AGENT_DEFS=(
-    "main:${KING_PORT:-18789}:NVAPI_KIMI_KEY_1"
-    "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_DEEPSEEK_KEY_2"
-    "beta-manager:${BETA_PORT:-18801}:NVAPI_DEEPSEEK_KEY_1"
-    "gamma-manager:${GAMMA_PORT:-18802}:NVAPI_KIMI_KEY_2"
-    "coding-1:${CODING_1_PORT:-18803}:NVAPI_DEEPSEEK_KEY_3"
-    "coding-2:${CODING_2_PORT:-18804}:NVAPI_DEEPSEEK_KEY_4"
-    "coding-3:${CODING_3_PORT:-18805}:NVAPI_DEEPSEEK_KEY_5"
-    "coding-4:${CODING_4_PORT:-18806}:NVAPI_DEEPSEEK_KEY_6"
-    "agentic-1:${AGENTIC_1_PORT:-18807}:NVAPI_GLM5_KEY_1"
-    "agentic-2:${AGENTIC_2_PORT:-18808}:NVAPI_GLM5_KEY_2"
-    "agentic-3:${AGENTIC_3_PORT:-18809}:NVAPI_DEEPSEEK_KEY_3"
-    "agentic-4:${AGENTIC_4_PORT:-18810}:NVAPI_DEEPSEEK_KEY_4"
-    "general-1:${GENERAL_1_PORT:-18811}:NVAPI_DEEPSEEK_KEY_5"
-    "general-2:${GENERAL_2_PORT:-18812}:NVAPI_DEEPSEEK_KEY_6"
-    "general-3:${GENERAL_3_PORT:-18813}:NVAPI_GLM5_KEY_1"
-    "general-4:${GENERAL_4_PORT:-18814}:NVAPI_GLM5_KEY_2"
+ # King AI (supreme orchestrator)
+ "main:${KING_PORT:-18789}:NVAPI_KIMI_KEY_1"
+ 
+ # Alpha Manager + Workers (General Purpose - Writing, Email, Summarization)
+ "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_DEEPSEEK_KEY_2"
+ "general-1:${GENERAL_1_PORT:-18811}:NVAPI_DEEPSEEK_KEY_5"
+ "general-2:${GENERAL_2_PORT:-18812}:NVAPI_DEEPSEEK_KEY_6"
+ "general-3:${GENERAL_3_PORT:-18813}:NVAPI_GLM5_KEY_1"
+ "general-4:${GENERAL_4_PORT:-18814}:NVAPI_GLM5_KEY_2"
+ 
+ # Beta Manager + Workers (Software Engineering - Coding, Testing, Infrastructure)
+ "beta-manager:${BETA_PORT:-18801}:NVAPI_DEEPSEEK_KEY_1"
+ "coding-1:${CODING_1_PORT:-18803}:NVAPI_DEEPSEEK_KEY_3"
+ "coding-2:${CODING_2_PORT:-18804}:NVAPI_DEEPSEEK_KEY_4"
+ "coding-3:${CODING_3_PORT:-18805}:NVAPI_DEEPSEEK_KEY_5"
+ "coding-4:${CODING_4_PORT:-18806}:NVAPI_DEEPSEEK_KEY_6"
+ 
+ # Gamma Manager + Workers (Research & Analysis - Web Search, Documents, Data)
+ "gamma-manager:${GAMMA_PORT:-18802}:NVAPI_KIMI_KEY_2"
+ "agentic-1:${AGENTIC_1_PORT:-18807}:NVAPI_GLM5_KEY_1"
+ "agentic-2:${AGENTIC_2_PORT:-18808}:NVAPI_GLM5_KEY_2"
+ "agentic-3:${AGENTIC_3_PORT:-18809}:NVAPI_DEEPSEEK_KEY_3"
+ "agentic-4:${AGENTIC_4_PORT:-18810}:NVAPI_DEEPSEEK_KEY_4"
+ 
+ # Delta Manager + Workers (Marketing & Growth - GTM, Content, PR, Positioning)
+ "delta-manager:${DELTA_PORT:-18815}:NVAPI_KIMI_KEY_1"
+ "marketing-1:${MARKETING_1_PORT:-18901}:NVAPI_DEEPSEEK_KEY_2"
+ "marketing-2:${MARKETING_2_PORT:-18902}:NVAPI_DEEPSEEK_KEY_3"
+ "marketing-3:${MARKETING_3_PORT:-18903}:NVAPI_DEEPSEEK_KEY_4"
+ "marketing-4:${MARKETING_4_PORT:-18904}:NVAPI_DEEPSEEK_KEY_5"
+ 
+ # Epsilon Manager + Workers (Product & UX - Research, Wireframes, Design Systems)
+ "epsilon-manager:${EPSILON_PORT:-18816}:NVAPI_KIMI_KEY_2"
+ "product-1:${PRODUCT_1_PORT:-18911}:NVAPI_DEEPSEEK_KEY_1"
+ "product-2:${PRODUCT_2_PORT:-18912}:NVAPI_DEEPSEEK_KEY_2"
+ "product-3:${PRODUCT_3_PORT:-18913}:NVAPI_DEEPSEEK_KEY_3"
+ "product-4:${PRODUCT_4_PORT:-18914}:NVAPI_DEEPSEEK_KEY_4"
+ 
+ # Zeta Manager + Workers (Infrastructure & DevOps - CI/CD, Monitoring, Security)
+ "zeta-manager:${ZETA_PORT:-18817}:NVAPI_KIMI_KEY_1"
+ "infra-1:${INFRA_1_PORT:-18921}:NVAPI_DEEPSEEK_KEY_5"
+ "infra-2:${INFRA_2_PORT:-18922}:NVAPI_DEEPSEEK_KEY_6"
+ "infra-3:${INFRA_3_PORT:-18923}:NVAPI_GLM5_KEY_1"
+ "infra-4:${INFRA_4_PORT:-18924}:NVAPI_GLM5_KEY_2"
+ 
+ # Eta Manager (Legal & Compliance - Ethics, Bar Compliance, Data Privacy)
+ "eta-manager:${ETA_PORT:-18818}:NVAPI_KIMI_KEY_2"
 )
 
 # Service definitions: name:port:command

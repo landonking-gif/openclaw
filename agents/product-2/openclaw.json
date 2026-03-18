@@ -1,0 +1,48 @@
+{
+  "agent": {
+    "id": "product-2",
+    "name": "Wireframe Pro",
+    "description": "Wireframing, prototyping, and user flow design specialist",
+    "port": 18912,
+    "manager": "product-manager",
+    "manager_port": 18910,
+    "domain": "product",
+    "specialty": "wireframing",
+    "skills": ["wireframing", "prototyping", "user-flows", "mockups", "figma"]
+  },
+  "model": {
+    "default": "nvidia/deepseek-ai/deepseek-r1",
+    "fast": "nvidia/deepseek-ai/deepseek-r1",
+    "coding": "nvidia/deepseek-ai/deepseek-r1"
+  },
+  "reasoning": {
+    "default": "low",
+    "tool_calls": "low"
+  },
+  "tools": {
+    "enabled": [
+      "read", "write", "edit", "exec",
+      "web_search", "web_fetch",
+      "sessions_list", "sessions_history", "sessions_send",
+      "sessions_spawn", "subagents",
+      "memory_commit", "memory_query", "diary", "reflect",
+      "request_elevation", "check_permissions"
+    ]
+  },
+  "permissions": {
+    "web_search": true,
+    "web_fetch": true,
+    "exec": false,
+    "sessions_send": true,
+    "sessions_spawn": true
+  },
+  "system": {
+    "memory_service_port": 18820,
+    "orchestrator_port": 18830,
+    "vault_port": 18850
+  },
+  "logging": {
+    "level": "info",
+    "diary_enabled": true
+  }
+}

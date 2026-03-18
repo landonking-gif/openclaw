@@ -1,0 +1,229 @@
+{
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "ui": {
+    "assistant": {
+      "name": "eta-manager",
+      "avatar": "eta-manager"
+    }
+  },
+  "auth": {
+    "profiles": {
+      "nvidia:default": {
+        "provider": "nvidia",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "replace",
+    "providers": {
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1/",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "deepseek-ai/deepseek-r1",
+            "name": "DeepSeek R1 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "z-ai/glm-5",
+            "name": "GLM-5 (NVIDIA NIM)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "meta/llama-3.3-70b-instruct",
+            "name": "Llama 3.3 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          },
+          {
+            "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+            "name": "Nemotron 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          }
+        ]
+      }
+    },
+    "bedrockDiscovery": {
+      "enabled": false
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/moonshotai/kimi-k2.5",
+        "fallbacks": [
+          "nvidia/deepseek-ai/deepseek-r1",
+          "nvidia/z-ai/glm-5"
+        ]
+      },
+      "workspace": "/Users/landonking/openclaw-army/agents/eta-manager",
+      "memorySearch": {
+        "enabled": true
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "brave",
+        "maxResults": 10
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "sessions": {
+      "visibility": "all"
+    },
+    "message": {
+      "allowCrossContextSend": true,
+      "crossContext": {
+        "allowWithinProvider": true,
+        "allowAcrossProviders": true
+      },
+      "broadcast": {
+        "enabled": false
+      }
+    },
+    "elevated": {
+      "enabled": true
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "gateway": {
+    "port": 18818,
+    "mode": "local",
+    "bind": "loopback",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "eta-manager-legal-compliance-token-18818"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "load": {
+      "paths": [
+        "/Users/landonking/openclaw-army/extensions"
+      ]
+    },
+    "entries": {
+      "permission-broker": {
+        "enabled": true
+      },
+      "memory-client": {
+        "enabled": true
+      },
+      "cost-tracker": {
+        "enabled": true
+      },
+      "reasoning-engine": {
+        "enabled": true
+      }
+    }
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.2.22-2",
+    "lastTouchedAt": "2026-03-09T00:00:00.000Z",
+    "role": "Legal & Compliance Manager",
+    "responsibilities": [
+      "Lead legal compliance",
+      "Bar regulations",
+      "Data privacy",
+      "Regulatory requirements for legal tech products"
+    ],
+    "reportsTo": "king-ai",
+    "manages": []
+  }
+}

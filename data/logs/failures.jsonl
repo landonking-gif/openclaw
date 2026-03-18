@@ -1398,3 +1398,13 @@
 {"ts": "2026-03-17T22:25:01.673121+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 3 checks", "manager": "beta-manager"}
 {"ts": "2026-03-17T22:26:47.080728+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 4 checks", "manager": "beta-manager"}
 {"ts": "2026-03-17T22:28:32.544019+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 5 checks", "manager": "beta-manager"}
+{"ts": "2026-03-17T23:34:48.501446+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-17T23:34:48.508101+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-17T23:36:35.885247+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-17T23:36:38.674644+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-17T23:40:06.452498+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-17T23:44:45.450838+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-17T23:45:07.437363+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-17T23:50:52.438852+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-17T23:55:53.417911+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-18T00:19:54.320899+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}

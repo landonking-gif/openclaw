@@ -1,4 +1,4 @@
-# OpenClaw Army - Architecture Overview
+j# OpenClaw Army - Architecture Overview
 
 **Date:** March 17, 2026  
 **Version:** 1.0  

@@ -11,24 +11,10 @@
             "id": "8acb433cb16615da",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "projects/openclaw-army/index.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "index"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -204,6 +190,10 @@
   },
   "active": "8acb433cb16615da",
   "lastOpenFiles": [
+    "openclaw-army/101-tools-reference.md",
+    "Manager Agents.md",
+    "openclaw-army/architecture-overview.md",
+    "projects/openclaw-army/index.md",
     "openclaw-army/landon-king.md",
     "README.md",
     "templates/project.md",

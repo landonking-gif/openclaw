@@ -1,0 +1,299 @@
+---
+title: King AI v2 - External API Integration Mapping
+agent: alpha-manager
+date: 2026-03-10
+version: 2.0.0
+tags:
+  - type/reference
+  - project/king-ai-v2
+  - system/integrations
+  - status/current
+---
+
+# King AI v2 - External API Integration Mapping
+
+Complete inventory of external services and integration patterns.
+
+## Integration Architecture
+
+```mermaid
+flowchart LR
+    subgraph KingAI["King AI v2 Ecosystem"]
+        KING["                        King AI]
+        ORCH["                        Orchestrator]
+        MEM["                        Memory Service]
+    end
+
+    subgraph External["External Services"]
+        direction TB
+        NVAPI["NVIDIA nvapi"]
+        OPENAI["OpenAI API"]
+        GITHUB["GitHub API"]
+        BRAVE["Brave Search"]
+        XURL["X/Twitter API"]
+        TTS["ElevenLabs TTS"]
+        REDIS["Redis"]
+        PG["PostgreSQL"]
+        CHROMA["ChromaDB"]
+    end
+
+    KING -->|Model calls| NVAPI
+    KING -->|Image gen| OPENAI
+    KING -->|Whisper| OPENAI
+    ORCH -->|Code ops| GITHUB
+    ORCH -->|Web search| BRAVE
+    KING -->|Social| XURL
+    KING -->|Voice| TTS
+    MEM -->|Cache| REDIS
+    MEM -->|Structured| PG
+    MEM -->|Vectors| CHROMA
+```
+
+## AI/ML APIs
+
+### NVIDIA nvapi (Primary)
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Endpoint** | `https://integrate.api.nvidia.com/v1` |
+| **Models** | kimi-k2.5 (free), deepseek-r1, glm-5, nemotron-h4 |
+| **Auth** | API key in env `NVAPI_API_KEY` |
+| **Rate Limit** | 240 requests/min |
+| **Cost** | FREE for all models |
+| **Usage** | Primary LLM for all agents |
+
+**Tool mapping:**
+- `sessions_spawn` → nvapi model calls
+- All chat responses → nvapi streaming
+
+### OpenAI API (Secondary)
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Endpoint** | `https://api.openai.com/v1` |
+| **Services** | GPT-4, DALL-E, Whisper, TTS |
+| **Auth** | API key in config |
+| **Cost** | Variable ($) |
+| **Usage** | Fallback, image gen, transcription |
+
+**Tool mapping:**
+- `image` → DALL-E image generation
+- `tts` → OpenAI TTS (when ElevenLabs unavailable)
+- `openai-whisper-api` → Audio transcription
+
+### ElevenLabs TTS
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Endpoint** | `https://api.elevenlabs.io/v1` |
+| **Voice** | "Nova" (warm, British) - preferred |
+| **Auth** | API key required |
+| **Feature** | Multilingual, high quality |
+| **Usage** | Voice storytelling, stories |
+
+**Tool mapping:**
+- `tts` → ElevenLabs (via sag CLI)
+
+## Communication APIs
+
+### X/Twitter (xurl)
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Endpoint** | `https://api.twitter.com/2` |
+| **Auth** | OAuth 2.0 (tokens in config) |
+| **Scope** | Post, search, DM, media upload |
+| **Rate Limit** | 300/15min (app), 900/15min (user) |
+
+**Tool mapping:**
+- `xurl` → Full X API v2 coverage
+- `message` → Can send tweets
+
+**Risk Assessment:**
+| Action | Risk | Approval |
+|--------|------|----------|
+| Post tweet | Medium | Moderate+ required |
+| Reply | Low | Auto OK |
+| DM send | High | Manual approval |
+| Delete tweet | High | Manual approval |
+
+### Messaging Providers
+
+| Provider | Channels | Approval |
+|----------|----------|----------|
+| Telegram | messages, groups | Moderate+ |
+| Discord | messages, threads | Moderate+ |
+| WhatsApp | messages | Conservative |
+| Signal | messages | Conservative |
+| iMessage | messages | Conservative (Apple only) |
+| SMS | messages | Conservative |
+| Slack | messages, apps | Moderate+ |
+
+**Tool mapping:**
+- `message` tool → Unified send across providers
+- `sessions_send` → Cross-session messaging
+
+## Development APIs
+
+### GitHub
+
+| Aspect | Configuration |
+|----------|---------------|
+| **API** | `gh` CLI + REST v3 |
+| **Auth** | `gh auth login` or token |
+| **Scope** | repos, issues, PRs, actions |
+| **Rate Limit** | 5,000/hour (authenticated) |
+
+**Tool mapping:**
+- `github` skill → All GitHub operations
+- `gh-issues` skill → Issue resolution automation
+- `write` → `git commit` locally
+- `exec` → `git push` (requires approval)
+
+**Workflow:**
+```
+Skill: gh-issues
+  → Fetch issues with labels
+  → Spawn coding agents
+  → Monitor PRs
+  → Address review comments
+  → Merge on approval
+```
+
+### Container/Deployment
+
+| Service | Integration | Tool |
+|---------|-------------|------|
+| Docker | Local daemon | exec |
+| npm/registry | Package install | exec |
+| pip/PyPI | Python packages | exec |
+
+## Search/Web APIs
+
+### Brave Search
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Endpoint** | `https://api.search.brave.com` |
+| **Auth** | API key in config |
+| **Rate Limit** | 2,000/month (free tier) |
+| **Features** | Web search, image, video |
+
+**Tool mapping:**
+- `web_search` → Brave Search API
+- Supports country/language filters
+
+**Parameters:**
+- `count`: 1-10 results
+- `freshness`: pd/pw/pm/py or date range
+- `country`: US/DE/etc for localization
+
+### Web Fetch
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Method** | Direct HTTP GET |
+| **Extraction** | HTML → Markdown/Text |
+| **Timeout** | Configurable |
+| **Max chars** | Truncation support |
+
+**Tool mapping:**
+- `web_fetch` → Single URL extraction
+- Use for: documentation, articles, reference
+
+## Data Storage
+
+### Memory Service (Port 18820)
+
+| Tier | Technology | Port | Purpose |
+|------|------------|------|---------|
+| **Tier 1** | Redis | 6379 | Session cache, recent context |
+| **Tier 2** | PostgreSQL | 5432 | Structured summaries |
+| **Tier 3** | ChromaDB | 8000 | Vector search, long-term |
+
+**Tool mapping:**
+- `memory_commit` → Store in all tiers
+- `memory_query` → Semantic search Tier 3
+- `diary` → Narrative logging
+- `reflect` → Learning extraction
+
+### Knowledge Vault (Port 18850)
+
+| Aspect | Configuration |
+|----------|---------------|
+| **Format** | Markdown (Obsidian) |
+| **API** | HTTP REST |
+| **Search** | Full-text + semantic |
+| **Folders** | agents/, research/, projects/, etc. |
+
+**Endpoints:**
+```
+GET  /search?q={query}
+POST /notes                    → Create note
+POST /notes/append             → Append to section
+POST /daily-log                → Add to daily
+```
+
+**Tool mapping:**
+- Direct HTTP calls via `exec curl`
+- Agents read/write structured docs
+
+## Approval Requirements by API
+
+### Conservative Mode
+
+| API | Action | Approval |
+|-----|--------|----------|
+| X/Twitter | Post | King AI |
+| X/Twitter | DM | King AI |
+| GitHub | Push | Manager |
+| GitHub | Merge | King AI |
+| Messaging | Send new | Manager |
+| Web | POST | Manager |
+
+### Moderate Mode
+
+| API | Action | Approval |
+|-----|--------|----------|
+| X/Twitter | Post | Manager |
+| X/Twitter | DM | Manager |
+| GitHub | Push | Auto (safe branches) |
+| GitHub | Merge | Manager |
+| Messaging | Send | Auto (known threads) |
+
+### Aggressive Mode
+
+| API | Action | Approval |
+|-----|--------|----------|
+| X/Twitter | Post | Auto |
+| X/Twitter | DM | Manager |
+| GitHub | Push | Auto |
+| GitHub | Force push | Manager |
+| Messaging | Send | Auto |
+
+## Integration Health Monitoring
+
+| Service | Health Check | Failover |
+|---------|--------------|----------|
+| NVIDIA nvapi | `/v1/models` | OpenAI |
+| OpenAI | `/v1/models` | nvapi |
+| GitHub | `gh status` | Cached |
+| Brave | `/v1/brave` | Built-in |
+| X | `/v2/tweets` | Error + log |
+| Redis | `redis ping` | PostgreSQL |
+| PostgreSQL | Connection test | — |
+| ChromaDB | `/api/v1/heartbeat` | — |
+
+## API Key Management
+
+### Environment Variables
+
+```bash
+# AI/Rix
+NVAPI_API_KEY="nvapi-..."        # Required
+OPENAI_API_KEY="sk-..."          # Optional
+ELEVENLABS_API_KEY="..."         # Optional
+
+# External
+GH_TOKEN="ghp_..."               # For gh CLI
+BRAVE_API_KEY="..."

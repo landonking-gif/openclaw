@@ -306,7 +306,7 @@ _start_agents() {
         OPENCLAW_CONFIG_PATH=\"$agent_dir/openclaw.json\" \
         OPENCLAW_DISABLE_BONJOUR=1 \
         NVIDIA_API_KEY=\"$api_key\" \
-        nohup $OPENCLAW_CLI gateway --port \"$port\" --force > \"$logfile\" 2>&1 &"
+        nohup $OPENCLAW_CLI gateway --port \"$port\" --force --profile \"$name\" > \"$logfile\" 2>&1 &"
 
         local pid=$!
         echo "$pid" > "$pidfile"

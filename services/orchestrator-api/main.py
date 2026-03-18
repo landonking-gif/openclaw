@@ -4903,9 +4903,9 @@ async def run_diagnostic():
 # ── Manager Restart Logic ───────────────────────────────────────────────────
 
 _MANAGER_PROFILES = {
-    "alpha-manager": {"port": 18800, "profile": "alpha", "dir": "agents/alpha-manager", "api_key_env": "NVAPI_KIMI_KEY_1"},
-    "beta-manager":  {"port": 18801, "profile": "beta",  "dir": "agents/beta-manager",  "api_key_env": "NVAPI_KIMI_KEY_2"},
-    "gamma-manager": {"port": 18802, "profile": "gamma", "dir": "agents/gamma-manager", "api_key_env": "NVAPI_KIMI_KEY_2"},
+    "alpha-manager": {"port": 18800, "profile": "alpha-manager", "dir": "agents/alpha-manager", "api_key_env": "NVAPI_KIMI_KEY_1"},
+    "beta-manager":  {"port": 18801, "profile": "beta-manager",  "dir": "agents/beta-manager",  "api_key_env": "NVAPI_KIMI_KEY_2"},
+    "gamma-manager": {"port": 18802, "profile": "gamma-manager", "dir": "agents/gamma-manager", "api_key_env": "NVAPI_KIMI_KEY_2"},
 }
 
 
@@ -4980,8 +4980,12 @@ async def _restart_manager(name: str) -> dict:
         api_key = os.environ.get(info.get("api_key_env", ""), "") or os.environ.get("NVIDIA_API_KEY", "")
         if api_key:
             env["NVIDIA_API_KEY"] = api_key
+        # Start the manager using the local openclaw-core to avoid broken global installs
+        node_path = "/opt/homebrew/bin/node"
+        core_path = os.path.expanduser("~/openclaw-core/openclaw.mjs")
+        
         subprocess.Popen(
-            ["openclaw", "gateway", "--port", str(port), "--force", "--profile", profile],
+            [node_path, core_path, "gateway", "--port", str(port), "--force", "--profile", profile],
             cwd=str(agent_dir),
             env=env,
             stdout=open(f"/tmp/openclaw-{profile}.log", "w"),

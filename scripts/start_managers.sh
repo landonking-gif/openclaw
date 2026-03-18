@@ -26,35 +26,38 @@ find $HOME/.openclaw-alpha -name "*.lock" -type f -delete 2>/dev/null || true
 find $HOME/.openclaw-beta -name "*.lock" -type f -delete 2>/dev/null || true
 find $HOME/.openclaw-gamma -name "*.lock" -type f -delete 2>/dev/null || true
 
+# Executable path
+OPENCLAW_CLI="node $HOME/openclaw-core/openclaw.mjs"
+
 echo ""
 echo "=== Starting Manager Agents (with profile isolation) ==="
 
-# Alpha Manager — uses --profile alpha (state in ~/.openclaw-alpha/)
-echo "Starting alpha-manager on port 18800 (profile: alpha)..."
+# Alpha Manager — uses --profile alpha-manager (state in ~/.openclaw-alpha-manager/)
+echo "Starting alpha-manager on port 18800 (profile: alpha-manager)..."
 OPENCLAW_SERVICE_LABEL=alpha-manager \
 OPENCLAW_CONFIG_PATH=$ARMY_HOME/agents/alpha-manager/openclaw.json \
 NVIDIA_API_KEY=$NVAPI_KIMI_KEY_1 \
-nohup openclaw gateway --port 18800 --force --profile alpha > $LOG_DIR/agent-alpha-manager.log 2>&1 &
+eval "nohup $OPENCLAW_CLI gateway --port 18800 --force --profile alpha-manager > $LOG_DIR/agent-alpha-manager.log 2>&1 &"
 echo $! > $PID_DIR/agent-alpha-manager.pid
 echo "  PID: $!"
 sleep 2
 
-# Beta Manager — uses --profile beta (state in ~/.openclaw-beta/)
-echo "Starting beta-manager on port 18801 (profile: beta)..."
+# Beta Manager — uses --profile beta-manager (state in ~/.openclaw-beta-manager/)
+echo "Starting beta-manager on port 18801 (profile: beta-manager)..."
 OPENCLAW_SERVICE_LABEL=beta-manager \
 OPENCLAW_CONFIG_PATH=$ARMY_HOME/agents/beta-manager/openclaw.json \
 NVIDIA_API_KEY=$NVAPI_DEEPSEEK_KEY_1 \
-nohup openclaw gateway --port 18801 --force --profile beta > $LOG_DIR/agent-beta-manager.log 2>&1 &
+eval "nohup $OPENCLAW_CLI gateway --port 18801 --force --profile beta-manager > $LOG_DIR/agent-beta-manager.log 2>&1 &"
 echo $! > $PID_DIR/agent-beta-manager.pid
 echo "  PID: $!"
 sleep 2
 
-# Gamma Manager — uses --profile gamma (state in ~/.openclaw-gamma/)
-echo "Starting gamma-manager on port 18802 (profile: gamma)..."
+# Gamma Manager — uses --profile gamma-manager (state in ~/.openclaw-gamma-manager/)
+echo "Starting gamma-manager on port 18802 (profile: gamma-manager)..."
 OPENCLAW_SERVICE_LABEL=gamma-manager \
 OPENCLAW_CONFIG_PATH=$ARMY_HOME/agents/gamma-manager/openclaw.json \
 NVIDIA_API_KEY=$NVAPI_KIMI_KEY_2 \
-nohup openclaw gateway --port 18802 --force --profile gamma > $LOG_DIR/agent-gamma-manager.log 2>&1 &
+eval "nohup $OPENCLAW_CLI gateway --port 18802 --force --profile gamma-manager > $LOG_DIR/agent-gamma-manager.log 2>&1 &"
 echo $! > $PID_DIR/agent-gamma-manager.pid
 echo "  PID: $!"
 

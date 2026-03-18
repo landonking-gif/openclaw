@@ -95,6 +95,22 @@ Use `revoke_grant(grant_id="...")` if a worker is misusing a grant.
 - **Impact:** Alert fatigue from same root causes
 - **Note:** Consider disabling or fixing cron config to reduce log spam
 
+## Known System Issues (2026-03-18)
+
+### Version Sync Cron Job Failing
+- **Status:** Recurring failures every ~15-30 minutes throughout day
+- **Errors:** 
+  - 410 Gone (Discord webhook endpoint deprecated)
+  - Permission denied (attempting git without exec rights)
+  - "Cannot read properties of undefined (reading 'filter')" — API response handling bug
+- **Source:** `/Users/landonking/openclaw-army` repo auto-sync job
+- **Impact:** Notification spam, but no actual functionality broken
+- **Fix needed:** 
+  1. Update Discord webhook URL in cron config
+  2. Grant exec permission to agent running the job OR reconfigure to use GitHub CLI
+  3. Add null check before `.filter()` on API responses
+- **Note:** Job wants to run: `git status`, `git add -A`, `git commit`, `git push origin main`
+
 ## Known System Issues (2026-03-09)
 
 ### GitHub Sync Still Failing

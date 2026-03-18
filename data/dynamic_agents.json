@@ -1,52 +1,51 @@
 {
   "delta-manager": {
     "port": 18815,
-    "description": "Marketing, sales, and growth strategy specialist manager. Handles GTM strategy, content marketing, brand positioning, pricing strategy, and customer acquisition.",
+    "description": "Marketing and Growth Strategy Specialist Manager. Handles GTM strategy, competitive analysis, pricing research, content marketing, and customer acquisition planning. Manages marketing-1 through marketing-4 workers.",
     "capabilities": [
-      "marketing",
-      "sales",
-      "gtm-strategy",
-      "content-marketing",
-      "brand-positioning",
-      "pricing-strategy",
-      "customer-acquisition",
-      "copywriting",
-      "conversion-optimization"
+      "market_research",
+      "competitive_analysis",
+      "pricing_strategy",
+      "content_marketing",
+      "gtm_planning",
+      "customer_acquisition",
+      "brand_positioning",
+      "launch_strategy"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T18:51:43.922316+00:00"
+    "registered_at": "2026-03-18T19:21:33.725941+00:00"
   },
   "epsilon-manager": {
     "port": 18816,
-    "description": "Product and UX design specialist manager. Handles user research, wireframes, user flows, design systems, and product specifications.",
+    "description": "Product and UX design specialist manager. Manages product-1 through product-4 workers. Handles user research, wireframes, user flows, design systems, and product specifications.",
     "capabilities": [
-      "product-design",
-      "ux-research",
+      "product_design",
+      "ux_research",
       "wireframing",
-      "user-flows",
-      "design-systems",
-      "product-specs",
-      "user-personas",
-      "journey-mapping",
-      "prototyping"
+      "prototyping",
+      "design_systems",
+      "user_flows",
+      "delegation",
+      "task_coordination"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T18:58:15.455533+00:00"
+    "registered_at": "2026-03-18T19:20:59.041713+00:00"
   },
   "zeta-manager": {
     "port": 18817,
-    "description": "Infrastructure and DevOps specialist manager. Handles service deployment, health monitoring, log analysis, and infrastructure automation. Manages infrastructure-1 through infrastructure-4 agents.",
+    "description": "Infrastructure and DevOps specialist manager. Manages infra-1 through infra-4 workers. Handles service deployment, health monitoring, log analysis, and infrastructure automation.",
     "capabilities": [
       "infrastructure",
       "devops",
+      "cicd",
       "monitoring",
-      "health-checks",
-      "deployment",
-      "logging",
-      "service-restart"
+      "security",
+      "cost_optimization",
+      "delegation",
+      "task_coordination"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:14:14.621898+00:00"
+    "registered_at": "2026-03-18T19:20:59.044855+00:00"
   },
   "eta-manager": {
     "port": 18818,
@@ -64,5 +63,149 @@
     ],
     "profile": "",
     "registered_at": "2026-03-18T18:58:15.459214+00:00"
+  },
+  "marketing-1": {
+    "port": 18901,
+    "description": "Brand messaging and positioning specialist worker for Delta Manager",
+    "capabilities": [
+      "brand_strategy",
+      "messaging_hierarchy",
+      "value_proposition",
+      "competitive_positioning"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:18:41.270838+00:00"
+  },
+  "marketing-2": {
+    "port": 18902,
+    "description": "Content strategy and GTM planning specialist worker for Delta Manager",
+    "capabilities": [
+      "content_strategy",
+      "gtm_planning",
+      "launch_timeline",
+      "channel_strategy"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:18:41.299392+00:00"
+  },
+  "marketing-3": {
+    "port": 18903,
+    "description": "PR and communications specialist worker for Delta Manager",
+    "capabilities": [
+      "press_releases",
+      "media_outreach",
+      "pr_strategy",
+      "executive_comms"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:18:41.302862+00:00"
+  },
+  "marketing-4": {
+    "port": 18904,
+    "description": "Website copy and sales enablement specialist worker for Delta Manager",
+    "capabilities": [
+      "website_copy",
+      "landing_pages",
+      "sales_decks",
+      "email_sequences"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:18:41.307300+00:00"
+  },
+  "product-1": {
+    "port": 18911,
+    "description": "User research and persona development specialist for Epsilon Manager",
+    "capabilities": [
+      "user_research",
+      "personas",
+      "journey_mapping",
+      "interviews"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.011013+00:00"
+  },
+  "product-2": {
+    "port": 18912,
+    "description": "Wireframing and prototyping specialist for Epsilon Manager",
+    "capabilities": [
+      "wireframes",
+      "prototyping",
+      "figma",
+      "user_flows"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.012991+00:00"
+  },
+  "product-3": {
+    "port": 18913,
+    "description": "Design systems and UI components specialist for Epsilon Manager",
+    "capabilities": [
+      "design_systems",
+      "ui_components",
+      "style_guides",
+      "accessibility"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.013846+00:00"
+  },
+  "product-4": {
+    "port": 18914,
+    "description": "Product specifications and PRD specialist for Epsilon Manager",
+    "capabilities": [
+      "product_specs",
+      "prds",
+      "requirements",
+      "acceptance_criteria"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.014990+00:00"
+  },
+  "infra-1": {
+    "port": 18921,
+    "description": "CI/CD and deployment automation specialist for Zeta Manager",
+    "capabilities": [
+      "cicd",
+      "deployment",
+      "github_actions",
+      "automation"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.016255+00:00"
+  },
+  "infra-2": {
+    "port": 18922,
+    "description": "Monitoring and observability specialist for Zeta Manager",
+    "capabilities": [
+      "monitoring",
+      "observability",
+      "metrics",
+      "alerting"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.016533+00:00"
+  },
+  "infra-3": {
+    "port": 18923,
+    "description": "Security and compliance specialist for Zeta Manager",
+    "capabilities": [
+      "security",
+      "compliance",
+      "soc2",
+      "gdpr"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.017440+00:00"
+  },
+  "infra-4": {
+    "port": 18924,
+    "description": "Cost optimization and infrastructure scaling specialist for Zeta Manager",
+    "capabilities": [
+      "cost_optimization",
+      "scaling",
+      "aws",
+      "budgeting"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T19:19:20.017708+00:00"
   }
 }

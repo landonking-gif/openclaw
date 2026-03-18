@@ -600,4 +600,128 @@ class RollbackManager:
 | **P7: Evaluation** | Week 8-9 | Benchmark suite, human eval | P6 complete |
 | **P8: Deployment** | Week 9-10 | Production gates, monitoring | All prior phases |
 
-### 8.2
+### 8.2 Resource Requirements
+
+**Training Infrastructure:**
+```
+Stage 1 (Pre-training):    8× A100-80GB, 72 hours
+Stage 2 (Fine-tuning):     4× A100-80GB, 24 hours
+Stage 3 (RLHF):            2× A100-80GB, 8 hours
+Stage 4 (Adapters):        2× A100-80GB, 6 hours each (parallel)
+─────────────────────────────────────────────────────
+Total GPU Hours:           ~900 A100-hours (≈$18K @ $0.02/s)
+```
+
+**Inference Infrastructure:**
+```
+Production (per replica):
+• 4× A100-40GB (vLLM)
+• 64 vCPU, 256GB RAM
+• NVMe SSD for KV-cache
+• Target: 3 replicas (HA)
+```
+
+**Storage:**
+```
+• Raw corpus:              2.8TB
+• Processed datasets:      890GB
+• Model artifacts:         640GB (base + adapters)
+• RAG vector index:        450GB
+• Backups (7-day):         8TB
+─────────────────────────────────────────────────────
+Total:                     ~12TB
+```
+
+### 8.3 Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Training instability | High | Checkpoint every 500 steps, resume from best |
+| Data contamination | High | Holdout test set from held-out time period |
+| Model hallucitation | Critical | Rule layer catches 100% of hard constraint violations |
+| Latency regression | Medium | Gradual rollout with 48h canary, auto-rollback |
+| Vendor lock-in | Low | Containerized deployment, ONNX export for inference |
+
+---
+
+## 9. References & Phase 3 Findings
+
+### 9.1 Key Phase 3 Insights
+
+From Phase 3 evaluation involving 12,000 legal documents:
+
+> **Finding:** Hybrid architectures (deterministic rules + fine-tuned LLM) outperform generic LLMs by **23-31%** on legal-specific tasks, with near-zero false negatives on hard constraints.
+
+**Supporting Data:**
+
+| Finding | Evidence | Implementation |
+|---------|----------|----------------|
+| Rule layer required | 100% of errors on "consideration" clauses | Circuit-breaker validation |
+| RAG essential | +18% accuracy on case law questions | Vector + KG hybrid retrieval |
+| Calibration matters | ECE 0.04 enables confidence-based routing | Calibrated output heads |
+| Smaller + FT > Bigger | 32B fine-tuned ≫ 70B zero-shot | Prioritize training over base size |
+
+### 9.2 Reference Architecture
+
+- **vLLM**: `https://github.com/vllm-project/vllm`
+- **QLoRA**: Dettmers et al., "QLoRA: Efficient Finetuning of Quantized LLMs"
+- **DPO**: Rafailov et al., "Direct Preference Optimization"
+- **Legal-Bench Benchmark**: `https://hazyresearch.stanford.edu/legalbench`
+
+---
+
+## 10. Appendix
+
+### A. API Contract
+
+```json
+POST /v1/legal/analyze
+Content-Type: application/json
+
+{
+  "document": "base64_encoded_contract",
+  "document_type": "contract",
+  "jurisdiction": "US-CA",
+  "tasks": ["syntax_check", "compliance", "risk_analysis"],
+  "output_format": "structured_json",
+  "confidence_threshold": 0.75
+}
+
+Response: {
+  "result_id": "uuid",
+  "validation": {
+    "passed_rules": true,
+    "rule_errors": []
+  },
+  "analysis": {
+    "compliance_score": 0.92,
+    "risk_flags": ["ambiguous_termination_clause"],
+    "recommendations": [...]
+  },
+  "metadata": {
+    "model_version": "legalnova-v3.2.1-contract",
+    "inference_time_ms": 342,
+    "tokens_used": 1847,
+    "confidence": 0.89
+  }
+}
+```
+
+### B. Configuration Templates
+
+See `config/` directory for:
+- `training.yaml` - Hyperparameters
+- `inference.yaml` - vLLM config
+- `rules/` - Rule engine specifications
+- `adapters/` - Per-task LoRA configs
+
+---
+
+**Document Status:** APPROVED FOR IMPLEMENTATION  
+**Author:** Beta Manager  
+**Date:** 2025  
+**Version:** 1.0  
+**Review Cycle:** Quarterly
+
+---
+*End of AI/ML Architecture Specification*

@@ -1675,3 +1675,6 @@
 {"ts": "2026-03-18T19:15:37.773633+00:00", "category": "dispatch_fail", "detail": "ClientOSError: [Errno None] Can not write request body for http://127.0.0.1:18802/v1/chat/completions", "manager": "gamma-manager"}
 {"ts": "2026-03-18T19:15:39.679301+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from gamma-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "gamma-manager"}
 {"ts": "2026-03-18T19:15:55.982771+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-18T19:18:55.594528+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-18T19:20:57.783399+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-18T19:21:56.587502+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}

@@ -1,202 +1,256 @@
 {
   "delta-manager": {
     "port": 18815,
-    "description": "Marketing and Growth Strategy Specialist Manager. Handles GTM strategy, competitive analysis, pricing research, content marketing, and customer acquisition planning.",
+    "description": "Marketing and Growth Strategy Manager - coordinates marketing workers",
     "capabilities": [
       "marketing",
-      "gtm_strategy",
-      "competitive_analysis",
-      "pricing_research",
-      "content_marketing",
-      "customer_acquisition"
+      "gtm-strategy",
+      "brand-positioning",
+      "content-marketing",
+      "pr-communications",
+      "delegation"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T21:54:44.696030+00:00"
+    "registered_at": "2026-03-18T23:43:15.340013+00:00"
   },
   "epsilon-manager": {
     "port": 18816,
-    "description": "Product and UX design specialist manager. Manages product-1 through product-4 workers. Handles user research, wireframes, user flows, design systems, and product specifications.",
+    "description": "Product and UX Design Manager - coordinates product workers",
     "capabilities": [
-      "product_design",
-      "ux_research",
+      "product-management",
+      "ux-design",
+      "user-research",
       "wireframing",
-      "user_flows",
-      "design_systems",
-      "product_specs"
+      "design-systems",
+      "delegation"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T21:54:44.700519+00:00"
+    "registered_at": "2026-03-18T23:43:15.355430+00:00"
   },
   "zeta-manager": {
     "port": 18817,
-    "description": "Infrastructure and DevOps specialist manager. Manages infra-1 through infra-4 workers. Handles service deployment, health monitoring, log analysis, and infrastructure automation.",
+    "description": "Infrastructure and DevOps Manager - coordinates infrastructure workers",
     "capabilities": [
       "infrastructure",
       "devops",
-      "deployment",
+      "cicd",
       "monitoring",
-      "logging",
-      "automation",
-      "ci_cd"
+      "security",
+      "cost-optimization",
+      "delegation"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T21:54:44.701358+00:00"
+    "registered_at": "2026-03-18T23:43:15.356858+00:00"
   },
   "eta-manager": {
     "port": 18818,
-    "description": "Legal compliance and regulatory specialist manager. Handles legal ethics, bar compliance, data privacy, and regulatory requirements for legal tech products.",
+    "description": "Legal and Compliance Manager - coordinates legal workers",
     "capabilities": [
-      "legal_compliance",
-      "regulatory",
-      "data_privacy",
-      "bar_compliance",
-      "legal_ethics"
+      "legal",
+      "compliance",
+      "contracts",
+      "gdpr",
+      "ip-law",
+      "risk-assessment",
+      "delegation"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T21:54:44.702133+00:00"
+    "registered_at": "2026-03-18T23:43:15.358858+00:00"
   },
   "marketing-1": {
     "port": 18901,
-    "description": "Brand messaging and positioning specialist worker for Delta Manager",
+    "description": "Brand messaging specialist - creates brand voice and positioning",
     "capabilities": [
-      "brand_strategy",
-      "messaging_hierarchy",
-      "value_proposition",
-      "competitive_positioning"
+      "brand-messaging",
+      "voice-guidelines",
+      "positioning",
+      "copywriting"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:18:41.270838+00:00"
+    "registered_at": "2026-03-18T23:43:58.776649+00:00"
   },
   "marketing-2": {
     "port": 18902,
-    "description": "Content strategy and GTM planning specialist worker for Delta Manager",
+    "description": "Content strategy and GTM planning specialist",
     "capabilities": [
-      "content_strategy",
-      "gtm_planning",
-      "launch_timeline",
-      "channel_strategy"
+      "content-strategy",
+      "gtm-planning",
+      "campaign-planning",
+      "editorial-calendar"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:18:41.299392+00:00"
+    "registered_at": "2026-03-18T23:43:58.778169+00:00"
   },
   "marketing-3": {
     "port": 18903,
-    "description": "PR and communications specialist worker for Delta Manager",
+    "description": "PR and communications specialist",
     "capabilities": [
-      "press_releases",
-      "media_outreach",
-      "pr_strategy",
-      "executive_comms"
+      "pr-communications",
+      "media-relations",
+      "press-releases",
+      "crisis-communications"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:18:41.302862+00:00"
+    "registered_at": "2026-03-18T23:43:58.778970+00:00"
   },
   "marketing-4": {
     "port": 18904,
-    "description": "Website copy and sales enablement specialist worker for Delta Manager",
+    "description": "Website copy and sales enablement specialist",
     "capabilities": [
-      "website_copy",
-      "landing_pages",
-      "sales_decks",
-      "email_sequences"
+      "website-copy",
+      "sales-enablement",
+      "landing-pages",
+      "conversion-copy"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:18:41.307300+00:00"
+    "registered_at": "2026-03-18T23:43:58.779583+00:00"
   },
   "product-1": {
     "port": 18911,
-    "description": "User research and persona development specialist for Epsilon Manager",
+    "description": "User research and persona development specialist",
     "capabilities": [
-      "user_research",
+      "user-research",
       "personas",
-      "journey_mapping",
-      "interviews"
+      "interviews",
+      "usability-testing"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.011013+00:00"
+    "registered_at": "2026-03-18T23:43:58.780012+00:00"
   },
   "product-2": {
     "port": 18912,
-    "description": "Wireframing and prototyping specialist for Epsilon Manager",
+    "description": "Wireframing and prototyping specialist",
     "capabilities": [
-      "wireframes",
+      "wireframing",
       "prototyping",
-      "figma",
-      "user_flows"
+      "mockups",
+      "interaction-design"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.012991+00:00"
+    "registered_at": "2026-03-18T23:43:58.781038+00:00"
   },
   "product-3": {
     "port": 18913,
-    "description": "Design systems and UI components specialist for Epsilon Manager",
+    "description": "Design systems and UI components specialist",
     "capabilities": [
-      "design_systems",
-      "ui_components",
-      "style_guides",
-      "accessibility"
+      "design-systems",
+      "ui-components",
+      "style-guides",
+      "component-libraries"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.013846+00:00"
+    "registered_at": "2026-03-18T23:43:58.781480+00:00"
   },
   "product-4": {
     "port": 18914,
-    "description": "Product specifications and PRD specialist for Epsilon Manager",
+    "description": "Product specifications and PRD specialist",
     "capabilities": [
-      "product_specs",
-      "prds",
+      "product-specs",
+      "prd-writing",
       "requirements",
-      "acceptance_criteria"
+      "feature-docs"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.014990+00:00"
+    "registered_at": "2026-03-18T23:43:58.781956+00:00"
   },
   "infra-1": {
     "port": 18921,
-    "description": "CI/CD and deployment automation specialist for Zeta Manager",
+    "description": "CI/CD and deployment automation specialist",
     "capabilities": [
       "cicd",
       "deployment",
-      "github_actions",
+      "github-actions",
       "automation"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.016255+00:00"
+    "registered_at": "2026-03-18T23:43:58.782330+00:00"
   },
   "infra-2": {
     "port": 18922,
-    "description": "Monitoring and observability specialist for Zeta Manager",
+    "description": "Monitoring and observability specialist",
     "capabilities": [
       "monitoring",
       "observability",
       "metrics",
-      "alerting"
+      "alerting",
+      "logging"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.016533+00:00"
+    "registered_at": "2026-03-18T23:43:58.782671+00:00"
   },
   "infra-3": {
     "port": 18923,
-    "description": "Security and compliance specialist for Zeta Manager",
+    "description": "Security and compliance specialist",
     "capabilities": [
       "security",
       "compliance",
-      "soc2",
-      "gdpr"
+      "vulnerability-scanning",
+      "secrets-management"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.017440+00:00"
+    "registered_at": "2026-03-18T23:43:58.783020+00:00"
   },
   "infra-4": {
     "port": 18924,
-    "description": "Cost optimization and infrastructure scaling specialist for Zeta Manager",
+    "description": "Cost optimization and infrastructure scaling specialist",
     "capabilities": [
-      "cost_optimization",
+      "cost-optimization",
       "scaling",
-      "aws",
+      "resource-planning",
       "budgeting"
     ],
     "profile": "",
-    "registered_at": "2026-03-18T19:19:20.017708+00:00"
+    "registered_at": "2026-03-18T23:43:58.783395+00:00"
+  },
+  "legal-1": {
+    "port": 18931,
+    "description": "Contracts and agreements specialist",
+    "capabilities": [
+      "contracts",
+      "slas",
+      "vendor-agreements",
+      "terms-of-service"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T23:43:58.783730+00:00"
+  },
+  "legal-2": {
+    "port": 18932,
+    "description": "Regulatory compliance and data privacy specialist",
+    "capabilities": [
+      "compliance",
+      "gdpr",
+      "ccpa",
+      "regulatory",
+      "audit"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T23:43:58.785132+00:00"
+  },
+  "legal-3": {
+    "port": 18933,
+    "description": "Intellectual property and patents specialist",
+    "capabilities": [
+      "ip-law",
+      "patents",
+      "trademarks",
+      "copyright",
+      "licensing"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T23:43:58.786023+00:00"
+  },
+  "legal-4": {
+    "port": 18934,
+    "description": "Risk assessment and liability specialist",
+    "capabilities": [
+      "risk-assessment",
+      "liability",
+      "insurance",
+      "disclaimers",
+      "mitigation"
+    ],
+    "profile": "",
+    "registered_at": "2026-03-18T23:43:58.786385+00:00"
   }
 }

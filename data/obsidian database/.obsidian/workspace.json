@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Self-Modification.md",
+                "file": "agents/king-ai/index.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,7 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Self-Modification"
+              "title": "index"
             }
           }
         ]
@@ -204,20 +204,24 @@
   },
   "active": "8acb433cb16615da",
   "lastOpenFiles": [
+    "inbox/landon-king---quality-enhancement-rules.md",
+    "decisions/ADR-001-architecture.md",
+    "daily-logs/2026-03-17-alpha-manager.md",
+    "projects/king-ai-v2---agent-capability-matrix.md",
     "Self-Modification.md",
-    "openclaw-army/101-tools-reference.md",
     "Manager Agents.md",
+    "README.md",
+    "projects/king-ai-v2---architecture-overview.md",
+    "openclaw-army/101-tools-reference.md",
     "openclaw-army/architecture-overview.md",
     "projects/openclaw-army/index.md",
     "openclaw-army/landon-king.md",
-    "README.md",
     "templates/project.md",
     "templates/daily-log.md",
     "templates/code-pattern.md",
     "openclaw-army/memory-architecture.md",
     "openclaw-army/README.md",
     "openclaw-army/meta-orchestrator.md",
-    "decisions/ADR-001-architecture.md",
     "templates/research.md",
     "inbox/e2e-deploy-test-1.md",
     "inbox/e2e-deploy-test.md",
@@ -233,12 +237,8 @@
     "research",
     "agents/king-ai/index.md",
     "agents/gamma-manager/index.md",
-    "agents/beta-manager/index.md",
-    "agents/alpha-manager/index.md",
     "agents/king-ai",
     "agents/general-4",
-    "agents/general-3",
-    "Untitled.md",
-    "test note 2.md"
+    "agents/general-3"
   ]
 }

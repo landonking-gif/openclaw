@@ -56,21 +56,22 @@ ARMY_HOME = os.getenv("ARMY_HOME", os.path.expanduser("~/openclaw-army"))
 # Agent port map
 AGENT_PORTS = {
     "king-ai":        int(os.getenv("KING_PORT", "18789")),
-    "alpha-manager":  int(os.getenv("ALPHA_MANAGER_PORT", "18800")),
-    "beta-manager":   int(os.getenv("BETA_MANAGER_PORT", "18801")),
-    "gamma-manager":  int(os.getenv("GAMMA_MANAGER_PORT", "18802")),
-    "coding-1":       int(os.getenv("CODING_1_PORT", "18803")),
-    "coding-2":       int(os.getenv("CODING_2_PORT", "18804")),
-    "coding-3":       int(os.getenv("CODING_3_PORT", "18805")),
-    "coding-4":       int(os.getenv("CODING_4_PORT", "18806")),
-    "agentic-1":      int(os.getenv("AGENTIC_1_PORT", "18807")),
-    "agentic-2":      int(os.getenv("AGENTIC_2_PORT", "18808")),
-    "agentic-3":      int(os.getenv("AGENTIC_3_PORT", "18809")),
-    "agentic-4":      int(os.getenv("AGENTIC_4_PORT", "18810")),
-    "general-1":      int(os.getenv("GENERAL_1_PORT", "18811")),
-    "general-2":      int(os.getenv("GENERAL_2_PORT", "18812")),
-    "general-3":      int(os.getenv("GENERAL_3_PORT", "18813")),
-    "general-4":      int(os.getenv("GENERAL_4_PORT", "18814")),
+    "alpha-manager":  int(os.getenv("ALPHA_PORT", "18800")),
+    "beta-manager":   int(os.getenv("BETA_PORT", "18801")),
+    "gamma-manager":  int(os.getenv("GAMMA_PORT", "18802")),
+    "delta-manager":  int(os.getenv("DELTA_PORT", "18803")),
+    "epsilon-manager": int(os.getenv("EPSILON_PORT", "18804")),
+    "zeta-manager":   int(os.getenv("ZETA_PORT", "18805")),
+    "eta-manager":    int(os.getenv("ETA_PORT", "18806")),
+    
+    # Consolidated Workers (1 per department)
+    "general-worker": int(os.getenv("GENERAL_1_PORT", "18810")),
+    "coding-worker":  int(os.getenv("CODING_1_PORT", "18811")),
+    "research-worker": int(os.getenv("AGENTIC_1_PORT", "18812")),
+    "marketing-worker": int(os.getenv("MARKETING_1_PORT", "18813")),
+    "product-worker": int(os.getenv("PRODUCT_1_PORT", "18814")),
+    "infra-worker":   int(os.getenv("INFRA_1_PORT", "18815")),
+    "legal-worker":   int(os.getenv("LEGAL_1_PORT", "18816")),
 }
 
 
@@ -78,7 +79,7 @@ def _load_agent_tokens() -> dict:
     """Load gateway auth tokens from agent openclaw.json configs."""
     tokens = {}
     agents_dir = Path(ARMY_HOME) / "agents"
-    for name in ("alpha-manager", "beta-manager", "gamma-manager"):
+    for name in ("alpha-manager", "beta-manager", "gamma-manager", "delta-manager", "epsilon-manager", "zeta-manager", "eta-manager"):
         cfg_path = agents_dir / name / "openclaw.json"
         try:
             cfg = json.loads(cfg_path.read_text())
@@ -109,7 +110,7 @@ def _refresh_agent_token(name: str):
 MANAGER_POOLS = {
     "alpha-manager": {
         "description": "General-purpose tasks: writing, summarization, Q&A, Mac automation, email, communication",
-        "workers": ["general-1", "general-2", "general-3", "general-4"],
+        "workers": ["general-worker"],
         "capabilities": [
             "writing", "prose", "summarization", "summary", "qa", "help",
             "automation", "mac", "email", "communication", "notification",
@@ -118,7 +119,7 @@ MANAGER_POOLS = {
     },
     "beta-manager": {
         "description": "Software engineering: coding, implementation, testing, debugging, infrastructure",
-        "workers": ["coding-1", "coding-2", "coding-3", "coding-4"],
+        "workers": ["coding-worker"],
         "capabilities": [
             "code", "coding", "implement", "programming", "python", "javascript",
             "typescript", "bash", "script", "debug", "fix", "bug", "test",
@@ -129,13 +130,45 @@ MANAGER_POOLS = {
     },
     "gamma-manager": {
         "description": "Research & analysis: web search, document analysis, data synthesis, fact-checking",
-        "workers": ["agentic-1", "agentic-2", "agentic-3", "agentic-4"],
+        "workers": ["research-worker"],
         "capabilities": [
             "research", "search", "investigate", "analyze", "analysis",
             "document", "data", "synthesis", "fact", "verify", "check",
             "compare", "evaluate", "benchmark", "study", "explore",
             "discover", "find", "look", "scan", "review", "assess",
             "audit", "inspect", "survey",
+        ],
+    },
+    "delta-manager": {
+        "description": "Marketing & growth: GTM, content creation, social media, PR, positioning",
+        "workers": ["marketing-worker"],
+        "capabilities": [
+            "marketing", "growth", "gtm", "content", "social", "twitter", "tweet",
+            "pr", "positioning", "brand", "strategy", "campaign", "ads",
+        ],
+    },
+    "epsilon-manager": {
+        "description": "Product & UX: research, wireframes, design systems, user stories",
+        "workers": ["product-worker"],
+        "capabilities": [
+            "product", "ux", "ui", "design", "wireframe", "user", "story",
+            "roadmap", "specification", "requirements", "flow", "prototype",
+        ],
+    },
+    "zeta-manager": {
+        "description": "Infrastructure & DevOps: CI/CD, monitoring, security, cloud orchestration",
+        "workers": ["infra-worker"],
+        "capabilities": [
+            "devops", "monitoring", "security", "cloud", "aws", "gcp", "azure",
+            "kubernetes", "k8s", "terraform", "ansible", "logs", "metrics",
+        ],
+    },
+    "eta-manager": {
+        "description": "Legal & compliance: ethics, bar compliance, data privacy, contracts",
+        "workers": ["legal-worker"],
+        "capabilities": [
+            "legal", "compliance", "ethics", "contract", "privacy", "gdpr",
+            "terms", "policy", "agreement", "regulation", "law",
         ],
     },
 }

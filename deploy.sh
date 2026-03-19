@@ -23,7 +23,7 @@ DATA_DIR="$ARMY_HOME/data"
 LOG_DIR="$DATA_DIR/logs"
 PID_DIR="$DATA_DIR"
 PYTHON="python3.14"
-OPENCLAW_CLI="node $HOME/openclaw-core/openclaw.mjs"
+OPENCLAW_CLI="node --max-old-space-size=512 --expose-gc $HOME/openclaw-core/openclaw.mjs"
 
 # Ensure required dependencies are in PATH (PostgreSQL, Redis, OpenClaw Node modules)
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@17/bin:$HOME/.npm-global/bin:$PATH"
@@ -39,52 +39,34 @@ AGENT_DEFS=(
  # King AI (supreme orchestrator)
  "main:${KING_PORT:-18789}:NVAPI_KIMI_KEY_1"
  
- # Alpha Manager + Workers (General Purpose - Writing, Email, Summarization)
- "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_DEEPSEEK_KEY_2"
- "general-1:${GENERAL_1_PORT:-18811}:NVAPI_DEEPSEEK_KEY_5"
- "general-2:${GENERAL_2_PORT:-18812}:NVAPI_DEEPSEEK_KEY_6"
- "general-3:${GENERAL_3_PORT:-18813}:NVAPI_GLM5_KEY_1"
- "general-4:${GENERAL_4_PORT:-18814}:NVAPI_GLM5_KEY_2"
+ # Alpha Dept: Writing, General
+ "alpha-manager:${ALPHA_PORT:-18800}:NVAPI_KIMI_KEY_2"
+ "general-worker:${GENERAL_1_PORT:-18810}:NVAPI_DEEPSEEK_KEY_5"
  
- # Beta Manager + Workers (Software Engineering - Coding, Testing, Infrastructure)
+ # Beta Dept: Software Engineering
  "beta-manager:${BETA_PORT:-18801}:NVAPI_DEEPSEEK_KEY_1"
- "coding-1:${CODING_1_PORT:-18803}:NVAPI_DEEPSEEK_KEY_3"
- "coding-2:${CODING_2_PORT:-18804}:NVAPI_DEEPSEEK_KEY_4"
- "coding-3:${CODING_3_PORT:-18805}:NVAPI_DEEPSEEK_KEY_5"
- "coding-4:${CODING_4_PORT:-18806}:NVAPI_DEEPSEEK_KEY_6"
+ "coding-worker:${CODING_1_PORT:-18811}:NVAPI_DEEPSEEK_KEY_3"
  
- # Gamma Manager + Workers (Research & Analysis - Web Search, Documents, Data)
+ # Gamma Dept: Research & Analysis
  "gamma-manager:${GAMMA_PORT:-18802}:NVAPI_KIMI_KEY_2"
- "agentic-1:${AGENTIC_1_PORT:-18807}:NVAPI_GLM5_KEY_1"
- "agentic-2:${AGENTIC_2_PORT:-18808}:NVAPI_GLM5_KEY_2"
- "agentic-3:${AGENTIC_3_PORT:-18809}:NVAPI_DEEPSEEK_KEY_3"
- "agentic-4:${AGENTIC_4_PORT:-18810}:NVAPI_DEEPSEEK_KEY_4"
- 
- # Delta Manager + Workers (Marketing & Growth - GTM, Content, PR, Positioning)
- "delta-manager:${DELTA_PORT:-18815}:NVAPI_KIMI_KEY_1"
- "marketing-1:${MARKETING_1_PORT:-18901}:NVAPI_DEEPSEEK_KEY_2"
- "marketing-2:${MARKETING_2_PORT:-18902}:NVAPI_DEEPSEEK_KEY_3"
- "marketing-3:${MARKETING_3_PORT:-18903}:NVAPI_DEEPSEEK_KEY_4"
- "marketing-4:${MARKETING_4_PORT:-18904}:NVAPI_DEEPSEEK_KEY_5"
- 
- # Epsilon Manager + Workers (Product & UX - Research, Wireframes, Design Systems)
- "epsilon-manager:${EPSILON_PORT:-18816}:NVAPI_KIMI_KEY_2"
- "product-1:${PRODUCT_1_PORT:-18911}:NVAPI_DEEPSEEK_KEY_1"
- "product-2:${PRODUCT_2_PORT:-18912}:NVAPI_DEEPSEEK_KEY_2"
- "product-3:${PRODUCT_3_PORT:-18913}:NVAPI_DEEPSEEK_KEY_3"
- "product-4:${PRODUCT_4_PORT:-18914}:NVAPI_DEEPSEEK_KEY_4"
- 
- # Zeta Manager + Workers (Infrastructure & DevOps - CI/CD, Monitoring, Security)
- "zeta-manager:${ZETA_PORT:-18817}:NVAPI_KIMI_KEY_1"
- "infra-1:${INFRA_1_PORT:-18921}:NVAPI_DEEPSEEK_KEY_5"
- "infra-2:${INFRA_2_PORT:-18922}:NVAPI_DEEPSEEK_KEY_6"
- "infra-3:${INFRA_3_PORT:-18923}:NVAPI_GLM5_KEY_1"
- "infra-4:${INFRA_4_PORT:-18924}:NVAPI_GLM5_KEY_2"
- 
- # Eta Manager (Legal & Compliance - Ethics, Bar Compliance, Data Privacy)
- "eta-manager:${ETA_PORT:-18818}:NVAPI_KIMI_KEY_2"
-)
+ "research-worker:${AGENTIC_1_PORT:-18812}:NVAPI_GLM5_KEY_1"
 
+ # Delta Dept: Marketing & Growth
+ "delta-manager:${DELTA_PORT:-18803}:NVAPI_KIMI_KEY_1"
+ "marketing-worker:${MARKETING_1_PORT:-18813}:NVAPI_DEEPSEEK_KEY_2"
+
+ # Epsilon Dept: Product & UX
+ "epsilon-manager:${EPSILON_PORT:-18804}:NVAPI_KIMI_KEY_2"
+ "product-worker:${PRODUCT_1_PORT:-18814}:NVAPI_DEEPSEEK_KEY_1"
+
+ # Zeta Dept: Infrastructure & DevOps
+ "zeta-manager:${ZETA_PORT:-18805}:NVAPI_KIMI_KEY_1"
+ "infra-worker:${INFRA_1_PORT:-18815}:NVAPI_DEEPSEEK_KEY_5"
+
+ # Eta Dept: Legal & Compliance
+ "eta-manager:${ETA_PORT:-18806}:NVAPI_KIMI_KEY_2"
+ "legal-worker:${LEGAL_1_PORT:-18816}:NVAPI_DEEPSEEK_KEY_7"
+)
 # Service definitions: name:port:command
 SERVICE_DEFS=(
     "memory-service:${MEMORY_SERVICE_PORT:-18820}:$PYTHON -m uvicorn main:app --host 127.0.0.1 --port ${MEMORY_SERVICE_PORT:-18820}"
@@ -318,9 +300,11 @@ _start_agents() {
             continue
         fi
 
-        # Resolve the NVAPI key
-        local api_key="${(P)key_name}"
-        if [[ -z "$api_key" ]]; then
+        # Resolve the NVAPI key safely even with set -u
+        local api_key=""
+        if [[ -v "$key_name" ]]; then
+            api_key="${(P)key_name}"
+        else
             api_key="${NVIDIA_API_KEY:-}"
         fi
 
@@ -543,8 +527,12 @@ cmd_restart() {
                 local key_name="${rest#*:}"
                 local agent_dir="$AGENTS_DIR/$name"
                 local logfile="$LOG_DIR/agent-${name}.log"
-                local api_key="${(P)key_name}"
-                [[ -z "$api_key" ]] && api_key="${NVIDIA_API_KEY:-}"
+                local api_key=""
+                if [[ -v "$key_name" ]]; then
+                    api_key="${(P)key_name}"
+                else
+                    api_key="${NVIDIA_API_KEY:-}"
+                fi
 
                 OPENCLAW_SERVICE_LABEL="$name" \
                 OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \

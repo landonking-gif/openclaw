@@ -1,1 +1,9 @@
-{"gateway":{"port":18800,"bind":"0.0.0.0"},"logging":{"level":"warn"}}
+{
+  "gateway": {
+    "port": 18800,
+    "bind": "0.0.0.0"
+  },
+  "logging": {
+    "level": "warn"
+  }
+}

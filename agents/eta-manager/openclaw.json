@@ -215,15 +215,6 @@
   },
   "meta": {
     "lastTouchedVersion": "2026.2.22-2",
-    "lastTouchedAt": "2026-03-09T00:00:00.000Z",
-    "role": "Legal & Compliance Manager",
-    "responsibilities": [
-      "Lead legal compliance",
-      "Bar regulations",
-      "Data privacy",
-      "Regulatory requirements for legal tech products"
-    ],
-    "reportsTo": "king-ai",
-    "manages": []
+    "lastTouchedAt": "2026-03-09T00:00:00.000Z"
   }
 }

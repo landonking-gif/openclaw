@@ -1,53 +1,216 @@
 {
-  "agent": {
-    "id": "marketing-3",
-    "name": "Marketing-3 (PR & Communications)",
-    "role": "worker",
-    "manager": "marketing-manager",
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "ui": {
+    "assistant": {
+      "name": "marketing-3",
+      "avatar": "marketing-3"
+    }
+  },
+  "auth": {
+    "profiles": {
+      "nvidia:default": {
+        "provider": "nvidia",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "replace",
+    "providers": {
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1/",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "deepseek-ai/deepseek-r1",
+            "name": "DeepSeek R1 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "z-ai/glm-5",
+            "name": "GLM-5 (NVIDIA NIM)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "meta/llama-3.3-70b-instruct",
+            "name": "Llama 3.3 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          },
+          {
+            "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+            "name": "Nemotron 70B (NVIDIA)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 4096
+          }
+        ]
+      }
+    },
+    "bedrockDiscovery": {
+      "enabled": false
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/deepseek-ai/deepseek-r1",
+        "fallbacks": [
+          "nvidia/moonshotai/kimi-k2.5",
+          "nvidia/z-ai/glm-5"
+        ]
+      },
+      "workspace": "/Users/landonking/openclaw-army/agents/marketing-3",
+      "memorySearch": {
+        "enabled": true
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "brave",
+        "maxResults": 10
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "sessions": {
+      "visibility": "self"
+    },
+    "message": {
+      "allowCrossContextSend": false,
+      "crossContext": {
+        "allowWithinProvider": false,
+        "allowAcrossProviders": false
+      },
+      "broadcast": {
+        "enabled": false
+      }
+    },
+    "elevated": {
+      "enabled": false
+    },
+    "exec": {
+      "ask": "always"
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "gateway": {
     "port": 18903,
-    "specialty": "PR and communications",
-    "description": "Public relations, media relations, crisis communications, and executive messaging"
+    "mode": "local",
+    "bind": "loopback",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "730f5bd08632be3cb74ac96399656292578b371989a54e4b"
+    }
   },
-  "model": {
-    "default": "nvidiadeepseekai/deepseek-r1",
-    "fallback": "nvidia/moonshotai/kimi-k2.5"
-  },
-  "nvidia": {
-    "apiKeyEnv": "NVAPI_KEY",
-    "baseUrl": "https://integrate.api.nvidia.com/v1",
-    "maxTokens": 8192,
-    "temperature": 0.7
-  },
-  "server": {
-    "host": "127.0.0.1",
-    "port": 18903,
-    "timeoutMs": 300000
-  },
-  "memory": {
+  "plugins": {
     "enabled": true,
-    "servicePort": 18820,
-    "contextWindow": 20
+    "load": {
+      "paths": [
+        "/Users/landonking/openclaw-army/extensions"
+      ]
+    },
+    "entries": {
+      "permission-broker": {
+        "enabled": true
+      },
+      "memory-client": {
+        "enabled": true
+      },
+      "cost-tracker": {
+        "enabled": true
+      },
+      "reasoning-engine": {
+        "enabled": true
+      }
+    }
   },
-  "permissions": {
-    "tools": [
-      "web_search",
-      "web_fetch",
-      "memory_commit",
-      "memory_query",
-      "diary",
-      "reflect",
-      "get_memory_context",
-      "sessions_send",
-      "sessions_list",
-      "read",
-      "write",
-      "edit",
-      "message"
-    ],
-    "elevationRequired": ["exec", "sessions_spawn", "cron"]
-  },
-  "integrations": {
-    "obsidianVault": "/Users/landonking/openclaw-army/knowledge-vault",
-    "knowledgeBridgePort": 18850
+  "meta": {
+    "lastTouchedVersion": "2026.2.22-2",
+    "lastTouchedAt": "2026-03-07T00:09:07.064Z"
   }
 }

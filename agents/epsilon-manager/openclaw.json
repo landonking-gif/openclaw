@@ -33,7 +33,10 @@
             "id": "moonshotai/kimi-k2.5",
             "name": "Kimi K2.5 (NVIDIA NIM)",
             "reasoning": true,
-            "input": ["text", "image"],
+            "input": [
+              "text",
+              "image"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -47,7 +50,9 @@
             "id": "deepseek-ai/deepseek-r1",
             "name": "DeepSeek R1 (NVIDIA NIM)",
             "reasoning": true,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -61,7 +66,9 @@
             "id": "z-ai/glm-5",
             "name": "GLM-5 (NVIDIA NIM)",
             "reasoning": false,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -75,7 +82,9 @@
             "id": "meta/llama-3.3-70b-instruct",
             "name": "Llama 3.3 70B (NVIDIA)",
             "reasoning": false,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -190,14 +199,6 @@
   },
   "meta": {
     "lastTouchedVersion": "2026.2.22-2",
-    "lastTouchedAt": "2026-03-09T00:00:00.000Z",
-    "role": "Product & UX Manager",
-    "description": "Lead product design, user research, wireframing, design systems, product specifications",
-    "managesWorkers": [
-      "product-1",
-      "product-2",
-      "product-3",
-      "product-4"
-    ]
+    "lastTouchedAt": "2026-03-09T00:00:00.000Z"
   }
 }

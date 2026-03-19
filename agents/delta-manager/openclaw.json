@@ -33,7 +33,10 @@
             "id": "moonshotai/kimi-k2.5",
             "name": "Kimi K2.5 (NVIDIA NIM)",
             "reasoning": true,
-            "input": ["text", "image"],
+            "input": [
+              "text",
+              "image"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -47,7 +50,9 @@
             "id": "deepseek-ai/deepseek-r1",
             "name": "DeepSeek R1 (NVIDIA NIM)",
             "reasoning": true,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -61,7 +66,9 @@
             "id": "z-ai/glm-5",
             "name": "GLM-5 (NVIDIA NIM)",
             "reasoning": false,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "cost": {
               "input": 0,
               "output": 0,
@@ -175,19 +182,6 @@
     }
   },
   "meta": {
-    "agentId": "delta-manager",
-    "role": "Marketing & Growth Strategy Manager",
-    "port": 18815,
-    "reportsTo": "king-ai",
-    "manages": ["marketing-1", "marketing-2", "marketing-3", "marketing-4"],
-    "responsibilities": [
-      "Lead all marketing initiatives",
-      "GTM strategy",
-      "Brand positioning",
-      "Competitive analysis",
-      "Content marketing",
-      "PR/communications"
-    ],
     "lastTouchedVersion": "2026.2.22-2",
     "lastTouchedAt": "2026-03-18T17:05:00.000Z"
   }

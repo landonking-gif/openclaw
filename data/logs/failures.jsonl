@@ -1948,3 +1948,12 @@
 {"ts": "2026-03-20T08:09:37.658918+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-20T08:10:38.344943+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
 {"ts": "2026-03-20T08:12:53.708839+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-20T12:03:47.837294+00:00", "category": "dispatch_fail", "detail": "ServerDisconnectedError: Server disconnected", "manager": "beta-manager"}
+{"ts": "2026-03-20T12:04:55.125738+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-20T12:05:06.649572+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-20T12:05:06.652387+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-20T12:06:40.616466+00:00", "category": "dispatch_fail", "detail": "ServerDisconnectedError: Server disconnected", "manager": "gamma-manager"}
+{"ts": "2026-03-20T12:08:26.614386+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-20T12:10:52.656890+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "alpha-manager"}
+{"ts": "2026-03-20T12:10:52.663667+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-20T12:12:37.955486+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}

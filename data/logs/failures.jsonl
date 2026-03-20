@@ -1975,3 +1975,4 @@
 {"ts": "2026-03-20T12:20:47.603532+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
 {"ts": "2026-03-20T12:25:58.583255+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
 {"ts": "2026-03-20T12:30:59.569024+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "gamma-manager"}
+{"ts": "2026-03-20T17:59:10.330843+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}

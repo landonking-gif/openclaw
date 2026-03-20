@@ -1888,3 +1888,4 @@
 {"ts": "2026-03-19T11:25:36.515687+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
 {"ts": "2026-03-19T11:30:37.858976+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
 {"ts": "2026-03-19T11:42:26.401390+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-03-19T11:47:26.887776+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}

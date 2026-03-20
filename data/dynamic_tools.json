@@ -166,5 +166,32 @@
     },
     "handler_code": "\nimport subprocess\nimport os\nimport asyncio\nimport shlex\n\nasync def run_command(cmd, timeout=30):\n    \"\"\"Run a shell command and return output\"\"\"\n    proc = await asyncio.create_subprocess_shell(\n        cmd,\n        stdout=asyncio.subprocess.PIPE,\n        stderr=asyncio.subprocess.PIPE\n    )\n    try:\n        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)\n        return stdout.decode().strip(), stderr.decode().strip(), proc.returncode\n    except asyncio.TimeoutError:\n        proc.kill()\n        await proc.communicate()\n        return \"\", \"Command timed out\", 1\n\ncommand = args.get(\"command\")\nprompt = args.get(\"prompt\", \"\")\nlanguage = args.get(\"language\", \"\")\ntarget = args.get(\"target\", \"\")\nwait_for_auth = args.get(\"wait_for_auth\", False)\n\n# Check if gh is installed\nstdout, stderr, code = await run_command(\"which gh\")\nif code != 0:\n    return \"Error: GitHub CLI (gh) is not installed. Install it with: brew install gh\"\n\n# Check auth status first\nstdout, stderr, code = await run_command(\"gh auth status 2>&1\")\nif \"not logged\" in stderr.lower() or \"not logged\" in stdout.lower() or code != 0:\n    if wait_for_auth:\n        # Try to initiate login\n        return \"GitHub CLI needs authentication. Run 'gh auth login' in a terminal and complete the browser flow, or set GH_TOKEN environment variable.\"\n    else:\n        return \"Error: GitHub CLI not authenticated. Run 'gh auth login' or set GH_TOKEN env var.\"\n\n# Handle different commands\nif command == \"auth_status\":\n    stdout, stderr, code = await run_command(\"gh auth status\")\n    return stdout if stdout else stderr\n\nelif command == \"install_extension\":\n    stdout, stderr, code = await run_command(\"gh extension install github/gh-copilot --force\")\n    if code == 0:\n        return \"GitHub Copilot extension installed successfully.\"\n    else:\n        return f\"Installation result: {stdout}\\n{stderr}\"\n\nelif command == \"version\":\n    stdout, stderr, code = await run_command(\"gh copilot --version 2>&1 || gh extension list | grep copilot\")\n    return stdout if stdout else stderr\n\nelif command == \"suggest\":\n    if not prompt:\n        return \"Error: 'prompt' is required for suggest command\"\n    \n    # Build the suggest command safely\n    cmd = f\"gh copilot suggest -t {shlex.quote(prompt)}\"\n    if language:\n        cmd += f\" -l {shlex.quote(language)}\"\n    \n    stdout, stderr, code = await run_command(cmd, timeout=60)\n    \n    if \"not found\" in stderr.lower() or \"not installed\" in stderr.lower():\n        return f\"Copilot extension not installed. Run with command='install_extension' first.\\n\\nError: {stderr}\"\n    \n    if code != 0:\n        return f\"Error: {stderr}\\nStdout: {stdout}\"\n    \n    return stdout\n\nelif command == \"explain\":\n    target_code = target or prompt\n    if not target_code:\n        return \"Error: 'target' or 'prompt' is required for explain command\"\n    \n    # Build the explain command safely\n    cmd = f\"gh copilot explain {shlex.quote(target_code)}\"\n    stdout, stderr, code = await run_command(cmd, timeout=60)\n    \n    if code != 0:\n        return f\"Error: {stderr}\\nStdout: {stdout}\"\n    \n    return stdout\n\nelse:\n    return f\"Unknown command: {command}\"\n",
     "created_at": "2026-03-17T13:23:41.351982+00:00"
+  },
+  {
+    "name": "copilot_cli_fixed",
+    "description": "Fixed GitHub Copilot CLI interface that properly handles prompts and returns structured results",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "The prompt to send to Copilot"
+        },
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "ask"
+          ],
+          "description": "The Copilot command to run"
+        }
+      },
+      "required": [
+        "prompt"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport json\n\ncommand = args.get(\"command\", \"suggest\")\nprompt = args.get(\"prompt\", \"\")\n\ncopilot_path = \"~/.local/share/gh/copilot/copilot\"\n\n# Build the command based on type\nif command == \"suggest\":\n    cmd = f\"{copilot_path} suggest -p '{prompt}'\"\nelif command == \"explain\":\n    cmd = f\"{copilot_path} explain -p '{prompt}'\"\nelse:\n    cmd = f\"{copilot_path} -p '{prompt}'\"\n\ntry:\n    result = subprocess.run(\n        cmd,\n        shell=True,\n        capture_output=True,\n        text=True,\n        timeout=60\n    )\n    \n    return json.dumps({\n        \"success\": result.returncode == 0,\n        \"stdout\": result.stdout,\n        \"stderr\": result.stderr,\n        \"returncode\": result.returncode\n    })\nexcept subprocess.TimeoutExpired:\n    return json.dumps({\"success\": False, \"error\": \"Command timed out after 60 seconds\"})\nexcept Exception as e:\n    return json.dumps({\"success\": False, \"error\": str(e)})\n",
+    "created_at": "2026-03-20T06:06:31.399145+00:00"
   }
 ]

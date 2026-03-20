@@ -1941,3 +1941,6 @@
 {"ts": "2026-03-20T04:49:49.959395+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
 {"ts": "2026-03-20T04:55:14.168977+00:00", "category": "dispatch_fail", "detail": "ServerDisconnectedError: Server disconnected", "manager": "gamma-manager"}
 {"ts": "2026-03-20T04:56:52.341641+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-20T05:59:07.859752+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-20T06:06:21.794905+00:00", "category": "timeout", "detail": "TimeoutError: ", "manager": "beta-manager"}
+{"ts": "2026-03-20T06:10:36.376310+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}

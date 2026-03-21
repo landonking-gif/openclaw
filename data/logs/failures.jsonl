@@ -2001,3 +2001,4 @@
 {"ts": "2026-03-21T04:05:45.946718+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-21T04:07:03.597707+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
 {"ts": "2026-03-21T11:48:50.246421+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T11:57:00.609127+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}

@@ -1993,3 +1993,5 @@
 {"ts": "2026-03-21T01:29:41.187569+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-21T01:43:23.291612+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
 {"ts": "2026-03-21T01:48:25.827023+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-21T01:59:32.660863+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T02:08:28.828567+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}

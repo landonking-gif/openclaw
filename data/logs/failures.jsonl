@@ -1979,3 +1979,17 @@
 {"ts": "2026-03-21T00:39:10.471995+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-21T00:50:07.599997+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
 {"ts": "2026-03-21T00:54:46.102158+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-21T00:58:53.323705+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from gamma-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "gamma-manager"}
+{"ts": "2026-03-21T00:58:53.370289+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from alpha-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "alpha-manager"}
+{"ts": "2026-03-21T00:59:09.349984+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from beta-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "beta-manager"}
+{"ts": "2026-03-21T00:59:10.014537+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from gamma-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "gamma-manager"}
+{"ts": "2026-03-21T00:59:24.472584+00:00", "category": "dispatch_fail", "detail": "HTTP 500 from beta-manager: {\"error\":{\"message\":\"internal error\",\"type\":\"api_error\"}}", "manager": "beta-manager"}
+{"ts": "2026-03-21T01:00:45.445815+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 3 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T01:14:38.176339+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T01:21:38.544530+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T01:22:41.699174+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-21T01:24:47.707388+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-21T01:25:39.899797+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-21T01:29:41.187569+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-21T01:43:23.291612+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-21T01:48:25.827023+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}

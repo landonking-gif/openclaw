@@ -299,5 +299,37 @@
     },
     "handler_code": "\nimport subprocess\nimport base64\nimport tempfile\nimport os\n\n# Encode prompt in base64 to avoid shell escaping issues\nprompt_b64 = base64.b64encode(args['prompt'].encode()).decode()\n\n# Create a temp script that decodes and runs copilot\nscript_content = f'''#!/bin/bash\nset -e\nPROMPT=$(echo \"{prompt_b64}\" | base64 -d)\n~/.local/share/gh/copilot/copilot {args['command']} -p \"$PROMPT\" {args.get('target', '')}\n'''\n\nwith tempfile.NamedTemporaryFile(mode='w', suffix='.sh', delete=False) as f:\n    f.write(script_content)\n    script_path = f.name\n\nos.chmod(script_path, 0o755)\n\ntry:\n    result = subprocess.run(\n        ['/bin/bash', script_path],\n        capture_output=True,\n        text=True,\n        timeout=120\n    )\n    \n    output = result.stdout if result.stdout else result.stderr\n    \n    # Clean up\n    os.unlink(script_path)\n    \n    return f\"Exit code: {result.returncode}\\n\\n{output}\"\nexcept Exception as e:\n    os.unlink(script_path)\n    return f\"Error: {str(e)}\"\n",
     "created_at": "2026-03-27T18:05:04.734589+00:00"
+  },
+  {
+    "name": "copilot_cli_v7",
+    "description": "GitHub Copilot CLI using -i flag for non-interactive mode. Wraps entire command in quotes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "ask"
+          ],
+          "description": "The copilot command to run"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt text"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target file or command to explain (for explain command)"
+        }
+      },
+      "required": [
+        "command",
+        "prompt"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport os\n\nCOPILOT_BIN = os.path.expanduser(\"~/.local/share/gh/copilot/copilot\")\n\nif not os.path.exists(COPILOT_BIN):\n    result = subprocess.run([\"which\", \"copilot\"], capture_output=True, text=True)\n    if result.returncode == 0:\n        COPILOT_BIN = result.stdout.strip()\n    else:\n        return f\"Error: Copilot CLI not found. Please run: gh copilot install\"\n\ncommand = args.get(\"command\")\nprompt = args.get(\"prompt\", \"\")\ntarget = args.get(\"target\", \"\")\n\n# Build the inner command\ninner_cmd = f\"{command} -p {prompt}\"\nif target:\n    inner_cmd += f\" -t {target}\"\n\n# Use -i flag for non-interactive mode\ncmd_parts = [COPILOT_BIN, \"-i\", inner_cmd]\n\ntry:\n    result = subprocess.run(\n        cmd_parts,\n        capture_output=True,\n        text=True,\n        timeout=60\n    )\n    \n    output = result.stdout\n    if result.stderr:\n        output += \"\\n[STDERR]: \" + result.stderr\n    \n    if result.returncode != 0:\n        return f\"Exit code {result.returncode}: {output}\"\n    \n    return output\nexcept subprocess.TimeoutExpired:\n    return \"Error: Copilot CLI timed out after 60 seconds\"\nexcept Exception as e:\n    return f\"Error running copilot: {str(e)}\"\n",
+    "created_at": "2026-03-27T19:26:45.279895+00:00"
   }
 ]

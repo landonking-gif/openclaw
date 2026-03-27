@@ -193,5 +193,111 @@
     },
     "handler_code": "\nimport subprocess\nimport json\n\ncommand = args.get(\"command\", \"suggest\")\nprompt = args.get(\"prompt\", \"\")\n\ncopilot_path = \"~/.local/share/gh/copilot/copilot\"\n\n# Build the command based on type\nif command == \"suggest\":\n    cmd = f\"{copilot_path} suggest -p '{prompt}'\"\nelif command == \"explain\":\n    cmd = f\"{copilot_path} explain -p '{prompt}'\"\nelse:\n    cmd = f\"{copilot_path} -p '{prompt}'\"\n\ntry:\n    result = subprocess.run(\n        cmd,\n        shell=True,\n        capture_output=True,\n        text=True,\n        timeout=60\n    )\n    \n    return json.dumps({\n        \"success\": result.returncode == 0,\n        \"stdout\": result.stdout,\n        \"stderr\": result.stderr,\n        \"returncode\": result.returncode\n    })\nexcept subprocess.TimeoutExpired:\n    return json.dumps({\"success\": False, \"error\": \"Command timed out after 60 seconds\"})\nexcept Exception as e:\n    return json.dumps({\"success\": False, \"error\": str(e)})\n",
     "created_at": "2026-03-20T06:06:31.399145+00:00"
+  },
+  {
+    "name": "copilot_cli_fixed_v2",
+    "description": "Fixed GitHub Copilot CLI interface that properly handles prompts and returns structured results. Handles multi-line prompts and escapes shell arguments correctly.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "ask"
+          ],
+          "description": "The Copilot command to run"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt to send to Copilot"
+        },
+        "target": {
+          "type": "string",
+          "description": "Optional file path or code to explain"
+        },
+        "language": {
+          "type": "string",
+          "description": "Programming language for suggestions",
+          "default": "python"
+        }
+      },
+      "required": [
+        "command",
+        "prompt"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport shlex\nimport base64\nimport os\n\n# Build the gh copilot command\ncmd_parts = [\"gh\", \"copilot\", args[\"command\"]]\n\n# Handle the prompt - use base64 encoding for complex/multi-line prompts\nprompt = args.get(\"prompt\", \"\")\nif prompt:\n    # Write prompt to temp file to avoid shell escaping issues\n    import tempfile\n    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:\n        f.write(prompt)\n        prompt_file = f.name\n    cmd_parts.extend([\"-p\", f\"$(cat {prompt_file})\"])\n\n# Add target if provided (for explain command)\nif args.get(\"target\"):\n    cmd_parts.append(args[\"target\"])\n\n# Add language flag for suggest command\nif args[\"command\"] == \"suggest\" and args.get(\"language\"):\n    cmd_parts.extend([\"-l\", args[\"language\"]])\n\n# Build command string carefully\ncmd_str = \" \".join(shlex.quote(str(p)) for p in cmd_parts)\n\n# Execute with timeout\nresult = subprocess.run(\n    cmd_str,\n    shell=True,\n    capture_output=True,\n    text=True,\n    timeout=60,\n    cwd=os.path.expanduser(\"~\")\n)\n\n# Cleanup temp file\nif 'prompt_file' in locals():\n    try:\n        os.unlink(prompt_file)\n    except:\n        pass\n\nstdout = result.stdout.strip()\nstderr = result.stderr.strip()\n\n# Check for auth issues\nif \"not logged in\" in stderr.lower() or \"authentication\" in stderr.lower():\n    return json.dumps({\n        \"success\": False,\n        \"error\": \"GitHub CLI not authenticated. Run 'gh auth login' first.\",\n        \"stdout\": stdout,\n        \"stderr\": stderr,\n        \"returncode\": result.returncode\n    })\n\n# Parse the response\nif result.returncode == 0 and stdout:\n    return json.dumps({\n        \"success\": True,\n        \"command\": args[\"command\"],\n        \"response\": stdout,\n        \"prompt_preview\": prompt[:200] + \"...\" if len(prompt) > 200 else prompt\n    })\nelse:\n    return json.dumps({\n        \"success\": False,\n        \"error\": stderr or \"Command failed\",\n        \"stdout\": stdout,\n        \"stderr\": stderr,\n        \"returncode\": result.returncode\n    })\n",
+    "created_at": "2026-03-27T17:56:26.482476+00:00"
+  },
+  {
+    "name": "copilot_cli_v3",
+    "description": "Fixed GitHub Copilot CLI with proper shell escaping for multi-line prompts and complex queries",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "ask"
+          ],
+          "description": "The Copilot command to run"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt to send to Copilot"
+        },
+        "language": {
+          "type": "string",
+          "default": "python",
+          "description": "Programming language for suggestions"
+        },
+        "target": {
+          "type": "string",
+          "description": "Optional file path or code to explain"
+        }
+      },
+      "required": [
+        "command",
+        "prompt"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport tempfile\nimport os\n\n# Write prompt to temp file to avoid shell escaping issues\nwith tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:\n    f.write(args['prompt'])\n    prompt_file = f.name\n\ntry:\n    cmd_parts = ['gh', 'copilot', args['command']]\n    \n    if args['command'] == 'suggest':\n        cmd_parts.extend(['-t', args.get('language', 'python')])\n    \n    # Use -p flag with file input for non-interactive mode\n    cmd_parts.extend(['-p', f'$(cat {prompt_file})'])\n    \n    if args.get('target'):\n        cmd_parts.append(args['target'])\n    \n    result = subprocess.run(\n        ' '.join(cmd_parts),\n        shell=True,\n        capture_output=True,\n        text=True,\n        timeout=60\n    )\n    \n    output = result.stdout if result.stdout else result.stderr\n    \n    # Clean up temp file\n    os.unlink(prompt_file)\n    \n    return f\"Exit code: {result.returncode}\\n\\n{output}\"\nexcept Exception as e:\n    os.unlink(prompt_file)\n    return f\"Error: {str(e)}\"\n",
+    "created_at": "2026-03-27T18:03:32.230466+00:00"
+  },
+  {
+    "name": "copilot_cli_v4",
+    "description": "GitHub Copilot CLI with base64 encoding to handle complex multi-line prompts without shell escaping issues",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "enum": [
+            "suggest",
+            "explain",
+            "ask"
+          ],
+          "description": "The Copilot command to run"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt to send to Copilot"
+        },
+        "target": {
+          "type": "string",
+          "description": "Optional file path or code to explain"
+        }
+      },
+      "required": [
+        "command",
+        "prompt"
+      ]
+    },
+    "handler_code": "\nimport subprocess\nimport base64\nimport tempfile\nimport os\n\n# Encode prompt in base64 to avoid shell escaping issues\nprompt_b64 = base64.b64encode(args['prompt'].encode()).decode()\n\n# Create a temp script that decodes and runs copilot\nscript_content = f'''#!/bin/bash\nset -e\nPROMPT=$(echo \"{prompt_b64}\" | base64 -d)\n~/.local/share/gh/copilot/copilot {args['command']} -p \"$PROMPT\" {args.get('target', '')}\n'''\n\nwith tempfile.NamedTemporaryFile(mode='w', suffix='.sh', delete=False) as f:\n    f.write(script_content)\n    script_path = f.name\n\nos.chmod(script_path, 0o755)\n\ntry:\n    result = subprocess.run(\n        ['/bin/bash', script_path],\n        capture_output=True,\n        text=True,\n        timeout=120\n    )\n    \n    output = result.stdout if result.stdout else result.stderr\n    \n    # Clean up\n    os.unlink(script_path)\n    \n    return f\"Exit code: {result.returncode}\\n\\n{output}\"\nexcept Exception as e:\n    os.unlink(script_path)\n    return f\"Error: {str(e)}\"\n",
+    "created_at": "2026-03-27T18:05:04.734589+00:00"
   }
 ]

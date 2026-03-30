@@ -2246,3 +2246,4 @@
 {"ts": "2026-03-30T15:28:54.067226+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 15 checks", "manager": "alpha-manager"}
 {"ts": "2026-03-30T15:30:03.101547+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 15 checks", "manager": "beta-manager"}
 {"ts": "2026-03-30T15:31:36.231593+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 15 checks", "manager": "gamma-manager"}
+{"ts": "2026-03-30T15:50:02.133852+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}

@@ -2247,3 +2247,6 @@
 {"ts": "2026-03-30T15:30:03.101547+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 15 checks", "manager": "beta-manager"}
 {"ts": "2026-03-30T15:31:36.231593+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 15 checks", "manager": "gamma-manager"}
 {"ts": "2026-03-30T15:50:02.133852+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-31T03:06:42.497968+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-03-31T03:11:26.879060+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-03-31T04:24:34.659983+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}

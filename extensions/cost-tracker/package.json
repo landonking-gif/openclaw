@@ -1,0 +1,8 @@
+{
+  "name": "@openclaw-army/cost-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "peerDependencies": { "openclaw": ">=2026.1.26" },
+  "openclaw": { "extensions": ["./index.ts"] }
+}

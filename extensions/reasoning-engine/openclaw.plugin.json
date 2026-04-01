@@ -1,0 +1,14 @@
+{
+  "id": "reasoning-engine",
+  "name": "Reasoning Engine",
+  "description": "Provides advanced reasoning patterns (ReAct, Reflective, Enterprise) as invocable tools for OpenClaw agents.",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "maxReactIterations":       { "type": "number", "default": 10 },
+      "maxReflectiveIterations":  { "type": "number", "default": 5 },
+      "minConfidenceToExecute":   { "type": "number", "default": 0.6 },
+      "minQualityScore":          { "type": "number", "default": 0.7 }
+    }
+  }
+}

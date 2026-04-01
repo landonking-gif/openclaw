@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "name": "OpenClaw Army",
+  "generated": "2026-03-06",
+
+  "infrastructure": {
+    "postgresql": {"port": 5432, "database": "openclaw_army"},
+    "redis": {"port": 6379, "db": 0}
+  },
+
+  "services": {
+    "memory-service":    {"port": 18820, "entrypoint": "main:app"},
+    "orchestrator-api":  {"port": 18830, "entrypoint": "main:app"},
+    "ralph":             {"port": 18840, "entrypoint": "ralph:app"},
+    "knowledge-bridge":  {"port": 18850, "entrypoint": "main:app"},
+    "agent-registry":    {"port": 18860, "entrypoint": "main:app"},
+    "notification":      {"port": 18870, "entrypoint": "main:app"}
+  },
+
+  "agents": {
+    "main":           {"port": 18789, "role": "meta-orchestrator", "model": "kimi-k2.5",    "key": "NVAPI_KIMI_KEY_1"},
+    "alpha-manager":  {"port": 18800, "role": "manager",          "model": "kimi-k2.5",    "key": "NVAPI_KIMI_KEY_1",     "workers": ["general-1","general-2","general-3","general-4"]},
+    "beta-manager":   {"port": 18801, "role": "manager",          "model": "deepseek-r1",  "key": "NVAPI_DEEPSEEK_KEY_1", "workers": ["coding-1","coding-2","coding-3","coding-4"]},
+    "gamma-manager":  {"port": 18802, "role": "manager",          "model": "kimi-k2.5",    "key": "NVAPI_KIMI_KEY_2",     "workers": ["agentic-1","agentic-2","agentic-3","agentic-4"]},
+    "coding-1":       {"port": 18803, "role": "worker", "domain": "python",     "model": "deepseek-r1", "key": "NVAPI_DEEPSEEK_KEY_2", "manager": "beta-manager"},
+    "coding-2":       {"port": 18804, "role": "worker", "domain": "javascript", "model": "deepseek-r1", "key": "NVAPI_DEEPSEEK_KEY_3", "manager": "beta-manager"},
+    "coding-3":       {"port": 18805, "role": "worker", "domain": "bash",       "model": "deepseek-r1", "key": "NVAPI_DEEPSEEK_KEY_4", "manager": "beta-manager"},
+    "coding-4":       {"port": 18806, "role": "worker", "domain": "fullstack",  "model": "deepseek-r1", "key": "NVAPI_DEEPSEEK_KEY_5", "manager": "beta-manager"},
+    "agentic-1":      {"port": 18807, "role": "worker", "domain": "search",     "model": "glm-5",      "key": "NVAPI_GLM5_KEY_1",     "manager": "gamma-manager"},
+    "agentic-2":      {"port": 18808, "role": "worker", "domain": "analysis",   "model": "glm-5",      "key": "NVAPI_GLM5_KEY_2",     "manager": "gamma-manager"},
+    "agentic-3":      {"port": 18809, "role": "worker", "domain": "synthesis",  "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_1",     "manager": "gamma-manager"},
+    "agentic-4":      {"port": 18810, "role": "worker", "domain": "factcheck",  "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_2",     "manager": "gamma-manager"},
+    "general-1":      {"port": 18811, "role": "worker", "domain": "writing",    "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_1",     "manager": "alpha-manager"},
+    "general-2":      {"port": 18812, "role": "worker", "domain": "summary",    "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_2",     "manager": "alpha-manager"},
+    "general-3":      {"port": 18813, "role": "worker", "domain": "qa",         "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_1",     "manager": "alpha-manager"},
+    "general-4":      {"port": 18814, "role": "worker", "domain": "automation", "model": "kimi-k2.5",  "key": "NVAPI_KIMI_KEY_2",     "manager": "alpha-manager"}
+  },
+
+  "vault": {
+    "path": "./data/obsidian database",
+    "bridge_port": 18850,
+    "folders": ["agents", "research", "code-patterns", "decisions", "daily-logs", "projects", "inbox"]
+  }
+}

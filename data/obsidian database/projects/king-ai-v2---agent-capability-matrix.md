@@ -1,0 +1,96 @@
+---
+title: "King AI v2 - Agent Capability Matrix"
+date: "2026-03-17"
+agent: "alpha-manager"
+tags: [agent/alpha-manager]
+---
+
+# King AI v2 - Agent Capability Matrix
+
+---
+title: King AI v2 - Agent Capability Matrix
+agent: alpha-manager
+date: 2026-03-10
+version: 2.0.0
+tags:
+  - type/reference
+  - project/king-ai-v2
+  - system/capabilities
+  - status/current
+---
+
+# King AI v2 - Agent Capability Matrix
+
+Complete mapping of capabilities across the ai_final agent hierarchy.
+
+## Hierarchy Overview
+
+| Level | Agent | Port | Role | Workers |
+|-------|-------|------|------|---------|
+| **Apex** | King AI v2 | 18789 | Meta-orchestrator | 4 Managers |
+| **Manager: General** | Alpha Manager | 18800 | General tasks | 4 workers |
+| **Manager: Coding** | Beta Manager | 18801 | Code/PRD | 2 workers |
+| **Manager: Research** | Gamma Manager | 18802 | Analysis | 2 workers |
+| **Manager: Agentic** | Delta Manager | 18803 | Workflows | 2 workers |
+
+## Worker Agent Specializations
+
+### Alpha Manager Workers (General Tasks)
+
+| Worker | Port | Specialty | Best For |
+|--------|------|-----------|----------|
+| general-1 | 18811 | Writing/Content | Drafts, rewrites, polish |
+| general-2 | 18812 | Summarization | TL;DRs, compression |
+| general-3 | 18813 | Q&A | Explanations, clarifications |
+| general-4 | 18814 | Mac Automation | Scripts, shortcuts, system tasks |
+
+### Beta Manager Workers (Coding)
+
+| Worker | Port | Specialty | Best For |
+|--------|------|-----------|----------|
+| coding-1 | 18821 | Feature Implementation | PRD → Code |
+| coding-2 | 18822 | Review/Refactor | Code review, refactoring |
+
+### Gamma Manager Workers (Research)
+
+| Worker | Port | Specialty | Best For |
+|--------|------|-----------|----------|
+| research-1 | 18831 | Deep Research | Multi-source synthesis |
+| research-2 | 18832 | Analysis | Data processing, extraction |
+
+### Delta Manager Workers (Agentic)
+
+| Worker | Port | Specialty | Best For |
+|--------|------|-----------|----------|
+| agentic-1 | 18841 | Workflow Execution | Multi-step automation |
+| agentic-2 | 18842 | Tool Chaining | Complex tool sequences |
+
+## Tool Access Matrix
+
+| Tool | King AI | Alpha | Beta | Gamma | Delta | Workers |
+|------|---------|-------|------|-------|-------|---------|
+| **File Operations** | | | | | | |
+| read | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| write | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| edit | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Shell & Execution** | | | | | | |
+| exec | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ (request) |
+| process | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ (request) |
+| **Web & APIs** | | | | | | |
+| web_search | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| web_fetch | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Memory & Knowledge** | | | | | | |
+| memory_commit | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| memory_query | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| diary/reflect | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Reasoning** | | | | | | |
+| react_execute | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| reflective_execute | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| enterprise_execute | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Agent Orchestration** | | | | | | |
+| sessions_spawn | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| sessions_send | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| subagents | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Permissions** | | | | | | |
+| list_elevation_requests | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| approve_elevation | ✅ | ✅ | ✅ | ❌ | ❌ |

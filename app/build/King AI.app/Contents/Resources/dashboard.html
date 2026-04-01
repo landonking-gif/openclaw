@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>King AI — Neural Command Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    color: #e0e0e0;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #starfield { position: fixed; inset: 0; z-index: 0; }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 24px;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    user-select: none;
+  }
+
+  #header .crown {
+    font-size: 22px;
+    background: linear-gradient(135deg, #c0c0cc, #ffffff, #a0a0b0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  #header .title {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ffffff, #a0a8c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  #header .subtitle {
+    font-size: 10px;
+    color: rgba(100, 200, 255, 0.4);
+    letter-spacing: 2px;
+    margin-left: 8px;
+  }
+
+  #chat-box {
+    width: 100%;
+    max-width: 740px;
+    height: 68vh;
+    border: 1px solid rgba(100, 200, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(4, 4, 12, 0.85);
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(100, 200, 255, 0.03);
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  #messages::-webkit-scrollbar { width: 4px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 2px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    animation: fadeSlide 0.3s ease;
+    position: relative;
+    user-select: text;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(100, 200, 255, 0.08);
+    border: 1px solid rgba(100, 200, 255, 0.2);
+    border-radius: 4px;
+    color: rgba(100, 200, 255, 0.6);
+    font-size: 10px;
+    padding: 2px 6px;
+    cursor: pointer;
+    z-index: 2;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .msg:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: rgba(100, 200, 255, 0.15); color: rgba(100, 200, 255, 1); }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: rgba(20, 30, 60, 0.8);
+    color: #c8d8ff;
+    border: 1px solid rgba(100, 200, 255, 0.12);
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.assistant {
+    align-self: flex-start;
+    background: rgba(8, 8, 20, 0.9);
+    color: #d0d0e8;
+    border: 1px solid rgba(100, 100, 160, 0.1);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg .label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .msg.assistant .label { color: rgba(180, 180, 210, 0.6); }
+  .msg.user .label { color: rgba(100, 200, 255, 0.5); }
+
+  .msg.thinking {
+    align-self: flex-start;
+    background: rgba(60, 50, 120, 0.1);
+    border: 1px solid rgba(100, 80, 180, 0.1);
+    color: #8a8ab0;
+    font-size: 12px;
+  }
+
+  .msg.event {
+    align-self: center;
+    background: none;
+    color: #3a3a5a;
+    font-size: 11px;
+    padding: 4px 0;
+    text-align: center;
+  }
+
+  .delegation-badge {
+    display: inline-block;
+    margin-top: 8px;
+    margin-right: 6px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    background: rgba(50, 180, 220, 0.08);
+    color: rgba(100, 200, 255, 0.7);
+    border: 1px solid rgba(100, 200, 255, 0.15);
+  }
+  .delegation-badge.dispatched {
+    border-color: rgba(60, 160, 60, 0.2);
+    color: #5a9a5a;
+    background: rgba(60, 160, 60, 0.05);
+  }
+
+  .thinking-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    color: #5a5a8a;
+    font-size: 12px;
+    animation: fadeSlide 0.2s ease;
+  }
+  .thinking-indicator .dots span {
+    animation: blink 1.4s infinite;
+    opacity: 0.2;
+  }
+  .thinking-indicator .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  #input-area {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid rgba(100, 200, 255, 0.08);
+    padding: 12px 14px;
+    gap: 10px;
+    background: rgba(3, 3, 10, 0.9);
+  }
+
+  #input {
+    flex: 1;
+    background: rgba(6, 6, 16, 0.9);
+    border: 1px solid rgba(100, 200, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #d0d0e8;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 20px;
+    max-height: 120px;
+    transition: border-color 0.2s;
+  }
+  #input:focus { border-color: rgba(100, 200, 255, 0.3); }
+  #input::placeholder { color: #2a2a44; }
+
+  #send-btn {
+    background: linear-gradient(135deg, rgba(100, 200, 255, 0.15), rgba(100, 100, 200, 0.15));
+    border: 1px solid rgba(100, 200, 255, 0.2);
+    border-radius: 10px;
+    color: rgba(100, 200, 255, 0.85);
+    padding: 0 18px;
+    height: 40px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #send-btn:hover { background: rgba(100, 200, 255, 0.12); border-color: rgba(100, 200, 255, 0.4); }
+  #send-btn:disabled { opacity: 0.3; cursor: default; }
+
+  #thinking-toggle {
+    background: none;
+    border: 1px solid rgba(100, 80, 180, 0.2);
+    border-radius: 8px;
+    color: #5a5a8a;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  #thinking-toggle:hover { color: rgba(100, 200, 255, 0.7); border-color: rgba(100, 200, 255, 0.3); }
+  #thinking-toggle.active { color: rgba(100, 200, 255, 0.85); border-color: rgba(100, 200, 255, 0.4); background: rgba(100, 200, 255, 0.05); }
+
+  #status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #333;
+    user-select: none;
+  }
+  #status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #333;
+    transition: background 0.3s;
+  }
+  #status-dot.connected { background: #3a8a5a; }
+  #status-dot.error { background: #8a3a3a; }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div id="app">
+  <div id="header">
+    <span class="crown">&#128081;</span>
+    <span class="title">King AI</span>
+    <span class="subtitle">Neural Command Center</span>
+  </div>
+
+  <div id="chat-box">
+    <div id="messages">
+      <div class="msg assistant">
+        <div class="label">&#128081; King AI</div>
+        Welcome to King AI. I'm your neural command center — ask me anything or assign a task to the network.
+      </div>
+    </div>
+    <div id="input-area">
+      <button id="thinking-toggle" onclick="toggleThinking()" title="Toggle thinking view">&#129504;</button>
+      <textarea id="input" rows="1" placeholder="Talk to King AI..." autofocus></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <div id="status-bar">
+    <div id="status-dot"></div>
+    <span id="status-text">Connecting...</span>
+  </div>
+</div>
+
+<script>
+// Starfield
+(function() {
+  const c = document.getElementById('starfield');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  function resize() { c.width = innerWidth; c.height = innerHeight; }
+  addEventListener('resize', resize); resize();
+  for (let i = 0; i < 220; i++) {
+    stars.push({ x: Math.random()*c.width, y: Math.random()*c.height, r: Math.random()*1.1+0.3, a: Math.random(), da: (Math.random()-0.5)*0.007 });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (const s of stars) {
+      s.a += s.da;
+      if (s.a > 1 || s.a < 0.15) s.da *= -1;
+      s.a = Math.max(0.15, Math.min(1, s.a));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(170,180,255,${s.a*0.6})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+const API = 'http://localhost:18830';
+const msgs = document.getElementById('messages');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send-btn');
+const statusDot = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
+
+function createClientSessionId() {
+  const nonce = Math.random().toString(36).slice(2, 10);
+  return 'kingai-web-' + Date.now().toString(36) + '-' + nonce;
+}
+
+let sessionId = createClientSessionId();
+let showThinking = false;
+let thinkingCache = [];
+const renderedThinking = new Set();
+const MAX_THINKING_CACHE = 250;
+const CHAT_TIMEOUT_MS = 600000;
+let backfillInFlight = false;
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function addMsg(cls, html, textToCopy = '') {
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  
+  if (cls !== 'event') {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    const raw = textToCopy || html.replace(/<div class="label">.*?<\/div>/, '').replace(/<[^>]*>/g, '').trim();
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      copyToClipboard(btn, raw);
+    };
+    d.appendChild(btn);
+  }
+
+  const content = document.createElement('div');
+  content.innerHTML = html;
+  d.appendChild(content);
+  
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function copyToClipboard(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = old; }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Error';
+  });
+}
+
+function toggleThinking() {
+  showThinking = !showThinking;
+  document.getElementById('thinking-toggle').classList.toggle('active', showThinking);
+  if (showThinking) {
+    renderCachedThinking();
+    backfillThinking();
+  }
+}
+
+function activitySession(evt) {
+  return evt?.session_id || evt?.session || null;
+}
+
+function toThinkingEntry(evt) {
+  if (!evt) return null;
+
+  const eventName = String(evt.event || 'activity').toLowerCase();
+  const session = activitySession(evt);
+  const ts = evt.ts || '';
+
+  if (eventName === 'activity') {
+    const entryType = String(evt.type || 'system').toLowerCase();
+    if (entryType === 'response' || entryType === 'user_message') return null;
+    const content = String(evt.content || '').trim();
+    if (!content) return null;
+    return {
+      ts,
+      type: String(evt.type || 'system'),
+      content,
+      session,
+    };
+  }
+
+  if (eventName === 'delegation') {
+    const manager = String(evt.manager || 'manager').trim();
+    const task = String(evt.task || '').trim();
+    const dispatched = evt.dispatched === false ? 'Dispatch failed' : 'Delegated';
+    const content = task ? (dispatched + ': ' + manager + ' -> ' + task) : (dispatched + ': ' + manager);
+    return { ts, type: 'delegation', content, session };
+  }
+
+  if (eventName === 'chat_pending') {
+    return { ts, type: 'chat_action', content: 'Chat is still processing.', session };
+  }
+
+  if (eventName === 'chat_response') {
+    return { ts, type: 'chat_action', content: 'Final chat response received.', session };
+  }
+
+  if (eventName === 'subtasks_dispatched') {
+    const dispatched = Array.isArray(evt.dispatched) ? evt.dispatched.length : 0;
+    const failed = Array.isArray(evt.failed) ? evt.failed.length : 0;
+    return {
+      ts,
+      type: 'workflow_action',
+      content: 'Subtasks dispatched: ' + dispatched + ', failed: ' + failed,
+      session,
+    };
+  }
+
+  if (eventName === 'subtask_updated') {
+    const sid = String(evt.subtask_id || '').trim();
+    const status = String(evt.new_status || '').trim();
+    if (!sid && !status) return null;
+    return {
+      ts,
+      type: 'workflow_action',
+      content: 'Subtask ' + sid + ' -> ' + status,
+      session,
+    };
+  }
+
+  return null;
+}
+
+function rememberThinking(entry) {
+  thinkingCache.push(entry);
+  if (thinkingCache.length > MAX_THINKING_CACHE) {
+    thinkingCache = thinkingCache.slice(-MAX_THINKING_CACHE);
+  }
+}
+
+function isCurrentSessionEntry(entry) {
+  if (!sessionId) return true;
+  return !entry.session || entry.session === sessionId;
+}
+
+function thinkingKey(entry) {
+  return [entry.session || '', entry.ts || '', entry.type || '', entry.content.slice(0, 240)].join('|');
+}
+
+function renderThinkingEntry(entry) {
+  const key = thinkingKey(entry);
+  if (renderedThinking.has(key)) return;
+  renderedThinking.add(key);
+  const typeLabel = (entry.type || 'system').replace(/_/g, ' ').toUpperCase();
+  const icon = /delegation|action|workflow/.test(String(entry.type || '').toLowerCase()) ? '⚙️' : '🧠';
+  addMsg('thinking', '<div class="label">' + icon + ' ' + typeLabel + '</div>' + esc(entry.content).substring(0, 300), entry.content);
+}
+
+function renderCachedThinking() {
+  if (!showThinking) return;
+  const recent = thinkingCache.filter(isCurrentSessionEntry).slice(-80);
+  for (const entry of recent) renderThinkingEntry(entry);
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = CHAT_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function backfillThinking() {
+  if (!sessionId) return;
+  if (backfillInFlight) return;
+  backfillInFlight = true;
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(sessionId) + '?limit=160',
+      {},
+      20000
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (const raw of entries) {
+      const entry = toThinkingEntry({ event: 'activity', ...raw });
+      if (!entry) continue;
+      rememberThinking(entry);
+    }
+    if (showThinking) renderCachedThinking();
+  } catch {
+    // Keep chat usable even if backfill fails.
+  } finally {
+    backfillInFlight = false;
+  }
+}
+
+async function latestSessionResponse(session, limit = 120, notBeforeMs = null) {
+  if (!session) return '';
+  try {
+    const res = await fetchWithTimeout(
+      API + '/activity/session/' + encodeURIComponent(session) + '?limit=' + limit,
+      {},
+      20000
+    );
+    if (!res.ok) return '';
+    const data = await res.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const entry = entries[i];
+      const entryType = String(entry?.type || '').toLowerCase();
+      const entryText = String(entry?.content || '').trim();
+      const entrySession = activitySession(entry);
+      const sameSession = !entrySession || !session || entrySession === session;
+      const entryTsMs = Date.parse(String(entry?.ts || ''));
+      const isRecentForRequest = notBeforeMs == null
+        || (Number.isFinite(entryTsMs) && entryTsMs + 1000 >= notBeforeMs);
+      if (entryType === 'response' && sameSession && entryText) {
+        if (!isRecentForRequest) continue;
+        return entryText;
+      }
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+async function recoverResponseFromActivity(session, attempts = 80, delayMs = 3000, notBeforeMs = null) {
+  if (!session) return '';
+  for (let i = 0; i < attempts; i++) {
+    const text = await latestSessionResponse(session, 120, notBeforeMs);
+    if (text) return text;
+    await backfillThinking();
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return '';
+}
+
+function delegationsHtml(delegations) {
+  if (!Array.isArray(delegations) || !delegations.length) return '';
+  let html = '<div style="margin-top:8px">';
+  for (const d of delegations) {
+    const cls = d && d.dispatched ? 'delegation-badge dispatched' : 'delegation-badge';
+    const manager = typeof d?.manager === 'string' ? d.manager : 'manager';
+    const taskRaw = typeof d?.task === 'string' ? d.task : JSON.stringify(d?.task || '');
+    html += '<span class="' + cls + '">→ ' + esc(manager) + ': ' + esc(taskRaw.slice(0, 80)) + '</span> ';
+  }
+  html += '</div>';
+  return html;
+}
+
+function looksLikeTimeoutResponse(text) {
+  const norm = String(text || '').toLowerCase();
+  return norm.includes('timed out') || norm.includes('trouble connecting to my reasoning engine');
+}
+
+async function postChat(text) {
+  const body = { message: text, session_id: sessionId };
+  const res = await fetchWithTimeout(
+    API + '/chat',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    CHAT_TIMEOUT_MS
+  );
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || ('HTTP ' + res.status));
+  }
+  return await res.json();
+}
+
+function renderMd(text) {
+  text = text.trim();
+  return text.split('\n').map(line => {
+    const h3 = line.match(/^###\s+(.+)$/);
+    const h2 = line.match(/^##\s+(.+)$/);
+    if (h3) return '<div style="color:#a0a8d0;font-size:13px;font-weight:600;margin:8px 0 2px">' + inl(h3[1]) + '</div>';
+    if (h2) return '<div style="color:#b0b0e0;font-size:14px;font-weight:600;margin:10px 0 3px">' + inl(h2[1]) + '</div>';
+    if (line.match(/^[-•*]\s+/)) return '<div style="padding-left:12px"><span style="color:rgba(100,200,255,0.5)">→</span> ' + inl(line.replace(/^[-•*]\s+/,'')) + '</div>';
+    if (line.trim() === '') return '<div style="height:6px"></div>';
+    return '<div>' + inl(line) + '</div>';
+  }).join('');
+}
+function inl(t) {
+  let h = esc(t);
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#c0c0e0">$1</strong>');
+  h = h.replace(/`([^`]+)`/g, '<code style="background:rgba(100,200,255,0.06);padding:1px 5px;border-radius:3px;font-size:12px">$1</code>');
+  return h;
+}
+
+// WebSocket
+let ws;
+function connectWS() {
+  ws = new WebSocket('ws://localhost:18830/ws');
+  ws.onopen = () => { statusDot.className = 'connected'; statusText.textContent = 'Connected to King AI'; };
+  ws.onmessage = (e) => {
+    if (e.data === 'pong') return;
+    try {
+      const evt = JSON.parse(e.data);
+      const entry = toThinkingEntry(evt);
+      if (entry) {
+        rememberThinking(entry);
+        if (showThinking && isCurrentSessionEntry(entry)) {
+          renderThinkingEntry(entry);
+        }
+      }
+    } catch {}
+  };
+  ws.onclose = () => { statusDot.className = 'error'; statusText.textContent = 'Reconnecting...'; setTimeout(connectWS, 3000); };
+  ws.onerror = () => { statusDot.className = 'error'; };
+}
+connectWS();
+setInterval(() => { if (ws?.readyState === 1) ws.send('ping'); }, 25000);
+
+// Send
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
+  if (!sessionId) sessionId = createClientSessionId();
+  const requestStartedAtMs = Date.now();
+  addMsg('user', '<div class="label">YOU</div>' + esc(text), text);
+  input.value = ''; input.style.height = 'auto';
+  sendBtn.disabled = true;
+  statusText.textContent = 'King AI is thinking...';
+
+  const thinking = document.createElement('div');
+  thinking.className = 'thinking-indicator'; thinking.id = 'thinking';
+  thinking.innerHTML = '🧠 Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+  msgs.appendChild(thinking); msgs.scrollTop = msgs.scrollHeight;
+
+  const thinkingBackfillTimer = setInterval(() => {
+    if (sessionId) backfillThinking();
+  }, 2500);
+
+  try {
+    let data = await postChat(text);
+    if (looksLikeTimeoutResponse(data?.response || '')) {
+      addMsg('event', 'Timeout detected, retrying once...');
+      data = await postChat(text);
+    }
+
+    if (typeof data?.session_id === 'string' && data.session_id) {
+      sessionId = data.session_id;
+    }
+
+    await backfillThinking();
+
+    let responseText = typeof data?.response === 'string' && data.response.trim()
+      ? data.response
+      : '';
+
+    if ((data?.pending === true || !responseText || looksLikeTimeoutResponse(responseText)) && sessionId) {
+      addMsg('event', 'Recovering final response from activity...');
+      const recovered = await recoverResponseFromActivity(sessionId, 80, 3000, requestStartedAtMs);
+      if (recovered) {
+        responseText = recovered;
+      }
+    }
+
+    if (!responseText) {
+      responseText = '(no response yet - still processing)';
+    }
+
+    let html = '<div class="label">👑 King AI</div>' + renderMd(responseText);
+    html += delegationsHtml(data?.delegations);
+    addMsg('assistant', html, responseText);
+  } catch (err) {
+    const errMsg = String(err?.message || '');
+    const timeoutLikeError = err?.name === 'AbortError' || /timed out|reasoning engine/i.test(errMsg);
+
+    if (timeoutLikeError && sessionId) {
+      addMsg('event', 'Request timed out. Attempting response recovery from activity...');
+      await backfillThinking();
+      const recovered = await recoverResponseFromActivity(sessionId, 100, 3500, requestStartedAtMs);
+      if (recovered) {
+        const html = '<div class="label">👑 King AI</div>' + renderMd(recovered);
+        addMsg('assistant', html, recovered);
+      } else {
+        const timeoutMsg = 'The chat request timed out before completion, and no final response was recovered yet.';
+        addMsg('assistant', '<div class="label">ERROR</div>' + esc(timeoutMsg), timeoutMsg);
+      }
+    } else {
+      const msg = err?.message || 'Unknown error';
+      addMsg('assistant', '<div class="label">ERROR</div>' + esc(msg), msg);
+    }
+  } finally {
+    clearInterval(thinkingBackfillTimer);
+    document.getElementById('thinking')?.remove();
+    sendBtn.disabled = false;
+    input.focus();
+    statusText.textContent = 'Connected to King AI';
+  }
+}
+
+sendBtn.addEventListener('click', send);
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+// Health
+(async () => {
+  try {
+    const res = await fetch(API + '/health');
+    if (res.ok) { statusDot.className = 'connected'; statusText.textContent = 'Connected to King AI'; }
+  } catch { statusDot.className = 'error'; statusText.textContent = 'King AI unreachable'; }
+})();
+</script>
+</body>
+</html>

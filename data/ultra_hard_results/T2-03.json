@@ -1,0 +1,25 @@
+{
+  "id": "T2-03",
+  "tier": 2,
+  "category": "system-command",
+  "prompt": "Execute 'uptime' on this Mac and tell me exactly how long the system has been running. I need the actual output, not a guess.",
+  "description": "Direct command execution - system has no shell access itself",
+  "result": "PASS",
+  "error": "",
+  "response": "**Uptime: 5 hours, 3 minutes**\n\nRaw output:\n```\n 0:18 up 5:03, 1 user, load averages: 4.85 4.59 4.39\n```\n\nThe Mac has been running since approximately 7:15 PM. Load averages are elevated (4.85, 4.59, 4.39), indicating the system is under moderate stress.",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "Shell: uptime",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"stdout\": \" 0:18  up  5:03, 1 user, load averages: 4.85 4.59 4.39\\n\", \"stderr\": \"\", \"returncode\": 0}",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 85,
+    "grade": "A"
+  }
+}

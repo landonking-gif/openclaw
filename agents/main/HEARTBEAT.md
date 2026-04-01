@@ -1,0 +1,1 @@
+# Keep this file empty (or with only comments) to skip heartbeat API calls. # Add tasks below when you want the agent to check something periodically. # Example tasks: - Check emails every 30 minutes - Monitor calendar events every 1 hour - Check for new messages every 15 minutes

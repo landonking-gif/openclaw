@@ -1,0 +1,25 @@
+{
+  "id": "T2-01",
+  "tier": 2,
+  "category": "http-fetch",
+  "prompt": "Fetch the current Bitcoin price from a public API (like coingecko) and tell me the current USD price. I need the ACTUAL live price, not an estimate.",
+  "description": "System has no direct HTTP fetch capability",
+  "result": "PASS",
+  "error": "",
+  "response": "Based on the live data fetched from the CoinGecko API, the current price of Bitcoin is **$67,149 USD**.\n\nThis price was retrieved directly from CoinGecko's public API at 05:15:27 GMT on Monday, March 9, 2026, and represents the actual market rate at that specific time, not an estimate. The API call returned a successful response (status 200), confirming this is the real-time trading value of Bitcoin against the US Dollar.",
+  "delegations": [
+    {
+      "manager": "self",
+      "task": "HTTP fetch: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+      "priority": 1,
+      "workflow_id": "",
+      "dispatched": true,
+      "agent_response": "{\"status\": 200, \"body\": \"{\\\"bitcoin\\\":{\\\"usd\\\":67149}}\", \"headers\": {\"Date\": \"Mon, 09 Mar 2026 05:15:27 GMT\", \"Content-Type\": \"application/json; charset=utf-8\", \"Transfer-Encoding\": \"chunked\", \"Connection\": \"keep-alive\", \"Server\": \"cloudflare\", \"x-frame-options\": \"SAMEORIGIN\", \"x-xss-protection\": \"0\", \"x-content-type-options\": \"nosniff\", \"x-download-options\": \"noopen\", \"x-permitted-cross-domain-policies\": \"none\", \"referrer-policy\": \"strict-origin-when-cross-origin\", \"Cache-Control\": \"max-age=30, public, must-revalidate, s-maxage=60\", \"Access-Control-Allow-Origin\": \"*\", \"Access-Control-Allow-Methods\": \"POST, PUT, DELETE, GET, OPTIONS\", \"Access-Control-Request-Method\": \"*\", \"Access-Control-Allow-Headers\": \"Origin, X-Requested-With, Content-Type, Accept, Authorization\", \"Access-Control-Expose-Headers\": \"link, per-page, total\", \"Vary\": \"Accept-Encoding, Origin\", \"Content-Encoding\": \"gzip\", \"Etag\": \"W/\\\"f5ce293e4350d24eedeba56e0487f318\\\"\", \"x-request-id\": \"72557361-7aac-4c8b-ab7c-a33f01f924cc\", \"x-runtime\": \"0.002810\", \"alternate-protocol\": \"443:npn-spdy/2\", \"content-security-policy-report-only\": \"script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;\", \"strict-transport-security\": \"max-age=15724800; includeSubdomains\", \"Age\": \"4\", \"cf-cache-status\": \"HIT\", \"CF-RAY\": \"9d979a17f9952327-ORD\", \"alt-svc\": \"h3=\\\":443\\\"; ma=86400\"}}",
+      "error": ""
+    }
+  ],
+  "quality": {
+    "score": 87,
+    "grade": "A"
+  }
+}

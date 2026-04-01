@@ -1,0 +1,25 @@
+{
+  "id": "permission-broker",
+  "name": "Permission Broker",
+  "description": "Hierarchical permission enforcement for the ai_final multi-agent system. Restricts worker capabilities, enforces least-privilege, and provides runtime elevation request/approval workflow.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "permissionsFile": {
+        "type": "string",
+        "description": "Path to the permissions.json file (default: auto-detected from plugin dir)"
+      },
+      "auditLogEnabled": {
+        "type": "boolean",
+        "description": "Enable audit logging of all permission decisions",
+        "default": true
+      },
+      "maxGrantDurationMinutes": {
+        "type": "number",
+        "description": "Maximum duration for temporary permission grants",
+        "default": 480
+      }
+    }
+  }
+}

@@ -3088,5 +3088,25 @@
       "role": "assistant",
       "content": "No memories found. The system has no stored recollection of a secret project codename or budget.\n\nThe Memory Service (ChromaDB + PostgreSQL + Redis) is operational, but currently contains no entries matching your query. Either:\n1. This information was never stored in memory\n2. It was stored under different keywords\n3. The memory tier may have been cleared\n\nIf you have details about this project, I can store them now using `memory_store` for future recall."
     }
+  ],
+  "memory-test-003": [
+    {
+      "role": "user",
+      "content": "Search your memory for the secret project codename. What is it and what budget was associated with it?"
+    },
+    {
+      "role": "assistant",
+      "content": "**Codename:** KINGAI_TEST_1775068727  \n**Budget:** 42 million credits\n\nThis is the internal identifier for the OpenClaw Army unified system, created by Landon King."
+    }
+  ],
+  "tool-test-001": [
+    {
+      "role": "user",
+      "content": "I need you to create a new tool called fibonacci_calculator that computes the nth fibonacci number. Then use it to calculate the 15th fibonacci number."
+    },
+    {
+      "role": "assistant",
+      "content": "I have successfully created and registered the **fibonacci_calculator** tool, which is now active and available for use. The registration process completed successfully, confirming that the tool is properly configured and ready for computing Fibonacci sequence values.\n\nUsing this newly created tool to perform the requested calculation, I computed the **15th Fibonacci number**, which is **377**. This result represents the specific value at the 15th position in the Fibonacci sequence as calculated by the tool."
+    }
   ]
 }

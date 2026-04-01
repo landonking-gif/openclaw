@@ -10,9 +10,7 @@
           "description": "The text to count words in"
         }
       },
-      "required": [
-        "text"
-      ]
+      "required": ["text"]
     },
     "handler_code": "text = args.get('text', '')\nif not text or not text.strip():\n    return \"0\"\nwords = text.split()\nreturn str(len(words))",
     "created_at": "2026-03-08T21:50:14.998481+00:00"
@@ -53,9 +51,7 @@
           "description": "Text to analyze"
         }
       },
-      "required": [
-        "text"
-      ]
+      "required": ["text"]
     },
     "handler_code": "\nimport json\nimport re\n\ntext = args.get(\"text\", \"\")\n\n# Word count: split on whitespace\nword_count = len(text.split())\n\n# Character count\nchar_count = len(text)\n\n# Sentence count: split on sentence-ending punctuation followed by space or end\n# Handles . ! ? followed by space, newline, or end of string\nsentences = re.split(r'[.!?]+(?:\\s+|$)', text.strip())\n# Filter out empty strings\nsentences = [s for s in sentences if s.strip()]\nsentence_count = len(sentences) if text.strip() else 0\n\nresult = {\n    \"word_count\": word_count,\n    \"char_count\": char_count,\n    \"sentence_count\": sentence_count\n}\n\nreturn json.dumps(result)\n",
     "created_at": "2026-03-13T22:54:57.152084+00:00"
@@ -82,9 +78,7 @@
           "description": "CSV formatted string with header row"
         }
       },
-      "required": [
-        "csv_string"
-      ]
+      "required": ["csv_string"]
     },
     "handler_code": "\nimport csv\nimport json\nimport io\n\ncsv_string = args.get(\"csv_string\", \"\")\nif not csv_string:\n    return \"Error: No CSV string provided\"\n\n# Parse CSV using DictReader\nreader = csv.DictReader(io.StringIO(csv_string))\nresult = list(reader)\n\n# Return as JSON string\nreturn json.dumps(result, indent=2)\n",
     "created_at": "2026-03-14T02:28:12.236485+00:00"
@@ -100,9 +94,7 @@
           "description": "The sentence to reverse word letters in"
         }
       },
-      "required": [
-        "text"
-      ]
+      "required": ["text"]
     },
     "handler_code": "\ndef reverse_word_letters(text):\n    \"\"\"Reverse letters in each word, preserving non-letters at word boundaries.\"\"\"\n    import re\n    \n    def reverse_word(match):\n        word = match.group(0)\n        # Find the core letters and any trailing punctuation\n        core = re.match(r'^([a-zA-Z]+)([^a-zA-Z]*)$', word)\n        if core:\n            letters, trailing = core.groups()\n            return letters[::-1] + trailing\n        return word[::-1]\n    \n    # Match words (letters possibly followed by non-letters)\n    result = re.sub(r'[a-zA-Z]+[^a-zA-Z]*', reverse_word, text)\n    return result\n\nreturn reverse_word_letters(args.get(\"text\", \"\"))\n",
     "created_at": "2026-03-14T02:30:19.928498+00:00"
@@ -118,9 +110,7 @@
           "description": "Text to analyze for sentiment"
         }
       },
-      "required": [
-        "text"
-      ]
+      "required": ["text"]
     },
     "handler_code": "\nimport random\nimport hashlib\n\n# Get text from args\ntext_input = args.get('text', '')\n\nif not text_input or len(text_input.strip()) == 0:\n    return \"0.0\"\n\n# Use hash of text to generate consistent sentiment for same text\ntext_hash = hashlib.md5(text_input.encode()).hexdigest()\nhash_int = int(text_hash[:8], 16)\n\n# Map to -1.0 to 1.0 range\nsentiment = (hash_int / 0xffffffff) * 2 - 1\n\n# Round to 4 decimal places\nsentiment = round(sentiment, 4)\n\nreturn str(sentiment)\n",
     "created_at": "2026-03-14T05:01:38.510540+00:00"
@@ -133,10 +123,7 @@
       "properties": {
         "command": {
           "type": "string",
-          "enum": [
-            "suggest",
-            "explain"
-          ],
+          "enum": ["suggest", "explain"],
           "description": "Command to run"
         },
         "prompt": {
@@ -152,12 +139,26 @@
           "description": "Programming language for suggestions (e.g., python, javascript, go)"
         }
       },
-      "required": [
-        "command",
-        "prompt"
-      ]
+      "required": ["command", "prompt"]
     },
     "handler_code": "\nimport subprocess\nimport os\n\ndef run_copilot(command, prompt, target=None, language=None):\n    copilot_path = os.path.expanduser(\"~/.local/share/gh/copilot/copilot\")\n    \n    if not os.path.exists(copilot_path):\n        return {\"error\": \"Copilot CLI not found. Run 'gh auth login' first.\"}\n    \n    # Build the prompt based on command\n    if command == \"suggest\":\n        full_prompt = f\"{language or ''}: {prompt}\" if language else prompt\n        cmd = [copilot_path, \"-p\", full_prompt]\n    elif command == \"explain\":\n        if target and os.path.exists(target):\n            with open(target, 'r') as f:\n                code = f.read()\n            full_prompt = f\"Explain this code:\\n\\n{code}\"\n        elif target:\n            full_prompt = f\"Explain this code:\\n\\n{target}\"\n        else:\n            full_prompt = f\"Explain: {prompt}\"\n        cmd = [copilot_path, \"-p\", full_prompt]\n    else:\n        return {\"error\": f\"Unknown command: {command}\"}\n    \n    try:\n        result = subprocess.run(\n            cmd,\n            capture_output=True,\n            text=True,\n            timeout=60\n        )\n        return {\n            \"stdout\": result.stdout,\n            \"stderr\": result.stderr,\n            \"returncode\": result.returncode\n        }\n    except subprocess.TimeoutExpired:\n        return {\"error\": \"Command timed out after 60 seconds\"}\n    except Exception as e:\n        return {\"error\": str(e)}\n\nargs = args or {}\nresult = run_copilot(\n    args.get(\"command\"),\n    args.get(\"prompt\"),\n    args.get(\"target\"),\n    args.get(\"language\")\n)\n\nif \"error\" in result:\n    return f\"Error: {result['error']}\"\n\noutput = result.get(\"stdout\", \"\")\nif result.get(\"stderr\"):\n    output += f\"\\n[stderr]: {result['stderr']}\"\nreturn output\n",
     "created_at": "2026-03-30T15:54:41.822708+00:00"
+  },
+  {
+    "name": "fibonacci_calculator",
+    "description": "Calculate the nth Fibonacci number. Accepts 'n' as a positive integer and returns the nth Fibonacci number.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "n": {
+          "type": "integer",
+          "description": "The position in the Fibonacci sequence (1-indexed: F(1)=0, F(2)=1)",
+          "minimum": 1
+        }
+      },
+      "required": ["n"]
+    },
+    "handler_code": "\nn = args.get(\"n\", 1)\nif n < 1:\n    return \"Error: n must be a positive integer\"\n\n# Iterative approach for efficiency\na, b = 0, 1\nfor _ in range(n - 1):\n    a, b = b, a + b\nreturn str(a)\n",
+    "created_at": "2026-04-01T18:59:55.475729+00:00"
   }
 ]

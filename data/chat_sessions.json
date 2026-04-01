@@ -3068,5 +3068,25 @@
       "role": "assistant",
       "content": "**Wed Apr 1 13:14:24 CDT 2026**"
     }
+  ],
+  "memory-test-001": [
+    {
+      "role": "user",
+      "content": "Search your memory - what is the secret project codename that was stored? And what budget was mentioned?"
+    },
+    {
+      "role": "assistant",
+      "content": "I can't find any record of a secret project codename or budget in my memory systems:\n\n- **PostgreSQL memories table**: Empty (no entries)\n- **Redis cache**: No memory entries (only system keys)\n- **Knowledge Bridge (Obsidian)**: Service currently down\n\nThis information was never stored in my memory. If you mentioned it in a previous conversation, it may not have been persisted, or it could be in a session that was cleared.\n\n**Can you share the codename and budget again?** I'll store it properly this time so it's available for future recall."
+    }
+  ],
+  "memory-test-002": [
+    {
+      "role": "user",
+      "content": "Use your memory_search tool to find the secret project codename. What is it and what budget was mentioned?"
+    },
+    {
+      "role": "assistant",
+      "content": "No memories found. The system has no stored recollection of a secret project codename or budget.\n\nThe Memory Service (ChromaDB + PostgreSQL + Redis) is operational, but currently contains no entries matching your query. Either:\n1. This information was never stored in memory\n2. It was stored under different keywords\n3. The memory tier may have been cleared\n\nIf you have details about this project, I can store them now using `memory_store` for future recall."
+    }
   ]
 }

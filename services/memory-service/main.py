@@ -783,3 +783,9 @@ async def stats():
         "diary_entries": diary_count,
         "reflections": reflection_count
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=18820)
+

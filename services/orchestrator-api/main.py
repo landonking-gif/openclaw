@@ -5925,11 +5925,12 @@ async def _memory_search(query: str, limit: int = 10, category: str = None) -> d
     """Search the Memory Service for relevant memories (vector + keyword)."""
     try:
         import aiohttp
-        params = {"q": query, "limit": limit, "agent": "orchestrator"}
+        # Use POST /memory/query endpoint (matches memory-service API)
+        payload = {"query": query, "limit": limit, "agent_name": "orchestrator"}
         if category:
-            params["category"] = category
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
-            async with session.get(f"{MEMORY_SERVICE_URL}/memory/search", params=params) as resp:
+            payload["category"] = category
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+            async with session.post(f"{MEMORY_SERVICE_URL}/memory/query", json=payload) as resp:
                 if resp.status == 200:
                     try:
                         data = await resp.json()

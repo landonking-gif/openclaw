@@ -12,9 +12,10 @@ use plugins::PluginTool;
 use reqwest::blocking::Client;
 use runtime::{
     edit_file, execute_bash, glob_search, grep_search, load_system_prompt, read_file, write_file,
-    ApiClient, ApiRequest, AssistantEvent, BashCommandInput, ContentBlock, ConversationMessage,
-    ConversationRuntime, GrepSearchInput, MessageRole, PermissionMode, PermissionPolicy,
-    RuntimeError, Session, TokenUsage, ToolError, ToolExecutor,
+    ApiClient, ApiRequest, AssistantEvent, BashCommandInput, ConfigLoader, ConfigSource,
+    ContentBlock, ConversationMessage, ConversationRuntime, GrepSearchInput, McpTransport,
+    MessageRole, PermissionMode, PermissionPolicy, RuntimeError, Session, TokenUsage, ToolError,
+    ToolExecutor,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -478,6 +479,153 @@ pub fn mvp_tool_specs() -> Vec<ToolSpec> {
             required_permission: PermissionMode::ReadOnly,
         },
         ToolSpec {
+            name: "AskUserQuestion",
+            description: "Ask the user a structured question and return the selected answer.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "question": { "type": "string" },
+                    "options": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                    },
+                    "allow_freeform": { "type": "boolean" }
+                },
+                "required": ["question"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::ReadOnly,
+        },
+        ToolSpec {
+            name: "ListMcpResources",
+            description: "List configured MCP servers that can provide tools/resources.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "server": { "type": "string" }
+                },
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::ReadOnly,
+        },
+        ToolSpec {
+            name: "ReadMcpResource",
+            description: "Read a resource from a configured MCP server; supports file:// URIs.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "server": { "type": "string" },
+                    "uri": { "type": "string" }
+                },
+                "required": ["server", "uri"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::ReadOnly,
+        },
+        ToolSpec {
+            name: "CreateDynamicTool",
+            description: "Create or update a reusable dynamic shell tool at runtime.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "description": { "type": "string" },
+                    "command": { "type": "string" },
+                    "timeout_ms": { "type": "integer", "minimum": 1 },
+                    "overwrite": { "type": "boolean" }
+                },
+                "required": ["name", "description", "command"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::WorkspaceWrite,
+        },
+        ToolSpec {
+            name: "ListDynamicTools",
+            description: "List dynamic tools available in the local runtime registry.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "query": { "type": "string" }
+                },
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::ReadOnly,
+        },
+        ToolSpec {
+            name: "RunDynamicTool",
+            description: "Execute a dynamic runtime tool with JSON input payload.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "input": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "timeout_ms": { "type": "integer", "minimum": 1 }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::DangerFullAccess,
+        },
+        ToolSpec {
+            name: "DesktopScreenshot",
+            description: "Capture a desktop screenshot (full screen or region) to a PNG file.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "output_path": { "type": "string" },
+                    "x": { "type": "integer", "minimum": 0 },
+                    "y": { "type": "integer", "minimum": 0 },
+                    "width": { "type": "integer", "minimum": 1 },
+                    "height": { "type": "integer", "minimum": 1 }
+                },
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::DangerFullAccess,
+        },
+        ToolSpec {
+            name: "DesktopMouse",
+            description: "Move, click, or drag the mouse pointer for cowork automation.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "action": { "type": "string", "enum": ["move", "click", "double_click", "right_click", "drag"] },
+                    "x": { "type": "number" },
+                    "y": { "type": "number" },
+                    "to_x": { "type": "number" },
+                    "to_y": { "type": "number" },
+                    "duration_ms": { "type": "integer", "minimum": 0 }
+                },
+                "required": ["action", "x", "y"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::DangerFullAccess,
+        },
+        ToolSpec {
+            name: "DesktopKeyboard",
+            description: "Type text, press keys, and run keyboard shortcuts for cowork automation.",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "action": { "type": "string", "enum": ["type", "key", "hotkey"] },
+                    "text": { "type": "string" },
+                    "key": { "type": "string" },
+                    "keys": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "minItems": 2
+                    },
+                    "repeat": { "type": "integer", "minimum": 1 },
+                    "delay_ms": { "type": "integer", "minimum": 0 }
+                },
+                "required": ["action"],
+                "additionalProperties": false
+            }),
+            required_permission: PermissionMode::DangerFullAccess,
+        },
+        ToolSpec {
             name: "Config",
             description: "Get or set Claw Code settings.",
             input_schema: json!({
@@ -553,13 +701,40 @@ pub fn execute_tool(name: &str, input: &Value) -> Result<String, String> {
         "NotebookEdit" => from_value::<NotebookEditInput>(input).and_then(run_notebook_edit),
         "Sleep" => from_value::<SleepInput>(input).and_then(run_sleep),
         "SendUserMessage" | "Brief" => from_value::<BriefInput>(input).and_then(run_brief),
+        "AskUserQuestion" => {
+            from_value::<AskUserQuestionInput>(input).and_then(run_ask_user_question)
+        }
+        "ListMcpResources" => {
+            from_value::<ListMcpResourcesInput>(input).and_then(run_list_mcp_resources)
+        }
+        "ReadMcpResource" => {
+            from_value::<ReadMcpResourceInput>(input).and_then(run_read_mcp_resource)
+        }
+        "CreateDynamicTool" => {
+            from_value::<CreateDynamicToolInput>(input).and_then(run_create_dynamic_tool)
+        }
+        "ListDynamicTools" => {
+            from_value::<ListDynamicToolsInput>(input).and_then(run_list_dynamic_tools)
+        }
+        "RunDynamicTool" => {
+            from_value::<RunDynamicToolInput>(input).and_then(run_run_dynamic_tool)
+        }
+        "DesktopScreenshot" => {
+            from_value::<DesktopScreenshotInput>(input).and_then(run_desktop_screenshot)
+        }
+        "DesktopMouse" => from_value::<DesktopMouseInput>(input).and_then(run_desktop_mouse),
+        "DesktopKeyboard" => {
+            from_value::<DesktopKeyboardInput>(input).and_then(run_desktop_keyboard)
+        }
         "Config" => from_value::<ConfigInput>(input).and_then(run_config),
         "StructuredOutput" => {
             from_value::<StructuredOutputInput>(input).and_then(run_structured_output)
         }
         "REPL" => from_value::<ReplInput>(input).and_then(run_repl),
         "PowerShell" => from_value::<PowerShellInput>(input).and_then(run_powershell),
-        _ => Err(format!("unsupported tool: {name}")),
+        _ => execute_dynamic_tool_by_name(name, input)
+            .and_then(|output| to_pretty_json(output))
+            .map_err(|error| format!("unsupported tool: {name} ({error})")),
     }
 }
 
@@ -641,6 +816,42 @@ fn run_sleep(input: SleepInput) -> Result<String, String> {
 
 fn run_brief(input: BriefInput) -> Result<String, String> {
     to_pretty_json(execute_brief(input)?)
+}
+
+fn run_ask_user_question(input: AskUserQuestionInput) -> Result<String, String> {
+    to_pretty_json(execute_ask_user_question(input)?)
+}
+
+fn run_list_mcp_resources(input: ListMcpResourcesInput) -> Result<String, String> {
+    to_pretty_json(execute_list_mcp_resources(input)?)
+}
+
+fn run_read_mcp_resource(input: ReadMcpResourceInput) -> Result<String, String> {
+    to_pretty_json(execute_read_mcp_resource(input)?)
+}
+
+fn run_create_dynamic_tool(input: CreateDynamicToolInput) -> Result<String, String> {
+    to_pretty_json(execute_create_dynamic_tool(input)?)
+}
+
+fn run_list_dynamic_tools(input: ListDynamicToolsInput) -> Result<String, String> {
+    to_pretty_json(execute_list_dynamic_tools(input)?)
+}
+
+fn run_run_dynamic_tool(input: RunDynamicToolInput) -> Result<String, String> {
+    to_pretty_json(execute_run_dynamic_tool(input)?)
+}
+
+fn run_desktop_screenshot(input: DesktopScreenshotInput) -> Result<String, String> {
+    to_pretty_json(execute_desktop_screenshot(input)?)
+}
+
+fn run_desktop_mouse(input: DesktopMouseInput) -> Result<String, String> {
+    to_pretty_json(execute_desktop_mouse(input)?)
+}
+
+fn run_desktop_keyboard(input: DesktopKeyboardInput) -> Result<String, String> {
+    to_pretty_json(execute_desktop_keyboard(input)?)
 }
 
 fn run_config(input: ConfigInput) -> Result<String, String> {
@@ -784,6 +995,92 @@ struct BriefInput {
     message: String,
     attachments: Option<Vec<String>>,
     status: BriefStatus,
+}
+
+#[derive(Debug, Deserialize)]
+struct AskUserQuestionInput {
+    question: String,
+    options: Option<Vec<String>>,
+    allow_freeform: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ListMcpResourcesInput {
+    server: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ReadMcpResourceInput {
+    server: String,
+    uri: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CreateDynamicToolInput {
+    name: String,
+    description: String,
+    command: String,
+    timeout_ms: Option<u64>,
+    overwrite: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ListDynamicToolsInput {
+    query: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RunDynamicToolInput {
+    name: String,
+    input: Option<BTreeMap<String, Value>>,
+    timeout_ms: Option<u64>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DesktopScreenshotInput {
+    output_path: Option<String>,
+    x: Option<u32>,
+    y: Option<u32>,
+    width: Option<u32>,
+    height: Option<u32>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DesktopMouseInput {
+    action: DesktopMouseAction,
+    x: f64,
+    y: f64,
+    to_x: Option<f64>,
+    to_y: Option<f64>,
+    duration_ms: Option<u64>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DesktopKeyboardInput {
+    action: DesktopKeyboardAction,
+    text: Option<String>,
+    key: Option<String>,
+    keys: Option<Vec<String>>,
+    repeat: Option<u32>,
+    delay_ms: Option<u64>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+enum DesktopMouseAction {
+    Move,
+    Click,
+    DoubleClick,
+    RightClick,
+    Drag,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+enum DesktopKeyboardAction {
+    Type,
+    Key,
+    Hotkey,
 }
 
 #[derive(Debug, Deserialize)]
@@ -933,6 +1230,138 @@ struct BriefOutput {
     attachments: Option<Vec<ResolvedAttachment>>,
     #[serde(rename = "sentAt")]
     sent_at: String,
+}
+
+#[derive(Debug, Serialize)]
+struct AskUserQuestionOutput {
+    question: String,
+    options: Vec<String>,
+    #[serde(rename = "allowFreeform")]
+    allow_freeform: bool,
+    response: String,
+    source: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ListMcpResourcesOutput {
+    #[serde(rename = "requestedServer", skip_serializing_if = "Option::is_none")]
+    requested_server: Option<String>,
+    resources: Vec<McpResourceSummary>,
+}
+
+#[derive(Debug, Serialize)]
+struct McpResourceSummary {
+    server: String,
+    scope: String,
+    transport: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ReadMcpResourceOutput {
+    server: String,
+    uri: String,
+    #[serde(rename = "contentType")]
+    content_type: String,
+    content: String,
+}
+
+#[derive(Debug, Serialize)]
+struct CreateDynamicToolOutput {
+    name: String,
+    description: String,
+    command: String,
+    #[serde(rename = "timeoutMs", skip_serializing_if = "Option::is_none")]
+    timeout_ms: Option<u64>,
+    created: bool,
+    overwritten: bool,
+    #[serde(rename = "storePath")]
+    store_path: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ListDynamicToolsOutput {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    query: Option<String>,
+    tools: Vec<DynamicToolSummary>,
+    #[serde(rename = "storePath")]
+    store_path: String,
+}
+
+#[derive(Debug, Serialize)]
+struct DynamicToolSummary {
+    name: String,
+    description: String,
+    command: String,
+    #[serde(rename = "timeoutMs", skip_serializing_if = "Option::is_none")]
+    timeout_ms: Option<u64>,
+    #[serde(rename = "updatedAt")]
+    updated_at: String,
+}
+
+#[derive(Debug, Serialize)]
+struct RunDynamicToolOutput {
+    name: String,
+    command: String,
+    #[serde(rename = "resolvedInput")]
+    resolved_input: BTreeMap<String, Value>,
+    #[serde(rename = "exitCode")]
+    exit_code: i32,
+    stdout: String,
+    stderr: String,
+    #[serde(rename = "durationMs")]
+    duration_ms: u128,
+    #[serde(rename = "timedOut")]
+    timed_out: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct DesktopScreenshotOutput {
+    #[serde(rename = "outputPath")]
+    output_path: String,
+    #[serde(rename = "captureMode")]
+    capture_mode: String,
+    #[serde(rename = "exitCode")]
+    exit_code: i32,
+    stdout: String,
+    stderr: String,
+    #[serde(rename = "fileExists")]
+    file_exists: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct DesktopMouseOutput {
+    action: DesktopMouseAction,
+    command: String,
+    backend: String,
+    #[serde(rename = "exitCode")]
+    exit_code: i32,
+    stdout: String,
+    stderr: String,
+}
+
+#[derive(Debug, Serialize)]
+struct DesktopKeyboardOutput {
+    action: DesktopKeyboardAction,
+    script: String,
+    backend: String,
+    #[serde(rename = "exitCode")]
+    exit_code: i32,
+    stdout: String,
+    stderr: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct DynamicToolRecord {
+    description: String,
+    command: String,
+    timeout_ms: Option<u64>,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+struct DynamicToolStore {
+    tools: BTreeMap<String, DynamicToolRecord>,
 }
 
 #[derive(Debug, Serialize)]
@@ -1734,6 +2163,15 @@ fn allowed_tools_for_subagent(subagent_type: &str) -> BTreeSet<String> {
             "NotebookEdit",
             "Sleep",
             "SendUserMessage",
+            "AskUserQuestion",
+            "ListMcpResources",
+            "ReadMcpResource",
+            "CreateDynamicTool",
+            "ListDynamicTools",
+            "RunDynamicTool",
+            "DesktopScreenshot",
+            "DesktopMouse",
+            "DesktopKeyboard",
             "Config",
             "StructuredOutput",
             "REPL",
@@ -2466,6 +2904,750 @@ fn execute_brief(input: BriefInput) -> Result<BriefOutput, String> {
     })
 }
 
+fn execute_ask_user_question(input: AskUserQuestionInput) -> Result<AskUserQuestionOutput, String> {
+    let question = input.question.trim();
+    if question.is_empty() {
+        return Err(String::from("question must not be empty"));
+    }
+
+    let options = input
+        .options
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|option| !option.trim().is_empty())
+        .collect::<Vec<_>>();
+    let allow_freeform = input.allow_freeform.unwrap_or(true);
+
+    let env_response = std::env::var("CLAW_ASK_USER_RESPONSE")
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+
+    let (response, source) = if let Some(value) = env_response {
+        (value, String::from("env:CLAW_ASK_USER_RESPONSE"))
+    } else if let Some(first_option) = options.first() {
+        (first_option.clone(), String::from("default:first-option"))
+    } else {
+        (
+            String::from("No interactive prompt available in non-interactive runtime."),
+            String::from("default:non-interactive"),
+        )
+    };
+
+    Ok(AskUserQuestionOutput {
+        question: question.to_string(),
+        options,
+        allow_freeform,
+        response,
+        source,
+    })
+}
+
+fn execute_list_mcp_resources(
+    input: ListMcpResourcesInput,
+) -> Result<ListMcpResourcesOutput, String> {
+    let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
+    let config = ConfigLoader::default_for(&cwd)
+        .load()
+        .map_err(|error| error.to_string())?;
+
+    let mut resources = Vec::new();
+    for (name, scoped) in config.mcp().servers() {
+        if let Some(requested) = input.server.as_deref() {
+            if requested != name {
+                continue;
+            }
+        }
+        resources.push(McpResourceSummary {
+            server: name.clone(),
+            scope: config_source_label(scoped.scope).to_string(),
+            transport: mcp_transport_label(scoped.transport()).to_string(),
+        });
+    }
+
+    if let Some(requested) = input.server.as_ref() {
+        if resources.is_empty() {
+            return Err(format!("MCP server not found: {requested}"));
+        }
+    }
+
+    Ok(ListMcpResourcesOutput {
+        requested_server: input.server,
+        resources,
+    })
+}
+
+fn execute_read_mcp_resource(input: ReadMcpResourceInput) -> Result<ReadMcpResourceOutput, String> {
+    let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
+    let config = ConfigLoader::default_for(&cwd)
+        .load()
+        .map_err(|error| error.to_string())?;
+
+    if config.mcp().get(&input.server).is_none() {
+        return Err(format!("MCP server not found: {}", input.server));
+    }
+
+    if let Some(path) = input.uri.strip_prefix("file://") {
+        let file_path = PathBuf::from(path);
+        let content = std::fs::read_to_string(&file_path).map_err(|error| error.to_string())?;
+        let char_count = content.chars().count();
+        let truncated = if char_count > 16_000 {
+            let preview = content.chars().take(16_000).collect::<String>();
+            format!("{preview}\n\n[truncated to 16000 chars]")
+        } else {
+            content
+        };
+        return Ok(ReadMcpResourceOutput {
+            server: input.server,
+            uri: input.uri,
+            content_type: String::from("text/plain"),
+            content: truncated,
+        });
+    }
+
+    Ok(ReadMcpResourceOutput {
+        server: input.server,
+        uri: input.uri,
+        content_type: String::from("text/plain"),
+        content: String::from(
+            "Remote MCP resource reads are not yet wired in this runtime; use file:// URIs for local resource inspection.",
+        ),
+    })
+}
+
+fn execute_create_dynamic_tool(
+    input: CreateDynamicToolInput,
+) -> Result<CreateDynamicToolOutput, String> {
+    let name = normalize_dynamic_tool_name(&input.name)?;
+    let description = input.description.trim().to_string();
+    let command = input.command.trim().to_string();
+
+    if description.is_empty() {
+        return Err(String::from("description must not be empty"));
+    }
+    if command.is_empty() {
+        return Err(String::from("command must not be empty"));
+    }
+
+    let store_path = dynamic_tool_store_path()?;
+    let mut store = load_dynamic_tool_store(&store_path)?;
+    let existing = store.tools.get(&name).cloned();
+
+    if existing.is_some() && !input.overwrite.unwrap_or(false) {
+        return Err(format!(
+            "dynamic tool already exists: {name} (set overwrite=true to replace it)"
+        ));
+    }
+
+    let now = iso8601_timestamp();
+    let record = DynamicToolRecord {
+        description: description.clone(),
+        command: command.clone(),
+        timeout_ms: input.timeout_ms,
+        created_at: existing
+            .as_ref()
+            .map(|item| item.created_at.clone())
+            .unwrap_or_else(|| now.clone()),
+        updated_at: now,
+    };
+    let created = existing.is_none();
+    store.tools.insert(name.clone(), record);
+    save_dynamic_tool_store(&store_path, &store)?;
+
+    Ok(CreateDynamicToolOutput {
+        name,
+        description,
+        command,
+        timeout_ms: input.timeout_ms,
+        created,
+        overwritten: !created,
+        store_path: store_path.display().to_string(),
+    })
+}
+
+fn execute_list_dynamic_tools(input: ListDynamicToolsInput) -> Result<ListDynamicToolsOutput, String> {
+    let store_path = dynamic_tool_store_path()?;
+    let store = load_dynamic_tool_store(&store_path)?;
+    let query = input
+        .query
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+    let lowered_query = query.as_ref().map(|value| value.to_ascii_lowercase());
+
+    let tools = store
+        .tools
+        .iter()
+        .filter(|(name, record)| {
+            lowered_query.as_ref().is_none_or(|query| {
+                name.to_ascii_lowercase().contains(query)
+                    || record.description.to_ascii_lowercase().contains(query)
+                    || record.command.to_ascii_lowercase().contains(query)
+            })
+        })
+        .map(|(name, record)| DynamicToolSummary {
+            name: name.clone(),
+            description: record.description.clone(),
+            command: record.command.clone(),
+            timeout_ms: record.timeout_ms,
+            updated_at: record.updated_at.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    Ok(ListDynamicToolsOutput {
+        query,
+        tools,
+        store_path: store_path.display().to_string(),
+    })
+}
+
+fn execute_run_dynamic_tool(input: RunDynamicToolInput) -> Result<RunDynamicToolOutput, String> {
+    let name = normalize_dynamic_tool_name(&input.name)?;
+    let store_path = dynamic_tool_store_path()?;
+    let store = load_dynamic_tool_store(&store_path)?;
+    let Some(record) = store.tools.get(&name) else {
+        return Err(format!("dynamic tool not found: {name}"));
+    };
+
+    let resolved_input = input.input.unwrap_or_default();
+    let command = render_dynamic_tool_command(&record.command, &resolved_input)?;
+    let timeout_ms = input.timeout_ms.or(record.timeout_ms);
+    let execution = execute_sh_command(&command, timeout_ms)?;
+
+    Ok(RunDynamicToolOutput {
+        name,
+        command,
+        resolved_input,
+        exit_code: execution.exit_code,
+        stdout: execution.stdout,
+        stderr: execution.stderr,
+        duration_ms: execution.duration_ms,
+        timed_out: execution.timed_out,
+    })
+}
+
+fn execute_desktop_screenshot(
+    input: DesktopScreenshotInput,
+) -> Result<DesktopScreenshotOutput, String> {
+    if !command_exists("screencapture") {
+        return Err(String::from(
+            "DesktopScreenshot requires `screencapture` to be available on PATH",
+        ));
+    }
+
+    let output_path = input
+        .output_path
+        .map(PathBuf::from)
+        .unwrap_or_else(|| std::env::temp_dir().join(format!("claw-shot-{}.png", timestamp_millis())));
+
+    if let Some(parent) = output_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    }
+
+    let region_specified = [input.x, input.y, input.width, input.height]
+        .iter()
+        .any(Option::is_some);
+
+    let mut args = vec![String::from("-x")];
+    let capture_mode = if region_specified {
+        let (Some(x), Some(y), Some(width), Some(height)) = (input.x, input.y, input.width, input.height)
+        else {
+            return Err(String::from(
+                "x, y, width, and height must all be provided for region capture",
+            ));
+        };
+        args.push(format!("-R{x},{y},{width},{height}"));
+        String::from("region")
+    } else {
+        String::from("fullscreen")
+    };
+    args.push(output_path.display().to_string());
+
+    let output = Command::new("screencapture")
+        .args(&args)
+        .output()
+        .map_err(|error| error.to_string())?;
+
+    Ok(DesktopScreenshotOutput {
+        output_path: output_path.display().to_string(),
+        capture_mode,
+        exit_code: output.status.code().unwrap_or(1),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+        file_exists: output_path.exists(),
+    })
+}
+
+fn execute_desktop_mouse(input: DesktopMouseInput) -> Result<DesktopMouseOutput, String> {
+    let x = to_mouse_coord(input.x)?;
+    let y = to_mouse_coord(input.y)?;
+
+    let mut actions = match input.action {
+        DesktopMouseAction::Move => vec![format!("m:{x},{y}")],
+        DesktopMouseAction::Click => vec![format!("c:{x},{y}")],
+        DesktopMouseAction::DoubleClick => vec![format!("dc:{x},{y}")],
+        DesktopMouseAction::RightClick => vec![format!("rc:{x},{y}")],
+        DesktopMouseAction::Drag => {
+            let (Some(to_x), Some(to_y)) = (input.to_x, input.to_y) else {
+                return Err(String::from("drag action requires to_x and to_y"));
+            };
+            let to_x = to_mouse_coord(to_x)?;
+            let to_y = to_mouse_coord(to_y)?;
+            let mut sequence = vec![format!("dd:{x},{y}")];
+            if let Some(duration_ms) = input.duration_ms {
+                if duration_ms > 0 {
+                    sequence.push(format!("w:{duration_ms}"));
+                }
+            }
+            sequence.push(format!("du:{to_x},{to_y}"));
+            sequence
+        }
+    };
+
+    if !command_exists("cliclick") {
+        return Err(String::from(
+            "DesktopMouse requires `cliclick` in PATH (brew install cliclick)",
+        ));
+    }
+
+    if !matches!(input.action, DesktopMouseAction::Drag) {
+        if let Some(duration_ms) = input.duration_ms {
+            if duration_ms > 0 {
+                actions.insert(0, format!("w:{duration_ms}"));
+            }
+        }
+    }
+
+    let command = format!("cliclick {}", actions.join(" "));
+    let output = Command::new("cliclick")
+        .args(&actions)
+        .output()
+        .map_err(|error| error.to_string())?;
+
+    Ok(DesktopMouseOutput {
+        action: input.action,
+        command,
+        backend: String::from("cliclick"),
+        exit_code: output.status.code().unwrap_or(1),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
+}
+
+fn execute_desktop_keyboard(input: DesktopKeyboardInput) -> Result<DesktopKeyboardOutput, String> {
+    if !command_exists("osascript") {
+        return Err(String::from(
+            "DesktopKeyboard requires `osascript` to be available on PATH",
+        ));
+    }
+
+    let script = build_desktop_keyboard_script(&input)?;
+    let output = Command::new("osascript")
+        .arg("-e")
+        .arg(&script)
+        .output()
+        .map_err(|error| error.to_string())?;
+
+    Ok(DesktopKeyboardOutput {
+        action: input.action,
+        script,
+        backend: String::from("osascript"),
+        exit_code: output.status.code().unwrap_or(1),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
+}
+
+fn execute_dynamic_tool_by_name(name: &str, input: &Value) -> Result<Value, String> {
+    let resolved_input = match input {
+        Value::Object(object) => object.clone().into_iter().collect::<BTreeMap<_, _>>(),
+        Value::Null => BTreeMap::new(),
+        _ => return Err(String::from("dynamic tool input must be a JSON object")),
+    };
+
+    let output = execute_run_dynamic_tool(RunDynamicToolInput {
+        name: name.to_string(),
+        input: Some(resolved_input),
+        timeout_ms: None,
+    })?;
+
+    serde_json::to_value(output).map_err(|error| error.to_string())
+}
+
+fn config_source_label(source: ConfigSource) -> &'static str {
+    match source {
+        ConfigSource::User => "user",
+        ConfigSource::Project => "project",
+        ConfigSource::Local => "local",
+    }
+}
+
+fn mcp_transport_label(transport: McpTransport) -> &'static str {
+    match transport {
+        McpTransport::Stdio => "stdio",
+        McpTransport::Sse => "sse",
+        McpTransport::Http => "http",
+        McpTransport::Ws => "ws",
+        McpTransport::Sdk => "sdk",
+        McpTransport::ManagedProxy => "managed-proxy",
+    }
+}
+
+fn normalize_dynamic_tool_name(raw: &str) -> Result<String, String> {
+    let name = raw.trim();
+    if name.is_empty() {
+        return Err(String::from("name must not be empty"));
+    }
+    if !name
+        .chars()
+        .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '-' | '_' | '.'))
+    {
+        return Err(String::from(
+            "dynamic tool name may only contain letters, numbers, ., -, and _",
+        ));
+    }
+    Ok(name.to_string())
+}
+
+fn dynamic_tool_store_path() -> Result<PathBuf, String> {
+    if let Ok(path) = std::env::var("CLAW_DYNAMIC_TOOL_STORE") {
+        if !path.trim().is_empty() {
+            return Ok(PathBuf::from(path));
+        }
+    }
+
+    let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
+    Ok(cwd.join(".claw").join("dynamic-tools.json"))
+}
+
+fn load_dynamic_tool_store(path: &Path) -> Result<DynamicToolStore, String> {
+    match std::fs::read_to_string(path) {
+        Ok(contents) => {
+            if contents.trim().is_empty() {
+                return Ok(DynamicToolStore::default());
+            }
+
+            if let Ok(store) = serde_json::from_str::<DynamicToolStore>(&contents) {
+                return Ok(store);
+            }
+
+            let tools = serde_json::from_str::<BTreeMap<String, DynamicToolRecord>>(&contents)
+                .map_err(|error| error.to_string())?;
+            Ok(DynamicToolStore { tools })
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(DynamicToolStore::default()),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+fn save_dynamic_tool_store(path: &Path, store: &DynamicToolStore) -> Result<(), String> {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    }
+    std::fs::write(
+        path,
+        serde_json::to_string_pretty(store).map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn render_dynamic_tool_command(
+    template: &str,
+    input: &BTreeMap<String, Value>,
+) -> Result<String, String> {
+    let mut command = template.to_string();
+    for (key, value) in input {
+        let placeholder = format!("{{{{{key}}}}}");
+        if command.contains(&placeholder) {
+            let value = dynamic_tool_value_as_string(value)?;
+            command = command.replace(&placeholder, &shell_escape_for_sh(&value));
+        }
+    }
+    Ok(command)
+}
+
+fn dynamic_tool_value_as_string(value: &Value) -> Result<String, String> {
+    match value {
+        Value::String(value) => Ok(value.clone()),
+        Value::Number(value) => Ok(value.to_string()),
+        Value::Bool(value) => Ok(value.to_string()),
+        Value::Null => Ok(String::new()),
+        _ => serde_json::to_string(value).map_err(|error| error.to_string()),
+    }
+}
+
+fn shell_escape_for_sh(value: &str) -> String {
+    if value.is_empty() {
+        return String::from("''");
+    }
+    format!("'{}'", value.replace('\'', "'\"'\"'"))
+}
+
+struct ShellExecutionResult {
+    stdout: String,
+    stderr: String,
+    exit_code: i32,
+    duration_ms: u128,
+    timed_out: bool,
+}
+
+fn execute_sh_command(command: &str, timeout_ms: Option<u64>) -> Result<ShellExecutionResult, String> {
+    let started = Instant::now();
+    let mut process = Command::new("sh");
+    process.arg("-lc").arg(command);
+    process
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+
+    if let Some(timeout_ms) = timeout_ms {
+        let mut child = process.spawn().map_err(|error| error.to_string())?;
+        loop {
+            if let Some(status) = child.try_wait().map_err(|error| error.to_string())? {
+                let output = child.wait_with_output().map_err(|error| error.to_string())?;
+                return Ok(ShellExecutionResult {
+                    stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+                    stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+                    exit_code: status.code().unwrap_or(1),
+                    duration_ms: started.elapsed().as_millis(),
+                    timed_out: false,
+                });
+            }
+
+            if started.elapsed() >= Duration::from_millis(timeout_ms) {
+                let _ = child.kill();
+                let output = child.wait_with_output().map_err(|error| error.to_string())?;
+                let mut stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+                if !stderr.trim().is_empty() {
+                    stderr.push('\n');
+                }
+                stderr.push_str(&format!("Command exceeded timeout of {timeout_ms} ms"));
+                return Ok(ShellExecutionResult {
+                    stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+                    stderr,
+                    exit_code: output.status.code().unwrap_or(124),
+                    duration_ms: started.elapsed().as_millis(),
+                    timed_out: true,
+                });
+            }
+
+            std::thread::sleep(Duration::from_millis(10));
+        }
+    }
+
+    let output = process.output().map_err(|error| error.to_string())?;
+    Ok(ShellExecutionResult {
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+        exit_code: output.status.code().unwrap_or(1),
+        duration_ms: started.elapsed().as_millis(),
+        timed_out: false,
+    })
+}
+
+fn to_mouse_coord(value: f64) -> Result<i64, String> {
+    if !value.is_finite() {
+        return Err(String::from("mouse coordinates must be finite numbers"));
+    }
+    Ok(value.round() as i64)
+}
+
+fn build_desktop_keyboard_script(input: &DesktopKeyboardInput) -> Result<String, String> {
+    let repeat = input.repeat.unwrap_or(1).max(1);
+    let body = match input.action {
+        DesktopKeyboardAction::Type => {
+            let text = input
+                .text
+                .as_deref()
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .ok_or_else(|| String::from("type action requires non-empty text"))?;
+            format!("keystroke \"{}\"", apple_script_escape(text))
+        }
+        DesktopKeyboardAction::Key => {
+            let key = input
+                .key
+                .as_deref()
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .ok_or_else(|| String::from("key action requires key"))?;
+            keyboard_key_script(key)?
+        }
+        DesktopKeyboardAction::Hotkey => {
+            let tokens = hotkey_tokens(input)?;
+            let mut modifiers = Vec::new();
+            let mut primary_key = None;
+
+            for token in tokens {
+                if let Some(modifier) = normalize_hotkey_modifier(&token) {
+                    modifiers.push(modifier.to_string());
+                } else if primary_key.is_none() {
+                    primary_key = Some(token);
+                } else {
+                    return Err(String::from(
+                        "hotkey supports exactly one non-modifier key",
+                    ));
+                }
+            }
+
+            if modifiers.is_empty() {
+                return Err(String::from("hotkey requires at least one modifier key"));
+            }
+            let primary_key =
+                primary_key.ok_or_else(|| String::from("hotkey requires a non-modifier key"))?;
+
+            keyboard_key_with_modifiers_script(&primary_key, &modifiers)?
+        }
+    };
+
+    let mut script = String::from("tell application \"System Events\"\n");
+    if repeat > 1 {
+        script.push_str(&format!("repeat {} times\n", repeat));
+        script.push_str("  ");
+    }
+    script.push_str(&body);
+    script.push('\n');
+
+    if repeat > 1 {
+        if let Some(delay_ms) = input.delay_ms {
+            if delay_ms > 0 {
+                let seconds = (delay_ms as f64) / 1000.0;
+                script.push_str(&format!("  delay {seconds}\n"));
+            }
+        }
+        script.push_str("end repeat\n");
+    }
+    script.push_str("end tell");
+
+    Ok(script)
+}
+
+fn hotkey_tokens(input: &DesktopKeyboardInput) -> Result<Vec<String>, String> {
+    if let Some(keys) = input.keys.as_ref() {
+        let parsed = keys
+            .iter()
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+        if parsed.len() < 2 {
+            return Err(String::from(
+                "hotkey requires at least two key tokens (modifier + key)",
+            ));
+        }
+        return Ok(parsed);
+    }
+
+    if let Some(key) = input.key.as_ref() {
+        let parsed = key
+            .split('+')
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+        if parsed.len() < 2 {
+            return Err(String::from(
+                "hotkey requires at least two key tokens (modifier + key)",
+            ));
+        }
+        return Ok(parsed);
+    }
+
+    Err(String::from(
+        "hotkey action requires keys array or key string like cmd+k",
+    ))
+}
+
+fn normalize_hotkey_modifier(token: &str) -> Option<&'static str> {
+    match token.to_ascii_lowercase().as_str() {
+        "cmd" | "command" => Some("command down"),
+        "ctrl" | "control" => Some("control down"),
+        "alt" | "option" => Some("option down"),
+        "shift" => Some("shift down"),
+        "fn" | "function" => Some("fn down"),
+        _ => None,
+    }
+}
+
+fn keyboard_key_script(token: &str) -> Result<String, String> {
+    if let Some(code) = apple_script_key_code(token) {
+        return Ok(format!("key code {code}"));
+    }
+
+    let mut chars = token.chars();
+    let first = chars.next();
+    if first.is_none() || chars.next().is_some() {
+        return Err(String::from(
+            "key action expects a single character or a known key name",
+        ));
+    }
+
+    Ok(format!("keystroke \"{}\"", apple_script_escape(token)))
+}
+
+fn keyboard_key_with_modifiers_script(
+    token: &str,
+    modifiers: &[String],
+) -> Result<String, String> {
+    let using = modifiers.join(", ");
+    if let Some(code) = apple_script_key_code(token) {
+        return Ok(format!("key code {code} using {{{using}}}"));
+    }
+
+    let mut chars = token.chars();
+    let first = chars.next();
+    if first.is_none() || chars.next().is_some() {
+        return Err(String::from(
+            "hotkey non-modifier must be a single character or a known key name",
+        ));
+    }
+
+    Ok(format!(
+        "keystroke \"{}\" using {{{using}}}",
+        apple_script_escape(token)
+    ))
+}
+
+fn apple_script_key_code(token: &str) -> Option<i32> {
+    match token.to_ascii_lowercase().as_str() {
+        "return" | "enter" => Some(36),
+        "tab" => Some(48),
+        "space" => Some(49),
+        "delete" | "backspace" => Some(51),
+        "escape" | "esc" => Some(53),
+        "left" => Some(123),
+        "right" => Some(124),
+        "down" => Some(125),
+        "up" => Some(126),
+        "home" => Some(115),
+        "end" => Some(119),
+        "page_up" | "pageup" => Some(116),
+        "page_down" | "pagedown" => Some(121),
+        "f1" => Some(122),
+        "f2" => Some(120),
+        "f3" => Some(99),
+        "f4" => Some(118),
+        "f5" => Some(96),
+        "f6" => Some(97),
+        "f7" => Some(98),
+        "f8" => Some(100),
+        "f9" => Some(101),
+        "f10" => Some(109),
+        "f11" => Some(103),
+        "f12" => Some(111),
+        _ => None,
+    }
+}
+
+fn apple_script_escape(value: &str) -> String {
+    value.replace('\\', "\\\\").replace('"', "\\\"")
+}
+
+fn timestamp_millis() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|value| value.as_millis())
+        .unwrap_or(0)
+}
+
 fn resolve_attachment(path: &str) -> Result<ResolvedAttachment, String> {
     let resolved = std::fs::canonicalize(path).map_err(|error| error.to_string())?;
     let metadata = std::fs::metadata(&resolved).map_err(|error| error.to_string())?;
@@ -3109,6 +4291,15 @@ mod tests {
         assert!(names.contains(&"NotebookEdit"));
         assert!(names.contains(&"Sleep"));
         assert!(names.contains(&"SendUserMessage"));
+        assert!(names.contains(&"AskUserQuestion"));
+        assert!(names.contains(&"ListMcpResources"));
+        assert!(names.contains(&"ReadMcpResource"));
+        assert!(names.contains(&"CreateDynamicTool"));
+        assert!(names.contains(&"ListDynamicTools"));
+        assert!(names.contains(&"RunDynamicTool"));
+        assert!(names.contains(&"DesktopScreenshot"));
+        assert!(names.contains(&"DesktopMouse"));
+        assert!(names.contains(&"DesktopKeyboard"));
         assert!(names.contains(&"Config"));
         assert!(names.contains(&"StructuredOutput"));
         assert!(names.contains(&"REPL"));
@@ -4195,6 +5386,226 @@ mod tests {
         assert!(output["sentAt"].as_str().is_some());
         assert_eq!(output["attachments"][0]["isImage"], true);
         let _ = std::fs::remove_file(attachment);
+    }
+
+    #[test]
+    fn ask_user_question_uses_env_override_when_present() {
+        let _guard = env_lock()
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let original = std::env::var("CLAW_ASK_USER_RESPONSE").ok();
+        std::env::set_var("CLAW_ASK_USER_RESPONSE", "approved");
+
+        let result = execute_tool(
+            "AskUserQuestion",
+            &json!({
+                "question": "Deploy now?",
+                "options": ["yes", "no"],
+                "allow_freeform": false
+            }),
+        )
+        .expect("AskUserQuestion should succeed");
+
+        match original {
+            Some(value) => std::env::set_var("CLAW_ASK_USER_RESPONSE", value),
+            None => std::env::remove_var("CLAW_ASK_USER_RESPONSE"),
+        }
+
+        let output: serde_json::Value = serde_json::from_str(&result).expect("json");
+        assert_eq!(output["question"], "Deploy now?");
+        assert_eq!(output["response"], "approved");
+        assert_eq!(output["source"], "env:CLAW_ASK_USER_RESPONSE");
+        assert_eq!(output["allowFreeform"], false);
+    }
+
+    #[test]
+    fn dynamic_tools_create_list_run_and_dispatch_by_name() {
+        let _guard = env_lock()
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let root = temp_path("dynamic-tool-suite");
+        std::fs::create_dir_all(&root).expect("create dynamic root");
+        let store_path = root.join("dynamic-tools.json");
+
+        let original_store = std::env::var("CLAW_DYNAMIC_TOOL_STORE").ok();
+        std::env::set_var("CLAW_DYNAMIC_TOOL_STORE", &store_path);
+
+        let create = execute_tool(
+            "CreateDynamicTool",
+            &json!({
+                "name": "hello_tool",
+                "description": "Print a greeting",
+                "command": "printf 'hello %s' {{name}}"
+            }),
+        )
+        .expect("CreateDynamicTool should succeed");
+        let create_output: serde_json::Value = serde_json::from_str(&create).expect("json");
+        assert_eq!(create_output["name"], "hello_tool");
+        assert_eq!(create_output["created"], true);
+        assert_eq!(create_output["overwritten"], false);
+
+        let duplicate = execute_tool(
+            "CreateDynamicTool",
+            &json!({
+                "name": "hello_tool",
+                "description": "Print a greeting",
+                "command": "printf 'hello %s' {{name}}"
+            }),
+        )
+        .expect_err("duplicate dynamic tool should fail without overwrite");
+        assert!(duplicate.contains("already exists"));
+
+        let update = execute_tool(
+            "CreateDynamicTool",
+            &json!({
+                "name": "hello_tool",
+                "description": "Print a greeting",
+                "command": "printf 'hi %s' {{name}}",
+                "overwrite": true,
+                "timeout_ms": 250
+            }),
+        )
+        .expect("overwrite should succeed");
+        let update_output: serde_json::Value = serde_json::from_str(&update).expect("json");
+        assert_eq!(update_output["created"], false);
+        assert_eq!(update_output["overwritten"], true);
+        assert_eq!(update_output["timeoutMs"], 250);
+
+        let listed = execute_tool("ListDynamicTools", &json!({ "query": "hello" }))
+            .expect("ListDynamicTools should succeed");
+        let listed_output: serde_json::Value = serde_json::from_str(&listed).expect("json");
+        assert_eq!(listed_output["tools"][0]["name"], "hello_tool");
+
+        let ran = execute_tool(
+            "RunDynamicTool",
+            &json!({
+                "name": "hello_tool",
+                "input": {"name": "world"}
+            }),
+        )
+        .expect("RunDynamicTool should succeed");
+        let ran_output: serde_json::Value = serde_json::from_str(&ran).expect("json");
+        assert_eq!(ran_output["name"], "hello_tool");
+        assert_eq!(ran_output["exitCode"], 0);
+        assert_eq!(ran_output["stdout"], "hi world");
+
+        let direct_dispatch = execute_tool("hello_tool", &json!({ "name": "friend" }))
+            .expect("dynamic tool should dispatch by tool name");
+        let direct_output: serde_json::Value =
+            serde_json::from_str(&direct_dispatch).expect("json");
+        assert_eq!(direct_output["stdout"], "hi friend");
+
+        match original_store {
+            Some(value) => std::env::set_var("CLAW_DYNAMIC_TOOL_STORE", value),
+            None => std::env::remove_var("CLAW_DYNAMIC_TOOL_STORE"),
+        }
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn desktop_screenshot_rejects_partial_region_inputs() {
+        let error = execute_tool(
+            "DesktopScreenshot",
+            &json!({ "x": 10, "y": 20, "width": 300 }),
+        )
+        .expect_err("partial region input should fail");
+        assert!(error.contains("x, y, width, and height"));
+    }
+
+    #[test]
+    fn desktop_mouse_validates_drag_targets_and_backend() {
+        let drag_error = execute_tool(
+            "DesktopMouse",
+            &json!({ "action": "drag", "x": 10, "y": 20 }),
+        )
+        .expect_err("drag without destination should fail");
+        assert!(drag_error.contains("to_x and to_y"));
+
+        let _guard = env_lock()
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let original_path = std::env::var("PATH").unwrap_or_default();
+        let empty_dir = std::env::temp_dir().join(format!(
+            "claw-cliclick-empty-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&empty_dir).expect("create empty dir");
+        std::env::set_var("PATH", empty_dir.display().to_string());
+
+        let backend_error = execute_tool(
+            "DesktopMouse",
+            &json!({ "action": "move", "x": 10, "y": 20 }),
+        )
+        .expect_err("DesktopMouse should fail when cliclick is missing");
+
+        std::env::set_var("PATH", original_path);
+        let _ = std::fs::remove_dir_all(empty_dir);
+
+        assert!(backend_error.contains("cliclick"));
+    }
+
+    #[test]
+    fn desktop_keyboard_validates_inputs_and_generates_hotkey_script() {
+        let missing_text = execute_tool("DesktopKeyboard", &json!({ "action": "type" }))
+            .expect_err("type action without text should fail");
+        assert!(missing_text.contains("requires non-empty text"));
+
+        let invalid_hotkey = execute_tool(
+            "DesktopKeyboard",
+            &json!({ "action": "hotkey", "key": "cmd" }),
+        )
+        .expect_err("hotkey with one token should fail");
+        assert!(invalid_hotkey.contains("at least two key tokens"));
+
+        let no_primary = execute_tool(
+            "DesktopKeyboard",
+            &json!({ "action": "hotkey", "keys": ["cmd", "shift"] }),
+        )
+        .expect_err("hotkey with only modifiers should fail");
+        assert!(no_primary.contains("requires a non-modifier key"));
+
+        let script = super::build_desktop_keyboard_script(&super::DesktopKeyboardInput {
+            action: super::DesktopKeyboardAction::Hotkey,
+            text: None,
+            key: Some(String::from("cmd+k")),
+            keys: None,
+            repeat: Some(2),
+            delay_ms: Some(25),
+        })
+        .expect("hotkey script should build");
+        assert!(script.contains("keystroke \"k\" using {command down}"));
+        assert!(script.contains("repeat 2 times"));
+    }
+
+    #[test]
+    fn desktop_keyboard_reports_missing_backend() {
+        let _guard = env_lock()
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let original_path = std::env::var("PATH").unwrap_or_default();
+        let empty_dir = std::env::temp_dir().join(format!(
+            "claw-osascript-empty-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&empty_dir).expect("create empty dir");
+        std::env::set_var("PATH", empty_dir.display().to_string());
+
+        let error = execute_tool(
+            "DesktopKeyboard",
+            &json!({ "action": "key", "key": "a" }),
+        )
+        .expect_err("DesktopKeyboard should fail when osascript is missing");
+
+        std::env::set_var("PATH", original_path);
+        let _ = std::fs::remove_dir_all(empty_dir);
+
+        assert!(error.contains("osascript"));
     }
 
     #[test]

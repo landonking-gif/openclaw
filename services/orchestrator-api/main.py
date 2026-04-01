@@ -2633,15 +2633,16 @@ MANAGER_TOOLS += [
         "type": "function",
         "function": {
             "name": "github_copilot",
-            "description": "GitHub Copilot CLI — AI-powered coding assistant via the `gh copilot` command line. Ask questions about code, get shell command suggestions, or explain commands. Actions: 'ask' (ask Copilot a coding question), 'suggest' (get a shell command suggestion for a task), 'explain' (explain what a command does).",
+            "description": "GitHub Copilot CLI — AI-powered coding assistant via the `gh copilot` command line. Runs in autopilot + agentic mode. Actions: 'ask' (ask Copilot a coding question), 'suggest' (get a shell command suggestion for a task), 'explain' (explain what a command does), and 'usage' (show model quota usage). Monthly caps: gpt-5.3-codex=100, claude-sonnet-4.5=100, gpt-5-mini=unlimited.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "action": {"type": "string", "description": "One of: ask, suggest, explain"},
-                    "prompt": {"type": "string", "description": "The question, task description, or command to explain"},
-                    "shell": {"type": "string", "description": "Target shell for suggest (default: zsh)"}
+                    "action": {"type": "string", "description": "One of: ask, suggest, explain, usage"},
+                    "prompt": {"type": "string", "description": "The question, task description, or command to explain. Not required for usage."},
+                    "shell": {"type": "string", "description": "Target shell for suggest (default: zsh)"},
+                    "model": {"type": "string", "description": "Model to use: gpt-5.3-codex, claude-sonnet-4.5, gpt-5-mini (default: gpt-5-mini). Aliases supported: codex, sonnet, mini."}
                 },
-                "required": ["action", "prompt"]
+                "required": ["action"]
             }
         }
     },
@@ -4229,6 +4230,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     fn_args.get("action", "ask"),
                     fn_args.get("prompt", ""),
                     fn_args.get("shell", "zsh"),
+                    fn_args.get("model", "gpt-5-mini"),
                 )
                 internal_task = f"GitHub Copilot: {fn_args.get('action', 'ask')}"
             else:
@@ -12495,24 +12497,147 @@ async def _screen_share(action: str, **kwargs) -> dict:
 
 # ── Tool #102: github_copilot ─────────────────────────────────────────────
 
-async def _github_copilot(action: str, prompt: str, shell: str = "zsh") -> dict:
-    """GitHub Copilot CLI — ask questions, get suggestions, or explain commands."""
+_COPILOT_USAGE_PATH = Path(ARMY_HOME) / "data" / "copilot_usage.json"
+_COPILOT_MONTHLY_CAPS = {
+    "gpt-5.3-codex": 100,
+    "claude-sonnet-4.5": 100,
+    "gpt-5-mini": None,  # unlimited
+}
+_COPILOT_MODEL_ALIASES = {
+    "codex": "gpt-5.3-codex",
+    "gpt-codex-5.3": "gpt-5.3-codex",
+    "gpt-5.3-codex": "gpt-5.3-codex",
+    "sonnet": "claude-sonnet-4.5",
+    "sonnet-4.5": "claude-sonnet-4.5",
+    "claude-sonnet-4.5": "claude-sonnet-4.5",
+    "mini": "gpt-5-mini",
+    "gpt-5-mini": "gpt-5-mini",
+}
+
+
+def _copilot_month_key() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m")
+
+
+def _normalize_copilot_model(model: str) -> str:
+    if not model:
+        return "gpt-5-mini"
+    return _COPILOT_MODEL_ALIASES.get(model.strip().lower(), model.strip())
+
+
+def _copilot_load_usage() -> dict:
+    if not _COPILOT_USAGE_PATH.exists():
+        return {"month": _copilot_month_key(), "counts": {}}
+    try:
+        data = json.loads(_COPILOT_USAGE_PATH.read_text())
+        if not isinstance(data, dict):
+            return {"month": _copilot_month_key(), "counts": {}}
+        return data
+    except Exception:
+        return {"month": _copilot_month_key(), "counts": {}}
+
+
+def _copilot_save_usage(data: dict) -> None:
+    _COPILOT_USAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _COPILOT_USAGE_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
+
+def _copilot_usage_report() -> dict:
+    now_month = _copilot_month_key()
+    data = _copilot_load_usage()
+    if data.get("month") != now_month:
+        data = {"month": now_month, "counts": {}}
+    counts = data.get("counts", {})
+    models = {}
+    for model_name, cap in _COPILOT_MONTHLY_CAPS.items():
+        used = int(counts.get(model_name, 0))
+        models[model_name] = {
+            "used": used,
+            "cap": cap,
+            "remaining": None if cap is None else max(cap - used, 0),
+            "unlimited": cap is None,
+        }
+    return {"month": now_month, "models": models}
+
+
+def _copilot_reserve_usage(model: str) -> tuple[bool, dict]:
+    now_month = _copilot_month_key()
+    data = _copilot_load_usage()
+    if data.get("month") != now_month:
+        data = {"month": now_month, "counts": {}}
+    counts = data.setdefault("counts", {})
+    cap = _COPILOT_MONTHLY_CAPS.get(model)
+    used = int(counts.get(model, 0))
+    if cap is not None and used >= cap:
+        return False, {
+            "error": f"Monthly cap reached for {model}: {used}/{cap}",
+            "usage": _copilot_usage_report(),
+        }
+    counts[model] = used + 1
+    _copilot_save_usage(data)
+    return True, {
+        "model": model,
+        "used": counts[model],
+        "cap": cap,
+        "remaining": None if cap is None else max(cap - counts[model], 0),
+    }
+
+
+def _copilot_release_usage(model: str) -> None:
+    now_month = _copilot_month_key()
+    data = _copilot_load_usage()
+    if data.get("month") != now_month:
+        return
+    counts = data.get("counts", {})
+    used = int(counts.get(model, 0))
+    if used > 0:
+        counts[model] = used - 1
+        _copilot_save_usage(data)
+
+
+async def _github_copilot(action: str, prompt: str = "", shell: str = "zsh", model: str = "gpt-5-mini") -> dict:
+    """GitHub Copilot CLI wrapper with model quotas and autopilot+agentic defaults."""
     import asyncio as _aio
-    if not prompt.strip():
-        return {"error": "prompt is required"}
 
     action = action.lower().strip()
     gh_path = "/opt/homebrew/bin/gh"
+    model = _normalize_copilot_model(model)
+
+    if action == "usage":
+        return {"action": "usage", **_copilot_usage_report()}
+
+    if not prompt.strip():
+        return {"error": "prompt is required"}
+
+    if model not in _COPILOT_MONTHLY_CAPS:
+        return {"error": f"Unsupported model '{model}'. Use gpt-5.3-codex, claude-sonnet-4.5, or gpt-5-mini."}
+
+    reserved, usage_info = _copilot_reserve_usage(model)
+    if not reserved:
+        return usage_info
 
     try:
+        base_cmd = [
+            gh_path,
+            "copilot",
+            "--",
+            "--autopilot",
+            "--agent",
+            "general-purpose",
+            "--model",
+            model,
+            "-s",
+            "-p",
+        ]
         if action == "ask":
-            cmd = [gh_path, "copilot", "-s", "-p", prompt]
+            cmd = [*base_cmd, prompt]
         elif action == "suggest":
-            cmd = [gh_path, "copilot", "-s", "-p", f"Suggest a {shell} command to: {prompt}"]
+            cmd = [*base_cmd, f"Suggest a {shell} command to: {prompt}"]
         elif action == "explain":
-            cmd = [gh_path, "copilot", "-s", "-p", f"Explain this command: {prompt}"]
+            cmd = [*base_cmd, f"Explain this command: {prompt}"]
         else:
-            return {"error": f"Unknown action: {action}. Use ask, suggest, or explain."}
+            _copilot_release_usage(model)
+            return {"error": f"Unknown action: {action}. Use ask, suggest, explain, or usage."}
 
         proc = await _aio.create_subprocess_exec(
             *cmd,
@@ -12525,14 +12650,18 @@ async def _github_copilot(action: str, prompt: str, shell: str = "zsh") -> dict:
         err = stderr.decode("utf-8", errors="replace").strip()
 
         if proc.returncode != 0:
+            _copilot_release_usage(model)
             return {"error": err or f"gh copilot exited with code {proc.returncode}", "output": output}
 
-        return {"action": action, "result": output}
+        return {"action": action, "model": model, "usage": usage_info, "result": output}
     except _aio.TimeoutError:
+        _copilot_release_usage(model)
         return {"error": "GitHub Copilot CLI timed out after 60 seconds"}
     except FileNotFoundError:
+        _copilot_release_usage(model)
         return {"error": "gh CLI not found. Install GitHub CLI: brew install gh"}
     except Exception as e:
+        _copilot_release_usage(model)
         return {"error": f"GitHub Copilot failed: {str(e)}"}
 
 

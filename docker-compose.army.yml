@@ -1,0 +1,151 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: army-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-openclaw_army}
+      POSTGRES_USER: ${POSTGRES_USER:-openclaw}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openclaw}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - army_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-openclaw}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: army-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - army_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  memory-service:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.python-service
+    container_name: army-memory-service
+    restart: unless-stopped
+    working_dir: /app/memory-service
+    command: >
+      sh -lc "pip install -r requirements.txt sentence-transformers && python main.py"
+    volumes:
+      - ./services/memory-service:/app/memory-service
+      - ./data:/app/data
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL:-postgresql://openclaw:openclaw@postgres:5432/openclaw_army}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CHROMA_PATH: /app/data/chroma
+      ARMY_HOME: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "18820:18820"
+
+  knowledge-bridge:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.python-service
+    container_name: army-knowledge-bridge
+    restart: unless-stopped
+    working_dir: /app/knowledge-bridge
+    command: >
+      sh -lc "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 18850"
+    volumes:
+      - ./services/knowledge-bridge:/app/knowledge-bridge
+      - ./data:/app/data
+    environment:
+      ARMY_HOME: /app
+      VAULT_PATH: /app/data/obsidian database
+    ports:
+      - "18850:18850"
+
+  agent-registry:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.python-service
+    container_name: army-agent-registry
+    restart: unless-stopped
+    working_dir: /app/agent-registry
+    command: >
+      sh -lc "pip install fastapi uvicorn pydantic && uvicorn main:app --host 0.0.0.0 --port 18860"
+    volumes:
+      - ./services/agent-registry:/app/agent-registry
+    ports:
+      - "18860:18860"
+
+  notification:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.python-service
+    container_name: army-notification
+    restart: unless-stopped
+    working_dir: /app/notification
+    command: >
+      sh -lc "pip install fastapi uvicorn pydantic && uvicorn main:app --host 0.0.0.0 --port 18870"
+    volumes:
+      - ./services/notification:/app/notification
+    environment:
+      GMAIL_USER: ${GMAIL_USER:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL:-}
+    ports:
+      - "18870:18870"
+
+  orchestrator-api:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.python-service
+    container_name: army-orchestrator-api
+    restart: unless-stopped
+    working_dir: /app/orchestrator-api
+    command: >
+      sh -lc "pip install -r requirements.txt pyautogui pillow pytesseract && python main.py"
+    volumes:
+      - ./services/orchestrator-api:/app/orchestrator-api
+      - ./services:/app/services
+      - ./data:/app/data
+      - ./agents:/app/agents
+      - ./vault:/app/vault
+    environment:
+      ARMY_HOME: /app
+      ORCHESTRATOR_PORT: 18830
+      MEMORY_SERVICE_URL: http://memory-service:18820
+      KNOWLEDGE_BRIDGE_URL: http://knowledge-bridge:18850
+      NOTIFICATION_SERVICE_URL: http://notification:18870
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      POSTGRES_URL: ${POSTGRES_URL:-postgresql://openclaw:openclaw@postgres:5432/openclaw_army}
+      NVAPI_KIMI_KEY_1: ${NVAPI_KIMI_KEY_1:-}
+      NVAPI_KIMI_KEY_2: ${NVAPI_KIMI_KEY_2:-}
+      NVAPI_DEEPSEEK_KEY_1: ${NVAPI_DEEPSEEK_KEY_1:-}
+      NVAPI_GLM5_KEY_1: ${NVAPI_GLM5_KEY_1:-}
+    depends_on:
+      memory-service:
+        condition: service_started
+      knowledge-bridge:
+        condition: service_started
+      notification:
+        condition: service_started
+      agent-registry:
+        condition: service_started
+    ports:
+      - "18830:18830"
+
+volumes:
+  army_postgres_data:
+  army_redis_data:

@@ -3298,5 +3298,26 @@
       "role": "assistant",
       "content": "**GitHub Copilot usage counters are not accessible via API for your account.**\n\nThe `gh copilot usage` command doesn't exist, and the API endpoints (`/copilot/usage`, `/copilot/billing/seats`) return 404 because:\n\n1. **Personal accounts** \u2014 No programmatic usage API available\n2. **Organization/Enterprise** \u2014 Requires billing manager permissions + GitHub Teams/Enterprise Cloud plan\n\n**Your account:** `landonking-gif` (personal, no org plan detected)\n\n**To view usage:**\n- Web: https://github.com/settings/copilot \u2192 \"Usage\" tab\n- Shows: suggestions accepted, lines accepted, active editors\n\n**For org-level metrics** (if applicable):\n- https://github.com/organizations/[org]/settings/copilot/usage\n\nThe GitHub Copilot CLI (`gh copilot`) only supports `explain`, `suggest`, and natural language prompts \u2014 not usage reporting."
     }
-  ]
+  ],
+  "copilot-usage-final": [
+    {
+      "role": "user",
+      "content": "Use github_copilot usage and return exact usage object."
+    },
+    {
+      "role": "assistant",
+      "content": "```json\n{\n  \"action\": \"usage\",\n  \"month\": \"2026-04\",\n  \"models\": {\n    \"gpt-5.3-codex\": {\n      \"used\": 0,\n      \"cap\": 100,\n      \"remaining\": 100,\n      \"unlimited\": false\n    },\n    \"claude-sonnet-4.5\": {\n      \"used\": 0,\n      \"cap\": 100,\n      \"remaining\": 100,\n      \"unlimited\": false\n    },\n    \"gpt-5-mini\": {\n      \"used\": 0,\n      \"cap\": null,\n      \"remaining\": null,\n      \"unlimited\": true\n    }\n  }\n}\n```"
+    }
+  ],
+  "copilot-mini-final": [
+    {
+      "role": "user",
+      "content": "Use github_copilot ask with model gpt-5-mini. Prompt: Reply EXACTLY MINI_OK."
+    },
+    {
+      "role": "assistant",
+      "content": "**MINI_OK**\n\nGitHub Copilot CLI responded using `gpt-5-mini` with exactly that output. Command used:\n\n```\n~/.local/share/gh/copilot/copilot -p \"ask Reply EXACTLY MINI_OK\" --model gpt-5-mini\n```\n\n**Usage breakdown:**\n- Model: gpt-5-mini  \n- Tokens: 14.2k in, 124 out\n- Premium requests: 0 (gpt-5-mini is unlimited tier)\n- API time: 4 seconds"
+    }
+  ],
+  "copilot-codex-final": []
 }

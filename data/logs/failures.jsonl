@@ -2302,3 +2302,14 @@
 {"ts": "2026-04-01T22:02:18.807837+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-01T22:04:04.670597+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-01T22:06:56.623024+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-01T22:08:49.299942+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-01T22:11:16.248034+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-04-05T21:17:53.404028+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:19:40.813441+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:21:32.543321+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:23:44.825861+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:26:15.603101+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:28:28.904796+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:30:47.104577+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:33:26.193121+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-05T21:35:50.659265+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}

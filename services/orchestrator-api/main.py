@@ -6066,7 +6066,7 @@ async def _knowledge_query(action: str, query: str = "", path: str = "",
                             return {"result": (await resp.text())[:5000]}
                     return {"error": f"HTTP {resp.status}: {(await resp.text())[:500]}"}
             elif action == "read":
-                async with session.get(f"{KNOWLEDGE_BRIDGE_URL}/notes/{path}") as resp:
+                async with session.get(f"{KNOWLEDGE_BRIDGE_URL}/notes", params={"path": path}) as resp:
                     if resp.status == 200:
                         try:
                             return await resp.json()
@@ -6074,9 +6074,18 @@ async def _knowledge_query(action: str, query: str = "", path: str = "",
                             return {"content": (await resp.text())[:10000]}
                     return {"error": f"HTTP {resp.status}: {(await resp.text())[:500]}"}
             elif action == "write":
-                payload = {"path": path, "content": content}
-                if tags:
-                    payload["tags"] = tags
+                # knowledge-bridge /notes create expects title/agent/folder/content
+                note_title = Path(path).stem if path else "Untitled Note"
+                note_folder = str(Path(path).parent) if path and str(Path(path).parent) != "." else "inbox"
+                payload = {
+                    "title": note_title,
+                    # knowledge-bridge validates agent against a fixed allowlist;
+                    # use "unknown" unless caller targets a specific known agent folder.
+                    "agent": "unknown",
+                    "folder": note_folder,
+                    "content": content,
+                    "tags": tags or [],
+                }
                 async with session.post(f"{KNOWLEDGE_BRIDGE_URL}/notes", json=payload) as resp:
                     if resp.status in (200, 201):
                         try:
@@ -6330,6 +6339,7 @@ async def _eval_python(code: str, timeout: int = 30) -> dict:
             capture_output=True, text=True, timeout=min(timeout, 120),
             cwd=ARMY_HOME,
             env={**os.environ, "PYTHONPATH": str(Path(__file__).parent.parent)},
+            stdin=subprocess.DEVNULL,
         )
         return {
             "stdout": result.stdout[:20000],
@@ -13147,7 +13157,13 @@ async def list_tools():
     """List all tools (static + dynamic)."""
     static = [t["function"]["name"] for t in MANAGER_TOOLS]
     dynamic = [t["name"] for t in _dynamic_tools]
-    return {"static_tools": static, "dynamic_tools": dynamic, "total": len(static) + len(dynamic)}
+    combined = static + dynamic
+    return {
+        "tools": combined,  # compatibility for clients expecting a flat tools array
+        "static_tools": static,
+        "dynamic_tools": dynamic,
+        "total": len(combined),
+    }
 
 
 @app.post("/agents/register")

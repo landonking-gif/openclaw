@@ -3556,5 +3556,37 @@
       "role": "assistant",
       "content": "**eval_python tool is BROKEN** \u2014 fails with \"Fatal Python error: init_sys_streams: can't initialize sys standard streams\" (OSError: Bad file descriptor). This is a subprocess environment issue.\n\n**Workaround confirmed working:**\n```bash\n$ python3 -c \"print(2+2)\"\n4\n```\n\n`run_shell_command` with `python3 -c \"...\"` executes Python correctly. Use that until `eval_python` is fixed."
     }
+  ],
+  "retest-eval-001": [
+    {
+      "role": "user",
+      "content": "Use eval_python to run print(2+2) and return exact output."
+    },
+    {
+      "role": "assistant",
+      "content": "When attempting to execute the command `print(2+2)` using the **Eval Python** tool, the execution failed with a fatal system error rather than producing the expected mathematical output. Specifically, the tool returned an error code of **1** with the following detailed error message in the stderr stream:\n\n> \"Fatal Python error: init_sys_streams: can't initialize sys standard streams  \n> Python runtime state: core initialized  \n> OSError: [Errno 9] Bad file descriptor\"\n\nThis indicates that the Python runtime environment could not initialize its standard input/output streams due to a bad file descriptor (Error 9), preventing the code from executing. The stdout stream was empty (`\"\"`) as a result of this failure.\n\nTo obtain the result, an alternative approach was used via the **Shell** tool, executing the command `python3 -c \"print(2+2)\"`. This method completed successfully with a return code of **0** and produced the following exact output in the stdout stream:\n\n> **\"4\\n\"**\n\nTherefore, despite the initial failure of the Eval Python tool due to environment initialization issues, the exact output of the `print(2+2)` command is **4** (followed by a newline character)."
+    }
+  ],
+  "retest-knowledge-001": [],
+  "retest-eval-002": [
+    {
+      "role": "user",
+      "content": "Use eval_python tool with code print(2+2)."
+    },
+    {
+      "role": "assistant",
+      "content": "**Result:** `4`\n\nThe code executed successfully with return code 0."
+    }
+  ],
+  "retest-knowledge-002": [],
+  "retest-knowledge-003": [
+    {
+      "role": "user",
+      "content": "Use knowledge_query read path qa/QA_Test_Note_2.md and return only whether the phrase hello-knowledge-bridge exists."
+    },
+    {
+      "role": "assistant",
+      "content": "false"
+    }
   ]
 }

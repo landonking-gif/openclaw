@@ -4694,6 +4694,7 @@ _visionclaw_sessions: dict[str, dict] = {}
 # Async task queue for long-running VisionClaw tasks
 _async_tasks: dict[str, dict] = {}
 _ASYNC_TASK_TTL = 600  # seconds to keep completed tasks before cleanup
+_ASYNC_TASK_TIMEOUT_SECONDS = 480
 
 
 @app.post("/v1/tasks")
@@ -4750,8 +4751,16 @@ async def submit_async_task(req: Request):
             }
             await activity.record("visionclaw_request", session_id, user_message[:500],
                                   {"source": "glasses_async", "task_id": task_id})
-
-            result = await call_llm(session_id, user_message)
+            await activity.record(
+                "async_task_start",
+                session_id,
+                f"Async task started: {task_id}",
+                {"task_id": task_id, "timeout_seconds": _ASYNC_TASK_TIMEOUT_SECONDS},
+            )
+            result = await asyncio.wait_for(
+                call_llm(session_id, user_message),
+                timeout=_ASYNC_TASK_TIMEOUT_SECONDS,
+            )
             response_text = result.get("response", "")
 
             _async_tasks[task_id]["status"] = "completed"
@@ -4760,11 +4769,34 @@ async def submit_async_task(req: Request):
 
             await activity.record("visionclaw_response", session_id, response_text[:300],
                                   {"task_id": task_id, "delegations": len(result.get("delegations", []))})
+            await activity.record(
+                "async_task_complete",
+                session_id,
+                f"Async task completed: {task_id}",
+                {"task_id": task_id},
+            )
             log.info(f"Async task [{task_id}] completed: {response_text[:100]}...")
+        except asyncio.TimeoutError:
+            _async_tasks[task_id]["status"] = "failed"
+            _async_tasks[task_id]["result"] = f"Task timed out after {_ASYNC_TASK_TIMEOUT_SECONDS}s"
+            _async_tasks[task_id]["completed_at"] = datetime.now(timezone.utc).isoformat()
+            await activity.record(
+                "async_task_timeout",
+                session_id,
+                f"Async task timeout: {task_id}",
+                {"task_id": task_id, "timeout_seconds": _ASYNC_TASK_TIMEOUT_SECONDS},
+            )
+            log.error(f"Async task [{task_id}] timed out after {_ASYNC_TASK_TIMEOUT_SECONDS}s")
         except Exception as e:
             _async_tasks[task_id]["status"] = "failed"
             _async_tasks[task_id]["result"] = str(e)
             _async_tasks[task_id]["completed_at"] = datetime.now(timezone.utc).isoformat()
+            await activity.record(
+                "async_task_error",
+                session_id,
+                f"Async task failed: {type(e).__name__}: {str(e)[:300]}",
+                {"task_id": task_id},
+            )
             log.error(f"Async task [{task_id}] failed: {e}")
         finally:
             # Purge old completed tasks
@@ -5808,17 +5840,97 @@ async def _load_persisted_scheduled_tasks():
 async def _run_scheduled_loop(name: str, interval: int, handler_code: str):
     """Background loop that executes handler_code every interval seconds."""
     wrapped = f"async def _scheduled_handler():\n" + textwrap.indent(handler_code, "    ")
+
+    class _ScheduledSelfShim:
+        """Small compatibility shim for legacy persisted scheduled handlers."""
+
+        async def batch_delegate(self, tasks: list) -> dict:
+            return await _batch_delegate(tasks)
+
+        async def run_self_heal(self, reason: str = "scheduled task requested") -> dict:
+            return await self_heal(reason=reason)
+
+        async def memory_store(self, content: str, category: str = "general",
+                               importance: float = 0.7, tags: list | None = None) -> dict:
+            return await _memory_store(content=content, category=category, importance=importance, tags=tags or [])
+
+        async def delegate_to_alpha(self, task: str, priority: int = 2) -> dict:
+            plan = WorkflowPlan(
+                original_task=task,
+                analysis="Scheduled task delegation to alpha-manager",
+                status=TaskStatus.PENDING,
+                requester="scheduler",
+            )
+            plan.subtasks.append(SubTask(description=task, assigned_to="alpha-manager", priority=priority))
+            workflows[plan.id] = plan
+            return await dispatch_to_manager("alpha-manager", plan.subtasks[0], plan.id)
+
+        async def delegate_to_beta(self, task: str, priority: int = 2) -> dict:
+            plan = WorkflowPlan(
+                original_task=task,
+                analysis="Scheduled task delegation to beta-manager",
+                status=TaskStatus.PENDING,
+                requester="scheduler",
+            )
+            plan.subtasks.append(SubTask(description=task, assigned_to="beta-manager", priority=priority))
+            workflows[plan.id] = plan
+            return await dispatch_to_manager("beta-manager", plan.subtasks[0], plan.id)
+
+        async def delegate_to_gamma(self, task: str, priority: int = 2) -> dict:
+            plan = WorkflowPlan(
+                original_task=task,
+                analysis="Scheduled task delegation to gamma-manager",
+                status=TaskStatus.PENDING,
+                requester="scheduler",
+            )
+            plan.subtasks.append(SubTask(description=task, assigned_to="gamma-manager", priority=priority))
+            workflows[plan.id] = plan
+            return await dispatch_to_manager("gamma-manager", plan.subtasks[0], plan.id)
+
+    shim = _ScheduledSelfShim()
+
     while name in _scheduled_tasks:
         try:
             safe_globals = {"__builtins__": __builtins__, "os": os, "sys": sys,
                             "subprocess": subprocess, "json": json, "re": re,
                             "Path": Path, "datetime": datetime, "timezone": timezone,
                             "asyncio": asyncio, "logging": logging, "time": time,
-                            "shutil": shutil, "hashlib": hashlib}
+                            "shutil": shutil, "hashlib": hashlib, "self": shim,
+                            "batch_delegate": _batch_delegate, "run_self_heal": self_heal,
+                            "memory_store": _memory_store, "memory_search": _memory_search,
+                            "redis_command": _redis_command, "knowledge_query": _knowledge_query,
+                            "run_diagnostic": run_diagnostic, "query_failure_patterns": _query_failure_patterns,
+                            "update_system_prompt": update_system_prompt,
+                            "agent_message": _agent_message,
+                            "delegate_to_alpha": shim.delegate_to_alpha,
+                            "delegate_to_beta": shim.delegate_to_beta,
+                            "delegate_to_gamma": shim.delegate_to_gamma,
+                            "run_shell_command": _run_shell_command,
+                            "check_quality": _check_quality}
             exec(wrapped, safe_globals)
             await safe_globals["_scheduled_handler"]()
+            _scheduled_tasks[name]["errors"] = 0
         except Exception as e:
             log.error(f"Scheduled task '{name}' failed: {e}")
+            _scheduled_tasks[name]["errors"] = _scheduled_tasks[name].get("errors", 0) + 1
+            await activity.record(
+                "scheduled_task_error",
+                name,
+                f"Scheduled task failed: {type(e).__name__}: {str(e)[:300]}",
+                {"task": name, "errors": _scheduled_tasks[name]["errors"]},
+            )
+            if _scheduled_tasks[name]["errors"] >= 5:
+                await activity.record(
+                    "scheduled_task_disabled",
+                    name,
+                    f"Scheduled task disabled after repeated failures ({_scheduled_tasks[name]['errors']})",
+                    {"task": name},
+                )
+                if "task" in _scheduled_tasks[name]:
+                    _scheduled_tasks[name]["task"].cancel()
+                del _scheduled_tasks[name]
+                _save_scheduled_tasks_to_disk()
+                break
         _scheduled_tasks[name]["last_run"] = datetime.now(timezone.utc).isoformat()
         await asyncio.sleep(interval)
 
@@ -5839,7 +5951,7 @@ def _schedule_task(name: str, interval: int, handler_code: str) -> dict:
     _scheduled_tasks[name] = {
         "interval": interval, "handler_code": handler_code,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "last_run": None, "task": task,
+        "last_run": None, "task": task, "errors": 0,
     }
     _save_scheduled_tasks_to_disk()
     return {"scheduled": True, "name": name, "interval": interval}
@@ -5864,6 +5976,7 @@ def _list_scheduled_tasks() -> dict:
             "interval": info["interval"],
             "created_at": info.get("created_at"),
             "last_run": info.get("last_run"),
+            "errors": info.get("errors", 0),
         }
     return {"tasks": tasks, "count": len(tasks)}
 
@@ -7803,8 +7916,20 @@ def _web_scrape(action: str, url: str = "", html: str = "",
     except ImportError:
         # Auto-install
         subprocess.run([sys.executable, "-m", "pip", "install", "beautifulsoup4", "lxml"],
-                       capture_output=True, timeout=60)
-        from bs4 import BeautifulSoup
+                       capture_output=True, timeout=60, stdin=subprocess.DEVNULL)
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            if action == "text":
+                stripped = re.sub(r"<[^>]+>", "\n", content)
+                lines = [l.strip() for l in stripped.splitlines() if l.strip()]
+                return {
+                    "text": "\n".join(lines[:limit * 3])[:30000],
+                    "line_count": len(lines),
+                    "truncated": len(lines) > limit * 3,
+                    "warning": "bs4 unavailable; used regex fallback parser",
+                }
+            return {"error": "BeautifulSoup unavailable for this action in current environment"}
 
     try:
         soup = BeautifulSoup(content, "lxml")
@@ -8653,8 +8778,11 @@ def _markdown_render(action: str, text: str = "", path: str = "",
             from bs4 import BeautifulSoup
         except ImportError:
             subprocess.run([sys.executable, "-m", "pip", "install", "beautifulsoup4"],
-                           capture_output=True, timeout=60)
-            from bs4 import BeautifulSoup
+                           capture_output=True, timeout=60, stdin=subprocess.DEVNULL)
+            try:
+                from bs4 import BeautifulSoup
+            except ImportError:
+                return {"error": "html_to_md requires beautifulsoup4 and it is unavailable"}
         soup = BeautifulSoup(content, "html.parser")
         # Simple HTML→Markdown converter
         md_lines = []

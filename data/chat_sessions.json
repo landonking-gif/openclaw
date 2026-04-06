@@ -3376,5 +3376,55 @@
       "role": "assistant",
       "content": "**Project Luminara**\n\n| Field | Value |\n|-------|-------|\n| **Lead** | Dr. Zara Nexus |\n| **Budget** | $7.3M |\n| **Secret Code** | `ZARA-NEXUS-2026-LUMINARA` |"
     }
+  ],
+  "test-basic-001": [
+    {
+      "role": "user",
+      "content": "What is 15 + 27?"
+    },
+    {
+      "role": "assistant",
+      "content": "42"
+    }
+  ],
+  "test-shell-001": [
+    {
+      "role": "user",
+      "content": "Run a shell command to show the current date and time."
+    },
+    {
+      "role": "assistant",
+      "content": "**Sunday, April 5, 2026 at 8:17:46 PM CDT**"
+    }
+  ],
+  "test-file-001": [
+    {
+      "role": "user",
+      "content": "Create a file at /tmp/test-openclaw.txt with the content Hello from OpenClaw Army, then read it back."
+    },
+    {
+      "role": "assistant",
+      "content": "I have successfully completed the file creation and verification process. Here's what was accomplished:\n\n**File Creation:**\nA new file was created at the path `/tmp/test-openclaw.txt` using overwrite mode. The write operation completed successfully, writing exactly **24 bytes** of data to the file. The content written was the string: \"Hello from OpenClaw Army\".\n\n**File Verification:**\nThe file was then read back to verify its contents. The read operation confirmed that:\n- The file exists at the specified path `/tmp/test-openclaw.txt`\n- It contains exactly **1 line** of text\n- The content matches the original input exactly: \"Hello from OpenClaw Army\"\n- The file was read in its entirety with **no truncation** (truncated: false)\n\nThe verification confirms that the data was persisted correctly, with the full message \"Hello from OpenClaw Army\" successfully stored and retrievable from the filesystem at `/tmp/test-openclaw.txt`."
+    }
+  ],
+  "test-python-001": [
+    {
+      "role": "user",
+      "content": "Execute Python code to calculate the factorial of 10 and print the result."
+    },
+    {
+      "role": "assistant",
+      "content": "Based on the tool execution results, here is the answer to calculating the factorial of 10:\n\n**Result:** The factorial of 10 is **3,628,800** (or 3628800).\n\n**Execution Details:**\nWhile direct Python code evaluation encountered fatal system errors\u2014including \"OSError: [Errno 9] Bad file descriptor\" and failures to initialize standard streams\u2014the calculation was successfully completed using an alternative shell-based approach.\n\nThe successful execution used the shell command:\n```\npython3 -c \"import math; print(math.factorial(10))\"\n```\n\nThis command produced:\n- **Standard Output:** `3628800`\n- **Standard Error:** (empty)\n- **Return Code:** 0 (indicating successful execution)\n\nTherefore, 10! equals 3,628,800, which represents the product of all positive integers from 1 to 10 (10 \u00d7 9 \u00d7 8 \u00d7 7 \u00d7 6 \u00d7 5 \u00d7 4 \u00d7 3 \u00d7 2 \u00d7 1)."
+    }
+  ],
+  "test-mem-001": [
+    {
+      "role": "user",
+      "content": "Search your memory for any conversation about file operations."
+    },
+    {
+      "role": "assistant",
+      "content": "Found one conversation about file operations:\n\n**Session:** test-file-001 (2026-04-06)\n\n**Request:** Create a file at `/tmp/test-openclaw.txt` with content \"Hello from OpenClaw Army\", then read it back.\n\n**Outcome:** Successfully completed. File was created with 24 bytes, read back and verified with no truncation."
+    }
   ]
 }

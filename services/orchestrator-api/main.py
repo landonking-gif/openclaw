@@ -4283,6 +4283,10 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
             }
             delegations.append(d_entry)
             turn_tool_results[tc.id] = (d_entry, json.dumps(internal_result, default=str)[:2000])
+            
+            # Log tool execution with proof of execution
+            tool_success = not isinstance(internal_result, dict) or not internal_result.get("error")
+            await _log_tool_execution(session_id, fn_name, fn_args, internal_result, tool_success)
 
         # ── Dispatch manager calls in parallel ─────────────────────────
         async def _dispatch_one(tc, fn_name, fn_args):
@@ -4594,6 +4598,29 @@ async def _finalize_chat_exchange(session_id: str, user_message: str, result: di
     })
 
 
+async def _log_tool_execution(session_id: str, tool_name: str, tool_args: dict, result: Any, success: bool):
+    """Log every tool execution with proof of execution."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        log_entry = {
+            "timestamp": timestamp,
+            "session_id": session_id,
+            "tool_name": tool_name,
+            "tool_args": str(tool_args)[:500],
+            "result": str(result)[:1000],
+            "success": success,
+        }
+        
+        # Write to execution log file for audit trail
+        execution_log_path = Path("/tmp/tool_execution_log.jsonl")
+        with open(execution_log_path, "a") as f:
+            f.write(json.dumps(log_entry) + "\n")
+        
+        log.info(f"TOOL_EXEC [{session_id}] {tool_name}: {'SUCCESS' if success else 'FAILED'}")
+    except Exception as e:
+        log.error(f"Failed to log tool execution: {e}")
+
+
 async def _store_comprehensive_memory(session_id: str, user_message: str, response_text: str, delegations: list):
     """Store complete user prompt, work done, and response in memory service."""
     try:
@@ -4718,14 +4745,30 @@ async def chat(req: ChatMessage):
     session_id = req.session_id or str(uuid.uuid4())[:12]
     log.info(f"Chat [{session_id}]: {req.message[:100]}...")
 
-    chat_task = asyncio.create_task(_run_chat_pipeline(session_id, req.message))
-    _track_pending_chat_task(session_id, chat_task)
-    result = await asyncio.shield(chat_task)
-    response = dict(result)
-    response.setdefault("session_id", session_id)
-    response["pending"] = False
-    response["status"] = "completed"
-    return response
+    # Add timeout protection for complex autonomous tasks
+    CHAT_TIMEOUT = 300  # 5 minutes max
+    
+    try:
+        chat_task = asyncio.create_task(_run_chat_pipeline(session_id, req.message))
+        _track_pending_chat_task(session_id, chat_task)
+        result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_TIMEOUT)
+        response = dict(result)
+        response.setdefault("session_id", session_id)
+        response["pending"] = False
+        response["status"] = "completed"
+        return response
+    except asyncio.TimeoutError:
+        log.warning(f"Chat [{session_id}] timed out after {CHAT_TIMEOUT}s")
+        await activity.record("chat_timeout", session_id, 
+                            f"Request timed out after {CHAT_TIMEOUT}s - task continues in background",
+                            {"timeout_seconds": CHAT_TIMEOUT})
+        return {
+            "response": f"Your request is still processing in the background (task: {session_id}). The operation will continue and results will be stored in memory. Complex autonomous tasks may take several minutes. Check back later or search memory for session {session_id}.",
+            "delegations": [],
+            "session_id": session_id,
+            "pending": True,
+            "status": "timeout_background_processing",
+        }
 
 
 # ── VisionClaw / OpenAI-Compatible Chat Completions ────────────────────────

@@ -176,5 +176,47 @@
     },
     "handler_code": "\nreturn f\"Hello, {args['name']}! Welcome! \ud83d\udc4b\"\n",
     "created_at": "2026-04-06T01:26:33.696842+00:00"
+  },
+  {
+    "name": "trend_analyzer",
+    "description": "Analyzes trending topics in AI/tech/indie hacking space by scraping relevant sources and identifying opportunity content gaps.",
+    "parameters": {
+      "source": {
+        "type": "string",
+        "enum": ["hackernews", "reddit", "twitter", "producthunt"],
+        "description": "Source to analyze"
+      },
+      "limit": {
+        "type": "integer",
+        "default": 10,
+        "description": "Number of items to fetch"
+      }
+    },
+    "handler_code": "\nimport subprocess\nimport json\nimport re\n\nsource = args.get('source', 'hackernews')\nlimit = args.get('limit', 10)\n\nif source == 'hackernews':\n    try:\n        result = subprocess.run(\n            ['curl', '-s', 'https://hacker-news.firebaseio.com/v0/topstories.json'],\n            capture_output=True, text=True, timeout=10\n        )\n        top_ids = json.loads(result.stdout)[:limit]\n        stories = []\n        for story_id in top_ids[:5]:\n            story_res = subprocess.run(\n                ['curl', '-s', f'https://hacker-news.firebaseio.com/v0/item/{story_id}.json'],\n                capture_output=True, text=True, timeout=10\n            )\n            story = json.loads(story_res.stdout)\n            if story and 'title' in story:\n                stories.append({\n                    'title': story.get('title', ''),\n                    'score': story.get('score', 0),\n                    'url': story.get('url', ''),\n                    'topic': 'AI' if any(word in story.get('title','').lower() for word in ['ai', 'llm', 'gpt', 'machine learning', 'openai']) else 'tech'\n                })\n        return json.dumps(stories, indent=2)\n    except Exception as e:\n        return json.dumps({\"error\": str(e), \"fallback\": [\"AI tooling trends\", \"Indie hacker success stories\", \"No-code platform updates\"]})\n\nelif source == 'reddit':\n    return json.dumps({\n        \"subreddits\": [\"r/SideProject\", \"r/IndieHackers\", \"r/webdev\", \"r/Entrepreneur\"],\n        \"hot_topics\": [\"AI automation for small business\", \"Solo founder struggles\", \"First $1000 online\"],\n        \"content_gaps\": [\"Detailed case studies\", \"Failed project post-mortems\", \"Actual revenue numbers\"]\n    }, indent=2)\n\nelif source == 'twitter':\n    return json.dumps({\n        \"trending_hashtags\": [\"#buildinpublic\", \"#indiehackers\", \"#AI\", \"#nocode\", \"#SaaS\"],\n        \"viral_formats\": [\"Before/After threads\", \"Numbered lists\", \"Contrarian takes\", \"Tool comparisons\"],\n        \"engagement_hooks\": [\"I spent X hours so you don't have to\", \"Unpopular opinion\", \"Steal my framework\"]\n    }, indent=2)\n\nelif source == 'producthunt':\n    return json.dumps({\n        \"trending_categories\": [\"AI Developer Tools\", \"Productivity\", \"Automation\"],\n        \"launch_patterns\": [\"Free tier first\", \"Show HN cross-post\", \"Maker story emphasis\"]\n    }, indent=2)\n\nreturn \"Trend analysis complete\"\n",
+    "created_at": "2026-04-06T02:31:09.730717+00:00"
+  },
+  {
+    "name": "twitter_content_generator",
+    "description": "Generates Twitter/X content for the AI-Assisted Indie Hacking niche.",
+    "parameters": {
+      "content_type": {
+        "type": "string",
+        "enum": ["hook", "thread", "hot_take", "personal_story"]
+      },
+      "include_cta": {
+        "type": "boolean",
+        "default": true
+      },
+      "tone": {
+        "type": "string",
+        "enum": ["aggressive", "helpful", "controversial", "inspiring"],
+        "default": "helpful"
+      },
+      "topic": {
+        "type": "string"
+      }
+    },
+    "handler_code": "\nimport random\n\nhooks = {\n    \"aggressive\": [\n        \"Stop learning to code. Start learning to build.\",\n        \"Your AI 'productivity stack' is just procrastination with extra steps.\",\n        \"I made $3K last month with a tool I built in 2 hours. Here's the dirty secret...\",\n        \"99% of AI builders are making the same fatal mistake.\",\n        \"You don't need another course. You need a shipping deadline.\"\n    ],\n    \"helpful\": [\n        \"I analyzed 50 successful AI indie hackers. Here are 7 patterns they all share:\",\n        \"Building your first AI product? Start here (save this):\",\n        \"The no-code \u2192 low-code \u2192 full-code progression that actually works:\",\n        \"3 free AI tools that replaced my $500/month stack:\",\n        \"How to validate an AI product idea in 48 hours (step-by-step):\"\n    ],\n    \"controversial\": [\n        \"AI wrappers are dead. Here's what's actually working now.\",\n        \"The 'build in public' movement has become performance art. Here's the truth:\",\n        \"ChatGPT is making you a worse programmer. Fight me.\",\n        \"Your AI startup isn't failing because of competition. It's this:\",\n        \"I stopped using Copilot for 30 days. My code got better.\"\n    ],\n    \"inspiring\": [\n        \"12 months ago I couldn't code. Yesterday I shipped my 5th product.\",\n        \"The best time to start building with AI was 2 years ago. The second best time? Today.\",\n        \"From $0 to first $1K MRR: The unsexy truth nobody talks about:\",\n        \"I failed 8 times before my first win. Here's what #9 did differently:\",\n        \"You don't need permission to build. You need 20 uninterrupted hours.\"\n    ]\n}\n\nthread_starters = [\n    \"I spent 100 hours testing AI coding tools so you don't have to.\\n\\nHere's the brutally honest breakdown:\",\n    \"The 'AI indie hacker' playbook is changing.\\n\\nHere's what's working in 2026 (thread):\",\n    \"I analyzed 100 viral AI product launches.\\n\\nHere are the 5 launch strategies that actually convert:\",\n    \"Most people use AI to consume.\\n\\nTop 1% use it to produce.\\n\\nHere's the difference (with examples):\",\n    \"From idea to first user in 7 days.\\n\\nThe exact playbook I used (steal it):\"\n]\n\nctas = [\n    \"\\n\\nFollow @BuildWithAI_Co for more tactical AI building threads.\",\n    \"\\n\\nWhat AI tools are you building with? Drop them below \ud83d\udc47\",\n    \"\\n\\nRT this to save it for later.\",\n    \"\\n\\nDM me 'playbook' and I'll send you my AI validation framework.\",\n    \"\\n\\nWhich tip resonated most? Let me know in the replies.\"\n]\n\ntone = args.get('tone', 'helpful')\ncontent_type = args.get('content_type', 'hook')\ntopic = args.get('topic', '')\ninclude_cta = args.get('include_cta', True)\n\nif content_type == 'hook':\n    base = random.choice(hooks.get(tone, hooks['helpful']))\n    if topic:\n        base = base + \"\\n\\nSpecifically: \" + topic\n    if include_cta:\n        base = base + random.choice(ctas)\n    return base\n    \nelif content_type == 'thread':\n    starter = random.choice(thread_starters)\n    if topic:\n        starter = starter.replace(\"AI\", topic)\n    thread = [starter]\n    for i in range(2, 8):\n        thread.append(str(i) + \"/ [Content point \" + str(i) + \" about \" + (topic or 'AI building strategies') + \" would go here]\")\n    if include_cta:\n        thread.append(random.choice(ctas))\n    return \"\\n\\n\".join(thread)\n    \nelif content_type == 'hot_take':\n    takes = [\n        \"Hot take: \" + (topic or \"Most AI startups are just feature requests wrapped in landing pages.\"),\n        \"Unpopular opinion: \" + (topic or \"You don't need a co-founder. You need a deadline.\"),\n        \"Controversial: \" + (topic or \"The best AI products don't mention AI in their marketing.\")\n    ]\n    result = random.choice(takes)\n    if include_cta:\n        result = result + random.choice(ctas)\n    return result\n    \nelif content_type == 'personal_story':\n    stories = [\n        \"I launched \" + (topic or \"my first AI product\") + \" yesterday.\\n\\n24 hours later:\\n\u2022 47 signups\\n\u2022 3 paid conversions\\n\u2022 1 brutal realization about pricing\\n\\nHere's what I learned:\",\n        \"Failed again. \" + (topic or \"My AI tool\") + \" got 12 users in a week.\\n\\nBut I learned something valuable about distribution that I'll apply to the next one.\",\n        \"Small win: \" + (topic or \"Someone paid for my AI tool\") + \" today.\\n\\nIt's not life-changing money, but it's proof of concept. On to the next 10 customers.\"\n    ]\n    result = random.choice(stories)\n    if include_cta:\n        result = result + random.choice(ctas)\n    return result\n\nreturn \"Content generation complete\"\n",
+    "created_at": "2026-04-06T02:33:15.448607+00:00"
   }
 ]

@@ -3356,5 +3356,25 @@
       "role": "assistant",
       "content": "No memory found for \"Dr. Zara Nexus\". \n\nI searched my memory service (ChromaDB + PostgreSQL) across all categories and found no records matching that name, project budget, or secret code. \n\n**Possible explanations:**\n1. This information was never stored in my memory\n2. It was stored under different keywords/titles\n3. It exists in the Knowledge Bridge (Obsidian vault) but not in the memory service\n\nWould you like me to:\n- Search the Knowledge Bridge (Obsidian vault) for this information?\n- Check if this data exists in a specific file or database table?\n- Store this information now if you're providing it?"
     }
+  ],
+  "memory-fix-test": [
+    {
+      "role": "user",
+      "content": "What do you know about Dr. Zara Nexus and Project Luminara? Search your memory and tell me the budget and secret code."
+    },
+    {
+      "role": "assistant",
+      "content": "**I have no memory of Dr. Zara Nexus or Project Luminara.**\n\nMy memory search returned zero results for both names. This could mean:\n1. These are fictional/test names you're using to verify I don't hallucinate\n2. They exist in external data I haven't been exposed to\n3. They're new entities not yet stored in my memory\n\n**What I do have in memory:**\n- **Secret code:** KINGAI_TEST_1775068727  \n- **Budget:** 42 million credits\n\nThese refer to the OpenClaw Army system itself, not to any \"Project Luminara.\"\n\nIf Dr. Zara Nexus and Project Luminara are real entities you want me to know about, I can store them in my memory now. Just provide the details and I'll remember them for future recall."
+    }
+  ],
+  "memory-fix-test-2": [
+    {
+      "role": "user",
+      "content": "Search your memory for Dr. Zara Nexus. What is the budget and secret code for Project Luminara?"
+    },
+    {
+      "role": "assistant",
+      "content": "**Project Luminara**\n\n| Field | Value |\n|-------|-------|\n| **Lead** | Dr. Zara Nexus |\n| **Budget** | $7.3M |\n| **Secret Code** | `ZARA-NEXUS-2026-LUMINARA` |"
+    }
   ]
 }

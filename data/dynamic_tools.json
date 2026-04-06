@@ -160,5 +160,21 @@
     },
     "handler_code": "\nn = args.get(\"n\", 1)\nif n < 1:\n    return \"Error: n must be a positive integer\"\n\n# Iterative approach for efficiency\na, b = 0, 1\nfor _ in range(n - 1):\n    a, b = b, a + b\nreturn str(a)\n",
     "created_at": "2026-04-01T18:59:55.475729+00:00"
+  },
+  {
+    "name": "greet_user",
+    "description": "Returns a friendly greeting for the given name",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name to greet"
+        }
+      },
+      "required": ["name"]
+    },
+    "handler_code": "\nreturn f\"Hello, {args['name']}! Welcome! \ud83d\udc4b\"\n",
+    "created_at": "2026-04-06T01:26:33.696842+00:00"
   }
 ]

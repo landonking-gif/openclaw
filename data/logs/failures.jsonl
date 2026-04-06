@@ -2370,3 +2370,46 @@
 {"ts": "2026-04-06T01:21:50.516398+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-06T01:23:35.781448+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-06T01:23:54.215394+00:00", "category": "restart_fail", "detail": "gamma-manager started but not responding after 45s", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:24:12.830058+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:15.239054+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:17.786917+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:42.799166+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:45.488580+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:47.961666+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:51.547429+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:24:58.537665+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:01.106150+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:03.784686+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:06.215623+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:19.577109+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:21.006386+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:25:22.269253+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:24.825462+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:27.353994+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:33.956808+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:36.493447+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:38.909663+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:41.355118+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:49.036128+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:51.596384+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:55.164916+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:25:57.658510+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:17.142148+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:19.606279+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:22.168151+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:42.166468+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:44.761884+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:47.401502+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:26:50.136672+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:27:06.224085+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:27:37.220637+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:28:51.439764+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:29:27.909200+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:29:30.662232+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:29:33.240113+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:29:35.899426+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:30:24.793228+00:00", "category": "restart_fail", "detail": "gamma-manager started but not responding after 45s", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:30:36.608592+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:32:21.887500+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:33:09.360502+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-06T01:33:15.861673+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}

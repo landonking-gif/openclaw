@@ -35,6 +35,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 from enum import Enum
+import concurrent.futures
 
 # Add shared utilities to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -3232,7 +3233,7 @@ async def log_to_memory(content: str, category: str = "orchestrator"):
         pass  # Non-critical
 
 
-async def call_llm(session_id: str, user_message: str) -> dict:
+async def call_llm(session_id: str, user_message: str, *, task_mode: bool = False) -> dict:
     """
     Core LLM conversation loop. Sends message to Kimi K2.5, processes
     tool calls (delegations to managers), and returns the response.
@@ -3269,15 +3270,34 @@ async def call_llm(session_id: str, user_message: str) -> dict:
 
     # Track timing for quality scoring
     _llm_start_time = time.monotonic()
+    task_time_budget_s = int(os.getenv("ORCH_TASK_TIME_BUDGET_SECONDS", "300")) if task_mode else 0
+    task_goal_keywords = (
+        "actually create",
+        "create a real new social media account",
+        "account creation",
+        "create account",
+    )
+    fast_task_mode = task_mode and any(k in user_message.lower() for k in task_goal_keywords)
+    fast_task_target_tools = int(os.getenv("ORCH_FAST_TASK_TARGET_TOOLS", "8")) if fast_task_mode else 0
+    fast_task_tool_hits = 0
 
     # ── Multi-turn tool-call loop ──────────────────────────────────────
     # The LLM can invoke tools (read_own_code, modify_own_code, etc.)
     # and we feed results back so it can chain actions across turns.
-    MAX_TOOL_TURNS = 12          # safety cap — increased for complex multi-step tasks
-    max_retries = 8              # per-turn retry budget for 429s (11 keys to rotate through)
+    MAX_TOOL_TURNS = int(os.getenv("ORCH_TASK_MAX_TOOL_TURNS", "8")) if task_mode else 12
+    max_retries = int(os.getenv("ORCH_TASK_MAX_RETRIES", "4")) if task_mode else 8
+    synthesis_attempts = int(os.getenv("ORCH_TASK_SYNTH_ATTEMPTS", "1")) if task_mode else 3
     delegations = []             # accumulate across all turns
 
     for _tool_turn in range(MAX_TOOL_TURNS):
+        if task_mode and task_time_budget_s > 0 and (time.monotonic() - _llm_start_time) >= task_time_budget_s:
+            await activity.record(
+                "task_budget",
+                session_id,
+                f"Task-mode time budget reached at turn {_tool_turn + 1}",
+                {"budget_seconds": task_time_budget_s, "elapsed_seconds": round(time.monotonic() - _llm_start_time, 2)},
+            )
+            break
         response = None
         for attempt in range(max_retries):
             try:
@@ -3294,8 +3314,8 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                     messages=messages,
                     tools=all_tools,
                     tool_choice="auto",
-                    temperature=0.7,
-                    max_tokens=4096,
+                    temperature=0.4 if task_mode else 0.7,
+                    max_tokens=2048 if task_mode else 4096,
                 )
                 break  # Success
             except Exception as e:
@@ -4159,27 +4179,40 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 )
                 internal_task = f"URL: {fn_args.get('action', '')}"
             elif fn_name == "desktop_control":
-                internal_result = _desktop_control(
-                    fn_args.get("action", ""),
-                    x=fn_args.get("x"), y=fn_args.get("y"),
-                    text=fn_args.get("text", ""),
-                    keys=fn_args.get("keys", []),
-                    button=fn_args.get("button", "left"),
-                    clicks=fn_args.get("clicks", 1),
-                    app=fn_args.get("app", ""),
-                    template=fn_args.get("template", ""),
-                    confidence=fn_args.get("confidence", 0.8),
-                    amount=fn_args.get("amount", -3),
-                    region=fn_args.get("region"),
-                    output=fn_args.get("output", ""),
-                    x1=fn_args.get("x1", 0), y1=fn_args.get("y1", 0),
-                    x2=fn_args.get("x2", 0), y2=fn_args.get("y2", 0),
-                    duration=fn_args.get("duration", 0.5),
-                )
-                internal_task = f"Desktop: {fn_args.get('action', '')}"
+                if task_mode and os.getenv("ORCH_TASK_ALLOW_DESKTOP_CONTROL", "0") != "1":
+                    internal_result = {
+                        "error": "desktop_control disabled in async task mode to avoid hijacking host mouse/keyboard. Set ORCH_TASK_ALLOW_DESKTOP_CONTROL=1 to override."
+                    }
+                    internal_task = f"Desktop(blocked): {fn_args.get('action', '')}"
+                else:
+                    internal_result = _desktop_control(
+                        fn_args.get("action", ""),
+                        x=fn_args.get("x"), y=fn_args.get("y"),
+                        text=fn_args.get("text", ""),
+                        keys=fn_args.get("keys", []),
+                        button=fn_args.get("button", "left"),
+                        clicks=fn_args.get("clicks", 1),
+                        app=fn_args.get("app", ""),
+                        template=fn_args.get("template", ""),
+                        confidence=fn_args.get("confidence", 0.8),
+                        amount=fn_args.get("amount", -3),
+                        region=fn_args.get("region"),
+                        output=fn_args.get("output", ""),
+                        x1=fn_args.get("x1", 0), y1=fn_args.get("y1", 0),
+                        x2=fn_args.get("x2", 0), y2=fn_args.get("y2", 0),
+                        duration=fn_args.get("duration", 0.5),
+                    )
+                    internal_task = f"Desktop: {fn_args.get('action', '')}"
+                    if fast_task_mode:
+                        fast_task_tool_hits += 1
             elif fn_name == "browser_automate":
-                internal_result = _browser_automate(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                browser_args = {k: v for k, v in fn_args.items() if k != "action"}
+                if task_mode and os.getenv("ORCH_TASK_FORCE_HEADLESS", "1") == "1" and fn_args.get("action", "") == "launch":
+                    browser_args["headless"] = True
+                internal_result = _browser_automate(fn_args.get("action", ""), **browser_args)
                 internal_task = f"Browser: {fn_args.get('action', '')}"
+                if fast_task_mode:
+                    fast_task_tool_hits += 1
             elif fn_name == "git_ops":
                 internal_result = _git_ops(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
                 internal_task = f"Git: {fn_args.get('action', '')}"
@@ -4374,6 +4407,14 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 "content": result_str,
             })
         log.info(f"Multi-turn: completed turn {_tool_turn + 1}, processed {len(turn_tool_results)} tool results, continuing to turn {_tool_turn + 2}")
+        if fast_task_mode and fast_task_target_tools > 0 and fast_task_tool_hits >= fast_task_target_tools:
+            await activity.record(
+                "task_fast_exit",
+                session_id,
+                f"Fast task mode early exit after {fast_task_tool_hits} browser/desktop tool calls",
+                {"tool_hits": fast_task_tool_hits, "target": fast_task_target_tools, "turn": _tool_turn + 1},
+            )
+            break
         # Continue the loop — the LLM will see tool results and decide next action
 
     # ── End of multi-turn loop ─────────────────────────────────────────
@@ -4405,7 +4446,7 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                 tool_summary_parts.append(f"- {d['task']} ({status}): {resp}")
             tool_summary = "\n".join(tool_summary_parts)
 
-            for _synth_attempt in range(3):
+            for _synth_attempt in range(synthesis_attempts):
                 try:
                     _synth_client = llm_client.with_options(api_key=_next_kimi_key())
                     # Use a CLEAN message chain without tool context to prevent
@@ -4436,10 +4477,11 @@ async def call_llm(session_id: str, user_message: str) -> dict:
                         await activity.record("llm_synthesis", session_id, text_response[:500],
                                               {"purpose": "synthesize after multi-turn tool calls"})
                         break
-                    await asyncio.sleep(2)
+                    if not task_mode:
+                        await asyncio.sleep(2)
                 except Exception as inner_err:
                     log.warning(f"Synthesis attempt {_synth_attempt + 1} failed: {inner_err}")
-                    await asyncio.sleep(min(2 ** (_synth_attempt + 1), 8))
+                    await asyncio.sleep(min(2 ** (_synth_attempt + 1), 8) if not task_mode else 1)
         except Exception as synth_err:
             log.warning(f"Synthesis call failed: {synth_err}")
 
@@ -4758,7 +4800,7 @@ async def submit_async_task(req: Request):
                 {"task_id": task_id, "timeout_seconds": _ASYNC_TASK_TIMEOUT_SECONDS},
             )
             result = await asyncio.wait_for(
-                call_llm(session_id, user_message),
+                call_llm(session_id, user_message, task_mode=True),
                 timeout=_ASYNC_TASK_TIMEOUT_SECONDS,
             )
             response_text = result.get("response", "")
@@ -10850,15 +10892,77 @@ def _url_tools(action: str, **kwargs) -> dict:
 
 # ── Desktop Control (Screen Vision + GUI Automation) ───────────────────────
 
+_TOOL_VENV_DIR = Path("/tmp/openclaw_orchestrator_tool_venv")
+_TOOL_VENV_READY = False
+
+
+def _tool_venv_python() -> str:
+    return str(_TOOL_VENV_DIR / "bin" / "python")
+
+
+def _tool_venv_site_packages() -> Optional[str]:
+    lib_dir = _TOOL_VENV_DIR / "lib"
+    if not lib_dir.exists():
+        return None
+    matches = sorted(lib_dir.glob("python*/site-packages"))
+    if not matches:
+        return None
+    return str(matches[-1])
+
+
+def _ensure_tool_venv() -> tuple[bool, str]:
+    global _TOOL_VENV_READY
+    try:
+        py_bin = _TOOL_VENV_DIR / "bin" / "python"
+        if py_bin.exists():
+            _TOOL_VENV_READY = True
+            return True, str(py_bin)
+        _TOOL_VENV_DIR.parent.mkdir(parents=True, exist_ok=True)
+        create = subprocess.run(
+            [sys.executable, "-m", "venv", str(_TOOL_VENV_DIR)],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if create.returncode != 0:
+            return False, f"venv create failed: {create.stderr[:500]}"
+        _TOOL_VENV_READY = True
+        return True, str(py_bin)
+    except Exception as e:
+        return False, f"venv create exception: {e}"
+
+
+def _ensure_python_package_in_tool_venv(package: str) -> tuple[bool, str]:
+    ok, py = _ensure_tool_venv()
+    if not ok:
+        return False, py
+    install = subprocess.run(
+        [py, "-m", "pip", "install", "-q", package],
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+        timeout=240,
+    )
+    if install.returncode != 0:
+        return False, install.stderr[:500] or install.stdout[:500] or f"pip install {package} failed"
+    site_packages = _tool_venv_site_packages()
+    if site_packages and site_packages not in sys.path:
+        sys.path.insert(0, site_packages)
+    return True, ""
+
+
 def _ensure_pyautogui():
-    """Auto-install pyautogui + pyobjc-framework-Quartz if missing."""
+    """Auto-install pyautogui + macOS deps into tool venv if missing."""
     try:
         import pyautogui
         return True
     except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", "-q",
-                        "pyautogui", "pyobjc-framework-Quartz", "pyobjc-framework-ApplicationServices"],
-                       capture_output=True, timeout=120)
+        ok, _ = _ensure_python_package_in_tool_venv("pyautogui")
+        if not ok:
+            return False
+        _ensure_python_package_in_tool_venv("pyobjc-framework-Quartz")
+        _ensure_python_package_in_tool_venv("pyobjc-framework-ApplicationServices")
         try:
             import pyautogui
             return True
@@ -10866,13 +10970,14 @@ def _ensure_pyautogui():
             return False
 
 def _ensure_ocr():
-    """Auto-install pytesseract if missing. Requires tesseract binary."""
+    """Auto-install pytesseract into tool venv if missing. Requires tesseract binary."""
     try:
         import pytesseract
         return True
     except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "pytesseract"],
-                       capture_output=True, timeout=60)
+        ok, _ = _ensure_python_package_in_tool_venv("pytesseract")
+        if not ok:
+            return False
         try:
             import pytesseract
             return True
@@ -11163,18 +11268,28 @@ end tell
 # ── Browser Automation (Playwright) ────────────────────────────────────────
 
 _BROWSER_SESSIONS: dict[str, dict] = {}  # session_id -> {browser, page, context}
+_BROWSER_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser-automate")
 
-def _browser_automate(action: str, **kwargs) -> dict:
+def _browser_automate_impl(action: str, kwargs: dict) -> dict:
     """Full browser automation via Playwright — navigate, click, type, screenshot, extract."""
     try:
         if action == "launch":
             try:
                 from playwright.sync_api import sync_playwright
             except ImportError:
-                subprocess.run([sys.executable, "-m", "pip", "install", "-q", "playwright"],
-                               capture_output=True, timeout=120)
-                subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
-                               capture_output=True, timeout=300)
+                ok, reason = _ensure_python_package_in_tool_venv("playwright")
+                if not ok:
+                    return {"error": f"browser_automate bootstrap failed: {reason}"}
+                venv_py = _tool_venv_python()
+                install = subprocess.run(
+                    [venv_py, "-m", "playwright", "install", "chromium"],
+                    stdin=subprocess.DEVNULL,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                )
+                if install.returncode != 0:
+                    return {"error": f"browser_automate chromium install failed: {install.stderr[:500] or install.stdout[:500]}"}
                 from playwright.sync_api import sync_playwright
 
             headless = kwargs.get("headless", True)
@@ -11198,7 +11313,8 @@ def _browser_automate(action: str, **kwargs) -> dict:
                 return {"error": "url required"}
             page = _BROWSER_SESSIONS[sid]["page"]
             wait = kwargs.get("wait_until", "domcontentloaded")
-            page.goto(url, wait_until=wait, timeout=kwargs.get("timeout", 30000))
+            timeout_ms = int(kwargs.get("timeout", 20000) or 20000)
+            page.goto(url, wait_until=wait, timeout=timeout_ms)
             return {"url": page.url, "title": page.title()}
 
         elif action == "click":
@@ -11207,7 +11323,8 @@ def _browser_automate(action: str, **kwargs) -> dict:
             if sid not in _BROWSER_SESSIONS or not selector:
                 return {"error": "session_id and selector required"}
             page = _BROWSER_SESSIONS[sid]["page"]
-            page.click(selector, timeout=kwargs.get("timeout", 5000))
+            timeout_ms = int(kwargs.get("timeout", 3000) or 3000)
+            page.click(selector, timeout=timeout_ms)
             return {"clicked": selector}
 
         elif action == "type":
@@ -11256,11 +11373,12 @@ def _browser_automate(action: str, **kwargs) -> dict:
                 return {"error": f"No session '{sid}'"}
             page = _BROWSER_SESSIONS[sid]["page"]
             if selector:
-                page.wait_for_selector(selector, timeout=kwargs.get("timeout", 10000))
+                page.wait_for_selector(selector, timeout=int(kwargs.get("timeout", 7000) or 7000))
                 return {"waited_for": selector}
             else:
-                page.wait_for_timeout(kwargs.get("timeout", 2000))
-                return {"waited_ms": kwargs.get("timeout", 2000)}
+                timeout_ms = int(kwargs.get("timeout", 1200) or 1200)
+                page.wait_for_timeout(timeout_ms)
+                return {"waited_ms": timeout_ms}
 
         elif action == "close":
             sid = kwargs.get("session_id", "")
@@ -11311,6 +11429,30 @@ def _browser_automate(action: str, **kwargs) -> dict:
 
     except Exception as e:
         return {"error": f"browser_automate failed: {e}"}
+
+
+def _browser_automate(action: str, **kwargs) -> dict:
+    """Browser automation wrapper that avoids sync-Playwright-in-asyncio-loop failures."""
+    try:
+        try:
+            asyncio.get_running_loop()
+            in_async_loop = True
+        except RuntimeError:
+            in_async_loop = False
+
+        if not in_async_loop:
+            return _browser_automate_impl(action, kwargs)
+
+        # Playwright sync API cannot run directly inside an active asyncio loop.
+        timeout_ms = int(kwargs.get("timeout", 30000) or 30000)
+        timeout_s = max(30, min(420, int(timeout_ms / 1000) + 60))
+        future = _BROWSER_EXECUTOR.submit(_browser_automate_impl, action, kwargs)
+        try:
+            return future.result(timeout=timeout_s)
+        except concurrent.futures.TimeoutError:
+            return {"error": f"browser_automate timed out after {timeout_s}s for action '{action}'"}
+    except Exception as e:
+        return {"error": f"browser_automate wrapper failed: {e}"}
 
 
 # ── Git Operations (GitHub API + local git) ────────────────────────────────

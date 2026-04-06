@@ -4541,11 +4541,8 @@ async def _finalize_chat_exchange(session_id: str, user_message: str, result: di
     response_text = str(result.get("response", ""))
     delegations = result.get("delegations") or []
 
-    await log_to_memory(
-        f"Chat [{session_id}]: User: {user_message[:200]}\n"
-        f"Orchestrator: {response_text[:200]}\n"
-        f"Delegations: {len(delegations)}"
-    )
+    # Store comprehensive memory records for full conversation tracking
+    await _store_comprehensive_memory(session_id, user_message, response_text, delegations)
 
     await notify_ws({
         "event": "chat_response",
@@ -4553,6 +4550,86 @@ async def _finalize_chat_exchange(session_id: str, user_message: str, result: di
         "delegations": len(delegations),
         "status": "completed",
     })
+
+
+async def _store_comprehensive_memory(session_id: str, user_message: str, response_text: str, delegations: list):
+    """Store complete user prompt, work done, and response in memory service."""
+    try:
+        import aiohttp
+        timestamp = datetime.now(timezone.utc).isoformat()
+        
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
+            # 1. Store user prompt (full)
+            await session.post(
+                f"{MEMORY_SERVICE_URL}/memory/commit",
+                json={
+                    "agent_name": "orchestrator",
+                    "content": f"[USER PROMPT] Session: {session_id} | Time: {timestamp}\n{user_message}",
+                    "category": "user_query",
+                    "importance": 0.9,
+                    "metadata": {"session_id": session_id, "type": "user_prompt", "timestamp": timestamp},
+                },
+            )
+            
+            # 2. Store work done (delegations/tool calls) if any
+            if delegations:
+                work_summary = []
+                for i, d in enumerate(delegations[:20]):  # Limit to 20 delegations
+                    manager = d.get("manager", "unknown")
+                    task = d.get("task", "")[:300]
+                    agent_resp = str(d.get("agent_response", ""))[:500]
+                    error = d.get("error", "")
+                    work_summary.append(
+                        f"[{i+1}] Manager: {manager}\n"
+                        f"    Task: {task}\n"
+                        f"    Result: {agent_resp[:200]}{'...' if len(agent_resp) > 200 else ''}"
+                        f"{f'    Error: {error}' if error else ''}"
+                    )
+                
+                await session.post(
+                    f"{MEMORY_SERVICE_URL}/memory/commit",
+                    json={
+                        "agent_name": "orchestrator",
+                        "content": f"[WORK DONE] Session: {session_id} | Delegations: {len(delegations)}\n" + "\n".join(work_summary),
+                        "category": "work_execution",
+                        "importance": 0.85,
+                        "metadata": {"session_id": session_id, "type": "work_done", "delegation_count": len(delegations), "timestamp": timestamp},
+                    },
+                )
+            
+            # 3. Store system response (full)
+            await session.post(
+                f"{MEMORY_SERVICE_URL}/memory/commit",
+                json={
+                    "agent_name": "orchestrator",
+                    "content": f"[SYSTEM RESPONSE] Session: {session_id} | Time: {timestamp}\n{response_text}",
+                    "category": "system_response",
+                    "importance": 0.9,
+                    "metadata": {"session_id": session_id, "type": "system_response", "timestamp": timestamp},
+                },
+            )
+            
+            # 4. Also store a combined summary for quick retrieval
+            summary = (
+                f"[CONVERSATION] Session: {session_id} | {timestamp}\n"
+                f"USER: {user_message[:500]}{'...' if len(user_message) > 500 else ''}\n"
+                f"WORK: {len(delegations)} delegations\n"
+                f"RESPONSE: {response_text[:500]}{'...' if len(response_text) > 500 else ''}"
+            )
+            await session.post(
+                f"{MEMORY_SERVICE_URL}/memory/commit",
+                json={
+                    "agent_name": "orchestrator",
+                    "content": summary,
+                    "category": "conversation_summary",
+                    "importance": 0.8,
+                    "metadata": {"session_id": session_id, "type": "summary", "timestamp": timestamp},
+                },
+            )
+            
+            log.debug(f"Stored comprehensive memory for session {session_id}")
+    except Exception as e:
+        log.warning(f"Failed to store comprehensive memory: {e}")
 
 
 async def _run_chat_pipeline(session_id: str, user_message: str) -> dict:

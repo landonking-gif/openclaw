@@ -2740,7 +2740,7 @@ class ActivityLog:
             log.warning(f"Failed to warm activity buffer: {e}")
 
     async def record(self, event_type: str, session_id: str = "",
-                     content: str = "", metadata: dict | None = None):
+                     content: str = "", metadata: Optional[dict] = None):
         """Record an activity event."""
         entry = {
             "ts": datetime.now(timezone.utc).isoformat(),
@@ -2774,8 +2774,8 @@ class ActivityLog:
         for ws in dead:
             ws_subscribers.remove(ws)
 
-    def recent(self, limit: int = 50, event_type: str | None = None,
-              session_id: str | None = None) -> list[dict]:
+    def recent(self, limit: int = 50, event_type: Optional[str] = None,
+              session_id: Optional[str] = None) -> list:
         """Query recent entries from the in-memory buffer."""
         items = list(self._buffer)
         if event_type:
@@ -5035,8 +5035,8 @@ async def list_models():
 # ── Activity Log Endpoints ──────────────────────────────────────────────────
 
 @app.get("/activity")
-async def get_activity(limit: int = 50, event_type: str | None = None,
-                       session_id: str | None = None):
+async def get_activity(limit: int = 50, event_type: Optional[str] = None,
+                       session_id: Optional[str] = None):
     """Get recent activity log entries. Filterable by event type and session."""
     entries = activity.recent(limit=limit, event_type=event_type, session_id=session_id)
     return {"entries": entries, "count": len(entries)}
@@ -5409,7 +5409,7 @@ def _rollback_last_modification() -> dict:
     return {"rolled_back": True, "detail": f"Restored from {backup_path.name}", "backup_used": str(backup_path)}
 
 
-def _list_modifications(limit: int = 10) -> list[dict]:
+def _list_modifications(limit: int = 10) -> list:
     """List recent self-modifications."""
     mod_log = _SELF_MOD_DIR / "modifications.jsonl"
     if not mod_log.exists():
@@ -5936,7 +5936,7 @@ async def _run_scheduled_loop(name: str, interval: int, handler_code: str):
             return await self_heal(reason=reason)
 
         async def memory_store(self, content: str, category: str = "general",
-                               importance: float = 0.7, tags: list | None = None) -> dict:
+                               importance: float = 0.7, tags: Optional[list] = None) -> dict:
             return await _memory_store(content=content, category=category, importance=importance, tags=tags or [])
 
         async def delegate_to_alpha(self, task: str, priority: int = 2) -> dict:
@@ -12689,13 +12689,13 @@ end tell
 
 # ── Tool #100: screen_share ────────────────────────────────────────────────
 
-_screen_share_session: dict | None = None
-_screen_share_task: asyncio.Task | None = None
+_screen_share_session: Optional[dict] = None
+_screen_share_task: Optional[asyncio.Task] = None
 _screen_share_frames: list[dict] = []
 _SCREEN_SHARE_MAX_FRAMES = 30  # ring buffer of recent frames
 
 
-async def _screen_share_capture_loop(interval: float, region: dict | None):
+async def _screen_share_capture_loop(interval: float, region: Optional[dict]):
     """Background loop that captures screenshots with OCR at regular intervals."""
     global _screen_share_frames
     import io as _io
@@ -13222,7 +13222,7 @@ _DYNAMIC_TOOLS_PATH = Path(ARMY_HOME) / "data" / "dynamic_tools.json"
 _DYNAMIC_AGENTS_PATH = Path(ARMY_HOME) / "data" / "dynamic_agents.json"
 
 
-def _load_dynamic_tools() -> list[dict]:
+def _load_dynamic_tools() -> list:
     """Load dynamically registered tools from disk."""
     if not _DYNAMIC_TOOLS_PATH.exists():
         return []

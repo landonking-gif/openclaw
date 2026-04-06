@@ -3707,5 +3707,15 @@
       "role": "assistant",
       "content": "**CURRENT STATE ANALYSIS**\n\nTrend data reveals three converging opportunities:\n- AI/LLM content: 546+ upvotes on \"Gemma 4 iPhone\" (highest engagement)\n- Indie hacking: Sustained interest in \"first $1000\" and \"solo founder\" narratives\n- **Content gap**: Authentic case studies with actual numbers and failures\n\n**NICHE SELECTION: AI-Assisted Indie Hacking**\n\nPlatform: **Twitter/X** (fastest iteration, strongest indie hacker community, text-first)\n\n---\n\n**BRAND IDENTITY CREATION**"
     }
+  ],
+  "simple-test-1775485740": [
+    {
+      "role": "user",
+      "content": "Test simple request: What is 2+2? Just answer briefly."
+    },
+    {
+      "role": "assistant",
+      "content": "4"
+    }
   ]
 }

@@ -2433,3 +2433,4 @@
 {"ts": "2026-04-06T01:44:39.066424+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 17 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-06T01:46:24.322406+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 18 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-06T01:48:09.931305+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 19 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-06T01:49:55.265504+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 20 checks", "manager": "gamma-manager"}

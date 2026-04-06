@@ -524,6 +524,19 @@ async def memory_query(req: MemoryQueryRequest):
     return {"query": req.query, "results": results, "count": len(results)}
 
 
+@app.get("/memory/search")
+async def memory_search_get(q: str, limit: int = 10, agent: str = None, category: str = None, min_importance: float = 0.0):
+    """GET endpoint for memory search (used by orchestrator's memory_search tool)."""
+    req = MemoryQueryRequest(
+        query=q,
+        agent_name=agent,
+        category=category,
+        limit=limit,
+        min_importance=min_importance,
+    )
+    return await memory_query(req)
+
+
 @app.get("/memory/provenance/{artifact_id}")
 async def get_provenance(artifact_id: str):
     """Get full provenance chain for an artifact."""
@@ -783,9 +796,3 @@ async def stats():
         "diary_entries": diary_count,
         "reflections": reflection_count
     }
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=18820)
-

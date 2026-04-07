@@ -725,3 +725,8 @@
 {"timestamp": "2026-04-07T07:50:11-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
 {"timestamp": "2026-04-07T07:55:19-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
 {"timestamp": "2026-04-07T08:00:35-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
+{"timestamp": "2026-04-07T08:05:49-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
+{"timestamp": "2026-04-07T08:11:09-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
+{"timestamp": "2026-04-07T08:17:03-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
+{"timestamp": "2026-04-07T08:21:17-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}
+{"timestamp": "2026-04-07T08:25:24-0500", "error": "[Errno 2] No such file or directory: 'lsof'"}

@@ -3464,3 +3464,6 @@
 {"ts": "2026-04-07T17:40:47.942986+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 57 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T17:42:35.683296+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 58 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T17:44:22.715619+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 59 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T17:46:08.164683+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 60 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T17:47:56.594460+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 61 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T17:49:42.070836+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 62 checks", "manager": "gamma-manager"}

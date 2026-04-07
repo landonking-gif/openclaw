@@ -2373,6 +2373,28 @@ MANAGER_TOOLS += [
     {
         "type": "function",
         "function": {
+            "name": "virtual_desktop",
+            "description": "Manage an isolated virtual desktop that runs in the background without interfering with the user's screen, mouse, or keyboard. Uses Docker container with full Linux desktop (LXDE + Firefox). Perfect for autonomous tasks. Actions: 'start' (launch virtual desktop), 'stop' (shutdown), 'status' (check if running), 'screenshot' (capture virtual screen), 'execute' (run shell command), 'click' (click at x,y), 'type' (type text), 'open_browser' (open URL in Firefox).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: start, stop, status, screenshot, execute, click, type, open_browser"},
+                    "vnc_port": {"type": "integer", "description": "VNC port (default 5900)"},
+                    "web_port": {"type": "integer", "description": "Web VNC port (default 6080) — access via browser at http://localhost:6080"},
+                    "x": {"type": "integer", "description": "X coordinate for click"},
+                    "y": {"type": "integer", "description": "Y coordinate for click"},
+                    "text": {"type": "string", "description": "Text to type"},
+                    "command": {"type": "string", "description": "Shell command to execute"},
+                    "url": {"type": "string", "description": "URL to open in browser"},
+                    "timeout": {"type": "integer", "description": "Timeout for command execution"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "browser_automate",
             "description": "Full browser automation via headless Playwright — navigate websites, fill forms, click UI, screenshot rendered pages, extract JS-rendered content, interact with SPAs. Actions: 'launch' (start browser session), 'navigate' (go to URL), 'click' (click CSS selector), 'type' (type into input), 'evaluate' (run JavaScript), 'screenshot' (capture page), 'content' (extract text), 'wait' (wait for selector/timeout), 'close' (end session), 'list_sessions', 'select' (dropdown), 'extract_table'.",
             "parameters": {
@@ -2688,6 +2710,7 @@ INTERNAL_TOOLS = {
     "cache_manager", "math_compute", "regex_builder", "cert_check",
     "system_profiler", "url_tools",
     "desktop_control",
+    "virtual_desktop",
     "browser_automate",
     "git_ops",
     "code_analyze",
@@ -4205,6 +4228,20 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                     internal_task = f"Desktop: {fn_args.get('action', '')}"
                     if fast_task_mode:
                         fast_task_tool_hits += 1
+            elif fn_name == "virtual_desktop":
+                # Virtual desktop always allowed - it's isolated from user
+                internal_result = _virtual_desktop(
+                    fn_args.get("action", ""),
+                    vnc_port=fn_args.get("vnc_port", 5900),
+                    web_port=fn_args.get("web_port", 6080),
+                    x=fn_args.get("x", 0),
+                    y=fn_args.get("y", 0),
+                    text=fn_args.get("text", ""),
+                    command=fn_args.get("command", ""),
+                    url=fn_args.get("url", ""),
+                    timeout=fn_args.get("timeout", 60),
+                )
+                internal_task = f"VirtualDesktop: {fn_args.get('action', '')}"
             elif fn_name == "browser_automate":
                 browser_args = {k: v for k, v in fn_args.items() if k != "action"}
                 if task_mode and os.getenv("ORCH_TASK_FORCE_HEADLESS", "1") == "1" and fn_args.get("action", "") == "launch":
@@ -11034,7 +11071,7 @@ def _desktop_control(action: str, **kwargs) -> dict:
         if action == "screenshot_ocr":
             # Take screenshot and OCR it to understand what's on screen
             ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            img_path = kwargs.get("output", f"/tmp/desktop_ocr_{ts}.png")
+            img_path = kwargs.get("output") or f"/tmp/desktop_ocr_{ts}.png"
             region = kwargs.get("region")  # Optional: {"x": 0, "y": 0, "w": 800, "h": 600}
 
             if region:
@@ -11306,6 +11343,206 @@ end tell
 
     except Exception as e:
         return {"error": f"desktop_control failed: {e}"}
+
+
+# ── Virtual Desktop (Background isolated display) ───────────────────────────
+
+_VIRTUAL_DESKTOP_SESSION: Optional[dict] = None  # {container_id, vnc_port, display, process}
+
+def _virtual_desktop(action: str, **kwargs) -> dict:
+    """Manage a virtual desktop that runs in background without interfering with user's display."""
+    global _VIRTUAL_DESKTOP_SESSION
+    try:
+        if action == "start":
+            if _VIRTUAL_DESKTOP_SESSION:
+                return {"status": "already_running", **_VIRTUAL_DESKTOP_SESSION}
+            
+            # Try Docker first (best isolation)
+            docker_check = subprocess.run(["docker", "info"], capture_output=True, timeout=10)
+            if docker_check.returncode == 0:
+                # Launch Docker container with virtual desktop
+                vnc_port = kwargs.get("vnc_port", 5900)
+                web_port = kwargs.get("web_port", 6080)
+                container_name = f"openclaw-vdesktop-{uuid.uuid4().hex[:8]}"
+                
+                # Use lightweight Ubuntu + Xvfb + x11vnc + noVNC
+                run_cmd = [
+                    "docker", "run", "-d",
+                    "--name", container_name,
+                    "-p", f"{vnc_port}:5900",
+                    "-p", f"{web_port}:6080",
+                    "-e", "DISPLAY=:1",
+                    "--shm-size=2g",
+                    "dorowu/ubuntu-desktop-lxde-vnc:latest"
+                ]
+                result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=120)
+                if result.returncode == 0:
+                    container_id = result.stdout.strip()[:12]
+                    _VIRTUAL_DESKTOP_SESSION = {
+                        "type": "docker",
+                        "container_id": container_id,
+                        "container_name": container_name,
+                        "vnc_port": vnc_port,
+                        "web_port": web_port,
+                        "display": ":1",
+                        "vnc_url": f"vnc://localhost:{vnc_port}",
+                        "web_url": f"http://localhost:{web_port}",
+                    }
+                    return {"started": True, **_VIRTUAL_DESKTOP_SESSION}
+                else:
+                    # Try pulling image first
+                    subprocess.run(["docker", "pull", "dorowu/ubuntu-desktop-lxde-vnc:latest"],
+                                   capture_output=True, timeout=600)
+                    result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=120)
+                    if result.returncode == 0:
+                        container_id = result.stdout.strip()[:12]
+                        _VIRTUAL_DESKTOP_SESSION = {
+                            "type": "docker",
+                            "container_id": container_id,
+                            "container_name": container_name,
+                            "vnc_port": vnc_port,
+                            "web_port": web_port,
+                            "display": ":1",
+                            "vnc_url": f"vnc://localhost:{vnc_port}",
+                            "web_url": f"http://localhost:{web_port}",
+                        }
+                        return {"started": True, **_VIRTUAL_DESKTOP_SESSION}
+            
+            # Fallback: Use Playwright with persistent browser context (web-only but works everywhere)
+            return {
+                "error": "Docker not available. Use browser_automate with headless=true for web tasks, or start Docker Desktop for full virtual desktop.",
+                "alternative": "For web-only tasks, browser_automate already provides isolated headless browser that won't interfere with your screen."
+            }
+        
+        elif action == "stop":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"status": "not_running"}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_name") or _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                subprocess.run(["docker", "stop", container], capture_output=True, timeout=30)
+                subprocess.run(["docker", "rm", "-f", container], capture_output=True, timeout=30)
+            
+            _VIRTUAL_DESKTOP_SESSION = None
+            return {"stopped": True}
+        
+        elif action == "status":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"status": "not_running"}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                result = subprocess.run(["docker", "inspect", "-f", "{{.State.Running}}", container],
+                                       capture_output=True, text=True, timeout=10)
+                running = result.stdout.strip() == "true"
+                return {"status": "running" if running else "stopped", **_VIRTUAL_DESKTOP_SESSION}
+            
+            return {"status": "running", **_VIRTUAL_DESKTOP_SESSION}
+        
+        elif action == "screenshot":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running. Use action='start' first."}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                local_path = f"/tmp/vdesktop_screenshot_{ts}.png"
+                
+                # Take screenshot inside container and copy out
+                subprocess.run([
+                    "docker", "exec", container,
+                    "scrot", "-o", "/tmp/screen.png"
+                ], capture_output=True, timeout=15)
+                subprocess.run([
+                    "docker", "cp", f"{container}:/tmp/screen.png", local_path
+                ], capture_output=True, timeout=15)
+                
+                if Path(local_path).exists():
+                    return {"screenshot": local_path, "size_bytes": Path(local_path).stat().st_size}
+            
+            return {"error": "Screenshot failed"}
+        
+        elif action == "execute":
+            # Run command inside virtual desktop
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running"}
+            
+            command = kwargs.get("command", "")
+            if not command:
+                return {"error": "command required"}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                result = subprocess.run(
+                    ["docker", "exec", container, "bash", "-c", command],
+                    capture_output=True, text=True, timeout=kwargs.get("timeout", 60)
+                )
+                return {
+                    "stdout": result.stdout[:5000],
+                    "stderr": result.stderr[:2000],
+                    "returncode": result.returncode
+                }
+            
+            return {"error": "No execution method available"}
+        
+        elif action == "click":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running"}
+            
+            x = kwargs.get("x", 0)
+            y = kwargs.get("y", 0)
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                subprocess.run([
+                    "docker", "exec", container,
+                    "xdotool", "mousemove", str(x), str(y), "click", "1"
+                ], capture_output=True, timeout=10)
+                return {"clicked": True, "x": x, "y": y}
+            
+            return {"error": "Click not available"}
+        
+        elif action == "type":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running"}
+            
+            text = kwargs.get("text", "")
+            if not text:
+                return {"error": "text required"}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                # Escape for shell
+                escaped = text.replace("'", "'\\''")
+                subprocess.run([
+                    "docker", "exec", container,
+                    "xdotool", "type", "--clearmodifiers", text
+                ], capture_output=True, timeout=30)
+                return {"typed": True, "length": len(text)}
+            
+            return {"error": "Type not available"}
+        
+        elif action == "open_browser":
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running"}
+            
+            url = kwargs.get("url", "https://google.com")
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                subprocess.run([
+                    "docker", "exec", "-d", container,
+                    "firefox", url
+                ], capture_output=True, timeout=30)
+                return {"opened": True, "url": url}
+            
+            return {"error": "Browser open not available"}
+        
+        else:
+            return {"error": f"Unknown action: {action}. Use: start, stop, status, screenshot, execute, click, type, open_browser"}
+    
+    except Exception as e:
+        return {"error": f"virtual_desktop failed: {e}"}
 
 
 # ── Browser Automation (Playwright) ────────────────────────────────────────

@@ -3502,3 +3502,10 @@
 {"ts": "2026-04-07T18:47:48.943405+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 95 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T18:49:35.104865+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 96 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T18:51:21.987883+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 97 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T18:53:07.320296+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 98 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T18:54:55.808129+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 99 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T18:56:41.429980+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 100 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T18:58:26.831230+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 101 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T19:00:14.431199+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 102 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T19:02:02.052944+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 103 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T19:03:53.860340+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 104 checks", "manager": "gamma-manager"}

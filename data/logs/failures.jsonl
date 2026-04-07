@@ -3385,3 +3385,37 @@
 {"ts": "2026-04-07T14:06:41.470942+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T14:08:30.205455+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
 {"ts": "2026-04-07T14:10:22.336820+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:12:12.456646+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:13:28.203389+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:13:31.014357+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:13:40.960656+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:13:43.545507+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 2: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:13:46.220477+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 3: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:13:48.665167+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 4: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T14:19:55.731068+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:21:55.809068+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 3 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:23:48.697472+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 4 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:25:37.641508+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 5 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:27:30.319670+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 6 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:29:17.674626+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 7 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:31:04.126172+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 8 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:33:02.964764+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 9 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T14:52:26.997318+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 10 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:08:13.804958+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 11 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:09:59.857351+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 12 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:12:11.693558+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 13 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:14:08.230443+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 14 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:15:59.532222+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 15 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:17:49.252601+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 16 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:19:37.817648+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 17 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:21:30.731694+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 18 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:23:16.279795+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 19 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:25:01.693497+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 20 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:26:32.369599+00:00", "category": "429_rate_limit", "detail": "Rate limited on attempt 1: Error code: 429 - {'status': 429, 'title': 'Too Many Requests'}", "manager": ""}
+{"ts": "2026-04-07T16:26:47.182909+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 21 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:28:32.654836+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 22 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:30:22.692131+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 23 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:32:08.040098+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 24 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:33:58.091096+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 25 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:35:44.777098+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 26 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-07T16:37:30.424329+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 27 checks", "manager": "gamma-manager"}

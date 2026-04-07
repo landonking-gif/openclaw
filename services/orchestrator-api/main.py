@@ -11613,7 +11613,7 @@ async def _gemini_screen_stream(action: str, **kwargs) -> dict:
                 "task": task,
                 "frames_sent": 0,
                 "actions_taken": 0,
-                "model": "gemini-2.0-flash-exp",
+                "model": "gemini-2.0-flash",
             }
             
             return {
@@ -11637,7 +11637,7 @@ async def _gemini_screen_stream(action: str, **kwargs) -> dict:
                 return {"error": "google-generativeai not installed. Run action='start' first."}
             
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            model = genai.GenerativeModel("gemini-2.0-flash")
             
             # System prompt for desktop automation
             system_prompt = """You are controlling a desktop computer. You can see the screen and execute actions.

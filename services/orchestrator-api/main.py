@@ -11974,25 +11974,26 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             
             container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
             
-            # Use Gemini Live WebSocket API for real-time streaming
+            # Use official Gemini Live SDK (google-genai) for real-time streaming.
             try:
-                import websockets
+                from google import genai
+                from google.genai import types as genai_types
             except ImportError:
-                ok, _ = _ensure_python_package_in_tool_venv("websockets")
+                ok, _ = _ensure_python_package_in_tool_venv("google-genai")
                 if not ok:
-                    return {"error": "Failed to install websockets package"}
-                import websockets
-            
+                    return {"error": "Failed to install google-genai package for Gemini Live"}
+                from google import genai
+                from google.genai import types as genai_types
+
             import base64
             import json as _json
-            
+
             # Gemini Live model candidates (newest first, then known previews)
             model_candidates = kwargs.get("models") or [
-                "gemini-live-2.5-flash-preview",
                 "gemini-3.1-flash-live-preview",
+                "gemini-live-2.5-flash-preview",
                 "gemini-2.0-flash-live-preview",
             ]
-            ws_url = f"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key={gemini_key}"
             nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"
             
             system_instruction = f"""You are controlling a virtual Linux desktop. You will receive screenshots of the screen.
@@ -12018,45 +12019,29 @@ Respond with JSON ONLY."""
             results = []
             
             try:
-                websocket = None
+                client = genai.Client(api_key=gemini_key)
+                live_connect_cm = None
+                live_session = None
                 selected_model = None
                 live_setup_errors: list[str] = []
 
                 # Try to initialize Gemini Live session, falling back across model candidates.
                 for model_name in model_candidates:
                     try:
-                        candidate_ws = await websockets.connect(ws_url, ping_interval=None)
-                        setup_msg = {
-                            "setup": {
-                                "model": f"models/{model_name}",
-                                "generationConfig": {
-                                    "responseModalities": ["TEXT"],
-                                },
-                            }
-                        }
-                        await candidate_ws.send(_json.dumps(setup_msg))
-                        try:
-                            setup_response = await asyncio.wait_for(candidate_ws.recv(), timeout=5.0)
-                            setup_text = str(setup_response).lower()
-                            if ("not found" in setup_text) or ("not supported" in setup_text):
-                                live_setup_errors.append(f"{model_name}: unsupported")
-                                await candidate_ws.close()
-                                continue
-                        except asyncio.TimeoutError:
-                            # Some sessions may not emit an immediate setup ack; proceed.
-                            pass
-                        websocket = candidate_ws
+                        cm = client.aio.live.connect(
+                            model=model_name,
+                            config={"response_modalities": ["TEXT"]},
+                        )
+                        session = await cm.__aenter__()
+                        live_connect_cm = cm
+                        live_session = session
                         selected_model = model_name
                         break
                     except Exception as setup_err:
                         live_setup_errors.append(f"{model_name}: {str(setup_err)[:120]}")
-                        try:
-                            await candidate_ws.close()
-                        except Exception:
-                            pass
                         continue
 
-                if websocket is None:
+                if live_session is None:
                     live_error = "; ".join(live_setup_errors[-3:]) if live_setup_errors else "setup failed"
                     results.append({"step": -1, "warning": f"Gemini Live unavailable, using NVIDIA fallback ({live_error})"})
                 elif _GEMINI_VDESKTOP_SESSION is not None:
@@ -12107,6 +12092,31 @@ Respond with JSON ONLY."""
                             continue
                     raise RuntimeError(str(last_err) if last_err else "NVIDIA fallback failed")
 
+                def _capture_container_screenshot(target_path: str) -> tuple[bool, str]:
+                    """Capture screenshot from Docker desktop with small retry for transient stalls."""
+                    last_err = "unknown"
+                    for _ in range(3):
+                        try:
+                            subprocess.run(
+                                ["docker", "exec", "-u", "0", container, "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"],
+                                capture_output=True,
+                                timeout=20,
+                                check=True,
+                            )
+                            subprocess.run(
+                                ["docker", "cp", f"{container}:/tmp/vscreen.png", target_path],
+                                capture_output=True,
+                                timeout=20,
+                                check=True,
+                            )
+                            if Path(target_path).exists():
+                                return True, ""
+                            last_err = "screenshot file missing after copy"
+                        except Exception as capture_err:
+                            last_err = str(capture_err)[:180]
+                            time.sleep(0.4)
+                    return False, last_err
+
                 # Main automation loop
                 for step in range(max_steps):
                     response_text = None
@@ -12123,16 +12133,9 @@ Respond with JSON ONLY."""
                     # Capture screenshot
                     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
                     local_img = f"/tmp/gemini_live_{ts}.png"
-                    subprocess.run([
-                        "docker", "exec", "-u", "0", container,
-                        "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"
-                    ], capture_output=True, timeout=10)
-                    subprocess.run([
-                        "docker", "cp", f"{container}:/tmp/vscreen.png", local_img
-                    ], capture_output=True, timeout=10)
-
-                    if not Path(local_img).exists():
-                        results.append({"step": step, "error": "Screenshot failed"})
+                    ok_capture, capture_err = _capture_container_screenshot(local_img)
+                    if not ok_capture:
+                        results.append({"step": step, "error": f"Screenshot failed: {capture_err}"})
                         await asyncio.sleep(step_delay)
                         continue
 
@@ -12141,38 +12144,38 @@ Respond with JSON ONLY."""
                         img_b64 = base64.b64encode(img_data).decode("utf-8")
 
                     # Try Gemini Live first if available.
-                    if websocket is not None:
+                    if live_session is not None:
                         try:
-                            frame_msg = {
-                                "realtimeInput": {
-                                    "video": {
-                                        "data": img_b64,
-                                        "mimeType": "image/png"
-                                    }
-                                }
-                            }
-                            await websocket.send(_json.dumps(frame_msg))
-                            text_msg = {"realtimeInput": {"text": prompt}}
-                            await websocket.send(_json.dumps(text_msg))
+                            await live_session.send_realtime_input(
+                                video=genai_types.Blob(data=img_data, mime_type="image/png")
+                            )
+                            await live_session.send_realtime_input(text=prompt)
 
-                            response_raw = await asyncio.wait_for(websocket.recv(), timeout=10.0)
-                            response = _json.loads(response_raw)
-                            if "serverContent" in response:
-                                server_content = response["serverContent"]
-                                if "modelTurn" in server_content and "parts" in server_content["modelTurn"]:
-                                    for part in server_content["modelTurn"]["parts"]:
-                                        if "text" in part:
-                                            response_text = part["text"]
-                                            break
-                                if not response_text and "outputTranscription" in server_content:
-                                    response_text = server_content["outputTranscription"]["text"]
-                        except Exception as ws_step_err:
-                            results.append({"step": step, "warning": f"Gemini Live step failed, using NVIDIA fallback: {str(ws_step_err)[:120]}"})
+                            async def _recv_live_text() -> str:
+                                async for response in live_session.receive():
+                                    server_content = getattr(response, "server_content", None)
+                                    if not server_content:
+                                        continue
+                                    model_turn = getattr(server_content, "model_turn", None)
+                                    if model_turn and getattr(model_turn, "parts", None):
+                                        for part in model_turn.parts:
+                                            text_val = getattr(part, "text", None)
+                                            if text_val:
+                                                return str(text_val)
+                                    output_t = getattr(server_content, "output_transcription", None)
+                                    if output_t and getattr(output_t, "text", None):
+                                        return str(output_t.text)
+                                return ""
+
+                            response_text = await asyncio.wait_for(_recv_live_text(), timeout=15.0)
+                        except Exception as live_step_err:
+                            results.append({"step": step, "warning": f"Gemini Live step failed, using NVIDIA fallback: {str(live_step_err)[:120]}"})
                             try:
-                                await websocket.close()
+                                if live_connect_cm is not None:
+                                    await live_connect_cm.__aexit__(None, None, None)
                             except Exception:
                                 pass
-                            websocket = None
+                            live_session = None
 
                     # Fall back to NVIDIA vision when Gemini Live is unavailable/fails.
                     if not response_text:
@@ -12288,9 +12291,9 @@ Respond with JSON ONLY."""
 
                     await asyncio.sleep(step_delay)
 
-                if websocket is not None:
+                if live_connect_cm is not None:
                     try:
-                        await websocket.close()
+                        await live_connect_cm.__aexit__(None, None, None)
                     except Exception:
                         pass
 

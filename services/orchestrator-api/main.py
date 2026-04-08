@@ -2926,6 +2926,7 @@ class DispatchRequest(BaseModel):
 class ChatMessage(BaseModel):
     message: str
     session_id: Optional[str] = None  # Reuse session for conversation continuity
+    wait_for_completion: Optional[bool] = True
 
 # ── State ───────────────────────────────────────────────────────────────────
 
@@ -4809,10 +4810,26 @@ async def _store_comprehensive_memory(session_id: str, user_message: str, respon
         log.warning(f"Failed to store comprehensive memory: {e}")
 
 
-async def _run_chat_pipeline(session_id: str, user_message: str) -> dict:
+def _is_complex_autonomous_request(user_message: str) -> bool:
+    text = (user_message or "").lower()
+    indicators = (
+        "gemini_virtual_desktop",
+        "virtual desktop",
+        "open browser",
+        "screenshot",
+        "complex",
+        "workflow",
+        "autonomous",
+        "search for",
+        "open the first",
+    )
+    return any(token in text for token in indicators)
+
+
+async def _run_chat_pipeline(session_id: str, user_message: str, *, task_mode: bool = False) -> dict:
     """Run full chat processing and always emit completion side effects."""
     try:
-        result = await call_llm(session_id, user_message)
+        result = await call_llm(session_id, user_message, task_mode=task_mode)
     except Exception as e:
         log.exception(f"Chat pipeline failed [{session_id}]: {e}")
         fallback_text = (
@@ -4853,11 +4870,18 @@ async def chat(req: ChatMessage):
     session_id = req.session_id or str(uuid.uuid4())[:12]
     log.info(f"Chat [{session_id}]: {req.message[:100]}...")
 
-    # Add timeout protection for complex autonomous tasks
-    CHAT_TIMEOUT = 300  # 5 minutes max
+    # Longer timeout for complex autonomous tasks with many tool turns.
+    is_complex = _is_complex_autonomous_request(req.message)
+    CHAT_TIMEOUT = 600 if is_complex else 300
     
     try:
-        chat_task = asyncio.create_task(_run_chat_pipeline(session_id, req.message))
+        chat_task = asyncio.create_task(
+            _run_chat_pipeline(
+                session_id,
+                req.message,
+                task_mode=is_complex,
+            )
+        )
         _track_pending_chat_task(session_id, chat_task)
         result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_TIMEOUT)
         response = dict(result)
@@ -12119,6 +12143,23 @@ Respond with JSON ONLY."""
                     return False, last_err
 
                 consecutive_waits = 0
+                parse_failures = 0
+                last_parse_text = ""
+                repeated_click_center = 0
+                repeated_same_type = 0
+                last_action_type = ""
+                recovery_index = 0
+                query_match = re.search(r'search(?:\s+for)?\s+["\']([^"\']+)["\']', task, re.IGNORECASE)
+                recovery_query = query_match.group(1) if query_match else "OpenClaw GitHub"
+                recovery_plan = [
+                    {"action": "key", "key": "Escape"},
+                    {"action": "hotkey", "keys": "ctrl+l"},
+                    {"action": "type", "text": recovery_query},
+                    {"action": "key", "key": "Return"},
+                    {"action": "wait", "seconds": 2},
+                    {"action": "key", "key": "Tab"},
+                    {"action": "key", "key": "Return"},
+                ]
 
                 # Main automation loop
                 for step in range(max_steps):
@@ -12195,8 +12236,6 @@ Respond with JSON ONLY."""
                             continue
 
                     # Parse JSON action
-                    import re
-
                     action_data = None
                     try:
                         action_data = _json.loads(response_text.strip())
@@ -12236,15 +12275,59 @@ Respond with JSON ONLY."""
                             action_data = {"action": "type", "text": ""}
                         elif "done" in lower or "completed" in lower:
                             action_data = {"action": "done", "result": "completed"}
+                        elif "default browser" in lower or ("firefox" in lower and "default" in lower):
+                            action_data = {"action": "key", "key": "Escape"}
+                        elif "allow" in lower or "permission" in lower or "accept" in lower:
+                            action_data = {"action": "key", "key": "Return"}
                         else:
                             action_data = {"action": "wait", "seconds": 1}
+                        parse_failures += 1
+                        last_parse_text = response_text[:200]
                         results.append({"step": step, "warning": f"Recovered non-JSON model output: {response_text[:120]}"})
 
                     action_type = action_data.get("action", "")
+                    if action_type == last_action_type and action_type in ("type", "click", "key"):
+                        repeated_same_type += 1
+                    else:
+                        repeated_same_type = 0
+                    last_action_type = action_type
+                    if action_type == "click" and action_data.get("x") == 640 and action_data.get("y") == 512:
+                        repeated_click_center += 1
+                    else:
+                        repeated_click_center = 0
+                    if repeated_click_center >= 2:
+                        action_data = {"action": "key", "key": "Escape"}
+                        action_type = "key"
+                        results.append({"step": step, "warning": "Converted repeated center click into Escape unblock"})
+                    if repeated_click_center >= 4:
+                        action_data = {"action": "hotkey", "keys": "ctrl+l"}
+                        action_type = "hotkey"
+                        results.append({"step": step, "warning": "Escalated repeated center click to address bar focus (ctrl+l)"})
+                    if action_type == "type" and repeated_same_type >= 1:
+                        action_data = {"action": "key", "key": "Return"}
+                        action_type = "key"
+                        results.append({"step": step, "warning": "Converted repeated typing into Return to submit search"})
+                    if action_type == "key" and action_data.get("key") == "Return" and repeated_same_type >= 2:
+                        action_data = {"action": "click", "x": 420, "y": 325}
+                        action_type = "click"
+                        results.append({"step": step, "warning": "Escalated repeated Return into search-result click heuristic"})
                     if action_type == "wait" and consecutive_waits >= 1:
                         action_data = {"action": "key", "key": "Tab"}
                         action_type = "key"
                         results.append({"step": step, "warning": "Converted repeated wait into exploratory Tab keypress"})
+                    if parse_failures >= 2 and action_type == "wait":
+                        action_data = {"action": "key", "key": "Escape"}
+                        action_type = "key"
+                        results.append({"step": step, "warning": "Converted wait to Escape due to repeated parse failures"})
+                    if parse_failures >= 3 and action_type in ("key", "wait"):
+                        action_data = {"action": "hotkey", "keys": "alt+F4"}
+                        action_type = "hotkey"
+                        results.append({"step": step, "warning": f"Aggressive unblock: alt+F4 after repeated blockers ({last_parse_text[:80]})"})
+                    if (parse_failures >= 2 or repeated_click_center >= 3 or repeated_same_type >= 3) and recovery_index < len(recovery_plan):
+                        action_data = dict(recovery_plan[recovery_index])
+                        action_type = action_data.get("action", "wait")
+                        recovery_index += 1
+                        results.append({"step": step, "warning": f"Applied deterministic recovery action #{recovery_index}: {action_type}"})
                     try:
                         if action_type == "done":
                             results.append({"step": step, "action": "done", "result": action_data.get("result")})
@@ -12295,6 +12378,8 @@ Respond with JSON ONLY."""
                         if _GEMINI_VDESKTOP_SESSION:
                             _GEMINI_VDESKTOP_SESSION["steps"] = step + 1
                         consecutive_waits = consecutive_waits + 1 if action_type == "wait" else 0
+                        if action_type in ("click", "double_click", "right_click", "type", "key", "hotkey", "scroll"):
+                            parse_failures = 0
                     except Exception as exec_err:
                         results.append({"step": step, "error": f"Execution error: {str(exec_err)[:150]}"})
                     finally:

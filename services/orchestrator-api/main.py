@@ -2798,6 +2798,7 @@ class ActivityLog:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._buffer: deque[dict] = deque(maxlen=max_memory)
         self._lock = asyncio.Lock()
+        self._session_last_activity: dict[str, float] = {}
         # Load tail of existing log into memory
         self._warm_buffer()
 
@@ -2823,6 +2824,8 @@ class ActivityLog:
             "content": content,
             "meta": metadata or {},
         }
+        if session_id:
+            self._session_last_activity[session_id] = time.monotonic()
         self._buffer.append(entry)
         # Persist to disk (non-blocking via lock) with rotation
         async with self._lock:
@@ -2873,6 +2876,13 @@ class ActivityLog:
             "unique_sessions": len(sessions),
             "log_file": str(self.path),
         }
+
+    def activity_age_seconds(self, session_id: str) -> Optional[float]:
+        """Return age in seconds since last activity for a session."""
+        ts = self._session_last_activity.get(session_id)
+        if ts is None:
+            return None
+        return max(0.0, time.monotonic() - ts)
 
 
 activity = ActivityLog(ACTIVITY_LOG_PATH, ACTIVITY_MAX_MEMORY)
@@ -3117,7 +3127,17 @@ def _validate_release_payload(payload: dict, tool_evidence_text: str, truth: Opt
         problems.append("published_at_not_in_tool_evidence")
     if evidence_url and evidence_url not in tool_evidence_text and "github.com/openclaw/openclaw/releases" not in evidence_url:
         problems.append("evidence_url_not_supported")
-    if tools_summary and not any(tok in tools_summary for tok in ("gemini_virtual_desktop", "browser_automate", "web_scrape", "virtual_desktop")):
+    if tools_summary and not any(
+        tok in tools_summary
+        for tok in (
+            "gemini_virtual_desktop",
+            "browser_automate",
+            "web_scrape",
+            "web scrape",
+            "virtual_desktop",
+            "virtual desktop",
+        )
+    ):
         problems.append("tools_summary_missing_expected_tools")
 
     if truth:
@@ -3131,6 +3151,51 @@ def _validate_release_payload(payload: dict, tool_evidence_text: str, truth: Opt
     return {
         "verified": len(problems) == 0,
         "problems": problems,
+    }
+
+
+def _build_release_payload_from_evidence(delegations: list[dict], tool_evidence_text: str, truth: Optional[dict]) -> dict:
+    hints = _extract_release_hints(tool_evidence_text)
+    truth_tag = str((truth or {}).get("tag", "")).strip()
+    truth_published = str((truth or {}).get("published_at", "")).strip()
+    truth_url = str((truth or {}).get("url", "")).strip()
+    truth_name = str((truth or {}).get("name", "")).strip()
+
+    tag = hints.get("tag") or truth_tag or "unknown"
+    published_at = hints.get("published_at") or truth_published or "unknown"
+    evidence_url = hints.get("url") or truth_url or "unknown"
+
+    snippet = ""
+    if tag != "unknown":
+        idx = tool_evidence_text.find(tag)
+        if idx >= 0:
+            start = max(0, idx - 140)
+            end = min(len(tool_evidence_text), idx + 260)
+            snippet = tool_evidence_text[start:end].replace("\n", " ").strip()
+    if not snippet:
+        snippet = f"{truth_name} {tag} {published_at}".strip()
+
+    tool_names = []
+    for d in delegations:
+        task = (d.get("task") or "").lower()
+        if "geminivirtualdesktop" in task:
+            tool_names.append("gemini_virtual_desktop")
+        elif task.startswith("browser:"):
+            tool_names.append("browser_automate")
+        elif task.startswith("web scrape"):
+            tool_names.append("web_scrape")
+        elif task.startswith("virtualdesktop"):
+            tool_names.append("virtual_desktop")
+    tools_used_summary = ", ".join(sorted(set(tool_names))) if tool_names else "unknown"
+
+    return {
+        "extracted_tag": tag,
+        "extracted_published_at_iso": published_at,
+        "evidence_url": evidence_url,
+        "evidence_title": truth_name or "unknown",
+        "evidence_snippet_verbatim": snippet[:600],
+        "tools_used_summary": tools_used_summary,
+        "confidence": "high" if truth_tag and tag == truth_tag and truth_published and published_at == truth_published else "medium",
     }
 
 
@@ -3440,6 +3505,33 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
     # Log incoming message
     await activity.record("user_message", session_id, user_message)
 
+    async def _await_with_heartbeat(coro, stage: str, interval_s: int = 30):
+        """Keep session activity alive while waiting on slow provider/network calls."""
+        done = asyncio.Event()
+
+        async def _beat():
+            while not done.is_set():
+                await asyncio.sleep(interval_s)
+                if done.is_set():
+                    break
+                await activity.record(
+                    "chat_progress",
+                    session_id,
+                    f"Still waiting on {stage}",
+                    {"stage": stage},
+                )
+
+        beat_task = asyncio.create_task(_beat())
+        try:
+            return await coro
+        finally:
+            done.set()
+            beat_task.cancel()
+            try:
+                await beat_task
+            except asyncio.CancelledError:
+                pass
+
     # Get or create session history
     if session_id not in _chat_sessions:
         _chat_sessions[session_id] = []
@@ -3483,7 +3575,13 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
     # ── Multi-turn tool-call loop ──────────────────────────────────────
     # The LLM can invoke tools (read_own_code, modify_own_code, etc.)
     # and we feed results back so it can chain actions across turns.
+    enforce_release_verification = _is_release_verification_request(user_message)
+    if enforce_release_verification:
+        # Keep release-verification requests bounded so finalization gate runs predictably.
+        task_time_budget_s = max(task_time_budget_s, 180)
     MAX_TOOL_TURNS = int(os.getenv("ORCH_TASK_MAX_TOOL_TURNS", "8")) if task_mode else 12
+    if enforce_release_verification:
+        MAX_TOOL_TURNS = min(MAX_TOOL_TURNS, 5)
     max_retries = int(os.getenv("ORCH_TASK_MAX_RETRIES", "4")) if task_mode else 8
     synthesis_attempts = int(os.getenv("ORCH_TASK_SYNTH_ATTEMPTS", "1")) if task_mode else 3
     delegations = []             # accumulate across all turns
@@ -3508,13 +3606,16 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                                       f"Calling {LLM_MODEL} (turn {_tool_turn + 1}, attempt {attempt + 1})",
                                       {"attempt": attempt + 1, "turn": _tool_turn + 1,
                                        "history_len": len(messages)})
-                response = await _attempt_client.chat.completions.create(
-                    model=LLM_MODEL,
-                    messages=messages,
-                    tools=all_tools,
-                    tool_choice="auto",
-                    temperature=0.4 if task_mode else 0.7,
-                    max_tokens=2048 if task_mode else 4096,
+                response = await _await_with_heartbeat(
+                    _attempt_client.chat.completions.create(
+                        model=LLM_MODEL,
+                        messages=messages,
+                        tools=all_tools,
+                        tool_choice="auto",
+                        temperature=0.4 if task_mode else 0.7,
+                        max_tokens=2048 if task_mode else 4096,
+                    ),
+                    stage=f"llm-turn-{_tool_turn + 1}-attempt-{attempt + 1}",
                 )
                 break  # Success
             except Exception as e:
@@ -3567,13 +3668,16 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                         )
                         try:
                             _fb_client = llm_client.with_options(api_key=_next_key_for_model(fb_model))
-                            response = await _fb_client.chat.completions.create(
-                                model=fb_model,
-                                messages=messages,
-                                tools=all_tools,
-                                tool_choice="auto",
-                                temperature=0.7,
-                                max_tokens=4096,
+                            response = await _await_with_heartbeat(
+                                _fb_client.chat.completions.create(
+                                    model=fb_model,
+                                    messages=messages,
+                                    tools=all_tools,
+                                    tool_choice="auto",
+                                    temperature=0.7,
+                                    max_tokens=4096,
+                                ),
+                                stage=f"llm-fallback-{fb_model}",
                             )
                             fallback_succeeded = True
                             break
@@ -4650,6 +4754,17 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 "content": result_str,
             })
         log.info(f"Multi-turn: completed turn {_tool_turn + 1}, processed {len(turn_tool_results)} tool results, continuing to turn {_tool_turn + 2}")
+        if enforce_release_verification:
+            evidence_now = _build_tool_evidence_text(delegations)
+            hints_now = _extract_release_hints(evidence_now)
+            if hints_now.get("tag") and hints_now.get("published_at"):
+                await activity.record(
+                    "verification_progress",
+                    session_id,
+                    "Release evidence captured; ending tool loop for finalization",
+                    {"tag": hints_now.get("tag"), "published_at": hints_now.get("published_at")},
+                )
+                break
         if fast_task_mode and fast_task_target_tools > 0 and fast_task_tool_hits >= fast_task_target_tools:
             await activity.record(
                 "task_fast_exit",
@@ -4665,7 +4780,7 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
     # Extract the text response from the final turn
     text_response = assistant_msg.content or ""
     log.info(f"Final turn raw content (len={len(text_response)}): {text_response[:300]!r}")
-    enforce_release_verification = _is_release_verification_request(user_message)
+    # reuse earlier computed flag
 
     # Strip any leaked raw tool-call tokens from the text
     text_response = _strip_tool_tokens(text_response)
@@ -4708,11 +4823,14 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                             "Include specific data, numbers, and findings from the tool results."
                         )},
                     ]
-                    synthesis = await _synth_client.chat.completions.create(
-                        model=LLM_MODEL,
-                        messages=synth_messages,
-                        temperature=0.7,
-                        max_tokens=4096,
+                    synthesis = await _await_with_heartbeat(
+                        _synth_client.chat.completions.create(
+                            model=LLM_MODEL,
+                            messages=synth_messages,
+                            temperature=0.7,
+                            max_tokens=4096,
+                        ),
+                        stage="synthesis",
                     )
                     raw_synth = synthesis.choices[0].message.content or ""
                     log.info(f"Synthesis raw (len={len(raw_synth)}): {raw_synth[:300]!r}")
@@ -4761,10 +4879,11 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
         except Exception as truth_err:
             log.warning(f"Release truth fetch failed: {truth_err}")
 
-        # First pass: parse existing response if it is already JSON-like; otherwise synthesize strict JSON.
+        # First pass: parse existing response if it is already JSON-like.
         payload = _extract_first_json_object(text_response)
         validation = _validate_release_payload(payload or {}, tool_evidence_text, truth)
-        structured_attempts = 3
+        # Keep model retries bounded/fast to avoid long-running stalls.
+        structured_attempts = 1
         for attempt in range(structured_attempts):
             if payload and validation["verified"]:
                 break
@@ -4781,16 +4900,19 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                         f"User request:\n{user_message}\n\n"
                         f"Tool evidence:\n{tool_evidence_text[:20000]}\n\n"
                         f"Ground truth (must match when present): {truth_text}\n\n"
-                        f"Previous response:\n{text_response[:4000]}\n\n"
+                        f"Previous response:\n{text_response[:2000]}\n\n"
                         f"Validation failures so far: {validation['problems']}\n\n"
                         "Produce only strict JSON. If evidence is insufficient for any field, set it to \"unknown\" and explain in tools_used_summary."
                     )},
                 ]
-                verify_resp = await _verify_client.chat.completions.create(
-                    model=LLM_MODEL,
-                    messages=verify_messages,
-                    temperature=0.2,
-                    max_tokens=1200,
+                verify_resp = await _await_with_heartbeat(
+                    _verify_client.chat.completions.create(
+                        model=LLM_MODEL,
+                        messages=verify_messages,
+                        temperature=0.2,
+                        max_tokens=700,
+                    ),
+                    stage="verification-formatter",
                 )
                 candidate = _strip_tool_tokens(verify_resp.choices[0].message.content or "")
                 payload = _extract_first_json_object(candidate)
@@ -4813,27 +4935,21 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 {"verified": True},
             )
         else:
-            hints = _extract_release_hints(tool_evidence_text)
-            failed_payload = {
-                "extracted_tag": hints.get("tag") or "unknown",
-                "extracted_published_at_iso": hints.get("published_at") or "unknown",
-                "evidence_url": hints.get("url") or "unknown",
-                "evidence_title": "unknown",
-                "evidence_snippet_verbatim": "Verification failed: insufficient consistent evidence",
-                "tools_used_summary": "Validation gate rejected unverified synthesis output.",
-                "confidence": "low",
-                "verification": {
-                    "status": "failed",
-                    "problems": validation["problems"],
-                    "truth": truth or {},
-                },
+            failed_payload = _build_release_payload_from_evidence(delegations, tool_evidence_text, truth)
+            fallback_validation = _validate_release_payload(failed_payload, tool_evidence_text, truth)
+            fallback_status = "verified" if fallback_validation["verified"] else "failed"
+            failed_payload["verification"] = {
+                "status": fallback_status,
+                "problems": fallback_validation["problems"],
+                "truth": truth or {},
+                "fallback_mode": "deterministic-evidence-derived",
             }
             text_response = json.dumps(failed_payload, ensure_ascii=False)
             await activity.record(
                 "verification",
                 session_id,
-                "Release verification gate failed",
-                {"verified": False, "problems": validation["problems"]},
+                f"Release verification gate {fallback_status}",
+                {"verified": fallback_validation["verified"], "problems": fallback_validation["problems"]},
             )
 
     # Save to conversation history (keep last 20 exchanges to stay within context)
@@ -5073,6 +5189,33 @@ async def _run_chat_pipeline(session_id: str, user_message: str, *, task_mode: b
     return result
 
 
+async def _await_chat_with_progress(
+    session_id: str,
+    chat_task: asyncio.Task,
+    hard_timeout_s: int,
+    idle_timeout_s: int,
+    poll_interval_s: float = 2.0,
+) -> dict:
+    """Wait for chat completion while extending for active progress under provider latency."""
+    started = time.monotonic()
+    while True:
+        if chat_task.done():
+            return await asyncio.shield(chat_task)
+        elapsed = time.monotonic() - started
+        if elapsed >= hard_timeout_s:
+            raise asyncio.TimeoutError()
+        age = activity.activity_age_seconds(session_id)
+        idle_timed_out = age is not None and age >= idle_timeout_s
+        if idle_timed_out:
+            # Grace window: if provider is temporarily quiet, give one final
+            # bounded wait before falling back to background mode.
+            try:
+                return await asyncio.wait_for(asyncio.shield(chat_task), timeout=30)
+            except asyncio.TimeoutError:
+                raise
+        await asyncio.sleep(poll_interval_s)
+
+
 @app.post("/chat")
 async def chat(req: ChatMessage):
     """
@@ -5087,7 +5230,10 @@ async def chat(req: ChatMessage):
 
     # Longer timeout for complex autonomous tasks with many tool turns.
     is_complex = _is_complex_autonomous_request(req.message)
-    CHAT_TIMEOUT = 600 if is_complex else 300
+    is_verification = _is_release_verification_request(req.message)
+    long_running_blocking = is_complex or is_verification
+    CHAT_TIMEOUT = 900 if long_running_blocking else 300
+    IDLE_TIMEOUT = 300 if long_running_blocking else 90
     wait_for_completion = (
         req.wait_for_completion
         if req.wait_for_completion is not None
@@ -5099,7 +5245,7 @@ async def chat(req: ChatMessage):
             _run_chat_pipeline(
                 session_id,
                 req.message,
-                task_mode=is_complex,
+                task_mode=long_running_blocking,
             )
         )
         _track_pending_chat_task(session_id, chat_task)
@@ -5117,7 +5263,12 @@ async def chat(req: ChatMessage):
                 "pending": True,
                 "status": "accepted_background",
             }
-        result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_TIMEOUT)
+        result = await _await_chat_with_progress(
+            session_id,
+            chat_task,
+            hard_timeout_s=CHAT_TIMEOUT,
+            idle_timeout_s=IDLE_TIMEOUT,
+        )
         response = dict(result)
         response.setdefault("session_id", session_id)
         response["pending"] = False

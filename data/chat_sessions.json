@@ -4010,5 +4010,65 @@
       "role": "assistant",
       "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"openclaw 2026.4.8\\n08 Apr 05:59\\nsteipete\\nv2026.4.8\\nThis tag was signed with the committer's verified signature\\nabe7b2c\\nrelative-time datetime=\\\"2026-04-08T05:59:44Z\\\"\", \"tools_used_summary\": \"Primary tool gemini_virtual_desktop failed due to screenshot errors (exit status 127) and max steps reached. Fallback browser_automate failed due to thread-switching errors. Successful extraction via web_scrape fallback which retrieved the releases page content showing the latest release tag v2026.4.8 with timestamp 2026-04-08T05:59:44Z.\", \"confidence\": \"high\", \"verification\": {\"status\": \"verified\", \"source\": \"tool-evidence-and-truth-gate\"}}"
     }
+  ],
+  "complex-ui-audit-019": [
+    {
+      "role": "user",
+      "content": "You must complete and verify a real task without hallucinating. Primary: use gemini_virtual_desktop to navigate to https://github.com/openclaw/openclaw/releases and determine latest release tag and published date. If desktop path fails, use browser_automate/web_scrape fallback but still verify from page content. Return strict JSON only with keys: extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"unknown\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases\", \"evidence_title\": \"unknown\", \"evidence_snippet_verbatim\": \"Verification failed: insufficient consistent evidence\", \"tools_used_summary\": \"Validation gate rejected unverified synthesis output.\", \"confidence\": \"low\", \"verification\": {\"status\": \"failed\", \"problems\": [\"missing_fields:extracted_tag,extracted_published_at_iso,evidence_url,evidence_title,evidence_snippet_verbatim,tools_used_summary\"], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}}}"
+    }
+  ],
+  "complex-ui-audit-021": [
+    {
+      "role": "user",
+      "content": "Use web_scrape on https://github.com/openclaw/openclaw/releases to determine the latest release tag and exact published timestamp. Return strict JSON with keys extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence. Do not hallucinate."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"ttings\\\\nFork\\\\n70.9k\\\\nStar\\\\n352k\\\\nReleases: openclaw/openclaw\\\\nReleases \\\\u00b7 openclaw/openclaw\\\\nopenclaw 2026.4.8\\\\n08 Apr 05:59\\\\nsteipete\\\\nv2026.4.8\\\\nThis tag was signed with the committer\\\\u2019s\\\\nverified signature\\\\n.\\\\nsteipete\\\\nPeter Steinberger\\\\nSSH Key Fingerprint:\\\\nWmI9lVtd7F2c5XyRHbZVO3yYYJzwsSNzcZQMPT147HI\\\\nVerified\\\\nLearn about vigilant mode\\\\n.\\\\nabe7b2c\\\\nThis commit was signed with the co\", \"tools_used_summary\": \"web_scrape\", \"confidence\": \"high\", \"verification\": {\"status\": \"failed\", \"problems\": [\"tools_summary_missing_expected_tools\"], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}, \"fallback_mode\": \"deterministic-evidence-derived\"}}"
+    }
+  ],
+  "complex-ui-audit-022": [
+    {
+      "role": "user",
+      "content": "Use web_scrape on https://github.com/openclaw/openclaw/releases to determine the latest release tag and exact published timestamp. Return strict JSON with keys extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence. Do not hallucinate."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"ithub.com/openclaw/openclaw/rel] {\\\"elements\\\": [{\\\"tag\\\": \\\"a\\\", \\\"text\\\": \\\"openclaw 2026.4.8\\\", \\\"attrs\\\": {\\\"href\\\": \\\"/openclaw/openclaw/releases/tag/v2026.4.8\\\", \\\"data-view-component\\\": \\\"true\\\", \\\"class\\\": [\\\"Link--primary\\\", \\\"Link\\\"]}}, {\\\"tag\\\": \\\"a\\\", \\\"text\\\": \\\"openclaw 2026.4.7\\\", \\\"attrs\\\": {\\\"href\\\": \\\"/openclaw/openclaw/releases/tag/v2026.4.7\\\", \\\"data-view-component\\\": \\\"true\\\", \\\"class\\\": [\\\"Link--primary\\\", \\\"Link\\\"]}}, {\\\"tag\", \"tools_used_summary\": \"web_scrape\", \"confidence\": \"high\", \"verification\": {\"status\": \"failed\", \"problems\": [\"missing_fields:extracted_tag,extracted_published_at_iso,evidence_url,evidence_title,evidence_snippet_verbatim,tools_used_summary\"], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}, \"fallback_mode\": \"deterministic-evidence-derived\"}}"
+    }
+  ],
+  "complex-ui-audit-023": [
+    {
+      "role": "user",
+      "content": "Use web_scrape on https://github.com/openclaw/openclaw/releases to determine the latest release tag and exact published timestamp. Return strict JSON with keys extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence. Do not hallucinate."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"ttings\\\\nFork\\\\n70.9k\\\\nStar\\\\n352k\\\\nReleases: openclaw/openclaw\\\\nReleases \\\\u00b7 openclaw/openclaw\\\\nopenclaw 2026.4.8\\\\n08 Apr 05:59\\\\nsteipete\\\\nv2026.4.8\\\\nThis tag was signed with the committer\\\\u2019s\\\\nverified signature\\\\n.\\\\nsteipete\\\\nPeter Steinberger\\\\nSSH Key Fingerprint:\\\\nWmI9lVtd7F2c5XyRHbZVO3yYYJzwsSNzcZQMPT147HI\\\\nVerified\\\\nLearn about vigilant mode\\\\n.\\\\nabe7b2c\\\\nThis commit was signed with the co\", \"tools_used_summary\": \"web_scrape\", \"confidence\": \"high\", \"verification\": {\"status\": \"failed\", \"problems\": [\"missing_fields:extracted_tag,extracted_published_at_iso,evidence_url,evidence_title,evidence_snippet_verbatim,tools_used_summary\"], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}, \"fallback_mode\": \"deterministic-evidence-derived\"}}"
+    }
+  ],
+  "complex-ui-audit-024": [
+    {
+      "role": "user",
+      "content": "Use web_scrape on https://github.com/openclaw/openclaw/releases to determine the latest release tag and exact published timestamp. Return strict JSON with keys extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence. Do not hallucinate. Verify consistency."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"ithub.com/openclaw/openclaw/rel] {\\\"elements\\\": [{\\\"tag\\\": \\\"a\\\", \\\"text\\\": \\\"openclaw 2026.4.8\\\", \\\"attrs\\\": {\\\"href\\\": \\\"/openclaw/openclaw/releases/tag/v2026.4.8\\\", \\\"data-view-component\\\": \\\"true\\\", \\\"class\\\": [\\\"Link--primary\\\", \\\"Link\\\"]}}, {\\\"tag\\\": \\\"a\\\", \\\"text\\\": \\\"openclaw 2026.4.7\\\", \\\"attrs\\\": {\\\"href\\\": \\\"/openclaw/openclaw/releases/tag/v2026.4.7\\\", \\\"data-view-component\\\": \\\"true\\\", \\\"class\\\": [\\\"Link--primary\\\", \\\"Link\\\"]}}, {\\\"tag\", \"tools_used_summary\": \"web_scrape\", \"confidence\": \"high\", \"verification\": {\"status\": \"verified\", \"problems\": [], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}, \"fallback_mode\": \"deterministic-evidence-derived\"}}"
+    }
+  ],
+  "complex-ui-audit-025": [
+    {
+      "role": "user",
+      "content": "Use web_scrape on https://github.com/openclaw/openclaw/releases to determine the latest release tag and exact published timestamp. Return strict JSON with keys extracted_tag, extracted_published_at_iso, evidence_url, evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence. Do not hallucinate. Verify consistency."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"extracted_tag\": \"v2026.4.8\", \"extracted_published_at_iso\": \"2026-04-08T05:59:44Z\", \"evidence_url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"evidence_title\": \"openclaw 2026.4.8\", \"evidence_snippet_verbatim\": \"time\\\", \\\"text\\\": \\\"08 Apr 05:59\\\", \\\"attrs\\\": {\\\"class\\\": [\\\"no-wrap\\\"], \\\"prefix\\\": \\\"\\\", \\\"datetime\\\": \\\"2026-04-08T05:59:44Z\\\"}}, {\\\"tag\\\": \\\"span\\\", \\\"text\\\": \\\"v2026.4.8\\\", \\\"attrs\\\": {\\\"class\\\": [\\\"ml-1\\\", \\\"wb-break-all\\\"]}}, {\\\"tag\\\": \\\"relative-time\\\", \\\"text\\\": \\\"\\\", \\\"attrs\\\": {\\\"datetime\\\": \\\"2026-04-08 05:14:20 UTC\\\", \\\"threshold\\\": \\\"PT0S\\\", \\\"year\\\": \\\"numeric\\\", \\\"hour\\\": \\\"2-digit\\\", \\\"minute\\\": \\\"2-digit\\\"}}, {\\\"tag\\\": \\\"relative-time\\\", \\\"text\\\":\", \"tools_used_summary\": \"web_scrape\", \"confidence\": \"high\", \"verification\": {\"status\": \"verified\", \"problems\": [], \"truth\": {\"tag\": \"v2026.4.8\", \"published_at\": \"2026-04-08T05:59:44Z\", \"url\": \"https://github.com/openclaw/openclaw/releases/tag/v2026.4.8\", \"name\": \"openclaw 2026.4.8\"}, \"fallback_mode\": \"deterministic-evidence-derived\"}}"
+    }
   ]
 }

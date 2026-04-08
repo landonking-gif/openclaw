@@ -4302,6 +4302,17 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                     step_delay=fn_args.get("step_delay", 0.5),
                 )
                 internal_task = f"GeminiScreen: {fn_args.get('action', '')}"
+            elif fn_name == "gemini_virtual_desktop":
+                # Gemini controlling isolated Docker virtual desktop
+                internal_result = _gemini_virtual_desktop_sync(
+                    fn_args.get("action", ""),
+                    container=fn_args.get("container", "orchestrator-desktop"),
+                    task=fn_args.get("task", ""),
+                    url=fn_args.get("url", ""),
+                    max_steps=fn_args.get("max_steps", 100),
+                    step_delay=fn_args.get("step_delay", 0.3),
+                )
+                internal_task = f"GeminiVirtualDesktop: {fn_args.get('action', '')}"
             elif fn_name == "browser_automate":
                 browser_args = {k: v for k, v in fn_args.items() if k != "action"}
                 if task_mode and os.getenv("ORCH_TASK_FORCE_HEADLESS", "1") == "1" and fn_args.get("action", "") == "launch":

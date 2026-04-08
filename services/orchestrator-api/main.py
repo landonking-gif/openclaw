@@ -11958,10 +11958,10 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             }
         
         elif action == "run":
-            # Run a task with Gemini controlling the virtual desktop
+            # Run a task with Gemini Live WebSocket streaming
             task = kwargs.get("task", "")
             max_steps = kwargs.get("max_steps", 100)
-            step_delay = kwargs.get("step_delay", 0.3)
+            step_delay = kwargs.get("step_delay", 0.5)
             
             if not task:
                 return {"error": "task required - describe what Gemini should do"}
@@ -11969,251 +11969,341 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             if not _GEMINI_VDESKTOP_SESSION or not _GEMINI_VDESKTOP_SESSION.get("connected"):
                 return {"error": "Not connected. Use action='connect' first."}
             
+            if not gemini_key:
+                return {"error": "GEMINI_API_KEY required for Gemini Live WebSocket streaming"}
+            
             container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
             
-            # System prompt for virtual desktop automation
-            system_prompt = f"""You are controlling a virtual Linux desktop. Look at the screenshot and decide the next action.
-
-Screen resolution: 1280x1024
+            # Use Gemini Live WebSocket API for real-time streaming
+            try:
+                import websockets
+            except ImportError:
+                ok, _ = _ensure_python_package_in_tool_venv("websockets")
+                if not ok:
+                    return {"error": "Failed to install websockets package"}
+                import websockets
+            
+            import base64
+            import json as _json
+            
+            # Gemini Live model candidates (newest first, then known previews)
+            model_candidates = kwargs.get("models") or [
+                "gemini-live-2.5-flash-preview",
+                "gemini-3.1-flash-live-preview",
+                "gemini-2.0-flash-live-preview",
+            ]
+            ws_url = f"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key={gemini_key}"
+            nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"
+            
+            system_instruction = f"""You are controlling a virtual Linux desktop. You will receive screenshots of the screen.
 
 YOUR TASK: {task}
 
-CRITICAL: Respond with ONLY a JSON object. No other text before or after. Example:
+Respond with ONLY a JSON object containing the next action. Example:
 {{"action": "click", "x": 640, "y": 512}}
 
 Available actions:
-- {{"action": "click", "x": 640, "y": 512}} - Click at coordinates
-- {{"action": "double_click", "x": 640, "y": 512}} - Double-click
-- {{"action": "right_click", "x": 640, "y": 512}} - Right-click
-- {{"action": "type", "text": "hello"}} - Type text
-- {{"action": "key", "key": "Return"}} - Press key (Return, Tab, Escape, etc)
-- {{"action": "hotkey", "keys": "ctrl+t"}} - Key combo
-- {{"action": "scroll", "amount": -3}} - Scroll (negative=down)
-- {{"action": "wait", "seconds": 2}} - Wait
-- {{"action": "done", "result": "Task completed"}} - Finished
+- {{"action": "click", "x": 640, "y": 512}}
+- {{"action": "double_click", "x": 640, "y": 512}}
+- {{"action": "right_click", "x": 640, "y": 512}}
+- {{"action": "type", "text": "hello"}}
+- {{"action": "key", "key": "Return"}}
+- {{"action": "hotkey", "keys": "ctrl+t"}}
+- {{"action": "scroll", "amount": -3}}
+- {{"action": "wait", "seconds": 2}}
+- {{"action": "done", "result": "completed"}}
 
-Respond with JSON ONLY. No explanation. Just the JSON action."""
+Respond with JSON ONLY."""
             
             results = []
-            use_gemini = True  # Try Gemini Live first, fallback to NVIDIA
-            nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"  # NVIDIA vision fallback model
             
-            for step in range(max_steps):
-                # Capture screenshot from Docker container
-                ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
-                local_img = f"/tmp/gemini_vdesktop_{ts}.png"
-                
-                # Take screenshot inside container
-                subprocess.run([
-                    "docker", "exec", "-u", "0", container,
-                    "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"
-                ], capture_output=True, timeout=10)
-                
-                # Copy to host
-                subprocess.run([
-                    "docker", "cp", f"{container}:/tmp/vscreen.png", local_img
-                ], capture_output=True, timeout=10)
-                
-                if not Path(local_img).exists():
-                    results.append({"step": step, "error": "Screenshot failed"})
-                    await asyncio.sleep(1)
-                    continue
-                
-                # Read and base64 encode image
-                import base64
-                import httpx  # async HTTP client
-                with open(local_img, "rb") as f:
-                    img_base64 = base64.b64encode(f.read()).decode("utf-8")
-                
-                prompt = f"Step {step + 1}. What's the next action?" if step > 0 else system_prompt
-                
-                # Try Gemini Live API first (real-time streaming)
-                response_text = None
-                try:
-                    import google.generativeai as genai
-                    genai.configure(api_key=gemini_key)
-                    model = genai.GenerativeModel("gemini-2.0-flash")  # Use stable Gemini 2.0 Flash
-                    import PIL.Image
-                    img = PIL.Image.open(local_img)
-                    response = model.generate_content([prompt, img])
-                    response_text = response.text.strip()
-                except Exception as gemini_err:
-                    # Gemini failed (quota/error), try NVIDIA fallback
+            try:
+                websocket = None
+                selected_model = None
+                live_setup_errors: list[str] = []
+
+                # Try to initialize Gemini Live session, falling back across model candidates.
+                for model_name in model_candidates:
                     try:
-                        nvidia_key = _get_api_key()  # Rotates through NVAPI keys
-                        messages = [
-                            {
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": prompt},
-                                    {
-                                        "type": "image_url",
-                                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
-                                    }
-                                ]
+                        candidate_ws = await websockets.connect(ws_url, ping_interval=None)
+                        setup_msg = {
+                            "setup": {
+                                "model": f"models/{model_name}",
+                                "generationConfig": {
+                                    "responseModalities": ["TEXT"],
+                                },
                             }
-                        ]
-                        
-                        async with httpx.AsyncClient(timeout=60.0) as client:
-                            resp = await client.post(
-                                "https://integrate.api.nvidia.com/v1/chat/completions",
-                                headers={"Authorization": f"Bearer {nvidia_key}"},
-                                json={
-                                    "model": nvidia_vision_model,
-                                    "messages": messages,
-                                    "max_tokens": 100,  # Force concise JSON-only responses
-                                    "temperature": 0.1,  # More deterministic
-                                }
-                            )
-                            if resp.status_code == 200:
-                                data = resp.json()
-                                response_text = data["choices"][0]["message"]["content"].strip()
-                            else:
-                                raise Exception(f"NVIDIA API error {resp.status_code}: {resp.text[:200]}")
-                    except Exception as nvidia_err:
-                        results.append({"step": step, "error": f"Both APIs failed: Gemini={str(gemini_err)[:150]}, NVIDIA={str(nvidia_err)[:150]}"})
+                        }
+                        await candidate_ws.send(_json.dumps(setup_msg))
+                        try:
+                            setup_response = await asyncio.wait_for(candidate_ws.recv(), timeout=5.0)
+                            setup_text = str(setup_response).lower()
+                            if ("not found" in setup_text) or ("not supported" in setup_text):
+                                live_setup_errors.append(f"{model_name}: unsupported")
+                                await candidate_ws.close()
+                                continue
+                        except asyncio.TimeoutError:
+                            # Some sessions may not emit an immediate setup ack; proceed.
+                            pass
+                        websocket = candidate_ws
+                        selected_model = model_name
+                        break
+                    except Exception as setup_err:
+                        live_setup_errors.append(f"{model_name}: {str(setup_err)[:120]}")
+                        try:
+                            await candidate_ws.close()
+                        except Exception:
+                            pass
+                        continue
+
+                if websocket is None:
+                    live_error = "; ".join(live_setup_errors[-3:]) if live_setup_errors else "setup failed"
+                    results.append({"step": -1, "warning": f"Gemini Live unavailable, using NVIDIA fallback ({live_error})"})
+                elif _GEMINI_VDESKTOP_SESSION is not None:
+                    _GEMINI_VDESKTOP_SESSION["live_model"] = selected_model
+
+                async def _nvidia_response_text(prompt: str, img_b64: str) -> str:
+                    import httpx
+
+                    last_err: Exception | None = None
+                    for attempt in range(3):
+                        local_nvidia_key = _get_api_key() if attempt == 0 else _next_key_for_model(nvidia_vision_model)
+                        if not local_nvidia_key:
+                            raise RuntimeError("NVAPI key missing for fallback")
+                        try:
+                            timeout = httpx.Timeout(timeout=120.0, connect=15.0)
+                            async with httpx.AsyncClient(timeout=timeout) as client:
+                                resp = await client.post(
+                                    "https://integrate.api.nvidia.com/v1/chat/completions",
+                                    headers={"Authorization": f"Bearer {local_nvidia_key}"},
+                                    json={
+                                        "model": nvidia_vision_model,
+                                        "messages": [
+                                            {
+                                                "role": "user",
+                                                "content": [
+                                                    {"type": "text", "text": prompt},
+                                                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
+                                                ],
+                                            }
+                                        ],
+                                        "max_tokens": 120,
+                                        "temperature": 0.1,
+                                    },
+                                )
+                            if resp.status_code != 200:
+                                raise RuntimeError(f"NVIDIA API error {resp.status_code}: {resp.text[:180]}")
+                            data = resp.json()
+                            choices = data.get("choices", [])
+                            if not choices:
+                                raise RuntimeError(f"NVIDIA API returned no choices: {str(data)[:180]}")
+                            message = choices[0].get("message", {})
+                            content = message.get("content", "")
+                            if not isinstance(content, str) or not content.strip():
+                                raise RuntimeError("NVIDIA API returned empty message content")
+                            return content.strip()
+                        except Exception as err:
+                            last_err = err
+                            continue
+                    raise RuntimeError(str(last_err) if last_err else "NVIDIA fallback failed")
+
+                # Main automation loop
+                for step in range(max_steps):
+                    response_text = None
+                    step_request = (
+                        "What's the first action to accomplish the task?"
+                        if step == 0
+                        else f"Step {step + 1}. What's the next action?"
+                    )
+                    prompt = (
+                        f"{system_instruction}\n\n{step_request}\n\n"
+                        "IMPORTANT: Return ONLY JSON with one action. No prose."
+                    )
+
+                    # Capture screenshot
+                    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                    local_img = f"/tmp/gemini_live_{ts}.png"
+                    subprocess.run([
+                        "docker", "exec", "-u", "0", container,
+                        "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"
+                    ], capture_output=True, timeout=10)
+                    subprocess.run([
+                        "docker", "cp", f"{container}:/tmp/vscreen.png", local_img
+                    ], capture_output=True, timeout=10)
+
+                    if not Path(local_img).exists():
+                        results.append({"step": step, "error": "Screenshot failed"})
                         await asyncio.sleep(step_delay)
                         continue
-                
-                if not response_text:
-                    results.append({"step": step, "error": "No response from vision APIs"})
+
+                    with open(local_img, "rb") as f:
+                        img_data = f.read()
+                        img_b64 = base64.b64encode(img_data).decode("utf-8")
+
+                    # Try Gemini Live first if available.
+                    if websocket is not None:
+                        try:
+                            frame_msg = {
+                                "realtimeInput": {
+                                    "video": {
+                                        "data": img_b64,
+                                        "mimeType": "image/png"
+                                    }
+                                }
+                            }
+                            await websocket.send(_json.dumps(frame_msg))
+                            text_msg = {"realtimeInput": {"text": prompt}}
+                            await websocket.send(_json.dumps(text_msg))
+
+                            response_raw = await asyncio.wait_for(websocket.recv(), timeout=10.0)
+                            response = _json.loads(response_raw)
+                            if "serverContent" in response:
+                                server_content = response["serverContent"]
+                                if "modelTurn" in server_content and "parts" in server_content["modelTurn"]:
+                                    for part in server_content["modelTurn"]["parts"]:
+                                        if "text" in part:
+                                            response_text = part["text"]
+                                            break
+                                if not response_text and "outputTranscription" in server_content:
+                                    response_text = server_content["outputTranscription"]["text"]
+                        except Exception as ws_step_err:
+                            results.append({"step": step, "warning": f"Gemini Live step failed, using NVIDIA fallback: {str(ws_step_err)[:120]}"})
+                            try:
+                                await websocket.close()
+                            except Exception:
+                                pass
+                            websocket = None
+
+                    # Fall back to NVIDIA vision when Gemini Live is unavailable/fails.
+                    if not response_text:
+                        try:
+                            response_text = await _nvidia_response_text(prompt, img_b64)
+                        except Exception as fallback_err:
+                            fallback_msg = str(fallback_err).strip() or fallback_err.__class__.__name__
+                            results.append({"step": step, "error": f"No model response: {fallback_msg[:160]}"})
+                            Path(local_img).unlink(missing_ok=True)
+                            await asyncio.sleep(step_delay)
+                            continue
+
+                    # Parse JSON action
+                    import re
+
+                    action_data = None
+                    try:
+                        action_data = _json.loads(response_text.strip())
+                    except:
+                        if "```json" in response_text:
+                            json_match = response_text.split("```json")[1].split("```")[0].strip()
+                            try:
+                                action_data = _json.loads(json_match)
+                            except:
+                                pass
+                        elif "```" in response_text:
+                            json_match = response_text.split("```")[1].split("```")[0].strip()
+                            try:
+                                action_data = _json.loads(json_match)
+                            except:
+                                pass
+
+                    if not action_data:
+                        matches = re.findall(r'\{[^{}]*"action"[^{}]*\}', response_text)
+                        if matches:
+                            try:
+                                action_data = _json.loads(matches[0])
+                            except:
+                                pass
+
+                    if not action_data:
+                        # Heuristic rescue path when model replies with prose instead of JSON.
+                        lower = response_text.lower()
+                        nums = [int(n) for n in re.findall(r"\b(\d{1,4})\b", response_text)]
+                        if "double" in lower and "click" in lower and len(nums) >= 2:
+                            action_data = {"action": "double_click", "x": nums[0], "y": nums[1]}
+                        elif "right" in lower and "click" in lower and len(nums) >= 2:
+                            action_data = {"action": "right_click", "x": nums[0], "y": nums[1]}
+                        elif "click" in lower and len(nums) >= 2:
+                            action_data = {"action": "click", "x": nums[0], "y": nums[1]}
+                        elif "type" in lower:
+                            action_data = {"action": "wait", "seconds": 1}
+                        elif "done" in lower or "completed" in lower:
+                            action_data = {"action": "done", "result": "completed"}
+                        else:
+                            action_data = {"action": "wait", "seconds": 1}
+                        results.append({"step": step, "warning": f"Recovered non-JSON model output: {response_text[:120]}"})
+
+                    action_type = action_data.get("action", "")
+                    try:
+                        if action_type == "done":
+                            results.append({"step": step, "action": "done", "result": action_data.get("result")})
+                            Path(local_img).unlink(missing_ok=True)
+                            return {
+                                "completed": True,
+                                "steps": step + 1,
+                                "result": action_data.get("result", "Task completed"),
+                                "history": results[-20:]
+                            }
+                        elif action_type == "click":
+                            x, y = action_data.get("x", 0), action_data.get("y", 0)
+                            subprocess.run(["docker", "exec", container, "xdotool", "mousemove", str(x), str(y), "click", "1"], capture_output=True, timeout=5)
+                            results.append({"step": step, "action": "click", "x": x, "y": y})
+                        elif action_type == "double_click":
+                            x, y = action_data.get("x", 0), action_data.get("y", 0)
+                            subprocess.run(["docker", "exec", container, "xdotool", "mousemove", str(x), str(y), "click", "--repeat", "2", "1"], capture_output=True, timeout=5)
+                            results.append({"step": step, "action": "double_click", "x": x, "y": y})
+                        elif action_type == "right_click":
+                            x, y = action_data.get("x", 0), action_data.get("y", 0)
+                            subprocess.run(["docker", "exec", container, "xdotool", "mousemove", str(x), str(y), "click", "3"], capture_output=True, timeout=5)
+                            results.append({"step": step, "action": "right_click", "x": x, "y": y})
+                        elif action_type == "type":
+                            text = action_data.get("text", "")
+                            subprocess.run(["docker", "exec", container, "xdotool", "type", "--clearmodifiers", "--delay", "50", text], capture_output=True, timeout=30)
+                            results.append({"step": step, "action": "type", "text": text[:50]})
+                        elif action_type == "key":
+                            key = action_data.get("key", "Return")
+                            subprocess.run(["docker", "exec", container, "xdotool", "key", "--clearmodifiers", key], capture_output=True, timeout=5)
+                            results.append({"step": step, "action": "key", "key": key})
+                        elif action_type == "hotkey":
+                            keys = action_data.get("keys", "")
+                            subprocess.run(["docker", "exec", container, "xdotool", "key", "--clearmodifiers", keys], capture_output=True, timeout=5)
+                            results.append({"step": step, "action": "hotkey", "keys": keys})
+                        elif action_type == "scroll":
+                            amount = action_data.get("amount", -3)
+                            button = "5" if amount < 0 else "4"
+                            for _ in range(abs(amount)):
+                                subprocess.run(["docker", "exec", container, "xdotool", "click", button], capture_output=True, timeout=2)
+                            results.append({"step": step, "action": "scroll", "amount": amount})
+                        elif action_type == "wait":
+                            wait_time = action_data.get("seconds", 1)
+                            await asyncio.sleep(wait_time)
+                            results.append({"step": step, "action": "wait", "seconds": wait_time})
+                        else:
+                            results.append({"step": step, "error": f"Unknown action: {action_type}"})
+
+                        if _GEMINI_VDESKTOP_SESSION:
+                            _GEMINI_VDESKTOP_SESSION["steps"] = step + 1
+                    except Exception as exec_err:
+                        results.append({"step": step, "error": f"Execution error: {str(exec_err)[:150]}"})
+                    finally:
+                        Path(local_img).unlink(missing_ok=True)
+
                     await asyncio.sleep(step_delay)
-                    continue
-                
-                # Parse JSON action - extract from text more aggressively
-                import json as _json
-                import re
-                
-                # Try direct parse first
-                action_data = None
-                try:
-                    action_data = _json.loads(response_text.strip())
-                except:
-                    # Extract from code blocks
-                    if "```json" in response_text:
-                        json_match = response_text.split("```json")[1].split("```")[0].strip()
-                        try:
-                            action_data = _json.loads(json_match)
-                        except:
-                            pass
-                    elif "```" in response_text:
-                        json_match = response_text.split("```")[1].split("```")[0].strip()
-                        try:
-                            action_data = _json.loads(json_match)
-                        except:
-                            pass
-                
-                # Fallback: extract any JSON object
-                if not action_data:
-                    matches = re.findall(r'\{[^{}]*"action"[^{}]*\}', response_text)
-                    if matches:
-                        try:
-                            action_data = _json.loads(matches[0])
-                        except:
-                            pass
-                
-                if not action_data:
-                    results.append({"step": step, "error": f"Parse failed: {response_text[:150]}"})
-                    await asyncio.sleep(step_delay)
-                    continue
-                
-                action_type = action_data.get("action", "")
-                
-                try:
-                    if action_type == "done":
-                        results.append({"step": step, "action": "done", "result": action_data.get("result")})
-                        return {
-                            "completed": True,
-                            "steps": step + 1,
-                            "result": action_data.get("result", "Task completed"),
-                            "history": results[-20:]
-                        }
-                    
-                    # Execute action in Docker container
-                    elif action_type == "click":
-                        x, y = action_data.get("x", 0), action_data.get("y", 0)
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "mousemove", str(x), str(y), "click", "1"
-                        ], capture_output=True, timeout=5)
-                        results.append({"step": step, "action": "click", "x": x, "y": y})
-                    
-                    elif action_type == "double_click":
-                        x, y = action_data.get("x", 0), action_data.get("y", 0)
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "mousemove", str(x), str(y), "click", "--repeat", "2", "1"
-                        ], capture_output=True, timeout=5)
-                        results.append({"step": step, "action": "double_click", "x": x, "y": y})
-                    
-                    elif action_type == "right_click":
-                        x, y = action_data.get("x", 0), action_data.get("y", 0)
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "mousemove", str(x), str(y), "click", "3"
-                        ], capture_output=True, timeout=5)
-                        results.append({"step": step, "action": "right_click", "x": x, "y": y})
-                    
-                    elif action_type == "type":
-                        text = action_data.get("text", "")
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "type", "--clearmodifiers", "--delay", "50", text
-                        ], capture_output=True, timeout=30)
-                        results.append({"step": step, "action": "type", "text": text[:50]})
-                    
-                    elif action_type == "key":
-                        key = action_data.get("key", "Return")
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "key", "--clearmodifiers", key
-                        ], capture_output=True, timeout=5)
-                        results.append({"step": step, "action": "key", "key": key})
-                    
-                    elif action_type == "hotkey":
-                        keys = action_data.get("keys", "")
-                        subprocess.run([
-                            "docker", "exec", container,
-                            "xdotool", "key", "--clearmodifiers", keys
-                        ], capture_output=True, timeout=5)
-                        results.append({"step": step, "action": "hotkey", "keys": keys})
-                    
-                    elif action_type == "scroll":
-                        amount = action_data.get("amount", -3)
-                        button = "5" if amount < 0 else "4"
-                        for _ in range(abs(amount)):
-                            subprocess.run([
-                                "docker", "exec", container,
-                                "xdotool", "click", button
-                            ], capture_output=True, timeout=2)
-                        results.append({"step": step, "action": "scroll", "amount": amount})
-                    
-                    elif action_type == "wait":
-                        wait_time = action_data.get("seconds", 1)
-                        await asyncio.sleep(wait_time)
-                        results.append({"step": step, "action": "wait", "seconds": wait_time})
-                    
-                    else:
-                        results.append({"step": step, "error": f"Unknown action: {action_type}"})
-                    
-                    if _GEMINI_VDESKTOP_SESSION:
-                        _GEMINI_VDESKTOP_SESSION["steps"] = step + 1
-                    
-                except Exception as e:
-                    results.append({"step": step, "error": str(e)[:200]})
-                
-                finally:
-                    Path(local_img).unlink(missing_ok=True)
-                
-                await asyncio.sleep(step_delay)
+
+                if websocket is not None:
+                    try:
+                        await websocket.close()
+                    except Exception:
+                        pass
+
+                return {
+                    "completed": False,
+                    "steps": max_steps,
+                    "message": f"Reached max steps ({max_steps})",
+                    "history": results[-20:]
+                }
+
+            except Exception as ws_err:
+                return {"error": f"Gemini Live/WebSocket flow error: {str(ws_err)[:300]}"}
             
-            return {
-                "completed": False,
-                "steps": max_steps,
-                "message": f"Reached max steps ({max_steps})",
-                "history": results[-20:]
-            }
-        
         elif action == "screenshot":
             if not _GEMINI_VDESKTOP_SESSION:
                 return {"error": "Not connected. Use action='connect' first."}

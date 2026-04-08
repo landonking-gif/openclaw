@@ -11903,19 +11903,22 @@ def _gemini_screen_stream_sync(action: str, **kwargs) -> dict:
 _GEMINI_VDESKTOP_SESSION = None
 
 async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
-    """Stream the isolated virtual desktop to Gemini Live for real-time AI automation.
+    """Control isolated virtual desktop with AI vision (NVIDIA primary, Gemini fallback).
     
     This gives the AI its own computer (Docker container) with its own screen,
     mouse, and keyboard - completely isolated from your real screen.
     
-    Gemini watches the virtual desktop in real-time and controls it autonomously.
+    Uses NVIDIA vision models by default (free API), falls back to Gemini if needed.
     """
     global _GEMINI_VDESKTOP_SESSION, _VIRTUAL_DESKTOP_SESSION
     
     try:
+        # NVIDIA keys are primary, Gemini is fallback
+        nvidia_key = _get_api_key()  # Uses rotation
         gemini_key = os.getenv("GEMINI_API_KEY", "")
-        if not gemini_key:
-            return {"error": "GEMINI_API_KEY not set in environment"}
+        
+        if not nvidia_key and not gemini_key:
+            return {"error": "No vision API key available (need NVAPI or GEMINI_API_KEY)"}
         
         container = kwargs.get("container", "orchestrator-desktop")
         
@@ -11968,44 +11971,32 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             
             container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
             
-            # Ensure Gemini library
-            try:
-                import google.generativeai as genai
-            except ImportError:
-                ok, _ = _ensure_python_package_in_tool_venv("google-generativeai")
-                if not ok:
-                    return {"error": "Failed to install google-generativeai"}
-                import google.generativeai as genai
-            
-            genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            
             # System prompt for virtual desktop automation
-            system_prompt = f"""You are controlling an isolated virtual Linux desktop (Ubuntu with XFCE).
-This is YOUR computer - it runs in Docker and is completely separate from the user's computer.
-
-You can see the screen and control it with mouse and keyboard. The user cannot see what you're doing
-unless they open the VNC viewer at http://localhost:6901
+            system_prompt = f"""You are controlling a virtual Linux desktop. Look at the screenshot and decide the next action.
 
 Screen resolution: 1280x1024
 
-Available actions (respond with JSON only):
-- {{"action": "click", "x": 640, "y": 512}} - Click at x,y coordinates
+YOUR TASK: {task}
+
+CRITICAL: Respond with ONLY a JSON object. No other text before or after. Example:
+{{"action": "click", "x": 640, "y": 512}}
+
+Available actions:
+- {{"action": "click", "x": 640, "y": 512}} - Click at coordinates
 - {{"action": "double_click", "x": 640, "y": 512}} - Double-click
-- {{"action": "right_click", "x": 640, "y": 512}} - Right-click for context menu
-- {{"action": "type", "text": "hello world"}} - Type text (including URLs, commands)
-- {{"action": "key", "key": "Return"}} - Press special key (Return, Tab, Escape, BackSpace, etc)
-- {{"action": "hotkey", "keys": "ctrl+t"}} - Key combination (ctrl+c, ctrl+v, alt+F4, etc)
-- {{"action": "scroll", "amount": -3}} - Scroll (negative=down, positive=up)
-- {{"action": "wait", "seconds": 2}} - Wait for page load or animation
-- {{"action": "done", "result": "description"}} - Task complete
+- {{"action": "right_click", "x": 640, "y": 512}} - Right-click
+- {{"action": "type", "text": "hello"}} - Type text
+- {{"action": "key", "key": "Return"}} - Press key (Return, Tab, Escape, etc)
+- {{"action": "hotkey", "keys": "ctrl+t"}} - Key combo
+- {{"action": "scroll", "amount": -3}} - Scroll (negative=down)
+- {{"action": "wait", "seconds": 2}} - Wait
+- {{"action": "done", "result": "Task completed"}} - Finished
 
-Respond with ONLY a JSON action object. Be precise with coordinates.
-
-Your task: {task}"""
+Respond with JSON ONLY. No explanation. Just the JSON action."""
             
             results = []
-            conversation_history = []
+            use_nvidia = True  # Try NVIDIA vision first, fallback to Gemini
+            nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"  # NVIDIA vision model
             
             for step in range(max_steps):
                 # Capture screenshot from Docker container
@@ -12028,37 +12019,92 @@ Your task: {task}"""
                     await asyncio.sleep(1)
                     continue
                 
-                # Send to Gemini
+                # Read and base64 encode image
+                import base64
+                import httpx  # async HTTP client
+                with open(local_img, "rb") as f:
+                    img_base64 = base64.b64encode(f.read()).decode("utf-8")
+                
+                prompt = f"Step {step + 1}. What's the next action?" if step > 0 else system_prompt
+                
+                # Try NVIDIA vision API first (OpenAI-compatible format)
+                response_text = None
                 try:
-                    import PIL.Image
-                    img = PIL.Image.open(local_img)
+                    nvidia_key = _get_api_key()  # Rotates through NVAPI keys
+                    messages = [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                                }
+                            ]
+                        }
+                    ]
                     
-                    prompt = f"Step {step + 1}. What's the next action?" if step > 0 else system_prompt
-                    
-                    response = model.generate_content([prompt, img])
-                    response_text = response.text.strip()
-                    
-                    # Parse JSON action
-                    import json as _json
-                    json_match = response_text
-                    if "```json" in response_text:
-                        json_match = response_text.split("```json")[1].split("```")[0].strip()
-                    elif "```" in response_text:
-                        json_match = response_text.split("```")[1].split("```")[0].strip()
-                    
-                    try:
-                        action_data = _json.loads(json_match)
-                    except:
-                        import re
-                        matches = re.findall(r'\{[^{}]*\}', response_text)
-                        if matches:
-                            action_data = _json.loads(matches[0])
+                    async with httpx.AsyncClient(timeout=60.0) as client:
+                        resp = await client.post(
+                            "https://integrate.api.nvidia.com/v1/chat/completions",
+                            headers={"Authorization": f"Bearer {nvidia_key}"},
+                            json={
+                                "model": nvidia_vision_model,
+                                "messages": messages,
+                                "max_tokens": 512,
+                                "temperature": 0.3,
+                            }
+                        )
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            response_text = data["choices"][0]["message"]["content"].strip()
                         else:
-                            results.append({"step": step, "error": f"Parse failed: {response_text[:100]}"})
-                            continue
-                    
-                    action_type = action_data.get("action", "")
-                    
+                            # NVIDIA failed, try Gemini fallback
+                            use_nvidia = False
+                            raise Exception(f"NVIDIA API error {resp.status_code}: {resp.text[:200]}")
+                except Exception as nvidia_err:
+                    # Try Gemini as fallback
+                    try:
+                        import google.generativeai as genai
+                        genai.configure(api_key=gemini_key)
+                        model = genai.GenerativeModel("gemini-2.0-flash")
+                        import PIL.Image
+                        img = PIL.Image.open(local_img)
+                        response = model.generate_content([prompt, img])
+                        response_text = response.text.strip()
+                    except Exception as gemini_err:
+                        results.append({"step": step, "error": f"Both APIs failed: NVIDIA={nvidia_err}, Gemini={gemini_err}"})
+                        await asyncio.sleep(step_delay)
+                        continue
+                
+                if not response_text:
+                    results.append({"step": step, "error": "No response from vision APIs"})
+                    await asyncio.sleep(step_delay)
+                    continue
+                
+                # Parse JSON action
+                import json as _json
+                json_match = response_text
+                if "```json" in response_text:
+                    json_match = response_text.split("```json")[1].split("```")[0].strip()
+                elif "```" in response_text:
+                    json_match = response_text.split("```")[1].split("```")[0].strip()
+                
+                try:
+                    action_data = _json.loads(json_match)
+                except:
+                    import re
+                    matches = re.findall(r'\{[^{}]*\}', response_text)
+                    if matches:
+                        action_data = _json.loads(matches[0])
+                    else:
+                        results.append({"step": step, "error": f"Parse failed: {response_text[:100]}"})
+                        await asyncio.sleep(step_delay)
+                        continue
+                
+                action_type = action_data.get("action", "")
+                
+                try:
                     if action_type == "done":
                         results.append({"step": step, "action": "done", "result": action_data.get("result")})
                         return {

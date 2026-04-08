@@ -2926,7 +2926,7 @@ class DispatchRequest(BaseModel):
 class ChatMessage(BaseModel):
     message: str
     session_id: Optional[str] = None  # Reuse session for conversation continuity
-    wait_for_completion: Optional[bool] = True
+    wait_for_completion: Optional[bool] = None
 
 # ── State ───────────────────────────────────────────────────────────────────
 
@@ -3008,6 +3008,130 @@ def _parse_inline_tool_calls(content: str) -> list:
             function=SimpleNamespace(name=fn_name, arguments=raw_args),
         ))
     return calls
+
+
+def _is_release_verification_request(user_message: str) -> bool:
+    text = (user_message or "").lower()
+    required = ("release", "tag", "published")
+    if all(token in text for token in required):
+        return True
+    strong = (
+        "github",
+        "openclaw",
+        "hallucinate",
+        "strict json",
+        "verify",
+        "evidence",
+    )
+    return sum(1 for token in strong if token in text) >= 3
+
+
+def _extract_first_json_object(text: str) -> Optional[dict]:
+    if not text:
+        return None
+    candidate = text.strip()
+    if "```json" in candidate:
+        try:
+            candidate = candidate.split("```json", 1)[1].split("```", 1)[0].strip()
+        except Exception:
+            pass
+    elif "```" in candidate:
+        try:
+            candidate = candidate.split("```", 1)[1].split("```", 1)[0].strip()
+        except Exception:
+            pass
+    try:
+        parsed = json.loads(candidate)
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        pass
+    match = re.search(r"\{[\s\S]*\}", text)
+    if not match:
+        return None
+    try:
+        parsed = json.loads(match.group(0))
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        return None
+
+
+def _build_tool_evidence_text(delegations: list[dict]) -> str:
+    parts: list[str] = []
+    for d in delegations:
+        task = d.get("task", "")
+        resp = d.get("agent_response", "")
+        if task or resp:
+            parts.append(f"[{task}] {resp}")
+    return "\n".join(parts)
+
+
+def _extract_release_hints(text: str) -> dict[str, str]:
+    tag_match = re.search(r"\bv\d{4}\.\d{1,2}\.\d{1,2}(?:-beta\.\d+)?\b", text)
+    iso_match = re.search(r"\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\b", text)
+    url_match = re.search(r"https?://github\.com/openclaw/openclaw/releases(?:/tag/[^\s\"')]+)?", text)
+    return {
+        "tag": tag_match.group(0) if tag_match else "",
+        "published_at": iso_match.group(0) if iso_match else "",
+        "url": url_match.group(0) if url_match else "",
+    }
+
+
+async def _fetch_openclaw_release_truth() -> dict:
+    url = "https://api.github.com/repos/openclaw/openclaw/releases?per_page=1"
+    async with _httpx.AsyncClient(timeout=_httpx.Timeout(timeout=20.0, connect=5.0)) as client:
+        resp = await client.get(url, headers={"User-Agent": "openclaw-orchestrator-verifier"})
+        resp.raise_for_status()
+        data = resp.json()
+    rel = data[0] if isinstance(data, list) and data else {}
+    return {
+        "tag": str(rel.get("tag_name", "")),
+        "published_at": str(rel.get("published_at", "")),
+        "url": str(rel.get("html_url", "")),
+        "name": str(rel.get("name", "")),
+    }
+
+
+def _validate_release_payload(payload: dict, tool_evidence_text: str, truth: Optional[dict]) -> dict:
+    required_fields = (
+        "extracted_tag",
+        "extracted_published_at_iso",
+        "evidence_url",
+        "evidence_title",
+        "evidence_snippet_verbatim",
+        "tools_used_summary",
+    )
+    missing = [f for f in required_fields if not str(payload.get(f, "")).strip()]
+    problems: list[str] = []
+    if missing:
+        problems.append(f"missing_fields:{','.join(missing)}")
+
+    tag = str(payload.get("extracted_tag", "")).strip()
+    published = str(payload.get("extracted_published_at_iso", "")).strip()
+    evidence_url = str(payload.get("evidence_url", "")).strip()
+    snippet = str(payload.get("evidence_snippet_verbatim", "")).strip()
+    tools_summary = str(payload.get("tools_used_summary", "")).lower()
+
+    if tag and tag not in tool_evidence_text and tag not in snippet:
+        problems.append("tag_not_in_tool_evidence")
+    if published and published not in tool_evidence_text and published not in snippet:
+        problems.append("published_at_not_in_tool_evidence")
+    if evidence_url and evidence_url not in tool_evidence_text and "github.com/openclaw/openclaw/releases" not in evidence_url:
+        problems.append("evidence_url_not_supported")
+    if tools_summary and not any(tok in tools_summary for tok in ("gemini_virtual_desktop", "browser_automate", "web_scrape", "virtual_desktop")):
+        problems.append("tools_summary_missing_expected_tools")
+
+    if truth:
+        truth_tag = str(truth.get("tag", "")).strip()
+        truth_published = str(truth.get("published_at", "")).strip()
+        if tag and truth_tag and tag != truth_tag:
+            problems.append(f"tag_mismatch_truth:{tag}!={truth_tag}")
+        if published and truth_published and published != truth_published:
+            problems.append(f"published_mismatch_truth:{published}!={truth_published}")
+
+    return {
+        "verified": len(problems) == 0,
+        "problems": problems,
+    }
 
 
 def classify_task_to_managers(task_description: str) -> list[str]:
@@ -4305,7 +4429,9 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 internal_task = f"GeminiScreen: {fn_args.get('action', '')}"
             elif fn_name == "gemini_virtual_desktop":
                 # Gemini controlling isolated Docker virtual desktop
-                internal_result = _gemini_virtual_desktop_sync(
+                # Run in worker thread so long desktop sessions don't block FastAPI event loop.
+                internal_result = await asyncio.to_thread(
+                    _gemini_virtual_desktop_sync,
                     fn_args.get("action", ""),
                     container=fn_args.get("container", "orchestrator-desktop"),
                     task=fn_args.get("task", ""),
@@ -4318,7 +4444,11 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 browser_args = {k: v for k, v in fn_args.items() if k != "action"}
                 if task_mode and os.getenv("ORCH_TASK_FORCE_HEADLESS", "1") == "1" and fn_args.get("action", "") == "launch":
                     browser_args["headless"] = True
-                internal_result = _browser_automate(fn_args.get("action", ""), **browser_args)
+                internal_result = await asyncio.to_thread(
+                    _browser_automate,
+                    fn_args.get("action", ""),
+                    **browser_args,
+                )
                 internal_task = f"Browser: {fn_args.get('action', '')}"
                 if fast_task_mode:
                     fast_task_tool_hits += 1
@@ -4535,6 +4665,7 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
     # Extract the text response from the final turn
     text_response = assistant_msg.content or ""
     log.info(f"Final turn raw content (len={len(text_response)}): {text_response[:300]!r}")
+    enforce_release_verification = _is_release_verification_request(user_message)
 
     # Strip any leaked raw tool-call tokens from the text
     text_response = _strip_tool_tokens(text_response)
@@ -4620,6 +4751,90 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                     status = "✓" if d["dispatched"] else "✗"
                     parts.append(f"**{d['task']}** ({status})")
             text_response = "\n\n".join(parts) if parts else "I completed the requested actions but couldn't generate a summary due to rate limiting."
+
+    # Forced structured finalization + evidence validation gate for release-verification tasks.
+    if enforce_release_verification:
+        tool_evidence_text = _build_tool_evidence_text(delegations)
+        truth = None
+        try:
+            truth = await _fetch_openclaw_release_truth()
+        except Exception as truth_err:
+            log.warning(f"Release truth fetch failed: {truth_err}")
+
+        # First pass: parse existing response if it is already JSON-like; otherwise synthesize strict JSON.
+        payload = _extract_first_json_object(text_response)
+        validation = _validate_release_payload(payload or {}, tool_evidence_text, truth)
+        structured_attempts = 3
+        for attempt in range(structured_attempts):
+            if payload and validation["verified"]:
+                break
+            try:
+                _verify_client = llm_client.with_options(api_key=_next_kimi_key())
+                truth_text = json.dumps(truth, default=str) if truth else "unavailable"
+                verify_messages = [
+                    {"role": "system", "content": (
+                        "Return STRICT JSON only. Do not include markdown. "
+                        "Required keys: extracted_tag, extracted_published_at_iso, evidence_url, "
+                        "evidence_title, evidence_snippet_verbatim, tools_used_summary, confidence."
+                    )},
+                    {"role": "user", "content": (
+                        f"User request:\n{user_message}\n\n"
+                        f"Tool evidence:\n{tool_evidence_text[:20000]}\n\n"
+                        f"Ground truth (must match when present): {truth_text}\n\n"
+                        f"Previous response:\n{text_response[:4000]}\n\n"
+                        f"Validation failures so far: {validation['problems']}\n\n"
+                        "Produce only strict JSON. If evidence is insufficient for any field, set it to \"unknown\" and explain in tools_used_summary."
+                    )},
+                ]
+                verify_resp = await _verify_client.chat.completions.create(
+                    model=LLM_MODEL,
+                    messages=verify_messages,
+                    temperature=0.2,
+                    max_tokens=1200,
+                )
+                candidate = _strip_tool_tokens(verify_resp.choices[0].message.content or "")
+                payload = _extract_first_json_object(candidate)
+                validation = _validate_release_payload(payload or {}, tool_evidence_text, truth)
+                if payload and validation["verified"]:
+                    break
+            except Exception as verify_err:
+                log.warning(f"Structured finalization attempt {attempt + 1} failed: {verify_err}")
+
+        if payload and validation["verified"]:
+            payload["verification"] = {
+                "status": "verified",
+                "source": "tool-evidence-and-truth-gate",
+            }
+            text_response = json.dumps(payload, ensure_ascii=False)
+            await activity.record(
+                "verification",
+                session_id,
+                "Release verification gate passed",
+                {"verified": True},
+            )
+        else:
+            hints = _extract_release_hints(tool_evidence_text)
+            failed_payload = {
+                "extracted_tag": hints.get("tag") or "unknown",
+                "extracted_published_at_iso": hints.get("published_at") or "unknown",
+                "evidence_url": hints.get("url") or "unknown",
+                "evidence_title": "unknown",
+                "evidence_snippet_verbatim": "Verification failed: insufficient consistent evidence",
+                "tools_used_summary": "Validation gate rejected unverified synthesis output.",
+                "confidence": "low",
+                "verification": {
+                    "status": "failed",
+                    "problems": validation["problems"],
+                    "truth": truth or {},
+                },
+            }
+            text_response = json.dumps(failed_payload, ensure_ascii=False)
+            await activity.record(
+                "verification",
+                session_id,
+                "Release verification gate failed",
+                {"verified": False, "problems": validation["problems"]},
+            )
 
     # Save to conversation history (keep last 20 exchanges to stay within context)
     history.append({"role": "user", "content": user_message})
@@ -4873,6 +5088,11 @@ async def chat(req: ChatMessage):
     # Longer timeout for complex autonomous tasks with many tool turns.
     is_complex = _is_complex_autonomous_request(req.message)
     CHAT_TIMEOUT = 600 if is_complex else 300
+    wait_for_completion = (
+        req.wait_for_completion
+        if req.wait_for_completion is not None
+        else (not is_complex)
+    )
     
     try:
         chat_task = asyncio.create_task(
@@ -4883,6 +5103,20 @@ async def chat(req: ChatMessage):
             )
         )
         _track_pending_chat_task(session_id, chat_task)
+        if not wait_for_completion:
+            await activity.record(
+                "chat_accepted",
+                session_id,
+                "Accepted for background processing",
+                {"task_mode": is_complex, "wait_for_completion": False},
+            )
+            return {
+                "response": f"Accepted. Processing in background (task: {session_id}).",
+                "delegations": [],
+                "session_id": session_id,
+                "pending": True,
+                "status": "accepted_background",
+            }
         result = await asyncio.wait_for(asyncio.shield(chat_task), timeout=CHAT_TIMEOUT)
         response = dict(result)
         response.setdefault("session_id", session_id)
@@ -12453,14 +12687,18 @@ Respond with JSON ONLY."""
 def _gemini_virtual_desktop_sync(action: str, **kwargs) -> dict:
     """Sync wrapper for gemini_virtual_desktop."""
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
+        try:
+            loop = asyncio.get_running_loop()
+            in_running_loop = loop.is_running()
+        except RuntimeError:
+            in_running_loop = False
+
+        if in_running_loop:
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 future = pool.submit(asyncio.run, _gemini_virtual_desktop(action, **kwargs))
                 return future.result(timeout=1800)  # 30 min timeout for long tasks
-        else:
-            return asyncio.run(_gemini_virtual_desktop(action, **kwargs))
+        return asyncio.run(_gemini_virtual_desktop(action, **kwargs))
     except Exception as e:
         return {"error": f"gemini_virtual_desktop sync wrapper failed: {e}"}
 

@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "agentic-1",
-      "avatar": "agentic-1"
+      "name": "research-worker",
+      "avatar": "research-worker"
     }
   },
   "auth": {
@@ -126,7 +126,7 @@
           "nvidia/moonshotai/kimi-k2.5"
         ]
       },
-      "workspace": "/Users/landonking/openclaw-army/agents/agentic-1",
+      "workspace": "/Users/landonking/openclaw-army/agents/research-worker",
       "memorySearch": {
         "enabled": true
       },
@@ -174,7 +174,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18807,
+    "port": 18812,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "infra-1",
-      "avatar": "infra-1"
+      "name": "infra-worker",
+      "avatar": "infra-worker"
     }
   },
   "auth": {
@@ -126,7 +126,7 @@
           "nvidia/z-ai/glm-5"
         ]
       },
-      "workspace": "/Users/landonking/openclaw-army/agents/infra-1",
+      "workspace": "/Users/landonking/openclaw-army/agents/infra-worker",
       "memorySearch": {
         "enabled": true
       },
@@ -174,7 +174,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18921,
+    "port": 18815,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "general-1",
-      "avatar": "general-1"
+      "name": "general-worker",
+      "avatar": "general-worker"
     }
   },
   "auth": {
@@ -126,7 +126,7 @@
           "nvidia/z-ai/glm-5"
         ]
       },
-      "workspace": "/Users/landonking/openclaw-army/agents/general-1",
+      "workspace": "/Users/landonking/openclaw-army/agents/general-worker",
       "memorySearch": {
         "enabled": true
       },
@@ -174,7 +174,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18811,
+    "port": 18810,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

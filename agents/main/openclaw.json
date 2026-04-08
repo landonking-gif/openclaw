@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "King AI",
-      "avatar": "king-ai"
+      "name": "main",
+      "avatar": "main"
     }
   },
   "auth": {

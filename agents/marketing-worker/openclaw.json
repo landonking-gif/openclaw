@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "marketing-1",
-      "avatar": "marketing-1"
+      "name": "marketing-worker",
+      "avatar": "marketing-worker"
     }
   },
   "auth": {
@@ -126,7 +126,7 @@
           "nvidia/z-ai/glm-5"
         ]
       },
-      "workspace": "/Users/landonking/openclaw-army/agents/marketing-1",
+      "workspace": "/Users/landonking/openclaw-army/agents/marketing-worker",
       "memorySearch": {
         "enabled": true
       },
@@ -174,7 +174,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18901,
+    "port": 18813,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

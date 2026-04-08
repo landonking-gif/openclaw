@@ -139,7 +139,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18815,
+    "port": 18803,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

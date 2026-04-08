@@ -10,8 +10,8 @@
   },
   "ui": {
     "assistant": {
-      "name": "product-1",
-      "avatar": "product-1"
+      "name": "product-worker",
+      "avatar": "product-worker"
     }
   },
   "auth": {
@@ -126,7 +126,7 @@
           "nvidia/z-ai/glm-5"
         ]
       },
-      "workspace": "/Users/landonking/openclaw-army/agents/product-1",
+      "workspace": "/Users/landonking/openclaw-army/agents/product-worker",
       "memorySearch": {
         "enabled": true
       },
@@ -174,7 +174,7 @@
     "ownerDisplay": "raw"
   },
   "gateway": {
-    "port": 18911,
+    "port": 18814,
     "mode": "local",
     "bind": "loopback",
     "controlUi": {

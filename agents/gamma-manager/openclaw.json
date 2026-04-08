@@ -1,0 +1,30 @@
+{
+  "gateway": {
+    "port": 18802,
+    "bind": "loopback",
+    "mode": "local",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "ff9ca3367aaca38a339b69458dab8b99bb374b972316a01e"
+    }
+  },
+  "logging": {
+    "level": "warn"
+  },
+  "ui": {
+    "assistant": {
+      "name": "gamma-manager",
+      "avatar": "gamma-manager"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/Users/landonking/openclaw-army/agents/gamma-manager"
+    }
+  }
+}

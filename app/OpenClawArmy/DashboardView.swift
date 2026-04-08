@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import WebKit
 
 // MARK: - Main Dashboard
 
@@ -25,6 +26,7 @@ struct DashboardView: View {
                     KingTabButton(title: "Agents", icon: "person.3.sequence", index: 2, selected: $selectedTab)
                     KingTabButton(title: "Activity", icon: "waveform.path.ecg", index: 3, selected: $selectedTab)
                     KingTabButton(title: "Neural Map", icon: "brain", index: 4, selected: $selectedTab)
+                    KingTabButton(title: "AI Desktop", icon: "desktopcomputer", index: 5, selected: $selectedTab)
                     Spacer()
                 }
                 .padding(.horizontal, 16)
@@ -49,6 +51,7 @@ struct DashboardView: View {
                     case 2: AgentsTab()
                     case 3: ActivityTab()
                     case 4: NeuralMapTab()
+                    case 5: AIDesktopTab()
                     default: OverviewTab()
                     }
                 }
@@ -274,6 +277,103 @@ struct KingTabButton: View {
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
+    }
+}
+
+// MARK: - AI Desktop Tab
+
+struct AIDesktopTab: View {
+    @State private var desktopURLText = "http://localhost:6901"
+    @State private var desktopURL = URL(string: "http://localhost:6901")!
+    @State private var reloadToken = UUID()
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                Image(systemName: "desktopcomputer")
+                    .foregroundColor(.cyan)
+                Text("AI Personal Computer")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+
+                Spacer()
+
+                TextField("Desktop URL", text: $desktopURLText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 360)
+                    .font(.system(size: 12, design: .monospaced))
+
+                Button("Connect") {
+                    if let parsed = URL(string: desktopURLText.trimmingCharacters(in: .whitespacesAndNewlines)),
+                       parsed.scheme != nil {
+                        desktopURL = parsed
+                        reloadToken = UUID()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Reload") { reloadToken = UUID() }
+                    .buttonStyle(.bordered)
+
+                Button("Open in Browser") {
+                    NSWorkspace.shared.open(desktopURL)
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.black.opacity(0.35))
+
+            Rectangle()
+                .fill(LinearGradient(colors: [.clear, .cyan.opacity(0.2), .clear], startPoint: .leading, endPoint: .trailing))
+                .frame(height: 1)
+
+            ZStack {
+                DesktopWebView(url: desktopURL, reloadToken: reloadToken)
+                    .id(reloadToken)
+
+                VStack(spacing: 6) {
+                    Text("If this is blank, start Docker Desktop and ensure `orchestrator-desktop` is running.")
+                        .font(.system(size: 11))
+                        .foregroundColor(.gray)
+                    Text("Interactive noVNC usually lives at http://localhost:6901")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.gray.opacity(0.8))
+                }
+                .padding(8)
+                .background(Color.black.opacity(0.2))
+                .cornerRadius(8)
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            }
+        }
+    }
+}
+
+struct DesktopWebView: NSViewRepresentable {
+    let url: URL
+    let reloadToken: UUID
+
+    func makeNSView(context: Context) -> WKWebView {
+        let cfg = WKWebViewConfiguration()
+        cfg.allowsAirPlayForMediaPlayback = false
+        let view = WKWebView(frame: .zero, configuration: cfg)
+        view.setValue(false, forKey: "drawsBackground")
+        view.allowsBackForwardNavigationGestures = false
+        return view
+    }
+
+    func updateNSView(_ webView: WKWebView, context: Context) {
+        if webView.url != url || context.coordinator.lastReloadToken != reloadToken {
+            context.coordinator.lastReloadToken = reloadToken
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator {
+        var lastReloadToken = UUID()
     }
 }
 

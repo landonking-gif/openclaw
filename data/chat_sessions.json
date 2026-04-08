@@ -3931,7 +3931,16 @@
       "content": "**Multiple Choice Question:** \"The study of the tasks and responsibilities of an employee holding a specific job title is a(n)\" The answer is **job analysis** \u2014 as confirmed by the explanation text on the right. Let me select it:"
     }
   ],
-  "complex-ui-trial-001": [],
+  "complex-ui-trial-001": [
+    {
+      "role": "user",
+      "content": "Execute a complex real-world UI task now in gemini_virtual_desktop: connect, open Firefox, navigate to https://duckduckgo.com, search for OpenClaw GitHub, open the most relevant GitHub result, take a screenshot, and report exact actions + current URL/title. Use tools directly and do not ask follow-up questions."
+    },
+    {
+      "role": "assistant",
+      "content": "Based on the tool execution results, here is the complete report of the UI automation task:\n\n**Connection Status:**\nSuccessfully connected to the Gemini virtual desktop container named \"orchestrator-desktop\" with view URL http://localhost:6901 (accessible via browser).\n\n**Task Execution Progress:**\nThe automation encountered significant obstacles and was unable to complete the full workflow:\n\n1. **Initial Attempt (GeminiVirtualDesktop controller):** The system attempted to execute the full task sequence but terminated after reaching the maximum step limit of 50 steps. Between steps 30-37, the automation suffered repeated critical parse failures when attempting to interact with Firefox's \"Use Firefox as my default browser\" setup dialog. The parser failed to interpret the click action for this button multiple consecutive times, causing the process to stall.\n\n2. **Browser Launch (VirtualDesktop controller):** Following the failure of the initial run, a secondary VirtualDesktop controller successfully launched the browser and navigated directly to https://duckduckgo.com. However, the search for \"OpenClaw GitHub\" was never executed due to the earlier termination.\n\n**Screenshots Captured:**\nTwo screenshots were obtained during the process:\n- Primary screenshot: `/tmp/vdesktop_screenshot_20260408_140400.png` (144,631 bytes)\n- Secondary screenshot: `/tmp/vdesktop_screenshot_20260408_140653.png` (133,170 bytes)\n- Thumbnail generated: `/tmp/vdesktop_thumb.png` (250x200 pixels)\n\n**System Processes:**\nDuring the recovery phase, system commands were executed returning process ID **31457479** (likely the browser process), with subsequent command executions returning empty stdout and exit code 0.\n\n**Current State:**\n- **URL:** https://duckduckgo.com (DuckDuckGo homepage loaded)\n- **Browser:** Firefox (opened via VirtualDesktop controller)\n- **Task Completion:** Partial - Connection and navigation to DuckDuckGo successful; search for OpenClaw GitHub and GitHub navigation not completed due to step limit exhaustion and parse failures on the default browser dialog.\n- **Error Pattern:** Persistent parse failures on UI element interaction (steps 30-37+) regarding the default browser configuration prompt."
+    }
+  ],
   "complex-ui-trial-002": [
     {
       "role": "user",

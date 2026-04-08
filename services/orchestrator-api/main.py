@@ -5067,18 +5067,20 @@ async def _store_comprehensive_memory(session_id: str, user_message: str, respon
         import aiohttp
         timestamp = datetime.now(timezone.utc).isoformat()
         
+        async def _post_memory(sess: aiohttp.ClientSession, payload: dict) -> None:
+            # Always consume/close response body to avoid unclosed-connection warnings.
+            async with sess.post(f"{MEMORY_SERVICE_URL}/memory/commit", json=payload) as resp:
+                await resp.text()
+        
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
             # 1. Store user prompt (full)
-            await session.post(
-                f"{MEMORY_SERVICE_URL}/memory/commit",
-                json={
+            await _post_memory(session, {
                     "agent_name": "orchestrator",
                     "content": f"[USER PROMPT] Session: {session_id} | Time: {timestamp}\n{user_message}",
                     "category": "user_query",
                     "importance": 0.9,
                     "metadata": {"session_id": session_id, "type": "user_prompt", "timestamp": timestamp},
-                },
-            )
+                })
             
             # 2. Store work done (delegations/tool calls) if any
             if delegations:
@@ -5095,28 +5097,22 @@ async def _store_comprehensive_memory(session_id: str, user_message: str, respon
                         f"{f'    Error: {error}' if error else ''}"
                     )
                 
-                await session.post(
-                    f"{MEMORY_SERVICE_URL}/memory/commit",
-                    json={
+                await _post_memory(session, {
                         "agent_name": "orchestrator",
                         "content": f"[WORK DONE] Session: {session_id} | Delegations: {len(delegations)}\n" + "\n".join(work_summary),
                         "category": "work_execution",
                         "importance": 0.85,
                         "metadata": {"session_id": session_id, "type": "work_done", "delegation_count": len(delegations), "timestamp": timestamp},
-                    },
-                )
+                    })
             
             # 3. Store system response (full)
-            await session.post(
-                f"{MEMORY_SERVICE_URL}/memory/commit",
-                json={
+            await _post_memory(session, {
                     "agent_name": "orchestrator",
                     "content": f"[SYSTEM RESPONSE] Session: {session_id} | Time: {timestamp}\n{response_text}",
                     "category": "system_response",
                     "importance": 0.9,
                     "metadata": {"session_id": session_id, "type": "system_response", "timestamp": timestamp},
-                },
-            )
+                })
             
             # 4. Also store a combined summary for quick retrieval
             summary = (
@@ -5125,16 +5121,13 @@ async def _store_comprehensive_memory(session_id: str, user_message: str, respon
                 f"WORK: {len(delegations)} delegations\n"
                 f"RESPONSE: {response_text[:500]}{'...' if len(response_text) > 500 else ''}"
             )
-            await session.post(
-                f"{MEMORY_SERVICE_URL}/memory/commit",
-                json={
+            await _post_memory(session, {
                     "agent_name": "orchestrator",
                     "content": summary,
                     "category": "conversation_summary",
                     "importance": 0.8,
                     "metadata": {"session_id": session_id, "type": "summary", "timestamp": timestamp},
-                },
-            )
+                })
             
             log.debug(f"Stored comprehensive memory for session {session_id}")
     except Exception as e:
@@ -15922,6 +15915,7 @@ async def _health_watchdog():
     """Background task: every 60s, clear stale locks, auto-restart dead managers."""
     import aiohttp
     _consecutive_failures = Counter()  # track per-manager consecutive failures
+    _restart_cooldown_until: dict[str, float] = {}
 
     while True:
         await asyncio.sleep(60)
@@ -15940,6 +15934,10 @@ async def _health_watchdog():
 
                 # Auto-restart after 2 consecutive failures (gives transient errors a chance)
                 if _consecutive_failures[mgr_name] >= 2:
+                    now = time.monotonic()
+                    cooldown_until = _restart_cooldown_until.get(mgr_name, 0.0)
+                    if now < cooldown_until:
+                        continue
                     log.warning(f"Watchdog: {mgr_name} down for {_consecutive_failures[mgr_name]} checks — restarting")
                     _record_failure("watchdog_restart", f"{mgr_name} unresponsive for {_consecutive_failures[mgr_name]} checks", mgr_name)
                     restart = await _restart_manager(mgr_name)
@@ -15948,10 +15946,13 @@ async def _health_watchdog():
                         await activity.record("watchdog", "", f"Auto-restarted {mgr_name}",
                                               {"manager": mgr_name, "result": "success"})
                         _consecutive_failures[mgr_name] = 0
+                        _restart_cooldown_until[mgr_name] = 0.0
                     else:
                         log.error(f"Watchdog: FAILED to restart {mgr_name}: {restart['detail']}")
                         await activity.record("watchdog", "", f"Failed to restart {mgr_name}",
                                               {"manager": mgr_name, "error": restart["detail"]})
+                        # Back off repeated restart attempts for 5 minutes.
+                        _restart_cooldown_until[mgr_name] = time.monotonic() + 300
 
         except Exception as e:
             log.error(f"Watchdog error: {e}")

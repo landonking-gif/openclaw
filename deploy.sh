@@ -22,16 +22,155 @@ EXTENSIONS_DIR="$ARMY_HOME/extensions"
 DATA_DIR="$ARMY_HOME/data"
 LOG_DIR="$DATA_DIR/logs"
 PID_DIR="$DATA_DIR"
-PYTHON="python3.14"
-OPENCLAW_CLI="node --max-old-space-size=512 --expose-gc $HOME/openclaw-core/openclaw.mjs"
+NODE_BIN="/opt/homebrew/opt/node@22/bin/node"
+if [[ ! -x "$NODE_BIN" ]]; then
+    NODE_BIN="node"
+fi
+OPENCLAW_NODE_MAX_OLD_SPACE="${OPENCLAW_NODE_MAX_OLD_SPACE:-2048}"
+OPENCLAW_CLI="$NODE_BIN --max-old-space-size=$OPENCLAW_NODE_MAX_OLD_SPACE --expose-gc $HOME/openclaw-core/openclaw.mjs"
 
 # Ensure required dependencies are in PATH (PostgreSQL, Redis, OpenClaw Node modules)
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@17/bin:$HOME/.npm-global/bin:$PATH"
+if [[ -x "$HOME/Library/pnpm/pnpm" ]]; then
+    export PATH="$HOME/Library/pnpm:$PATH"
+fi
+
+# Resolve newest usable Python when no venv is active.
+_resolve_python() {
+    local candidates=(
+        "python3.13"
+        "python3.12"
+        "python3.11"
+        "python3.10"
+        "python3"
+    )
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if command -v "$candidate" >/dev/null 2>&1; then
+            echo "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
+_resolve_agent_config_path() {
+    local agent_dir="$1"
+    local config_path="$agent_dir/openclaw.json"
+    if [[ -f "$config_path" ]]; then
+        echo "$config_path"
+        return 0
+    fi
+    config_path="$agent_dir/.openclaw/openclaw.json"
+    if [[ -f "$config_path" ]]; then
+        echo "$config_path"
+        return 0
+    fi
+    return 1
+}
+
+_pid_on_port() {
+    local port="$1"
+    lsof -ti :"$port" 2>/dev/null | head -n 1
+}
+
+_ensure_agent_config() {
+    local name="$1"
+    local port="$2"
+    local agent_dir="$3"
+    local config_path=""
+    if config_path="$(_resolve_agent_config_path "$agent_dir")"; then
+        "$PYTHON" - "$config_path" "$name" "$agent_dir" "$port" <<'PY'
+import json, pathlib, sys
+cfg_path = pathlib.Path(sys.argv[1])
+name = sys.argv[2]
+workspace = sys.argv[3]
+port = int(sys.argv[4])
+cfg = json.loads(cfg_path.read_text())
+assistant = cfg.setdefault("ui", {}).setdefault("assistant", {})
+assistant["name"] = name
+assistant["avatar"] = name
+cfg.setdefault("agents", {}).setdefault("defaults", {})["workspace"] = workspace
+gateway = cfg.setdefault("gateway", {})
+gateway["port"] = port
+gateway["mode"] = "local"
+gateway.setdefault("bind", "loopback")
+cfg_path.write_text(json.dumps(cfg, indent=2) + "\n")
+PY
+        echo "$config_path"
+        return 0
+    fi
+
+    local template=""
+    local candidate
+    for candidate in \
+        "$AGENTS_DIR/$name/.openclaw/openclaw.json" \
+        "$AGENTS_DIR/$name/openclaw.json" \
+        "$AGENTS_DIR/alpha-manager/.openclaw/openclaw.json" \
+        "$AGENTS_DIR/alpha-manager/openclaw.json" \
+        "$AGENTS_DIR/beta-manager/.openclaw/openclaw.json" \
+        "$AGENTS_DIR/beta-manager/openclaw.json" \
+        "$AGENTS_DIR/main/.openclaw/openclaw.json" \
+        "$AGENTS_DIR/main/openclaw.json"; do
+        if [[ -f "$candidate" ]]; then
+            template="$candidate"
+            break
+        fi
+    done
+    if [[ -z "$template" ]]; then
+        local agent_root
+        for agent_root in "$AGENTS_DIR"/*(N/); do
+            for candidate in "$agent_root/openclaw.json" "$agent_root/.openclaw/openclaw.json"; do
+                if [[ -f "$candidate" ]]; then
+                    template="$candidate"
+                    break 2
+                fi
+            done
+        done
+    fi
+    if [[ -z "$template" ]]; then
+        return 1
+    fi
+
+    mkdir -p "$agent_dir"
+    config_path="$agent_dir/openclaw.json"
+    cp "$template" "$config_path"
+    "$PYTHON" - "$config_path" "$name" "$agent_dir" "$port" <<'PY'
+import json, pathlib, sys
+cfg_path = pathlib.Path(sys.argv[1])
+name = sys.argv[2]
+workspace = sys.argv[3]
+port = int(sys.argv[4])
+cfg = json.loads(cfg_path.read_text())
+assistant = cfg.setdefault("ui", {}).setdefault("assistant", {})
+assistant["name"] = name
+assistant["avatar"] = name
+cfg.setdefault("agents", {}).setdefault("defaults", {})["workspace"] = workspace
+gateway = cfg.setdefault("gateway", {})
+gateway["port"] = port
+gateway["mode"] = "local"
+gateway.setdefault("bind", "loopback")
+cfg_path.write_text(json.dumps(cfg, indent=2) + "\n")
+PY
+    echo "$config_path"
+    return 0
+}
+
+PYTHON="$(_resolve_python || true)"
+if [[ -z "$PYTHON" ]]; then
+    echo "ERROR: No supported Python found (tried python3.13, python3.12, python3.11, python3.10, python3)" >&2
+    exit 1
+fi
 
 # Use virtual environment if available
 if [[ -f "$ARMY_HOME/.venv/bin/activate" ]]; then
     source "$ARMY_HOME/.venv/bin/activate"
     PYTHON="$ARMY_HOME/.venv/bin/python"
+fi
+
+if ! "$PYTHON" -c 'import uvicorn' >/dev/null 2>&1; then
+    log_err "Python interpreter '$PYTHON' is missing uvicorn. Run: $PYTHON -m pip install -r services/orchestrator-api/requirements.txt"
+    exit 1
 fi
 
 # Agent definitions: name:port:model_env_key
@@ -230,8 +369,29 @@ _start_services() {
 
         # Check if already running
         if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-            log_ok "$name already running (PID $(cat "$pidfile"))"
-            continue
+            local pid="$(cat "$pidfile")"
+            if curl -sf --max-time 2 "http://localhost:$port/health" >/dev/null 2>&1; then
+                log_ok "$name already running (PID $pid)"
+                continue
+            fi
+            log_warn "$name PID $pid is stale/unhealthy; restarting"
+            kill -TERM "$pid" 2>/dev/null || true
+            rm -f "$pidfile"
+            sleep 1
+        fi
+        local existing_pid="$(_pid_on_port "$port" || true)"
+        if [[ -n "$existing_pid" ]]; then
+            if curl -sf --max-time 2 "http://localhost:$port/health" >/dev/null 2>&1; then
+                echo "$existing_pid" > "$pidfile"
+                log_ok "$name already running (PID $existing_pid)"
+                continue
+            fi
+            log_warn "$name port $port occupied by PID $existing_pid; reclaiming port"
+            kill -TERM "$existing_pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$existing_pid" 2>/dev/null; then
+                kill -9 "$existing_pid" 2>/dev/null || true
+            fi
         fi
 
         log_info "Starting $name on port $port..."
@@ -291,13 +451,35 @@ _start_agents() {
 
         # Check if already running
         if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-            log_ok "Agent $name already running (PID $(cat "$pidfile"))"
-            continue
+            local existing_pid="$(cat "$pidfile")"
+            if curl -sf --max-time 2 "http://localhost:$port" >/dev/null 2>&1; then
+                log_ok "Agent $name already running (PID $existing_pid)"
+                continue
+            fi
+            log_warn "Agent $name PID $existing_pid is stale/unhealthy; restarting"
+            kill -TERM "$existing_pid" 2>/dev/null || true
+            rm -f "$pidfile"
+            sleep 1
         fi
 
         if [[ ! -d "$agent_dir" ]]; then
             log_warn "Agent dir missing: $agent_dir — skipping"
             continue
+        fi
+
+        local port_pid="$(_pid_on_port "$port" || true)"
+        if [[ -n "$port_pid" ]]; then
+            if curl -sf --max-time 2 "http://localhost:$port" >/dev/null 2>&1; then
+                echo "$port_pid" > "$pidfile"
+                log_ok "Agent $name already running (PID $port_pid)"
+                continue
+            fi
+            log_warn "Agent $name port $port occupied by PID $port_pid; reclaiming port"
+            kill -TERM "$port_pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$port_pid" 2>/dev/null; then
+                kill -9 "$port_pid" 2>/dev/null || true
+            fi
         fi
 
         # Resolve the NVAPI key safely even with set -u
@@ -308,17 +490,24 @@ _start_agents() {
             api_key="${NVIDIA_API_KEY:-}"
         fi
 
-        # Kill anything on port first
+        # Kill anything still on port first
+        local pids
         pids=$(lsof -ti :$port 2>/dev/null || true)
-        if [ ! -z "$pids" ]; then
+        if [[ -n "$pids" ]]; then
             echo "Stopping previous agent on port $port (PIDs: $pids)"
             echo "$pids" | xargs kill -9 >/dev/null 2>&1
             sleep 1
         fi
 
         # Start the agent via gateway subcommand
+        local config_path=""
+        if ! config_path="$(_ensure_agent_config "$name" "$port" "$agent_dir")"; then
+            log_warn "No config for $name (expected $agent_dir/openclaw.json or $agent_dir/.openclaw/openclaw.json) — skipping"
+            continue
+        fi
+
         eval "env OPENCLAW_SERVICE_LABEL=\"$name\" \
-        OPENCLAW_CONFIG_PATH=\"$agent_dir/openclaw.json\" \
+        OPENCLAW_CONFIG_PATH=\"$config_path\" \
         OPENCLAW_DISABLE_BONJOUR=1 \
         NVIDIA_API_KEY=\"$api_key\" \
         nohup $OPENCLAW_CLI gateway --port \"$port\" --force --profile \"$name\" > \"$logfile\" 2>&1 &"
@@ -534,8 +723,14 @@ cmd_restart() {
                     api_key="${NVIDIA_API_KEY:-}"
                 fi
 
+                local config_path=""
+                if ! config_path="$(_ensure_agent_config "$name" "$port" "$agent_dir")"; then
+                    log_err "No config for $name (expected $agent_dir/openclaw.json or $agent_dir/.openclaw/openclaw.json)"
+                    return
+                fi
+
                 OPENCLAW_SERVICE_LABEL="$name" \
-                OPENCLAW_CONFIG_PATH="$agent_dir/openclaw.json" \
+                OPENCLAW_CONFIG_PATH="$config_path" \
                 OPENCLAW_DISABLE_BONJOUR=1 \
                 NVIDIA_API_KEY="$api_key" \
                 eval nohup $OPENCLAW_CLI gateway --port "$port" --force > "$logfile" 2>&1 &

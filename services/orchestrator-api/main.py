@@ -321,6 +321,18 @@ NVAPI_KEY = _get_api_key()
 LLM_MODEL = _normalize_model_id(os.getenv("MODEL_KIMI", "moonshotai/kimi-k2.5"), "moonshotai/kimi-k2.5")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/")
 
+# Smart API key selection based on provider
+def _get_llm_api_key():
+    """Get appropriate API key based on LLM_BASE_URL."""
+    if "openai.com" in LLM_BASE_URL:
+        return os.getenv("OPENAI_API_KEY", "")
+    elif "anthropic.com" in LLM_BASE_URL:
+        return os.getenv("ANTHROPIC_API_KEY", "")
+    else:
+        return _get_api_key()  # Default to NVAPI keys
+
+LLM_API_KEY = _get_llm_api_key()
+
 MODEL_R1 = _normalize_model_id(
     os.getenv("MODEL_DEEPSEEK", os.getenv("MODEL_R1", "deepseek-ai/deepseek-r1-distill-qwen-32b")),
     "deepseek-ai/deepseek-r1-distill-qwen-32b",
@@ -348,7 +360,7 @@ _LLM_TIMEOUT = _httpx.Timeout(timeout=300.0, connect=10.0)
 
 llm_client = AsyncOpenAI(
     base_url=LLM_BASE_URL,
-    api_key=NVAPI_KEY,
+    api_key=LLM_API_KEY,
     timeout=_LLM_TIMEOUT,
 )
 
@@ -2374,11 +2386,12 @@ MANAGER_TOOLS += [
         "type": "function",
         "function": {
             "name": "virtual_desktop",
-            "description": "Manage an isolated virtual desktop that runs in the background without interfering with the user's screen, mouse, or keyboard. Uses Docker container with full Linux desktop (LXDE + Firefox). Perfect for autonomous tasks. Actions: 'start' (launch virtual desktop), 'stop' (shutdown), 'status' (check if running), 'screenshot' (capture virtual screen), 'execute' (run shell command), 'click' (click at x,y), 'type' (type text), 'open_browser' (open URL in Firefox).",
+            "description": "Manage an isolated virtual desktop (Docker container) that runs in background without interfering with user's screen/mouse/keyboard. Has its own display, browser, and full Linux desktop. Actions: 'connect' (connect to existing container like orchestrator-desktop), 'start' (launch new container), 'stop', 'status', 'screenshot', 'screenshot_ocr' (capture + OCR), 'execute' (run shell command), 'click' (click at x,y), 'type' (type text), 'open_browser' (open URL). Use web_url http://localhost:6901 to view the virtual screen in your browser.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "action": {"type": "string", "description": "One of: start, stop, status, screenshot, execute, click, type, open_browser"},
+                    "action": {"type": "string", "description": "One of: connect, start, stop, status, screenshot, screenshot_ocr, execute, click, type, open_browser"},
+                    "container": {"type": "string", "description": "Container name to connect to (default: orchestrator-desktop)"},
                     "vnc_port": {"type": "integer", "description": "VNC port (default 5900)"},
                     "web_port": {"type": "integer", "description": "Web VNC port (default 6080) — access via browser at http://localhost:6080"},
                     "x": {"type": "integer", "description": "X coordinate for click"},
@@ -2404,6 +2417,25 @@ MANAGER_TOOLS += [
                     "task": {"type": "string", "description": "Task description for 'run' action - what to accomplish on screen"},
                     "max_steps": {"type": "integer", "description": "Maximum actions to take (default 50)"},
                     "step_delay": {"type": "number", "description": "Delay between actions in seconds (default 0.5)"}
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "gemini_virtual_desktop",
+            "description": "ISOLATED AI-controlled virtual computer powered by Gemini Live. The AI gets its own Docker container with its own screen, mouse, and keyboard - completely separate from YOUR computer. Gemini watches the virtual desktop in real-time and controls it autonomously. You can watch at http://localhost:6901. Actions: 'connect' (connect to orchestrator-desktop container), 'run' (execute task with Gemini watching), 'screenshot' (capture virtual screen), 'status', 'open_browser' (open URL in Firefox).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "description": "One of: connect, run, screenshot, status, open_browser"},
+                    "container": {"type": "string", "description": "Docker container name (default: orchestrator-desktop)"},
+                    "task": {"type": "string", "description": "Task for Gemini to complete on the virtual desktop"},
+                    "url": {"type": "string", "description": "URL to open in Firefox (for open_browser action)"},
+                    "max_steps": {"type": "integer", "description": "Max actions (default 100)"},
+                    "step_delay": {"type": "number", "description": "Delay between actions (default 0.3s)"}
                 },
                 "required": ["action"]
             }
@@ -2729,6 +2761,7 @@ INTERNAL_TOOLS = {
     "desktop_control",
     "virtual_desktop",
     "gemini_screen_stream",
+    "gemini_virtual_desktop",
     "browser_automate",
     "git_ops",
     "code_analyze",
@@ -11549,6 +11582,61 @@ def _virtual_desktop(action: str, **kwargs) -> dict:
             
             return {"error": "Type not available"}
         
+        elif action == "connect":
+            # Connect to an existing running container (e.g., orchestrator-desktop)
+            container_name = kwargs.get("container", "orchestrator-desktop")
+            result = subprocess.run(
+                ["docker", "inspect", "-f", "{{.State.Running}}", container_name],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip() == "true":
+                _VIRTUAL_DESKTOP_SESSION = {
+                    "type": "docker",
+                    "container_id": container_name,
+                    "container_name": container_name,
+                    "vnc_port": 5901,
+                    "web_port": 6901,
+                    "display": ":1",
+                    "vnc_url": "vnc://localhost:5901",
+                    "web_url": "http://localhost:6901",
+                }
+                return {"connected": True, **_VIRTUAL_DESKTOP_SESSION}
+            return {"error": f"Container {container_name} not running"}
+        
+        elif action == "screenshot_ocr":
+            # Take screenshot and run OCR inside virtual desktop
+            if not _VIRTUAL_DESKTOP_SESSION:
+                return {"error": "Virtual desktop not running. Use action='connect' first."}
+            
+            if _VIRTUAL_DESKTOP_SESSION.get("type") == "docker":
+                container = _VIRTUAL_DESKTOP_SESSION.get("container_id")
+                ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                local_path = f"/tmp/vdesktop_ocr_{ts}.png"
+                
+                # Take screenshot and OCR inside container
+                subprocess.run([
+                    "docker", "exec", "-u", "0", container,
+                    "bash", "-c", "DISPLAY=:1 scrot -o /tmp/screen.png"
+                ], capture_output=True, timeout=15)
+                
+                ocr_result = subprocess.run([
+                    "docker", "exec", "-u", "0", container,
+                    "tesseract", "/tmp/screen.png", "stdout"
+                ], capture_output=True, text=True, timeout=30)
+                
+                # Also copy screenshot locally
+                subprocess.run([
+                    "docker", "cp", f"{container}:/tmp/screen.png", local_path
+                ], capture_output=True, timeout=15)
+                
+                return {
+                    "text": ocr_result.stdout[:10000],
+                    "screenshot": local_path,
+                    "display": _VIRTUAL_DESKTOP_SESSION.get("display")
+                }
+            
+            return {"error": "OCR not available"}
+        
         elif action == "open_browser":
             if not _VIRTUAL_DESKTOP_SESSION:
                 return {"error": "Virtual desktop not running"}
@@ -11797,6 +11885,323 @@ def _gemini_screen_stream_sync(action: str, **kwargs) -> dict:
             return asyncio.run(_gemini_screen_stream(action, **kwargs))
     except Exception as e:
         return {"error": f"gemini_screen_stream sync wrapper failed: {e}"}
+
+
+# ── Gemini Virtual Desktop (Isolated Docker + Gemini Live Streaming) ────────
+
+_GEMINI_VDESKTOP_SESSION = None
+
+async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
+    """Stream the isolated virtual desktop to Gemini Live for real-time AI automation.
+    
+    This gives the AI its own computer (Docker container) with its own screen,
+    mouse, and keyboard - completely isolated from your real screen.
+    
+    Gemini watches the virtual desktop in real-time and controls it autonomously.
+    """
+    global _GEMINI_VDESKTOP_SESSION, _VIRTUAL_DESKTOP_SESSION
+    
+    try:
+        gemini_key = os.getenv("GEMINI_API_KEY", "")
+        if not gemini_key:
+            return {"error": "GEMINI_API_KEY not set in environment"}
+        
+        container = kwargs.get("container", "orchestrator-desktop")
+        
+        if action == "connect":
+            # Connect to existing virtual desktop container
+            result = subprocess.run(
+                ["docker", "inspect", "-f", "{{.State.Running}}", container],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode != 0 or result.stdout.strip() != "true":
+                return {"error": f"Container {container} not running. Start it with: docker run -d --name orchestrator-desktop -p 5901:5901 -p 6901:6901 consol/ubuntu-xfce-vnc:latest"}
+            
+            # Also set up the virtual_desktop session
+            _VIRTUAL_DESKTOP_SESSION = {
+                "type": "docker",
+                "container_id": container,
+                "container_name": container,
+                "vnc_port": 5901,
+                "web_port": 6901,
+                "display": ":1",
+                "vnc_url": "vnc://localhost:5901",
+                "web_url": "http://localhost:6901",
+            }
+            
+            _GEMINI_VDESKTOP_SESSION = {
+                "container": container,
+                "connected": True,
+                "view_url": "http://localhost:6901",
+                "status": "ready"
+            }
+            
+            return {
+                "connected": True,
+                "container": container,
+                "view_url": "http://localhost:6901 (open in browser to watch)",
+                "message": "Connected to virtual desktop. Use action='run' with a task to let Gemini control it."
+            }
+        
+        elif action == "run":
+            # Run a task with Gemini controlling the virtual desktop
+            task = kwargs.get("task", "")
+            max_steps = kwargs.get("max_steps", 100)
+            step_delay = kwargs.get("step_delay", 0.3)
+            
+            if not task:
+                return {"error": "task required - describe what Gemini should do"}
+            
+            if not _GEMINI_VDESKTOP_SESSION or not _GEMINI_VDESKTOP_SESSION.get("connected"):
+                return {"error": "Not connected. Use action='connect' first."}
+            
+            container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
+            
+            # Ensure Gemini library
+            try:
+                import google.generativeai as genai
+            except ImportError:
+                ok, _ = _ensure_python_package_in_tool_venv("google-generativeai")
+                if not ok:
+                    return {"error": "Failed to install google-generativeai"}
+                import google.generativeai as genai
+            
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel("gemini-2.0-flash")
+            
+            # System prompt for virtual desktop automation
+            system_prompt = f"""You are controlling an isolated virtual Linux desktop (Ubuntu with XFCE).
+This is YOUR computer - it runs in Docker and is completely separate from the user's computer.
+
+You can see the screen and control it with mouse and keyboard. The user cannot see what you're doing
+unless they open the VNC viewer at http://localhost:6901
+
+Screen resolution: 1280x1024
+
+Available actions (respond with JSON only):
+- {{"action": "click", "x": 640, "y": 512}} - Click at x,y coordinates
+- {{"action": "double_click", "x": 640, "y": 512}} - Double-click
+- {{"action": "right_click", "x": 640, "y": 512}} - Right-click for context menu
+- {{"action": "type", "text": "hello world"}} - Type text (including URLs, commands)
+- {{"action": "key", "key": "Return"}} - Press special key (Return, Tab, Escape, BackSpace, etc)
+- {{"action": "hotkey", "keys": "ctrl+t"}} - Key combination (ctrl+c, ctrl+v, alt+F4, etc)
+- {{"action": "scroll", "amount": -3}} - Scroll (negative=down, positive=up)
+- {{"action": "wait", "seconds": 2}} - Wait for page load or animation
+- {{"action": "done", "result": "description"}} - Task complete
+
+Respond with ONLY a JSON action object. Be precise with coordinates.
+
+Your task: {task}"""
+            
+            results = []
+            conversation_history = []
+            
+            for step in range(max_steps):
+                # Capture screenshot from Docker container
+                ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+                local_img = f"/tmp/gemini_vdesktop_{ts}.png"
+                
+                # Take screenshot inside container
+                subprocess.run([
+                    "docker", "exec", "-u", "0", container,
+                    "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"
+                ], capture_output=True, timeout=10)
+                
+                # Copy to host
+                subprocess.run([
+                    "docker", "cp", f"{container}:/tmp/vscreen.png", local_img
+                ], capture_output=True, timeout=10)
+                
+                if not Path(local_img).exists():
+                    results.append({"step": step, "error": "Screenshot failed"})
+                    await asyncio.sleep(1)
+                    continue
+                
+                # Send to Gemini
+                try:
+                    import PIL.Image
+                    img = PIL.Image.open(local_img)
+                    
+                    prompt = f"Step {step + 1}. What's the next action?" if step > 0 else system_prompt
+                    
+                    response = model.generate_content([prompt, img])
+                    response_text = response.text.strip()
+                    
+                    # Parse JSON action
+                    import json as _json
+                    json_match = response_text
+                    if "```json" in response_text:
+                        json_match = response_text.split("```json")[1].split("```")[0].strip()
+                    elif "```" in response_text:
+                        json_match = response_text.split("```")[1].split("```")[0].strip()
+                    
+                    try:
+                        action_data = _json.loads(json_match)
+                    except:
+                        import re
+                        matches = re.findall(r'\{[^{}]*\}', response_text)
+                        if matches:
+                            action_data = _json.loads(matches[0])
+                        else:
+                            results.append({"step": step, "error": f"Parse failed: {response_text[:100]}"})
+                            continue
+                    
+                    action_type = action_data.get("action", "")
+                    
+                    if action_type == "done":
+                        results.append({"step": step, "action": "done", "result": action_data.get("result")})
+                        return {
+                            "completed": True,
+                            "steps": step + 1,
+                            "result": action_data.get("result", "Task completed"),
+                            "history": results[-20:]
+                        }
+                    
+                    # Execute action in Docker container
+                    elif action_type == "click":
+                        x, y = action_data.get("x", 0), action_data.get("y", 0)
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "mousemove", str(x), str(y), "click", "1"
+                        ], capture_output=True, timeout=5)
+                        results.append({"step": step, "action": "click", "x": x, "y": y})
+                    
+                    elif action_type == "double_click":
+                        x, y = action_data.get("x", 0), action_data.get("y", 0)
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "mousemove", str(x), str(y), "click", "--repeat", "2", "1"
+                        ], capture_output=True, timeout=5)
+                        results.append({"step": step, "action": "double_click", "x": x, "y": y})
+                    
+                    elif action_type == "right_click":
+                        x, y = action_data.get("x", 0), action_data.get("y", 0)
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "mousemove", str(x), str(y), "click", "3"
+                        ], capture_output=True, timeout=5)
+                        results.append({"step": step, "action": "right_click", "x": x, "y": y})
+                    
+                    elif action_type == "type":
+                        text = action_data.get("text", "")
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "type", "--clearmodifiers", "--delay", "50", text
+                        ], capture_output=True, timeout=30)
+                        results.append({"step": step, "action": "type", "text": text[:50]})
+                    
+                    elif action_type == "key":
+                        key = action_data.get("key", "Return")
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "key", "--clearmodifiers", key
+                        ], capture_output=True, timeout=5)
+                        results.append({"step": step, "action": "key", "key": key})
+                    
+                    elif action_type == "hotkey":
+                        keys = action_data.get("keys", "")
+                        subprocess.run([
+                            "docker", "exec", container,
+                            "xdotool", "key", "--clearmodifiers", keys
+                        ], capture_output=True, timeout=5)
+                        results.append({"step": step, "action": "hotkey", "keys": keys})
+                    
+                    elif action_type == "scroll":
+                        amount = action_data.get("amount", -3)
+                        button = "5" if amount < 0 else "4"
+                        for _ in range(abs(amount)):
+                            subprocess.run([
+                                "docker", "exec", container,
+                                "xdotool", "click", button
+                            ], capture_output=True, timeout=2)
+                        results.append({"step": step, "action": "scroll", "amount": amount})
+                    
+                    elif action_type == "wait":
+                        wait_time = action_data.get("seconds", 1)
+                        await asyncio.sleep(wait_time)
+                        results.append({"step": step, "action": "wait", "seconds": wait_time})
+                    
+                    else:
+                        results.append({"step": step, "error": f"Unknown action: {action_type}"})
+                    
+                    if _GEMINI_VDESKTOP_SESSION:
+                        _GEMINI_VDESKTOP_SESSION["steps"] = step + 1
+                    
+                except Exception as e:
+                    results.append({"step": step, "error": str(e)[:200]})
+                
+                finally:
+                    Path(local_img).unlink(missing_ok=True)
+                
+                await asyncio.sleep(step_delay)
+            
+            return {
+                "completed": False,
+                "steps": max_steps,
+                "message": f"Reached max steps ({max_steps})",
+                "history": results[-20:]
+            }
+        
+        elif action == "screenshot":
+            if not _GEMINI_VDESKTOP_SESSION:
+                return {"error": "Not connected. Use action='connect' first."}
+            
+            container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            local_img = f"/tmp/vdesktop_screenshot_{ts}.png"
+            
+            subprocess.run([
+                "docker", "exec", "-u", "0", container,
+                "bash", "-c", "DISPLAY=:1 scrot -o /tmp/vscreen.png"
+            ], capture_output=True, timeout=10)
+            
+            subprocess.run([
+                "docker", "cp", f"{container}:/tmp/vscreen.png", local_img
+            ], capture_output=True, timeout=10)
+            
+            if Path(local_img).exists():
+                return {"screenshot": local_img, "size_bytes": Path(local_img).stat().st_size}
+            return {"error": "Screenshot failed"}
+        
+        elif action == "status":
+            if not _GEMINI_VDESKTOP_SESSION:
+                return {"status": "not_connected"}
+            return {"status": "connected", **_GEMINI_VDESKTOP_SESSION}
+        
+        elif action == "open_browser":
+            if not _GEMINI_VDESKTOP_SESSION:
+                return {"error": "Not connected. Use action='connect' first."}
+            
+            container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
+            url = kwargs.get("url", "https://google.com")
+            
+            subprocess.run([
+                "docker", "exec", container,
+                "firefox", url
+            ], capture_output=True, timeout=10, start_new_session=True)
+            
+            return {"opened": True, "url": url, "browser": "firefox"}
+        
+        else:
+            return {"error": f"Unknown action: {action}. Available: connect, run, screenshot, status, open_browser"}
+    
+    except Exception as e:
+        return {"error": f"gemini_virtual_desktop failed: {e}"}
+
+
+def _gemini_virtual_desktop_sync(action: str, **kwargs) -> dict:
+    """Sync wrapper for gemini_virtual_desktop."""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                future = pool.submit(asyncio.run, _gemini_virtual_desktop(action, **kwargs))
+                return future.result(timeout=1800)  # 30 min timeout for long tasks
+        else:
+            return asyncio.run(_gemini_virtual_desktop(action, **kwargs))
+    except Exception as e:
+        return {"error": f"gemini_virtual_desktop sync wrapper failed: {e}"}
 
 
 # ── Browser Automation (Playwright) ────────────────────────────────────────
@@ -12306,7 +12711,7 @@ def _llm_fallback(action: str, **kwargs) -> dict:
         elif action == "test_provider":
             name = kwargs.get("name", "")
             if name == "nvidia_default":
-                base_url, api_key, model = LLM_BASE_URL, _get_api_key(), LLM_MODEL
+                base_url, api_key, model = LLM_BASE_URL, LLM_API_KEY, LLM_MODEL
             elif name in _LLM_PROVIDERS:
                 cfg = _LLM_PROVIDERS[name]
                 base_url, api_key, model = cfg["base_url"], cfg.get("api_key", ""), cfg["model"]
@@ -12329,7 +12734,7 @@ def _llm_fallback(action: str, **kwargs) -> dict:
             if not prompt:
                 return {"error": "prompt required"}
             providers_ordered = [
-                ("nvidia_default", {"base_url": LLM_BASE_URL, "api_key": _get_api_key(), "model": LLM_MODEL, "priority": 0})
+                ("nvidia_default", {"base_url": LLM_BASE_URL, "api_key": LLM_API_KEY, "model": LLM_MODEL, "priority": 0})
             ]
             for name, cfg in sorted(_LLM_PROVIDERS.items(), key=lambda x: x[1].get("priority", 10)):
                 if cfg.get("enabled"):

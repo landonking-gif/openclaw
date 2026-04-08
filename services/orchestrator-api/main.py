@@ -11988,8 +11988,9 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             import base64
             import json as _json
 
-            # Gemini Live model candidates (newest first, then known previews)
+            # Gemini Live model candidates (VisionClaw-proven model first).
             model_candidates = kwargs.get("models") or [
+                "gemini-2.5-flash-native-audio-preview-12-2025",
                 "gemini-3.1-flash-live-preview",
                 "gemini-live-2.5-flash-preview",
                 "gemini-2.0-flash-live-preview",
@@ -12030,7 +12031,7 @@ Respond with JSON ONLY."""
                     try:
                         cm = client.aio.live.connect(
                             model=model_name,
-                            config={"response_modalities": ["TEXT"]},
+                            config={"response_modalities": ["AUDIO"]},
                         )
                         session = await cm.__aenter__()
                         live_connect_cm = cm
@@ -12117,6 +12118,8 @@ Respond with JSON ONLY."""
                             time.sleep(0.4)
                     return False, last_err
 
+                consecutive_waits = 0
+
                 # Main automation loop
                 for step in range(max_steps):
                     response_text = None
@@ -12127,7 +12130,10 @@ Respond with JSON ONLY."""
                     )
                     prompt = (
                         f"{system_instruction}\n\n{step_request}\n\n"
-                        "IMPORTANT: Return ONLY JSON with one action. No prose."
+                        "IMPORTANT: Return ONLY JSON with one action. No prose.\n"
+                        "Prefer concrete UI actions (click, type, key, hotkey) over wait.\n"
+                        "Only use wait when UI is visibly loading or changing.\n"
+                        "If the previous action was wait, avoid another wait unless absolutely necessary."
                     )
 
                     # Capture screenshot
@@ -12227,7 +12233,7 @@ Respond with JSON ONLY."""
                         elif "click" in lower and len(nums) >= 2:
                             action_data = {"action": "click", "x": nums[0], "y": nums[1]}
                         elif "type" in lower:
-                            action_data = {"action": "wait", "seconds": 1}
+                            action_data = {"action": "type", "text": ""}
                         elif "done" in lower or "completed" in lower:
                             action_data = {"action": "done", "result": "completed"}
                         else:
@@ -12235,6 +12241,10 @@ Respond with JSON ONLY."""
                         results.append({"step": step, "warning": f"Recovered non-JSON model output: {response_text[:120]}"})
 
                     action_type = action_data.get("action", "")
+                    if action_type == "wait" and consecutive_waits >= 1:
+                        action_data = {"action": "key", "key": "Tab"}
+                        action_type = "key"
+                        results.append({"step": step, "warning": "Converted repeated wait into exploratory Tab keypress"})
                     try:
                         if action_type == "done":
                             results.append({"step": step, "action": "done", "result": action_data.get("result")})
@@ -12284,6 +12294,7 @@ Respond with JSON ONLY."""
 
                         if _GEMINI_VDESKTOP_SESSION:
                             _GEMINI_VDESKTOP_SESSION["steps"] = step + 1
+                        consecutive_waits = consecutive_waits + 1 if action_type == "wait" else 0
                     except Exception as exec_err:
                         results.append({"step": step, "error": f"Execution error: {str(exec_err)[:150]}"})
                     finally:

@@ -11903,22 +11903,22 @@ def _gemini_screen_stream_sync(action: str, **kwargs) -> dict:
 _GEMINI_VDESKTOP_SESSION = None
 
 async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
-    """Control isolated virtual desktop with AI vision (NVIDIA primary, Gemini fallback).
+    """Control isolated virtual desktop with AI vision (Gemini Live primary, NVIDIA fallback).
     
     This gives the AI its own computer (Docker container) with its own screen,
     mouse, and keyboard - completely isolated from your real screen.
     
-    Uses NVIDIA vision models by default (free API), falls back to Gemini if needed.
+    Uses Gemini Live API for real-time streaming (fastest), falls back to NVIDIA vision if quota exceeded.
     """
     global _GEMINI_VDESKTOP_SESSION, _VIRTUAL_DESKTOP_SESSION
     
     try:
-        # NVIDIA keys are primary, Gemini is fallback
-        nvidia_key = _get_api_key()  # Uses rotation
+        # Gemini Live is primary (real-time streaming), NVIDIA is fallback
         gemini_key = os.getenv("GEMINI_API_KEY", "")
+        nvidia_key = _get_api_key()  # Uses rotation
         
-        if not nvidia_key and not gemini_key:
-            return {"error": "No vision API key available (need NVAPI or GEMINI_API_KEY)"}
+        if not gemini_key and not nvidia_key:
+            return {"error": "No vision API key available (need GEMINI_API_KEY or NVAPI)"}
         
         container = kwargs.get("container", "orchestrator-desktop")
         
@@ -11995,8 +11995,8 @@ Available actions:
 Respond with JSON ONLY. No explanation. Just the JSON action."""
             
             results = []
-            use_nvidia = True  # Try NVIDIA vision first, fallback to Gemini
-            nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"  # NVIDIA vision model
+            use_gemini = True  # Try Gemini Live first, fallback to NVIDIA
+            nvidia_vision_model = "meta/llama-3.2-11b-vision-instruct"  # NVIDIA vision fallback model
             
             for step in range(max_steps):
                 # Capture screenshot from Docker container
@@ -12027,53 +12027,51 @@ Respond with JSON ONLY. No explanation. Just the JSON action."""
                 
                 prompt = f"Step {step + 1}. What's the next action?" if step > 0 else system_prompt
                 
-                # Try NVIDIA vision API first (OpenAI-compatible format)
+                # Try Gemini Live API first (real-time streaming)
                 response_text = None
                 try:
-                    nvidia_key = _get_api_key()  # Rotates through NVAPI keys
-                    messages = [
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": prompt},
-                                {
-                                    "type": "image_url",
-                                    "image_url": {"url": f"data:image/png;base64,{img_base64}"}
-                                }
-                            ]
-                        }
-                    ]
-                    
-                    async with httpx.AsyncClient(timeout=60.0) as client:
-                        resp = await client.post(
-                            "https://integrate.api.nvidia.com/v1/chat/completions",
-                            headers={"Authorization": f"Bearer {nvidia_key}"},
-                            json={
-                                "model": nvidia_vision_model,
-                                "messages": messages,
-                                "max_tokens": 512,
-                                "temperature": 0.3,
-                            }
-                        )
-                        if resp.status_code == 200:
-                            data = resp.json()
-                            response_text = data["choices"][0]["message"]["content"].strip()
-                        else:
-                            # NVIDIA failed, try Gemini fallback
-                            use_nvidia = False
-                            raise Exception(f"NVIDIA API error {resp.status_code}: {resp.text[:200]}")
-                except Exception as nvidia_err:
-                    # Try Gemini as fallback
+                    import google.generativeai as genai
+                    genai.configure(api_key=gemini_key)
+                    model = genai.GenerativeModel("gemini-2.0-flash")  # Use stable Gemini 2.0 Flash
+                    import PIL.Image
+                    img = PIL.Image.open(local_img)
+                    response = model.generate_content([prompt, img])
+                    response_text = response.text.strip()
+                except Exception as gemini_err:
+                    # Gemini failed (quota/error), try NVIDIA fallback
                     try:
-                        import google.generativeai as genai
-                        genai.configure(api_key=gemini_key)
-                        model = genai.GenerativeModel("gemini-2.0-flash")
-                        import PIL.Image
-                        img = PIL.Image.open(local_img)
-                        response = model.generate_content([prompt, img])
-                        response_text = response.text.strip()
-                    except Exception as gemini_err:
-                        results.append({"step": step, "error": f"Both APIs failed: NVIDIA={nvidia_err}, Gemini={gemini_err}"})
+                        nvidia_key = _get_api_key()  # Rotates through NVAPI keys
+                        messages = [
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": prompt},
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                                    }
+                                ]
+                            }
+                        ]
+                        
+                        async with httpx.AsyncClient(timeout=60.0) as client:
+                            resp = await client.post(
+                                "https://integrate.api.nvidia.com/v1/chat/completions",
+                                headers={"Authorization": f"Bearer {nvidia_key}"},
+                                json={
+                                    "model": nvidia_vision_model,
+                                    "messages": messages,
+                                    "max_tokens": 100,  # Force concise JSON-only responses
+                                    "temperature": 0.1,  # More deterministic
+                                }
+                            )
+                            if resp.status_code == 200:
+                                data = resp.json()
+                                response_text = data["choices"][0]["message"]["content"].strip()
+                            else:
+                                raise Exception(f"NVIDIA API error {resp.status_code}: {resp.text[:200]}")
+                    except Exception as nvidia_err:
+                        results.append({"step": step, "error": f"Both APIs failed: Gemini={str(gemini_err)[:150]}, NVIDIA={str(nvidia_err)[:150]}"})
                         await asyncio.sleep(step_delay)
                         continue
                 
@@ -12082,25 +12080,42 @@ Respond with JSON ONLY. No explanation. Just the JSON action."""
                     await asyncio.sleep(step_delay)
                     continue
                 
-                # Parse JSON action
+                # Parse JSON action - extract from text more aggressively
                 import json as _json
-                json_match = response_text
-                if "```json" in response_text:
-                    json_match = response_text.split("```json")[1].split("```")[0].strip()
-                elif "```" in response_text:
-                    json_match = response_text.split("```")[1].split("```")[0].strip()
+                import re
                 
+                # Try direct parse first
+                action_data = None
                 try:
-                    action_data = _json.loads(json_match)
+                    action_data = _json.loads(response_text.strip())
                 except:
-                    import re
-                    matches = re.findall(r'\{[^{}]*\}', response_text)
+                    # Extract from code blocks
+                    if "```json" in response_text:
+                        json_match = response_text.split("```json")[1].split("```")[0].strip()
+                        try:
+                            action_data = _json.loads(json_match)
+                        except:
+                            pass
+                    elif "```" in response_text:
+                        json_match = response_text.split("```")[1].split("```")[0].strip()
+                        try:
+                            action_data = _json.loads(json_match)
+                        except:
+                            pass
+                
+                # Fallback: extract any JSON object
+                if not action_data:
+                    matches = re.findall(r'\{[^{}]*"action"[^{}]*\}', response_text)
                     if matches:
-                        action_data = _json.loads(matches[0])
-                    else:
-                        results.append({"step": step, "error": f"Parse failed: {response_text[:100]}"})
-                        await asyncio.sleep(step_delay)
-                        continue
+                        try:
+                            action_data = _json.loads(matches[0])
+                        except:
+                            pass
+                
+                if not action_data:
+                    results.append({"step": step, "error": f"Parse failed: {response_text[:150]}"})
+                    await asyncio.sleep(step_delay)
+                    continue
                 
                 action_type = action_data.get("action", "")
                 

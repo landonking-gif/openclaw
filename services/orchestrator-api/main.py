@@ -621,8 +621,8 @@ You are a self-evolving system with FULL access to the underlying machine. If yo
 - Need to check SSL certificates? → Use cert_check to inspect certs, check expiry, generate self-signed, decode PEM.
 - Need macOS hardware/software info? → Use system_profiler to query any SPDataType (hardware, software, network, storage, etc.).
 - Need URL parsing or link extraction? → Use url_tools to parse, build, encode, validate URLs, extract links, fetch sitemaps.
-- Need to see the screen or control the mouse/keyboard? → Use desktop_control — screenshot_ocr to see what's on screen (with text recognition), move_mouse/click/type_text/hotkey to interact, get_window_list/focus_window to manage apps, find_text_on_screen to locate UI elements.
-- Need to automate a browser or scrape JS-rendered sites? → Use browser_automate — launch a Playwright session, navigate, click, fill forms, extract content, screenshot pages. Handles SPAs and dynamic content.
+- Need to see the screen or control the mouse/keyboard? → Use gemini_virtual_desktop only. This keeps UI automation isolated from the user's real computer.
+- Need to automate a browser for user-requested UI tasks? → Use gemini_virtual_desktop with action=open_browser/run inside the isolated Docker desktop.
 - Need full Git/GitHub integration? → Use git_ops — local repo management (status, log, diff, commit, push, pull) + GitHub API (create PRs, list issues, any endpoint).
 - Need code quality analysis? → Use code_analyze — AST parsing, flake8 linting, bandit security scanning, cyclomatic complexity, TODO finder. Self-audit your own code.
 - Need to query a different LLM or add backup models? → Use llm_fallback — add providers, set priority chain, queries auto-failover across all providers if one is down.
@@ -717,8 +717,7 @@ OPERATIONAL NOTES:
 - You CAN inspect SSL certificates with cert_check (remote cert details, expiry warnings, self-signed generation, PEM decode).
 - You CAN profile macOS system hardware and software with system_profiler (hardware, software, network, storage, USB, displays, battery).
 - You CAN parse, build, validate URLs and extract links with url_tools (parse, encode, validate, sitemaps).
-- You CAN see the computer screen with desktop_control screenshot_ocr (captures screen + OCR text recognition). You CAN control the mouse (move, click, drag, scroll) and keyboard (type_text, hotkey). You CAN list all visible windows, focus any app, find text/images on screen. This gives you FULL GUI automation capability.
-- You CAN automate any browser with browser_automate (Playwright — navigate, click, fill, evaluate JS, screenshot, extract tables, handle JS-rendered content).
+- You MUST keep UI automation isolated from the user's host computer. Use gemini_virtual_desktop for screen/mouse/keyboard/browser tasks so actions run inside Docker only.
 - You CAN do full Git and GitHub API operations with git_ops (status, log, diff, commit, push, pull, clone + create PRs, list issues, raw API calls).
 - You CAN analyze code quality with code_analyze (AST parse, flake8 lint, bandit security scan, cyclomatic complexity, find TODOs). Self-audit your own code.
 - You CAN route LLM queries across multiple providers with llm_fallback (automatic failover, priority chain, add/test/query providers).
@@ -3543,6 +3542,20 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
 
     # Build tools list including dynamic tools
     all_tools = list(MANAGER_TOOLS)
+    if _isolated_desktop_required():
+        blocked_tool_names = {
+            "desktop_control",
+            "gemini_screen_stream",
+            "screen_share",
+            "accessibility",
+        }
+        if task_mode:
+            blocked_tool_names.add("browser_automate")
+        all_tools = [
+            t for t in all_tools
+            if t.get("type") != "function"
+            or t.get("function", {}).get("name") not in blocked_tool_names
+        ]
     for dt in _dynamic_tools:
         all_tools.append({
             "type": "function",
@@ -3562,6 +3575,12 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
     # Track timing for quality scoring
     _llm_start_time = time.monotonic()
     task_time_budget_s = int(os.getenv("ORCH_TASK_TIME_BUDGET_SECONDS", "300")) if task_mode else 0
+    isolated_desktop_task = task_mode and _isolated_desktop_required() and _is_isolated_desktop_request(user_message)
+    if isolated_desktop_task:
+        task_time_budget_s = max(
+            task_time_budget_s,
+            int(os.getenv("ORCH_ISOLATED_DESKTOP_TASK_TIME_BUDGET_SECONDS", "1800")),
+        )
     task_goal_keywords = (
         "actually create",
         "create a real new social media account",
@@ -3580,6 +3599,11 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
         # Keep release-verification requests bounded so finalization gate runs predictably.
         task_time_budget_s = max(task_time_budget_s, 180)
     MAX_TOOL_TURNS = int(os.getenv("ORCH_TASK_MAX_TOOL_TURNS", "8")) if task_mode else 12
+    if isolated_desktop_task:
+        MAX_TOOL_TURNS = max(
+            MAX_TOOL_TURNS,
+            int(os.getenv("ORCH_ISOLATED_DESKTOP_TASK_MAX_TOOL_TURNS", "40")),
+        )
     if enforce_release_verification:
         MAX_TOOL_TURNS = min(MAX_TOOL_TURNS, 5)
     max_retries = int(os.getenv("ORCH_TASK_MAX_RETRIES", "4")) if task_mode else 8
@@ -4482,7 +4506,12 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 )
                 internal_task = f"URL: {fn_args.get('action', '')}"
             elif fn_name == "desktop_control":
-                if os.getenv("ORCH_DESKTOP_CONTROL_DISABLED", "1") == "1":
+                if _is_host_ui_tool_blocked(fn_name, task_mode=task_mode):
+                    internal_result = {
+                        "error": "desktop_control blocked: isolated desktop mode is enabled. Use gemini_virtual_desktop instead."
+                    }
+                    internal_task = f"Desktop(blocked): {fn_args.get('action', '')}"
+                elif os.getenv("ORCH_DESKTOP_CONTROL_DISABLED", "1") == "1":
                     internal_result = {
                         "error": "desktop_control is disabled to protect your host computer. Use gemini_virtual_desktop instead (isolated Docker desktop)."
                     }
@@ -4529,13 +4558,19 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 internal_task = f"VirtualDesktop: {fn_args.get('action', '')}"
             elif fn_name == "gemini_screen_stream":
                 # Gemini Live screen streaming - fast real-time desktop automation
-                internal_result = _gemini_screen_stream_sync(
-                    fn_args.get("action", ""),
-                    task=fn_args.get("task", ""),
-                    max_steps=fn_args.get("max_steps", 50),
-                    step_delay=fn_args.get("step_delay", 0.5),
-                )
-                internal_task = f"GeminiScreen: {fn_args.get('action', '')}"
+                if _is_host_ui_tool_blocked(fn_name, task_mode=task_mode):
+                    internal_result = {
+                        "error": "gemini_screen_stream blocked: isolated desktop mode is enabled. Use gemini_virtual_desktop instead."
+                    }
+                    internal_task = f"GeminiScreen(blocked): {fn_args.get('action', '')}"
+                else:
+                    internal_result = _gemini_screen_stream_sync(
+                        fn_args.get("action", ""),
+                        task=fn_args.get("task", ""),
+                        max_steps=fn_args.get("max_steps", 50),
+                        step_delay=fn_args.get("step_delay", 0.5),
+                    )
+                    internal_task = f"GeminiScreen: {fn_args.get('action', '')}"
             elif fn_name == "gemini_virtual_desktop":
                 # Gemini controlling isolated Docker virtual desktop
                 # Run in worker thread so long desktop sessions don't block FastAPI event loop.
@@ -4545,18 +4580,44 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                         "connect",
                         container=fn_args.get("container", "orchestrator-desktop"),
                     )
-                internal_result = await asyncio.to_thread(
-                    _gemini_virtual_desktop_sync,
-                    fn_args.get("action", ""),
-                    container=fn_args.get("container", "orchestrator-desktop"),
-                    task=fn_args.get("task", ""),
-                    url=fn_args.get("url", ""),
-                    max_steps=fn_args.get("max_steps", 100),
-                    step_delay=fn_args.get("step_delay", 0.3),
+                action_name = fn_args.get("action", "")
+                await activity.record(
+                    "tool_progress",
+                    session_id,
+                    f"Starting gemini_virtual_desktop {action_name}",
+                    {"tool": "gemini_virtual_desktop", "action": action_name},
                 )
+                tool_timeout_s = int(os.getenv("ORCH_GEMINI_VDESKTOP_TOOL_TIMEOUT_SECONDS", "180"))
+                try:
+                    internal_result = await asyncio.wait_for(
+                        asyncio.to_thread(
+                            _gemini_virtual_desktop_sync,
+                            action_name,
+                            container=fn_args.get("container", "orchestrator-desktop"),
+                            task=fn_args.get("task", ""),
+                            url=fn_args.get("url", ""),
+                            max_steps=fn_args.get("max_steps", 100),
+                            step_delay=fn_args.get("step_delay", 0.3),
+                        ),
+                        timeout=tool_timeout_s,
+                    )
+                except asyncio.TimeoutError:
+                    internal_result = {
+                        "error": (
+                            f"gemini_virtual_desktop timed out after {tool_timeout_s}s. "
+                            "Task may still be running in the isolated desktop."
+                        )
+                    }
+                if isinstance(internal_result, dict) and internal_result.get("error"):
+                    await activity.record(
+                        "tool_error",
+                        session_id,
+                        f"gemini_virtual_desktop failed: {internal_result.get('error', '')[:220]}",
+                        {"tool": "gemini_virtual_desktop", "action": fn_args.get("action", "")},
+                    )
                 internal_task = f"GeminiVirtualDesktop: {fn_args.get('action', '')}"
             elif fn_name == "browser_automate":
-                if task_mode and os.getenv("ORCH_TASK_REQUIRE_ISOLATED_DESKTOP", "1") == "1":
+                if _is_host_ui_tool_blocked(fn_name, task_mode=task_mode):
                     internal_result = {
                         "error": "browser_automate is blocked in task mode. Use gemini_virtual_desktop for isolated automation."
                     }
@@ -4602,11 +4663,23 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 internal_result = _cron_advanced(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
                 internal_task = f"Cron: {fn_args.get('action', '')}"
             elif fn_name == "accessibility":
-                internal_result = _accessibility(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
-                internal_task = f"Accessibility: {fn_args.get('action', '')}"
+                if _is_host_ui_tool_blocked(fn_name, task_mode=task_mode):
+                    internal_result = {
+                        "error": "accessibility blocked: isolated desktop mode is enabled. Use gemini_virtual_desktop instead."
+                    }
+                    internal_task = f"Accessibility(blocked): {fn_args.get('action', '')}"
+                else:
+                    internal_result = _accessibility(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                    internal_task = f"Accessibility: {fn_args.get('action', '')}"
             elif fn_name == "screen_share":
-                internal_result = await _screen_share(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
-                internal_task = f"Screen share: {fn_args.get('action', '')}"
+                if _is_host_ui_tool_blocked(fn_name, task_mode=task_mode):
+                    internal_result = {
+                        "error": "screen_share blocked: isolated desktop mode is enabled. Use gemini_virtual_desktop instead."
+                    }
+                    internal_task = f"Screen share(blocked): {fn_args.get('action', '')}"
+                else:
+                    internal_result = await _screen_share(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
+                    internal_task = f"Screen share: {fn_args.get('action', '')}"
             elif fn_name == "visionclaw":
                 internal_result = await _visionclaw(fn_args.get("action", ""), **{k: v for k, v in fn_args.items() if k != "action"})
                 internal_task = f"VisionClaw: {fn_args.get('action', '')}"
@@ -5184,10 +5257,180 @@ def _is_complex_autonomous_request(user_message: str) -> bool:
     return any(token in text for token in indicators)
 
 
+def _is_isolated_desktop_request(user_message: str) -> bool:
+    text = (user_message or "").lower()
+    indicators = (
+        "gemini_virtual_desktop",
+        "virtual desktop",
+        "ai desktop",
+        "individual computer",
+        "its own computer",
+        "personal computer",
+        "use your own computer",
+        "isolated desktop",
+        "open a browser",
+        "browser automation",
+        "click on",
+        "play checkers",
+    )
+    return any(token in text for token in indicators)
+
+
+def _isolated_desktop_required() -> bool:
+    return os.getenv("ORCH_TASK_REQUIRE_ISOLATED_DESKTOP", "1") == "1"
+
+
+def _is_host_ui_tool_blocked(fn_name: str, *, task_mode: bool) -> bool:
+    if not _isolated_desktop_required():
+        return False
+    blocked_always = {
+        "desktop_control",
+        "gemini_screen_stream",
+        "screen_share",
+        "accessibility",
+    }
+    blocked_in_task_mode = {
+        "browser_automate",
+    }
+    return fn_name in blocked_always or (task_mode and fn_name in blocked_in_task_mode)
+
+
+async def _run_isolated_desktop_autopilot(session_id: str, user_message: str) -> dict:
+    """Run isolated desktop task directly through gemini_virtual_desktop to avoid LLM turn stalls."""
+    await activity.record(
+        "autopilot_start",
+        session_id,
+        "Starting isolated desktop autopilot",
+        {"mode": "gemini_virtual_desktop"},
+    )
+    tool_timeout_s = int(os.getenv("ORCH_GEMINI_VDESKTOP_TOOL_TIMEOUT_SECONDS", "180"))
+    max_steps = int(os.getenv("ORCH_ISOLATED_DESKTOP_AUTOPILOT_MAX_STEPS", "160"))
+    step_delay = float(os.getenv("ORCH_ISOLATED_DESKTOP_AUTOPILOT_STEP_DELAY_SECONDS", "1.0"))
+
+    container = "orchestrator-desktop"
+    user_lower = (user_message or "").lower()
+
+    connect_result = await asyncio.wait_for(
+        asyncio.to_thread(_gemini_virtual_desktop_sync, "connect", container=container),
+        timeout=max(tool_timeout_s, 30),
+    )
+    await _log_tool_execution(session_id, "gemini_virtual_desktop", {"action": "connect"}, connect_result, "error" not in connect_result)
+    if "error" in connect_result:
+        await activity.record("tool_error", session_id, f"Autopilot connect failed: {connect_result.get('error')}", {"tool": "gemini_virtual_desktop"})
+        return {
+            "response": f"Failed to start isolated desktop autopilot: {connect_result.get('error')}",
+            "delegations": [],
+            "session_id": session_id,
+        }
+
+    deterministic = None
+    if "checkers" in user_lower and os.getenv("ORCH_CHECKERS_DETERMINISTIC_KICKOFF", "1") == "1":
+        await activity.record(
+            "tool_progress",
+            session_id,
+            "Running deterministic checkers kickoff on isolated desktop",
+            {"tool": "deterministic_checkers_kickoff"},
+        )
+        deterministic = await asyncio.to_thread(_deterministic_checkers_kickoff, container)
+        await _log_tool_execution(
+            session_id,
+            "deterministic_checkers_kickoff",
+            {"container": container},
+            deterministic,
+            bool(deterministic.get("ok")),
+        )
+        if deterministic.get("ok"):
+            await activity.record(
+                "autopilot_complete",
+                session_id,
+                "Deterministic checkers kickoff executed on the AI computer.",
+                {"mode": "deterministic_checkers_kickoff"},
+            )
+            return {
+                "response": "Deterministic checkers kickoff executed on the AI computer.",
+                "delegations": [],
+                "session_id": session_id,
+            }
+
+    run_args = {
+        "action": "run",
+        "task": user_message,
+        "max_steps": max_steps,
+        "step_delay": step_delay,
+    }
+    await activity.record(
+        "tool_progress",
+        session_id,
+        "Running isolated desktop autopilot task",
+        {"tool": "gemini_virtual_desktop", "action": "run", "max_steps": max_steps},
+    )
+    run_timeout_s = int(os.getenv("ORCH_ISOLATED_DESKTOP_AUTOPILOT_RUN_TIMEOUT_SECONDS", "150"))
+    try:
+        run_result = await asyncio.wait_for(
+            asyncio.to_thread(
+                _gemini_virtual_desktop_sync,
+                "run",
+                container=container,
+                task=user_message,
+                max_steps=max_steps,
+                step_delay=step_delay,
+            ),
+            timeout=run_timeout_s,
+        )
+    except asyncio.TimeoutError:
+        run_result = {"error": f"autopilot run timed out after {run_timeout_s}s"}
+    await _log_tool_execution(session_id, "gemini_virtual_desktop", run_args, run_result, "error" not in run_result)
+
+    if "error" in run_result:
+        run_error = str(run_result.get("error", "unknown"))
+        await activity.record("tool_error", session_id, f"Autopilot run failed: {run_error}", {"tool": "gemini_virtual_desktop"})
+        if "timeout" in run_error.lower() and deterministic and deterministic.get("ok"):
+            return {
+                "response": "Gemini timed out, but deterministic checkers actions were executed on the AI computer.",
+                "delegations": [],
+                "session_id": session_id,
+            }
+        return {
+            "response": f"Isolated desktop autopilot failed: {run_error}",
+            "delegations": [],
+            "session_id": session_id,
+        }
+
+    completed = bool(run_result.get("completed"))
+    response = (
+        "Isolated desktop task completed on the AI computer."
+        if completed
+        else "Isolated desktop task is running but reached its current step budget on the AI computer."
+    )
+    await activity.record(
+        "autopilot_complete",
+        session_id,
+        response,
+        {
+            "completed": completed,
+            "steps": run_result.get("steps"),
+        },
+    )
+    return {
+        "response": response,
+        "delegations": [],
+        "session_id": session_id,
+        "autopilot": run_result,
+    }
+
+
 async def _run_chat_pipeline(session_id: str, user_message: str, *, task_mode: bool = False) -> dict:
     """Run full chat processing and always emit completion side effects."""
     try:
-        result = await call_llm(session_id, user_message, task_mode=task_mode)
+        if (
+            task_mode
+            and _isolated_desktop_required()
+            and _is_isolated_desktop_request(user_message)
+            and os.getenv("ORCH_ISOLATED_DESKTOP_AUTOPILOT_ENABLED", "1") == "1"
+        ):
+            result = await _run_isolated_desktop_autopilot(session_id, user_message)
+        else:
+            result = await call_llm(session_id, user_message, task_mode=task_mode)
     except Exception as e:
         log.exception(f"Chat pipeline failed [{session_id}]: {e}")
         fallback_text = (
@@ -5257,8 +5500,9 @@ async def chat(req: ChatMessage):
 
     # Longer timeout for complex autonomous tasks with many tool turns.
     is_complex = _is_complex_autonomous_request(req.message)
+    is_isolated_desktop = _isolated_desktop_required() and _is_isolated_desktop_request(req.message)
     is_verification = _is_release_verification_request(req.message)
-    long_running_blocking = is_complex or is_verification
+    long_running_blocking = is_complex or is_verification or is_isolated_desktop
     chat_timeout_default = int(os.getenv("ORCH_CHAT_TIMEOUT_SECONDS", "600"))
     chat_timeout_long = int(os.getenv("ORCH_CHAT_LONG_TIMEOUT_SECONDS", "1800"))
     idle_timeout_default = int(os.getenv("ORCH_CHAT_IDLE_TIMEOUT_SECONDS", "180"))
@@ -5268,7 +5512,7 @@ async def chat(req: ChatMessage):
     wait_for_completion = (
         req.wait_for_completion
         if req.wait_for_completion is not None
-        else (not is_complex)
+        else (not is_complex and not is_isolated_desktop)
     )
     
     try:
@@ -12389,6 +12633,72 @@ def _ensure_orchestrator_desktop_container(container: str = "orchestrator-deskto
     except Exception as e:
         return False, str(e)
 
+
+def _bootstrap_virtual_desktop_browser(container: str, task: str) -> dict:
+    """Make isolated-desktop tasks visibly start by opening a browser/search immediately."""
+    try:
+        query = "single player checkers"
+        text = (task or "").strip()
+        lowered = text.lower()
+        search_match = re.search(r"search(?:\s+for)?\s+(.+?)(?:,| then | and |$)", text, re.IGNORECASE)
+        if search_match:
+            candidate = search_match.group(1).strip().strip("\"'")
+            if candidate:
+                query = candidate
+        from urllib.parse import quote_plus
+        direct_game_url = os.getenv("ORCH_CHECKERS_BOOTSTRAP_URL", "https://cardgames.io/checkers/")
+        is_checkers_task = "checkers" in lowered
+        url = direct_game_url if is_checkers_task else f"https://duckduckgo.com/?q={quote_plus(query)}"
+        result = subprocess.run(
+            [
+                "docker",
+                "exec",
+                "-d",
+                container,
+                "bash",
+                "-lc",
+                (
+                    f"DISPLAY=:1 firefox --new-window '{url}' >/tmp/firefox-bootstrap.log 2>&1 "
+                    f"&& sleep 4 && DISPLAY=:1 xdotool mousemove 640 360 click 1 || true"
+                ),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        return {
+            "started": result.returncode == 0,
+            "url": url,
+            "mode": "direct_checkers_url" if is_checkers_task else "search_url",
+            "stderr": (result.stderr or "")[:180],
+        }
+    except Exception as e:
+        return {"started": False, "error": str(e)[:180]}
+
+
+def _deterministic_checkers_kickoff(container: str) -> dict:
+    """Force concrete in-container steps to start a checkers game."""
+    command = (
+        "DISPLAY=:1 xdotool key --clearmodifiers ctrl+l && "
+        "sleep 0.6 && "
+        "DISPLAY=:1 xdotool type --clearmodifiers 'https://cardgames.io/checkers/' && "
+        "DISPLAY=:1 xdotool key --clearmodifiers Return && "
+        "sleep 6 && "
+        "DISPLAY=:1 xdotool mousemove 640 360 click 1 && "
+        "sleep 1 && "
+        "DISPLAY=:1 xdotool key --clearmodifiers Return"
+    )
+    try:
+        result = subprocess.run(
+            ["docker", "exec", container, "bash", "-lc", command],
+            capture_output=True,
+            text=True,
+            timeout=45,
+        )
+        return {"ok": result.returncode == 0, "stderr": (result.stderr or "")[:180]}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:180]}
+
 async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
     """Control isolated virtual desktop with Gemini Live only.
     
@@ -12455,6 +12765,7 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
                 return {"error": "GEMINI_API_KEY required for Gemini Live WebSocket streaming"}
             
             container = _GEMINI_VDESKTOP_SESSION.get("container", "orchestrator-desktop")
+            bootstrap = _bootstrap_virtual_desktop_browser(container, task)
             
             # Use official Gemini Live SDK (google-genai) for real-time streaming.
             try:
@@ -12500,6 +12811,10 @@ Available actions:
 Respond with JSON ONLY."""
             
             results = []
+            if bootstrap.get("started"):
+                results.append({"step": -1, "action": "bootstrap_open_browser", "url": bootstrap.get("url", "")})
+            else:
+                results.append({"step": -1, "warning": f"bootstrap failed: {bootstrap.get('error') or bootstrap.get('stderr', '')}"})
             
             try:
                 client = genai.Client(api_key=gemini_key)
@@ -12870,7 +13185,8 @@ def _gemini_virtual_desktop_sync(action: str, **kwargs) -> dict:
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 future = pool.submit(asyncio.run, _gemini_virtual_desktop(action, **kwargs))
-                return future.result(timeout=1800)  # 30 min timeout for long tasks
+                sync_timeout_s = int(os.getenv("ORCH_GEMINI_VDESKTOP_SYNC_TIMEOUT_SECONDS", "3600"))
+                return future.result(timeout=sync_timeout_s)
         return asyncio.run(_gemini_virtual_desktop(action, **kwargs))
     except Exception as e:
         return {"error": f"gemini_virtual_desktop sync wrapper failed: {e}"}

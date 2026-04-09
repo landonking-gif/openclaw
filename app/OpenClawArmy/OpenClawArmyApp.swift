@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct KingAIApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var orchestrator = OrchestratorService()
+    @StateObject private var orchestrator = OrchestratorService.shared
 
     var body: some Scene {
         WindowGroup {

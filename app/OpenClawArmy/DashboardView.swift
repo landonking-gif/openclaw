@@ -289,6 +289,7 @@ struct AIDesktopTab: View {
     @State private var desktopStatus = "Checking desktop server..."
 
     private let healthProbeURL = URL(string: "http://localhost:6901/")!
+    private let fallbackDesktopURL = URL(string: "http://localhost:6901/vnc_lite.html?autoconnect=true&password=openclaw&resize=remote&reconnect=true&reconnect_delay=2000")!
 
     var body: some View {
         VStack(spacing: 0) {
@@ -311,6 +312,7 @@ struct AIDesktopTab: View {
                        parsed.scheme != nil {
                         desktopURL = parsed
                         reloadToken = UUID()
+                        connectDesktop()
                     }
                 }
                 .buttonStyle(.borderedProminent)
@@ -385,6 +387,14 @@ struct AIDesktopTab: View {
                     if let parsed = URL(string: desktopURLText.trimmingCharacters(in: .whitespacesAndNewlines)),
                        parsed.scheme != nil {
                         desktopURL = parsed
+                        // vnc_lite.html is more robust in WKWebView than the full noVNC shell.
+                        if parsed.absoluteString.contains("/vnc.html"),
+                           let adjusted = URL(string: parsed.absoluteString.replacingOccurrences(of: "/vnc.html", with: "/vnc_lite.html")) {
+                            desktopURL = adjusted
+                        }
+                        reloadToken = UUID()
+                    } else {
+                        desktopURL = fallbackDesktopURL
                         reloadToken = UUID()
                     }
                 } else {

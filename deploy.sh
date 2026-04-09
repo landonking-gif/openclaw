@@ -75,7 +75,7 @@ _resolve_agent_config_path() {
 
 _pid_on_port() {
     local port="$1"
-    lsof -ti :"$port" 2>/dev/null | head -n 1
+    lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null | head -n 1
 }
 
 _read_pidfile() {
@@ -430,6 +430,16 @@ _ensure_orchestrator_desktop() {
     local running
     running="$(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null || true)"
     if [[ "$running" == "true" ]]; then
+        local current_vnc_pw
+        current_vnc_pw="$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$container" 2>/dev/null | awk -F= '$1=="VNC_PW"{print $2; exit}')"
+        local expected_vnc_pw="${ORCH_DESKTOP_VNC_PW:-openclaw}"
+        if [[ -n "$current_vnc_pw" && "$current_vnc_pw" != "$expected_vnc_pw" ]]; then
+            log_warn "Virtual desktop password drift detected; recreating $container"
+            docker rm -f "$container" >/dev/null 2>&1 || true
+            running="false"
+        fi
+    fi
+    if [[ "$running" == "true" ]]; then
         log_ok "Virtual desktop container ready ($container)"
         return 0
     fi
@@ -712,10 +722,16 @@ cmd_status() {
         local pidfile="$PID_DIR/pids/${name}.pid"
         printf "  %-25s " "$name ($port):"
         local pid="$(_read_pidfile "$pidfile" || true)"
-        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null && curl -sf --max-time 2 "http://localhost:$port/health" >/dev/null 2>&1; then
             echo "${GREEN}RUNNING${NC} (PID $pid)"
         else
-            echo "${RED}DOWN${NC}"
+            local port_pid="$(_pid_on_port "$port" || true)"
+            if [[ -n "$port_pid" ]] && curl -sf --max-time 2 "http://localhost:$port/health" >/dev/null 2>&1; then
+                echo "$port_pid" > "$pidfile"
+                echo "${GREEN}RUNNING${NC} (PID $port_pid)"
+            else
+                echo "${RED}DOWN${NC}"
+            fi
         fi
     done
     echo ""
@@ -731,13 +747,14 @@ cmd_status() {
         local agent_status="${RED}DOWN${NC}"
         local pid_display="-"
         local pid="$(_read_pidfile "$pidfile" || true)"
-        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null && _pid_listens_on_port "$pid" "$port"; then
             agent_status="${GREEN}UP${NC}"
             pid_display="$pid"
         else
             local port_pid="$(_pid_on_port "$port" || true)"
             if [[ -n "$port_pid" ]]; then
-                agent_status="${YELLOW}LISTEN${NC}"
+                echo "$port_pid" > "$pidfile"
+                agent_status="${GREEN}UP${NC}"
                 pid_display="$port_pid"
             fi
         fi
@@ -844,7 +861,13 @@ cmd_restart() {
                 NVIDIA_API_KEY="$api_key" \
                 eval nohup $OPENCLAW_CLI --profile "$name" gateway run --port "$port" --force --allow-unconfigured > "$logfile" 2>&1 &
 
-                echo "$!" > "$PID_DIR/pids/agent-${name}.pid"
+                local pid="$(_wait_for_port_listener "$port" 40 0.2 || true)"
+                if [[ -z "$pid" ]]; then
+                    pid=$!
+                elif ! _pid_listens_on_port "$pid" "$port"; then
+                    pid="$(_pid_on_port "$port" || echo "$pid")"
+                fi
+                [[ -n "$pid" ]] && echo "$pid" > "$PID_DIR/pids/agent-${name}.pid"
                 log_ok "Restarted $name on port $port"
                 return
             fi

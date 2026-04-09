@@ -78,9 +78,54 @@ _pid_on_port() {
     lsof -ti :"$port" 2>/dev/null | head -n 1
 }
 
+_read_pidfile() {
+    local pidfile="$1"
+    [[ -f "$pidfile" ]] || return 1
+    local pid
+    pid="$(<"$pidfile" 2>/dev/null || true)"
+    [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+    echo "$pid"
+}
+
 _is_port_listening() {
     local port="$1"
     lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
+}
+
+_pid_listens_on_port() {
+    local pid="$1"
+    local port="$2"
+    lsof -nP -a -p "$pid" -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
+}
+
+_wait_for_port_listener() {
+    local port="$1"
+    local attempts="${2:-25}"
+    local sleep_s="${3:-0.2}"
+    local i
+    for ((i = 0; i < attempts; i++)); do
+        local pid="$(_pid_on_port "$port" || true)"
+        if [[ -n "$pid" ]]; then
+            echo "$pid"
+            return 0
+        fi
+        sleep "$sleep_s"
+    done
+    return 1
+}
+
+_wait_for_port_free() {
+    local port="$1"
+    local attempts="${2:-25}"
+    local sleep_s="${3:-0.2}"
+    local i
+    for ((i = 0; i < attempts; i++)); do
+        if ! _is_port_listening "$port"; then
+            return 0
+        fi
+        sleep "$sleep_s"
+    done
+    return 1
 }
 
 _ensure_agent_config() {
@@ -327,8 +372,12 @@ cmd_start() {
     # 3. Start all agents
     _start_agents
 
-    # 4. Build and install Mac app
-    _build_mac_app
+    # 4. Build and install Mac app (optional on server-only restart loops)
+    if [[ "${SKIP_APP_BUILD:-0}" == "1" ]]; then
+        log_info "Skipping Mac App build (SKIP_APP_BUILD=1)"
+    else
+        _build_mac_app
+    fi
 
     log_head "All Systems Online"
     cmd_status
@@ -412,8 +461,10 @@ _start_services() {
         local logfile="$LOG_DIR/${name}.log"
 
         # Check if already running
-        if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-            local pid="$(cat "$pidfile")"
+        local tracked_pid=""
+        tracked_pid="$(_read_pidfile "$pidfile" || true)"
+        if [[ -n "$tracked_pid" ]] && kill -0 "$tracked_pid" 2>/dev/null; then
+            local pid="$tracked_pid"
             if curl -sf --max-time 2 "http://localhost:$port/health" >/dev/null 2>&1; then
                 log_ok "$name already running (PID $pid)"
                 continue
@@ -458,11 +509,14 @@ _start_services() {
         ORCH_CHAT_LONG_IDLE_TIMEOUT_SECONDS=\"${ORCH_CHAT_LONG_IDLE_TIMEOUT_SECONDS:-600}\" \
         nohup $cmd > \"$logfile\" 2>&1 &"
 
-        local pid=$!
-        echo "$pid" > "$pidfile"
+        local pid="$(_wait_for_port_listener "$port" 25 0.2 || true)"
+        if [[ -z "$pid" ]]; then
+            pid=$!
+        fi
+        [[ -n "$pid" ]] && echo "$pid" > "$pidfile"
         sleep 1
 
-        if kill -0 "$pid" 2>/dev/null; then
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             log_ok "$name started (PID $pid, port $port)"
         else
             log_err "$name failed to start — check $logfile"
@@ -502,13 +556,15 @@ _start_agents() {
         local logfile="$LOG_DIR/agent-${name}.log"
 
         # Check if already running
-        if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-            local existing_pid="$(cat "$pidfile")"
-            if _is_port_listening "$port"; then
+        local tracked_pid=""
+        tracked_pid="$(_read_pidfile "$pidfile" || true)"
+        if [[ -n "$tracked_pid" ]] && kill -0 "$tracked_pid" 2>/dev/null; then
+            local existing_pid="$tracked_pid"
+            if _pid_listens_on_port "$existing_pid" "$port"; then
                 log_ok "Agent $name already running (PID $existing_pid)"
                 continue
             fi
-            log_warn "Agent $name PID $existing_pid is stale/unhealthy; restarting"
+            log_warn "Agent $name PID $existing_pid is not listening on $port; restarting"
             kill -TERM "$existing_pid" 2>/dev/null || true
             rm -f "$pidfile"
             sleep 1
@@ -521,17 +577,13 @@ _start_agents() {
 
         local port_pid="$(_pid_on_port "$port" || true)"
         if [[ -n "$port_pid" ]]; then
-            if _is_port_listening "$port"; then
-                echo "$port_pid" > "$pidfile"
-                log_ok "Agent $name already running (PID $port_pid)"
-                continue
-            fi
             log_warn "Agent $name port $port occupied by PID $port_pid; reclaiming port"
             kill -TERM "$port_pid" 2>/dev/null || true
             sleep 1
             if kill -0 "$port_pid" 2>/dev/null; then
                 kill -9 "$port_pid" 2>/dev/null || true
             fi
+            _wait_for_port_free "$port" 20 0.2 || true
         fi
 
         # Resolve the NVAPI key safely even with set -u
@@ -540,15 +592,6 @@ _start_agents() {
             api_key="${(P)key_name}"
         else
             api_key="${NVIDIA_API_KEY:-}"
-        fi
-
-        # Kill anything still on port first
-        local pids
-        pids=$(lsof -ti :$port 2>/dev/null || true)
-        if [[ -n "$pids" ]]; then
-            echo "Stopping previous agent on port $port (PIDs: $pids)"
-            echo "$pids" | xargs kill -9 >/dev/null 2>&1
-            sleep 1
         fi
 
         # Start the agent via gateway subcommand
@@ -564,8 +607,13 @@ _start_agents() {
         NVIDIA_API_KEY=\"$api_key\" \
         nohup $OPENCLAW_CLI --profile \"$name\" gateway run --port \"$port\" --force --allow-unconfigured > \"$logfile\" 2>&1 &"
 
-        local pid=$!
-        echo "$pid" > "$pidfile"
+        local pid="$(_wait_for_port_listener "$port" 40 0.2 || true)"
+        if [[ -z "$pid" ]]; then
+            pid=$!
+        elif ! _pid_listens_on_port "$pid" "$port"; then
+            pid="$(_pid_on_port "$port" || echo "$pid")"
+        fi
+        [[ -n "$pid" ]] && echo "$pid" > "$pidfile"
         started=$((started + 1))
 
         # Don't wait between agents — they start fast
@@ -593,8 +641,8 @@ cmd_stop() {
         local name="${adef%%:*}"
         local pidfile="$PID_DIR/pids/agent-${name}.pid"
         if [[ -f "$pidfile" ]]; then
-            local pid=$(cat "$pidfile")
-            if kill -0 "$pid" 2>/dev/null; then
+            local pid="$(_read_pidfile "$pidfile" || true)"
+            if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
                 kill -TERM "$pid" 2>/dev/null
                 stopped=$((stopped + 1))
             fi
@@ -609,8 +657,8 @@ cmd_stop() {
         local name="${sdef%%:*}"
         local pidfile="$PID_DIR/pids/${name}.pid"
         if [[ -f "$pidfile" ]]; then
-            local pid=$(cat "$pidfile")
-            if kill -0 "$pid" 2>/dev/null; then
+            local pid="$(_read_pidfile "$pidfile" || true)"
+            if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
                 kill -TERM "$pid" 2>/dev/null
                 log_ok "Stopped $name (PID $pid)"
             fi
@@ -663,8 +711,9 @@ cmd_status() {
         local port="${rest%%:*}"
         local pidfile="$PID_DIR/pids/${name}.pid"
         printf "  %-25s " "$name ($port):"
-        if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-            echo "${GREEN}RUNNING${NC} (PID $(cat "$pidfile"))"
+        local pid="$(_read_pidfile "$pidfile" || true)"
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+            echo "${GREEN}RUNNING${NC} (PID $pid)"
         else
             echo "${RED}DOWN${NC}"
         fi
@@ -681,9 +730,16 @@ cmd_status() {
         local pidfile="$PID_DIR/pids/agent-${name}.pid"
         local agent_status="${RED}DOWN${NC}"
         local pid_display="-"
-        if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+        local pid="$(_read_pidfile "$pidfile" || true)"
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             agent_status="${GREEN}UP${NC}"
-            pid_display="$(cat "$pidfile")"
+            pid_display="$pid"
+        else
+            local port_pid="$(_pid_on_port "$port" || true)"
+            if [[ -n "$port_pid" ]]; then
+                agent_status="${YELLOW}LISTEN${NC}"
+                pid_display="$port_pid"
+            fi
         fi
         printf "  %-18s %-7s %-18b %-10s\n" "$name" "$port" "$agent_status" "$pid_display"
     done
@@ -755,7 +811,8 @@ cmd_restart() {
         # Restart a specific agent
         local pidfile="$PID_DIR/pids/agent-${target}.pid"
         if [[ -f "$pidfile" ]]; then
-            kill -TERM "$(cat "$pidfile")" 2>/dev/null || true
+            local existing_pid="$(_read_pidfile "$pidfile" || true)"
+            [[ -n "$existing_pid" ]] && kill -TERM "$existing_pid" 2>/dev/null || true
             rm -f "$pidfile"
         fi
         sleep 1

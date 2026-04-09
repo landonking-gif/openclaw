@@ -3988,3 +3988,14 @@
 {"ts": "2026-04-09T03:32:59.492087+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
 {"ts": "2026-04-09T03:33:23.933912+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
 {"ts": "2026-04-09T03:33:30.159972+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-09T03:38:04.934498+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-04-09T03:38:59.080703+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-04-09T03:39:59.968148+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-09T03:53:24.183233+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-04-09T03:53:30.544418+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-04-09T03:55:51.513304+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-09T03:58:39.231162+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-09T04:00:22.831803+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}
+{"ts": "2026-04-09T04:03:36.655033+00:00", "category": "watchdog_restart", "detail": "gamma-manager unresponsive for 2 checks", "manager": "gamma-manager"}
+{"ts": "2026-04-09T04:26:26.146844+00:00", "category": "watchdog_restart", "detail": "alpha-manager unresponsive for 2 checks", "manager": "alpha-manager"}
+{"ts": "2026-04-09T04:35:49.485545+00:00", "category": "watchdog_restart", "detail": "beta-manager unresponsive for 2 checks", "manager": "beta-manager"}

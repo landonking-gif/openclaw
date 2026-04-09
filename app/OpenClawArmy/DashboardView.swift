@@ -283,9 +283,12 @@ struct KingTabButton: View {
 // MARK: - AI Desktop Tab
 
 struct AIDesktopTab: View {
-    @State private var desktopURLText = "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote"
-    @State private var desktopURL = URL(string: "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote")!
+    @State private var desktopURLText = "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote&reconnect=true&reconnect_delay=2000"
+    @State private var desktopURL = URL(string: "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote&reconnect=true&reconnect_delay=2000")!
     @State private var reloadToken = UUID()
+    @State private var desktopStatus = "Checking desktop server..."
+
+    private let healthProbeURL = URL(string: "http://localhost:6901/")!
 
     var body: some View {
         VStack(spacing: 0) {
@@ -312,7 +315,10 @@ struct AIDesktopTab: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button("Reload") { reloadToken = UUID() }
+                Button("Reload") {
+                    reloadToken = UUID()
+                    connectDesktop()
+                }
                     .buttonStyle(.bordered)
 
                 Button("Open in Browser") {
@@ -322,6 +328,18 @@ struct AIDesktopTab: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
+            .background(Color.black.opacity(0.35))
+
+            HStack {
+                Image(systemName: desktopStatus.hasPrefix("Connected") ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundColor(desktopStatus.hasPrefix("Connected") ? .green : .yellow)
+                Text(desktopStatus)
+                    .font(.system(size: 11))
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
             .background(Color.black.opacity(0.35))
 
             Rectangle()
@@ -347,6 +365,33 @@ struct AIDesktopTab: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
             }
         }
+        .onAppear {
+            connectDesktop()
+        }
+    }
+
+    private func connectDesktop() {
+        var request = URLRequest(url: healthProbeURL)
+        request.timeoutInterval = 4
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            DispatchQueue.main.async {
+                if let error {
+                    desktopStatus = "Desktop server unavailable on :6901 (\(error.localizedDescription)). Start Docker Desktop, then press Reload."
+                    return
+                }
+                let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+                if (200...399).contains(code) {
+                    desktopStatus = "Connected to isolated AI desktop on :6901."
+                    if let parsed = URL(string: desktopURLText.trimmingCharacters(in: .whitespacesAndNewlines)),
+                       parsed.scheme != nil {
+                        desktopURL = parsed
+                        reloadToken = UUID()
+                    }
+                } else {
+                    desktopStatus = "Desktop server returned HTTP \(code) on :6901. Press Reload after the container is ready."
+                }
+            }
+        }.resume()
     }
 }
 

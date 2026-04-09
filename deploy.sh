@@ -27,7 +27,11 @@ if [[ ! -x "$NODE_BIN" ]]; then
     NODE_BIN="node"
 fi
 OPENCLAW_NODE_MAX_OLD_SPACE="${OPENCLAW_NODE_MAX_OLD_SPACE:-2048}"
-OPENCLAW_CLI="$NODE_BIN --max-old-space-size=$OPENCLAW_NODE_MAX_OLD_SPACE --expose-gc $HOME/openclaw-core/openclaw.mjs"
+OPENCLAW_CLI_ENTRY="${OPENCLAW_CLI_ENTRY:-$ARMY_HOME/openclaw.mjs}"
+if [[ ! -f "$OPENCLAW_CLI_ENTRY" ]]; then
+    OPENCLAW_CLI_ENTRY="$HOME/openclaw-core/openclaw.mjs"
+fi
+OPENCLAW_CLI="$NODE_BIN --max-old-space-size=$OPENCLAW_NODE_MAX_OLD_SPACE --expose-gc $OPENCLAW_CLI_ENTRY"
 
 # Ensure required dependencies are in PATH (PostgreSQL, Redis, OpenClaw Node modules)
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@17/bin:$HOME/.npm-global/bin:$PATH"
@@ -72,6 +76,11 @@ _resolve_agent_config_path() {
 _pid_on_port() {
     local port="$1"
     lsof -ti :"$port" 2>/dev/null | head -n 1
+}
+
+_is_port_listening() {
+    local port="$1"
+    lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
 }
 
 _ensure_agent_config() {
@@ -443,6 +452,10 @@ _start_services() {
         ORCH_TASK_REQUIRE_ISOLATED_DESKTOP=\"${ORCH_TASK_REQUIRE_ISOLATED_DESKTOP:-1}\" \
         ORCH_DESKTOP_CONTROL_DISABLED=\"${ORCH_DESKTOP_CONTROL_DISABLED:-1}\" \
         ORCH_BROWSER_HEADLESS=\"${ORCH_BROWSER_HEADLESS:-1}\" \
+        ORCH_CHAT_TIMEOUT_SECONDS=\"${ORCH_CHAT_TIMEOUT_SECONDS:-600}\" \
+        ORCH_CHAT_LONG_TIMEOUT_SECONDS=\"${ORCH_CHAT_LONG_TIMEOUT_SECONDS:-1800}\" \
+        ORCH_CHAT_IDLE_TIMEOUT_SECONDS=\"${ORCH_CHAT_IDLE_TIMEOUT_SECONDS:-180}\" \
+        ORCH_CHAT_LONG_IDLE_TIMEOUT_SECONDS=\"${ORCH_CHAT_LONG_IDLE_TIMEOUT_SECONDS:-600}\" \
         nohup $cmd > \"$logfile\" 2>&1 &"
 
         local pid=$!
@@ -491,7 +504,7 @@ _start_agents() {
         # Check if already running
         if [[ -f "$pidfile" ]] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
             local existing_pid="$(cat "$pidfile")"
-            if curl -sf --max-time 2 "http://localhost:$port" >/dev/null 2>&1; then
+            if _is_port_listening "$port"; then
                 log_ok "Agent $name already running (PID $existing_pid)"
                 continue
             fi
@@ -508,7 +521,7 @@ _start_agents() {
 
         local port_pid="$(_pid_on_port "$port" || true)"
         if [[ -n "$port_pid" ]]; then
-            if curl -sf --max-time 2 "http://localhost:$port" >/dev/null 2>&1; then
+            if _is_port_listening "$port"; then
                 echo "$port_pid" > "$pidfile"
                 log_ok "Agent $name already running (PID $port_pid)"
                 continue
@@ -549,7 +562,7 @@ _start_agents() {
         OPENCLAW_CONFIG_PATH=\"$config_path\" \
         OPENCLAW_DISABLE_BONJOUR=1 \
         NVIDIA_API_KEY=\"$api_key\" \
-        nohup $OPENCLAW_CLI gateway --port \"$port\" --force --profile \"$name\" > \"$logfile\" 2>&1 &"
+        nohup $OPENCLAW_CLI --profile \"$name\" gateway run --port \"$port\" --force --allow-unconfigured > \"$logfile\" 2>&1 &"
 
         local pid=$!
         echo "$pid" > "$pidfile"
@@ -712,7 +725,7 @@ cmd_health() {
         local port="${rest%%:*}"
         total=$((total + 1))
         printf "  %-30s " "$name ($port)..."
-        if curl -sf "http://localhost:$port" >/dev/null 2>&1; then
+        if _is_port_listening "$port"; then
             echo "${GREEN}HEALTHY${NC}"
             healthy=$((healthy+1))
         else
@@ -772,7 +785,7 @@ cmd_restart() {
                 OPENCLAW_CONFIG_PATH="$config_path" \
                 OPENCLAW_DISABLE_BONJOUR=1 \
                 NVIDIA_API_KEY="$api_key" \
-                eval nohup $OPENCLAW_CLI gateway --port "$port" --force > "$logfile" 2>&1 &
+                eval nohup $OPENCLAW_CLI --profile "$name" gateway run --port "$port" --force --allow-unconfigured > "$logfile" 2>&1 &
 
                 echo "$!" > "$PID_DIR/pids/agent-${name}.pid"
                 log_ok "Restarted $name on port $port"

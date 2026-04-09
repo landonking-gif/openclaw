@@ -5160,6 +5160,19 @@ def _is_complex_autonomous_request(user_message: str) -> bool:
     indicators = (
         "gemini_virtual_desktop",
         "virtual desktop",
+        "ai desktop",
+        "own computer",
+        "its own computer",
+        "personal computer",
+        "desktop automation",
+        "browser automation",
+        "open chrome",
+        "open browser",
+        "click on",
+        "type into",
+        "fill out",
+        "navigate to",
+        "complete this task",
         "open browser",
         "screenshot",
         "complex",
@@ -5246,8 +5259,12 @@ async def chat(req: ChatMessage):
     is_complex = _is_complex_autonomous_request(req.message)
     is_verification = _is_release_verification_request(req.message)
     long_running_blocking = is_complex or is_verification
-    CHAT_TIMEOUT = 900 if long_running_blocking else 300
-    IDLE_TIMEOUT = 300 if long_running_blocking else 90
+    chat_timeout_default = int(os.getenv("ORCH_CHAT_TIMEOUT_SECONDS", "600"))
+    chat_timeout_long = int(os.getenv("ORCH_CHAT_LONG_TIMEOUT_SECONDS", "1800"))
+    idle_timeout_default = int(os.getenv("ORCH_CHAT_IDLE_TIMEOUT_SECONDS", "180"))
+    idle_timeout_long = int(os.getenv("ORCH_CHAT_LONG_IDLE_TIMEOUT_SECONDS", "600"))
+    CHAT_TIMEOUT = chat_timeout_long if long_running_blocking else chat_timeout_default
+    IDLE_TIMEOUT = idle_timeout_long if long_running_blocking else idle_timeout_default
     wait_for_completion = (
         req.wait_for_completion
         if req.wait_for_completion is not None

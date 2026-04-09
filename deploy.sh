@@ -310,6 +310,7 @@ cmd_start() {
 
     # 1. Check infrastructure
     _check_infra_or_start
+    _ensure_orchestrator_desktop
 
     # 2. Start Python services
     _start_services
@@ -358,6 +359,40 @@ _check_infra_or_start() {
     fi
 }
 
+_ensure_orchestrator_desktop() {
+    local container="${ORCH_DESKTOP_CONTAINER:-orchestrator-desktop}"
+    if ! command -v docker >/dev/null 2>&1; then
+        log_warn "Docker CLI not found; isolated virtual desktop unavailable"
+        return 0
+    fi
+    if ! docker info >/dev/null 2>&1; then
+        log_warn "Docker daemon is not running; isolated virtual desktop unavailable"
+        return 0
+    fi
+    local running
+    running="$(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null || true)"
+    if [[ "$running" == "true" ]]; then
+        log_ok "Virtual desktop container ready ($container)"
+        return 0
+    fi
+    if docker inspect "$container" >/dev/null 2>&1; then
+        if docker start "$container" >/dev/null 2>&1; then
+            log_ok "Virtual desktop container started ($container)"
+            return 0
+        fi
+    fi
+    log_info "Starting isolated virtual desktop container ($container)..."
+    if docker run -d --name "$container" \
+        -p 5901:5901 -p 6901:6901 \
+        -e VNC_PW="${ORCH_DESKTOP_VNC_PW:-openclaw}" \
+        --shm-size=2g \
+        consol/ubuntu-xfce-vnc:latest >/dev/null 2>&1; then
+        log_ok "Virtual desktop container created ($container)"
+    else
+        log_warn "Could not create $container; Gemini desktop automation may fail until Docker image is available"
+    fi
+}
+
 _start_services() {
     for sdef in "${SERVICE_DEFS[@]}"; do
         local name="${sdef%%:*}"
@@ -403,7 +438,11 @@ _start_services() {
         REDIS_URL=\"${REDIS_URL:-redis://localhost:6379/0}\" \
         CHROMA_PATH=\"$DATA_DIR/chroma\" \
         VAULT_PATH=\"$ARMY_HOME/data/obsidian database\" \
+        GEMINI_API_KEY=\"${GEMINI_API_KEY:-}\" \
         NVIDIA_API_KEY=\"${NVIDIA_API_KEY:-}\" \
+        ORCH_TASK_REQUIRE_ISOLATED_DESKTOP=\"${ORCH_TASK_REQUIRE_ISOLATED_DESKTOP:-1}\" \
+        ORCH_DESKTOP_CONTROL_DISABLED=\"${ORCH_DESKTOP_CONTROL_DISABLED:-1}\" \
+        ORCH_BROWSER_HEADLESS=\"${ORCH_BROWSER_HEADLESS:-1}\" \
         nohup $cmd > \"$logfile\" 2>&1 &"
 
         local pid=$!

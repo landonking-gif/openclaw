@@ -283,8 +283,8 @@ struct KingTabButton: View {
 // MARK: - AI Desktop Tab
 
 struct AIDesktopTab: View {
-    @State private var desktopURLText = "http://localhost:6901"
-    @State private var desktopURL = URL(string: "http://localhost:6901")!
+    @State private var desktopURLText = "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote"
+    @State private var desktopURL = URL(string: "http://localhost:6901/vnc.html?autoconnect=true&password=openclaw&resize=remote")!
     @State private var reloadToken = UUID()
 
     var body: some View {
@@ -336,7 +336,7 @@ struct AIDesktopTab: View {
                     Text("If this is blank, start Docker Desktop and ensure `orchestrator-desktop` is running.")
                         .font(.system(size: 11))
                         .foregroundColor(.gray)
-                    Text("Interactive noVNC usually lives at http://localhost:6901")
+                    Text("Interactive noVNC URL is prefilled with autoconnect + password.")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.gray.opacity(0.8))
                 }

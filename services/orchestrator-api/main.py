@@ -4482,7 +4482,12 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 )
                 internal_task = f"URL: {fn_args.get('action', '')}"
             elif fn_name == "desktop_control":
-                if task_mode and os.getenv("ORCH_TASK_ALLOW_DESKTOP_CONTROL", "0") != "1":
+                if os.getenv("ORCH_DESKTOP_CONTROL_DISABLED", "1") == "1":
+                    internal_result = {
+                        "error": "desktop_control is disabled to protect your host computer. Use gemini_virtual_desktop instead (isolated Docker desktop)."
+                    }
+                    internal_task = f"Desktop(blocked): {fn_args.get('action', '')}"
+                elif task_mode and os.getenv("ORCH_TASK_ALLOW_DESKTOP_CONTROL", "0") != "1":
                     internal_result = {
                         "error": "desktop_control disabled in async task mode to avoid hijacking host mouse/keyboard. Set ORCH_TASK_ALLOW_DESKTOP_CONTROL=1 to override."
                     }
@@ -4534,6 +4539,12 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
             elif fn_name == "gemini_virtual_desktop":
                 # Gemini controlling isolated Docker virtual desktop
                 # Run in worker thread so long desktop sessions don't block FastAPI event loop.
+                if os.getenv("ORCH_TASK_REQUIRE_ISOLATED_DESKTOP", "1") == "1" and fn_args.get("action", "") == "run":
+                    await asyncio.to_thread(
+                        _gemini_virtual_desktop_sync,
+                        "connect",
+                        container=fn_args.get("container", "orchestrator-desktop"),
+                    )
                 internal_result = await asyncio.to_thread(
                     _gemini_virtual_desktop_sync,
                     fn_args.get("action", ""),
@@ -4545,7 +4556,17 @@ async def call_llm(session_id: str, user_message: str, *, task_mode: bool = Fals
                 )
                 internal_task = f"GeminiVirtualDesktop: {fn_args.get('action', '')}"
             elif fn_name == "browser_automate":
+                if task_mode and os.getenv("ORCH_TASK_REQUIRE_ISOLATED_DESKTOP", "1") == "1":
+                    internal_result = {
+                        "error": "browser_automate is blocked in task mode. Use gemini_virtual_desktop for isolated automation."
+                    }
+                    internal_task = f"Browser(blocked): {fn_args.get('action', '')}"
+                    if fast_task_mode:
+                        fast_task_tool_hits += 1
+                    continue
                 browser_args = {k: v for k, v in fn_args.items() if k != "action"}
+                if fn_args.get("action", "") == "launch" and os.getenv("ORCH_BROWSER_HEADLESS", "1") == "1":
+                    browser_args["headless"] = True
                 if task_mode and os.getenv("ORCH_TASK_FORCE_HEADLESS", "1") == "1" and fn_args.get("action", "") == "launch":
                     browser_args["headless"] = True
                 internal_result = await asyncio.to_thread(
@@ -12304,34 +12325,75 @@ def _gemini_screen_stream_sync(action: str, **kwargs) -> dict:
 
 _GEMINI_VDESKTOP_SESSION = None
 
+def _ensure_orchestrator_desktop_container(container: str = "orchestrator-desktop") -> tuple[bool, str]:
+    """Ensure isolated Docker desktop container exists and is running."""
+    try:
+        docker_check = subprocess.run(["docker", "info"], capture_output=True, timeout=12)
+        if docker_check.returncode != 0:
+            return False, "Docker is not available/running. Start Docker Desktop first."
+
+        inspect = subprocess.run(
+            ["docker", "inspect", "-f", "{{.State.Running}}", container],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if inspect.returncode == 0 and inspect.stdout.strip() == "true":
+            return True, "already_running"
+
+        if inspect.returncode == 0:
+            start = subprocess.run(["docker", "start", container], capture_output=True, text=True, timeout=30)
+            if start.returncode == 0:
+                return True, "started_existing"
+
+        run = subprocess.run(
+            [
+                "docker",
+                "run",
+                "-d",
+                "--name",
+                container,
+                "-p",
+                "5901:5901",
+                "-p",
+                "6901:6901",
+                "-e",
+                "VNC_PW=openclaw",
+                "--shm-size=2g",
+                "consol/ubuntu-xfce-vnc:latest",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        if run.returncode != 0:
+            return False, f"Failed to create {container}: {(run.stderr or run.stdout)[:220]}"
+        return True, "created"
+    except Exception as e:
+        return False, str(e)
+
 async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
-    """Control isolated virtual desktop with AI vision (Gemini Live primary, NVIDIA fallback).
+    """Control isolated virtual desktop with Gemini Live only.
     
     This gives the AI its own computer (Docker container) with its own screen,
     mouse, and keyboard - completely isolated from your real screen.
     
-    Uses Gemini Live API for real-time streaming (fastest), falls back to NVIDIA vision if quota exceeded.
+    Uses Gemini Live API for real-time streaming (fastest).
     """
     global _GEMINI_VDESKTOP_SESSION, _VIRTUAL_DESKTOP_SESSION
     
     try:
-        # Gemini Live is primary (real-time streaming), NVIDIA is fallback
+        # Gemini Live is required for this workflow.
         gemini_key = os.getenv("GEMINI_API_KEY", "")
-        nvidia_key = _get_api_key()  # Uses rotation
-        
-        if not gemini_key and not nvidia_key:
-            return {"error": "No vision API key available (need GEMINI_API_KEY or NVAPI)"}
+        if not gemini_key:
+            return {"error": "GEMINI_API_KEY is required for gemini_virtual_desktop"}
         
         container = kwargs.get("container", "orchestrator-desktop")
         
         if action == "connect":
-            # Connect to existing virtual desktop container
-            result = subprocess.run(
-                ["docker", "inspect", "-f", "{{.State.Running}}", container],
-                capture_output=True, text=True, timeout=10
-            )
-            if result.returncode != 0 or result.stdout.strip() != "true":
-                return {"error": f"Container {container} not running. Start it with: docker run -d --name orchestrator-desktop -p 5901:5901 -p 6901:6901 consol/ubuntu-xfce-vnc:latest"}
+            ok, detail = _ensure_orchestrator_desktop_container(container)
+            if not ok:
+                return {"error": f"Container {container} unavailable: {detail}"}
             
             # Also set up the virtual_desktop session
             _VIRTUAL_DESKTOP_SESSION = {
@@ -12355,6 +12417,7 @@ async def _gemini_virtual_desktop(action: str, **kwargs) -> dict:
             return {
                 "connected": True,
                 "container": container,
+                "container_status": detail,
                 "view_url": "http://localhost:6901 (open in browser to watch)",
                 "message": "Connected to virtual desktop. Use action='run' with a task to let Gemini control it."
             }
@@ -12446,54 +12509,9 @@ Respond with JSON ONLY."""
 
                 if live_session is None:
                     live_error = "; ".join(live_setup_errors[-3:]) if live_setup_errors else "setup failed"
-                    results.append({"step": -1, "warning": f"Gemini Live unavailable, using NVIDIA fallback ({live_error})"})
+                    return {"error": f"Gemini Live unavailable: {live_error}"}
                 elif _GEMINI_VDESKTOP_SESSION is not None:
                     _GEMINI_VDESKTOP_SESSION["live_model"] = selected_model
-
-                async def _nvidia_response_text(prompt: str, img_b64: str) -> str:
-                    import httpx
-
-                    last_err: Exception | None = None
-                    for attempt in range(3):
-                        local_nvidia_key = _get_api_key() if attempt == 0 else _next_key_for_model(nvidia_vision_model)
-                        if not local_nvidia_key:
-                            raise RuntimeError("NVAPI key missing for fallback")
-                        try:
-                            timeout = httpx.Timeout(timeout=120.0, connect=15.0)
-                            async with httpx.AsyncClient(timeout=timeout) as client:
-                                resp = await client.post(
-                                    "https://integrate.api.nvidia.com/v1/chat/completions",
-                                    headers={"Authorization": f"Bearer {local_nvidia_key}"},
-                                    json={
-                                        "model": nvidia_vision_model,
-                                        "messages": [
-                                            {
-                                                "role": "user",
-                                                "content": [
-                                                    {"type": "text", "text": prompt},
-                                                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
-                                                ],
-                                            }
-                                        ],
-                                        "max_tokens": 120,
-                                        "temperature": 0.1,
-                                    },
-                                )
-                            if resp.status_code != 200:
-                                raise RuntimeError(f"NVIDIA API error {resp.status_code}: {resp.text[:180]}")
-                            data = resp.json()
-                            choices = data.get("choices", [])
-                            if not choices:
-                                raise RuntimeError(f"NVIDIA API returned no choices: {str(data)[:180]}")
-                            message = choices[0].get("message", {})
-                            content = message.get("content", "")
-                            if not isinstance(content, str) or not content.strip():
-                                raise RuntimeError("NVIDIA API returned empty message content")
-                            return content.strip()
-                        except Exception as err:
-                            last_err = err
-                            continue
-                    raise RuntimeError(str(last_err) if last_err else "NVIDIA fallback failed")
 
                 def _capture_container_screenshot(target_path: str) -> tuple[bool, str]:
                     """Capture screenshot from Docker desktop with small retry for transient stalls."""
@@ -12566,7 +12584,6 @@ Respond with JSON ONLY."""
 
                     with open(local_img, "rb") as f:
                         img_data = f.read()
-                        img_b64 = base64.b64encode(img_data).decode("utf-8")
 
                     # Try Gemini Live first if available.
                     if live_session is not None:
@@ -12594,7 +12611,7 @@ Respond with JSON ONLY."""
 
                             response_text = await asyncio.wait_for(_recv_live_text(), timeout=15.0)
                         except Exception as live_step_err:
-                            results.append({"step": step, "warning": f"Gemini Live step failed, using NVIDIA fallback: {str(live_step_err)[:120]}"})
+                            results.append({"step": step, "error": f"Gemini Live step failed: {str(live_step_err)[:120]}"})
                             try:
                                 if live_connect_cm is not None:
                                     await live_connect_cm.__aexit__(None, None, None)
@@ -12602,16 +12619,11 @@ Respond with JSON ONLY."""
                                 pass
                             live_session = None
 
-                    # Fall back to NVIDIA vision when Gemini Live is unavailable/fails.
                     if not response_text:
-                        try:
-                            response_text = await _nvidia_response_text(prompt, img_b64)
-                        except Exception as fallback_err:
-                            fallback_msg = str(fallback_err).strip() or fallback_err.__class__.__name__
-                            results.append({"step": step, "error": f"No model response: {fallback_msg[:160]}"})
-                            Path(local_img).unlink(missing_ok=True)
-                            await asyncio.sleep(step_delay)
-                            continue
+                        results.append({"step": step, "error": "No Gemini response for this step"})
+                        Path(local_img).unlink(missing_ok=True)
+                        await asyncio.sleep(step_delay)
+                        continue
 
                     # Parse JSON action
                     action_data = None

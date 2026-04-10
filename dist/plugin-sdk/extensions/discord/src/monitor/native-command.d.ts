@@ -1,5 +1,5 @@
 import { Button, Command, StringSelectMenu } from "@buape/carbon";
-import { type NativeCommandSpec } from "openclaw/plugin-sdk/command-auth";
+import { type NativeCommandSpec } from "openclaw/plugin-sdk/native-command-registry";
 import type { OpenClawConfig, loadConfig } from "openclaw/plugin-sdk/config-runtime";
 import * as pluginRuntime from "openclaw/plugin-sdk/plugin-runtime";
 import * as replyRuntime from "openclaw/plugin-sdk/reply-runtime";

@@ -1,5 +1,5 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { a as bluebubblesConfigSchema, c as describeBlueBubblesAccount, i as bluebubblesConfigAdapter, n as blueBubblesSetupAdapter, o as bluebubblesMeta, r as bluebubblesCapabilities, s as bluebubblesReload, t as blueBubblesSetupWizard } from "../../setup-surface-Bvga_19C.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { a as bluebubblesConfigSchema, c as describeBlueBubblesAccount, i as bluebubblesConfigAdapter, n as blueBubblesSetupAdapter, o as bluebubblesMeta, r as bluebubblesCapabilities, s as bluebubblesReload, t as blueBubblesSetupWizard } from "../../setup-surface-JVvvODwN.js";
 //#region extensions/bluebubbles/src/channel.setup.ts
 const bluebubblesSetupPlugin = {
 	id: "bluebubbles",

@@ -1,5 +1,5 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { i as createSlackPluginBase, n as slackSetupAdapter, t as slackSetupWizard } from "../../setup-surface-BT21oQYq.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { i as createSlackPluginBase, n as slackSetupAdapter, t as slackSetupWizard } from "../../setup-surface-DXT3qNVR.js";
 //#region extensions/slack/src/channel.setup.ts
 const slackSetupPlugin = { ...createSlackPluginBase({
 	setupWizard: slackSetupWizard,

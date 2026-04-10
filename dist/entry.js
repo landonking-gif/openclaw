@@ -111,7 +111,7 @@ if (!isMainModule({
 	currentFile: fileURLToPath(import.meta.url),
 	wrapperEntryPairs: [...ENTRY_WRAPPER_PAIRS]
 })) {} else {
-	const { installGaxiosFetchCompat } = await import("./gaxios-fetch-compat-C8gAoQLp.js");
+	const { installGaxiosFetchCompat } = await import("./gaxios-fetch-compat-C_D4O86l.js");
 	await installGaxiosFetchCompat();
 	process$1.title = "openclaw";
 	ensureOpenClawExecMarkerOnProcess();
@@ -149,7 +149,7 @@ if (!isMainModule({
 	function tryHandleRootVersionFastPath(argv) {
 		if (resolveCliContainerTarget(argv)) return false;
 		if (!isRootVersionInvocation(argv)) return false;
-		Promise.all([import("./version-Dw-U-Mrc.js"), import("./git-commit-BYlWp9iy.js")]).then(([{ VERSION }, { resolveCommitHash }]) => {
+		Promise.all([import("./version-Dw-U-Mrc.js"), import("./git-commit-BixBIzpq.js")]).then(([{ VERSION }, { resolveCommitHash }]) => {
 			const commit = resolveCommitHash({ moduleUrl: import.meta.url });
 			console.log(commit ? `OpenClaw ${VERSION} (${commit})` : `OpenClaw ${VERSION}`);
 			process$1.exit(0);
@@ -193,14 +193,14 @@ function tryHandleRootHelpFastPath(argv, deps = {}) {
 		Promise.resolve().then(() => deps.outputRootHelp?.()).catch(handleError);
 		return true;
 	}
-	import("./root-help-Bdcla7Uo.js").then(({ outputRootHelp }) => {
+	import("./root-help-Ct-sxon3.js").then(({ outputRootHelp }) => {
 		return outputRootHelp();
 	}).catch(handleError);
 	return true;
 }
 function runMainOrRootHelp(argv) {
 	if (tryHandleRootHelpFastPath(argv)) return;
-	import("./run-main-DA2ViLrr.js").then(({ runCli }) => runCli(argv)).catch((error) => {
+	import("./run-main-Dsf4DAxf.js").then(({ runCli }) => runCli(argv)).catch((error) => {
 		console.error("[openclaw] Failed to start CLI:", error instanceof Error ? error.stack ?? error.message : error);
 		process$1.exitCode = 1;
 	});

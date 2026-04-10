@@ -1,6 +1,6 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { i as resolveAnthropicVertexConfigApiKey } from "../../region-DlzPFGcm.js";
-import { n as resolveImplicitAnthropicVertexProvider, t as mergeImplicitAnthropicVertexProvider } from "../../api-Byhe-Td4.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { i as resolveAnthropicVertexConfigApiKey } from "../../region-DvUq4N5C.js";
+import { n as resolveImplicitAnthropicVertexProvider, t as mergeImplicitAnthropicVertexProvider } from "../../api-CYBthnS_.js";
 //#region extensions/anthropic-vertex/index.ts
 const PROVIDER_ID = "anthropic-vertex";
 var anthropic_vertex_default = definePluginEntry({

@@ -1,19 +1,19 @@
 import { t as formatDocsLink } from "../../links-v2wQeP8P.js";
 import { a as hasConfiguredSecretInput } from "../../types.secrets-DuSPmmWB.js";
 import { _ as normalizeAccountId } from "../../session-key-4QR94Oth.js";
-import { i as isPrivateOrLoopbackHost } from "../../net-ufRGHFYT.js";
-import { c as moveSingleAccountChannelSectionToDefaultAccount } from "../../setup-helpers-CqDPDxCm.js";
-import { O as promptAccountId, t as addWildcardAllowFrom, v as mergeAllowFromEntries } from "../../setup-wizard-helpers-UVbGobAo.js";
-import { t as promptChannelAccessConfig } from "../../setup-group-access-B_U1rx-1.js";
-import { _ as resolveMatrixEnvAccountToken, a as resolveMatrixCredentialsPath, c as resolveMatrixLegacyFlatStoreRoot, d as requiresExplicitMatrixDefaultAccount, f as resolveConfiguredMatrixAccountIds, g as listMatrixEnvAccountIds, h as getMatrixScopedEnvVarNames, i as resolveMatrixCredentialsFilename, l as sanitizeMatrixPathSegment, m as resolveMatrixDefaultOrOnlyAccountId, n as resolveMatrixAccountStorageRoot, o as resolveMatrixHomeserverKey, p as resolveMatrixChannelConfig, r as resolveMatrixCredentialsDir, s as resolveMatrixLegacyFlatStoragePaths, t as hashMatrixAccessToken, u as findMatrixAccountEntry } from "../../storage-paths-BOnyRjh-.js";
-import { i as updateMatrixAccountConfig, t as resolveMatrixConfigFieldPath } from "../../config-update-Bf_HzfuK.js";
-import { a as resolveMatrixAccountConfig, f as resolveValidatedMatrixHomeserverUrl, i as resolveMatrixAccount, p as validateMatrixHomeserverUrl, r as resolveDefaultMatrixAccountId, t as listMatrixAccountIds } from "../../accounts-ERQaGWNS.js";
-import "../../runtime-api-D7PTL6Yn.js";
-import { f as setMatrixThreadBindingMaxAgeBySessionKey, n as getMatrixThreadBindingManager, o as resetMatrixThreadBindingsForTests, u as setMatrixThreadBindingIdleTimeoutBySessionKey } from "../../thread-bindings-shared-DkZbi_5Y.js";
-import { n as resolveMatrixEnvAuthReadiness, t as matrixSetupAdapter } from "../../setup-core-D7dr_MML.js";
-import { n as listMatrixDirectoryGroupsLive, t as resolveMatrixTargets } from "../../resolve-targets-D7GJ9KpQ.js";
-import { n as ensureMatrixSdkInstalled, r as isMatrixSdkAvailable } from "../../deps-DRqrirNa.js";
-import { t as createMatrixThreadBindingManager } from "../../thread-bindings-BKrPfh_x.js";
+import { i as isPrivateOrLoopbackHost } from "../../net-CTrWm98z.js";
+import { c as moveSingleAccountChannelSectionToDefaultAccount } from "../../setup-helpers-K3E4OVw3.js";
+import { O as promptAccountId, t as addWildcardAllowFrom, v as mergeAllowFromEntries } from "../../setup-wizard-helpers-058c-tIO.js";
+import { t as promptChannelAccessConfig } from "../../setup-group-access-Dato5hRK.js";
+import { _ as resolveMatrixEnvAccountToken, a as resolveMatrixCredentialsPath, c as resolveMatrixLegacyFlatStoreRoot, d as requiresExplicitMatrixDefaultAccount, f as resolveConfiguredMatrixAccountIds, g as listMatrixEnvAccountIds, h as getMatrixScopedEnvVarNames, i as resolveMatrixCredentialsFilename, l as sanitizeMatrixPathSegment, m as resolveMatrixDefaultOrOnlyAccountId, n as resolveMatrixAccountStorageRoot, o as resolveMatrixHomeserverKey, p as resolveMatrixChannelConfig, r as resolveMatrixCredentialsDir, s as resolveMatrixLegacyFlatStoragePaths, t as hashMatrixAccessToken, u as findMatrixAccountEntry } from "../../storage-paths-cRdwekZZ.js";
+import { i as updateMatrixAccountConfig, t as resolveMatrixConfigFieldPath } from "../../config-update-DKBw7zW7.js";
+import { a as resolveMatrixAccountConfig, f as resolveValidatedMatrixHomeserverUrl, i as resolveMatrixAccount, p as validateMatrixHomeserverUrl, r as resolveDefaultMatrixAccountId, t as listMatrixAccountIds } from "../../accounts-DyuKZNA3.js";
+import "../../runtime-api-DzVp9nBu.js";
+import { f as setMatrixThreadBindingMaxAgeBySessionKey, n as getMatrixThreadBindingManager, o as resetMatrixThreadBindingsForTests, u as setMatrixThreadBindingIdleTimeoutBySessionKey } from "../../thread-bindings-shared--BkRDzfE.js";
+import { n as resolveMatrixEnvAuthReadiness, t as matrixSetupAdapter } from "../../setup-core-NB-WCLGi.js";
+import { n as listMatrixDirectoryGroupsLive, t as resolveMatrixTargets } from "../../resolve-targets-DVOBJ33r.js";
+import { n as ensureMatrixSdkInstalled, r as isMatrixSdkAvailable } from "../../deps-CeTrTFvm.js";
+import { t as createMatrixThreadBindingManager } from "../../thread-bindings-BIGNNTST.js";
 //#region extensions/matrix/src/onboarding.ts
 const channel = "matrix";
 function resolveMatrixOnboardingAccountId(cfg, accountId) {
@@ -425,7 +425,7 @@ const matrixOnboardingAdapter = {
 		});
 	},
 	afterConfigWritten: async ({ previousCfg, cfg, accountId, runtime }) => {
-		const { runMatrixSetupBootstrapAfterConfigWrite } = await import("../../setup-bootstrap-CA9QDBXp.js");
+		const { runMatrixSetupBootstrapAfterConfigWrite } = await import("../../setup-bootstrap-LXGQXtQL.js");
 		await runMatrixSetupBootstrapAfterConfigWrite({
 			previousCfg,
 			cfg,

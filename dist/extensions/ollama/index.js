@@ -1,7 +1,7 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { S as OLLAMA_DEFAULT_BASE_URL, o as createConfiguredOllamaCompatStreamWrapper, s as createConfiguredOllamaStreamFn, x as resolveOllamaApiBase } from "../../stream-BYuUH4B1.js";
-import { i as promptAndConfigureOllama, n as configureOllamaNonInteractive, r as ensureOllamaModelPulled, t as buildOllamaProvider } from "../../api-BmX3fGQd2.js";
-import { n as createOllamaEmbeddingProvider } from "../../embedding-provider-CStZQJfX.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { S as OLLAMA_DEFAULT_BASE_URL, o as createConfiguredOllamaCompatStreamWrapper, s as createConfiguredOllamaStreamFn, x as resolveOllamaApiBase } from "../../stream-CbIuTHKg.js";
+import { i as promptAndConfigureOllama, n as configureOllamaNonInteractive, r as ensureOllamaModelPulled, t as buildOllamaProvider } from "../../api-u2Kca7sl.js";
+import { n as createOllamaEmbeddingProvider } from "../../embedding-provider-C5hM7Cpu.js";
 //#region extensions/ollama/index.ts
 const PROVIDER_ID = "ollama";
 const DEFAULT_API_KEY = "ollama-local";

@@ -1,20 +1,20 @@
 import { g as DEFAULT_ACCOUNT_ID } from "../../session-key-4QR94Oth.js";
-import { c as collectStatusIssuesFromLastError, d as createDefaultChannelRuntimeState, u as createComputedAccountStatusAdapter } from "../../status-helpers-CtC8UKdv.js";
-import { m as formatTrimmedAllowFromEntries } from "../../channel-config-helpers-BW7FxcKd.js";
-import { t as createPluginRuntimeStore } from "../../runtime-store-BnRt2iWb.js";
-import { r as createLazyRuntimeModule } from "../../lazy-runtime-DShlDMvu.js";
-import { t as buildOutboundBaseSessionKey } from "../../base-session-key-kQVo8bkB.js";
-import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BIzVA7Id.js";
-import "../../routing-plyUTpqn.js";
-import { n as buildDmGroupAccountAllowlistAdapter } from "../../allowlist-config-edit-CP0S2LHH.js";
-import { n as buildPassiveProbedChannelStatusSummary } from "../../extension-shared-DQHeL7JC.js";
-import { r as normalizeIMessageMessagingTarget, t as chunkTextForOutbound } from "../../runtime-api-Di53CbAR.js";
-import { S as resolveIMessageGroupToolPolicy, a as normalizeIMessageAcpConversationId, b as resolveIMessageAccount, d as looksLikeIMessageExplicitTargetId, f as normalizeIMessageHandle, i as matchIMessageAcpConversation, l as inferIMessageTargetChatType, m as parseIMessageTarget, o as resolveIMessageConversationIdFromTarget, x as resolveIMessageGroupRequireMention } from "../../monitor-provider-BXPM_9Na.js";
-import { n as createIMessageConversationBindingManager } from "../../conversation-bindings-DsIt4Gr2.js";
-import { a as imessageSetupAdapter } from "../../setup-core-Bne8CdZ9.js";
-import { n as imessageSecurityAdapter, r as imessageSetupWizard, t as createIMessagePluginBase } from "../../shared-CpFvGN1V.js";
+import { c as collectStatusIssuesFromLastError, d as createDefaultChannelRuntimeState, u as createComputedAccountStatusAdapter } from "../../status-helpers-DyX-NNWd.js";
+import { m as formatTrimmedAllowFromEntries } from "../../channel-config-helpers-XkwmfU3s.js";
+import { t as createPluginRuntimeStore } from "../../runtime-store-DyL9NwDZ.js";
+import { r as createLazyRuntimeModule } from "../../lazy-runtime-WMlTFWAj.js";
+import { t as buildOutboundBaseSessionKey } from "../../base-session-key-Cd49jftS.js";
+import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BD-JWpum.js";
+import "../../routing-C41nSjtW.js";
+import { n as buildDmGroupAccountAllowlistAdapter } from "../../allowlist-config-edit-gP6F_9gi.js";
+import { n as buildPassiveProbedChannelStatusSummary } from "../../extension-shared-kKSSjK8x.js";
+import { r as normalizeIMessageMessagingTarget, t as chunkTextForOutbound } from "../../runtime-api-B7NEfvxu.js";
+import { S as resolveIMessageGroupToolPolicy, a as normalizeIMessageAcpConversationId, b as resolveIMessageAccount, d as looksLikeIMessageExplicitTargetId, f as normalizeIMessageHandle, i as matchIMessageAcpConversation, l as inferIMessageTargetChatType, m as parseIMessageTarget, o as resolveIMessageConversationIdFromTarget, x as resolveIMessageGroupRequireMention } from "../../monitor-provider-CqbfakNZ.js";
+import { n as createIMessageConversationBindingManager } from "../../conversation-bindings-DzySokRo.js";
+import { a as imessageSetupAdapter } from "../../setup-core-DAZuSoYf.js";
+import { n as imessageSecurityAdapter, r as imessageSetupWizard, t as createIMessagePluginBase } from "../../shared-vnsRqoom.js";
 //#region extensions/imessage/src/channel.ts
-const loadIMessageChannelRuntime = createLazyRuntimeModule(() => import("../../channel.runtime-KFm5n36R.js"));
+const loadIMessageChannelRuntime = createLazyRuntimeModule(() => import("../../channel.runtime-ByGNf1Yl.js"));
 function buildIMessageBaseSessionKey(params) {
 	return buildOutboundBaseSessionKey({
 		...params,

@@ -1,9 +1,9 @@
 import { r as applyModelCompatPatch } from "../../provider-model-shared-BXho7Uf2.js";
-import { t as XAI_UNSUPPORTED_SCHEMA_KEYWORDS } from "../../provider-tools-DOVGmt2G.js";
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { i as VENICE_DEFAULT_MODEL_REF } from "../../models-PUgnN2uW.js";
-import { t as buildVeniceProvider } from "../../api-4cevfP4s.js";
-import { t as applyVeniceConfig } from "../../onboard-CkyiSmu2.js";
+import { t as XAI_UNSUPPORTED_SCHEMA_KEYWORDS } from "../../provider-tools-Y4igXLY1.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { i as VENICE_DEFAULT_MODEL_REF } from "../../models-DlQWICEd.js";
+import { t as buildVeniceProvider } from "../../api-YjoBwon8.js";
+import { t as applyVeniceConfig } from "../../onboard-CXQQURL0.js";
 //#region extensions/venice/index.ts
 const PROVIDER_ID = "venice";
 const XAI_TOOL_SCHEMA_PROFILE = "xai";

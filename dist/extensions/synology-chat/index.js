@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setSynologyRuntime, t as synologyChatPlugin } from "../../channel-BnLlcceF.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setSynologyRuntime, t as synologyChatPlugin } from "../../channel-cwYOLnd_.js";
 //#region extensions/synology-chat/index.ts
 var synology_chat_default = defineChannelPluginEntry({
 	id: "synology-chat",

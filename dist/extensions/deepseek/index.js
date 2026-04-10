@@ -1,6 +1,6 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { t as buildDeepSeekProvider } from "../../api-jpwOEd8B.js";
-import { n as applyDeepSeekConfig, t as DEEPSEEK_DEFAULT_MODEL_REF } from "../../onboard-Dpdq4ZEv.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { t as buildDeepSeekProvider } from "../../api-SzAx9lIU.js";
+import { n as applyDeepSeekConfig, t as DEEPSEEK_DEFAULT_MODEL_REF } from "../../onboard-CIG4xGEY.js";
 var deepseek_default = defineSingleProviderPluginEntry({
 	id: "deepseek",
 	name: "DeepSeek Provider",

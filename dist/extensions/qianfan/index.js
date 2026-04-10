@@ -1,6 +1,6 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { r as buildQianfanProvider } from "../../provider-catalog-KpFFw-tL.js";
-import { n as applyQianfanConfig, t as QIANFAN_DEFAULT_MODEL_REF } from "../../onboard-Dejwx9t2.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { r as buildQianfanProvider } from "../../provider-catalog-CX94QWF_.js";
+import { n as applyQianfanConfig, t as QIANFAN_DEFAULT_MODEL_REF } from "../../onboard-Cl5e08qe.js";
 var qianfan_default = defineSingleProviderPluginEntry({
 	id: "qianfan",
 	name: "Qianfan Provider",

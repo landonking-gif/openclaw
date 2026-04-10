@@ -1,8 +1,8 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { c as buildKimiCodingProvider } from "../../provider-catalog-CKxOtlE6.js";
-import { r as applyKimiCodeConfig, t as KIMI_CODING_MODEL_REF } from "../../onboard-Cf070REe.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { c as buildKimiCodingProvider } from "../../provider-catalog-DhcU5UmP.js";
+import { r as applyKimiCodeConfig, t as KIMI_CODING_MODEL_REF } from "../../onboard-DzoHF0VF.js";
 //#region extensions/kimi-coding/index.ts
 const PLUGIN_ID = "kimi";
 const PROVIDER_ID = "kimi";

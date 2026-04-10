@@ -2,18 +2,18 @@ import { s as __toESM, t as __commonJSMin } from "../../chunk-iyeSoAlh.js";
 import { t as formatDocsLink } from "../../links-v2wQeP8P.js";
 import { m as MarkdownConfigSchema } from "../../zod-schema.core-ZvH5iguE.js";
 import { r as buildChannelConfigSchema } from "../../config-schema-Cl_s6UTH.js";
-import { d as createDefaultChannelRuntimeState, u as createComputedAccountStatusAdapter } from "../../status-helpers-CtC8UKdv.js";
-import { i as listCombinedAccountIds, n as describeAccountSnapshot } from "../../account-helpers-MFn2d_bl.js";
-import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BIzVA7Id.js";
-import "../../setup-Dyxm1QD1.js";
-import "../../account-resolution-C5w6Rm-S.js";
-import { i as createPairingPrefixStripper, r as createLoggedPairingApprovalNotifier } from "../../channel-pairing-B7N_FHFm.js";
-import { n as buildPassiveProbedChannelStatusSummary } from "../../extension-shared-DQHeL7JC.js";
-import "../../channel-config-primitives-SDD7W5ZR.js";
-import { t as zod_exports } from "../../zod-BREmy5IG.js";
-import "../../api-Bsm2aDuz.js";
-import { A as rawDataSymbol, B as normalizeToken, C as HttpStatusCodeError, D as rtfm, E as HellFreezesOverError, F as arrayToObject, H as resolveTwitchToken, I as Enumerable, L as generateMessageId, M as promiseWithResolvers, N as mapNullable, O as CustomError, P as mapOptional, R as isAccountConfigured, S as transformTwitchApiResponse, T as extractUserName, V as normalizeTwitchChannel, _ as TokenInfo, a as getClientManager, b as callTwitchApiRaw, c as CachedGetter, d as RateLimitReachedError, f as CustomError$1, g as EventEmitter, h as StaticAuthProvider, i as stripMarkdownForTwitch, j as accessTokenIsExpired, k as DataObject, l as Cacheable, m as require_detect_node, n as setTwitchRuntime, o as removeClientManager, p as createLogger$1, r as chunkTextForTwitch, s as ChatClient, t as monitorTwitchProvider, u as PartitionedTimeBasedRateLimiter, v as InvalidTokenError, w as extractUserId, x as handleTwitchApiResponseError, y as callTwitchApi, z as missingTargetError } from "../../monitor-Bncrba1s.js";
-import { a as __read, n as __decorate, o as __spreadArray, s as init_tslib_es6 } from "../../tslib.es6-J7LjQTZz.js";
+import { d as createDefaultChannelRuntimeState, u as createComputedAccountStatusAdapter } from "../../status-helpers-DyX-NNWd.js";
+import { i as listCombinedAccountIds, n as describeAccountSnapshot } from "../../account-helpers-DaxrMp_H.js";
+import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BD-JWpum.js";
+import "../../setup-DRqna168.js";
+import "../../account-resolution-CWu_sMOH.js";
+import { i as createPairingPrefixStripper, r as createLoggedPairingApprovalNotifier } from "../../channel-pairing-DpO_lXyd.js";
+import { n as buildPassiveProbedChannelStatusSummary } from "../../extension-shared-kKSSjK8x.js";
+import "../../channel-config-primitives-DBa_BlIz.js";
+import { t as zod_exports } from "../../zod-3odrtx2G.js";
+import "../../api-KoQrQc7I.js";
+import { A as rawDataSymbol, B as normalizeToken, C as HttpStatusCodeError, D as rtfm, E as HellFreezesOverError, F as arrayToObject, H as resolveTwitchToken, I as Enumerable, L as generateMessageId, M as promiseWithResolvers, N as mapNullable, O as CustomError, P as mapOptional, R as isAccountConfigured, S as transformTwitchApiResponse, T as extractUserName, V as normalizeTwitchChannel, _ as TokenInfo, a as getClientManager, b as callTwitchApiRaw, c as CachedGetter, d as RateLimitReachedError, f as CustomError$1, g as EventEmitter, h as StaticAuthProvider, i as stripMarkdownForTwitch, j as accessTokenIsExpired, k as DataObject, l as Cacheable, m as require_detect_node, n as setTwitchRuntime, o as removeClientManager, p as createLogger$1, r as chunkTextForTwitch, s as ChatClient, t as monitorTwitchProvider, u as PartitionedTimeBasedRateLimiter, v as InvalidTokenError, w as extractUserId, x as handleTwitchApiResponseError, y as callTwitchApi, z as missingTargetError } from "../../monitor-CjE5ayYp.js";
+import { a as __read, n as __decorate, o as __spreadArray, s as init_tslib_es6 } from "../../tslib.es6-1kHzCjHU.js";
 //#region extensions/twitch/src/config.ts
 /**
 * Default account ID for Twitch
@@ -12479,7 +12479,7 @@ var twitch_default = defineChannelPluginEntry({
 						lastError: null
 					});
 					ctx.log?.info(`Starting Twitch connection for ${account.username}`);
-					const { monitorTwitchProvider } = await import("../../monitor-C42QlAdF.js");
+					const { monitorTwitchProvider } = await import("../../monitor-CqeFTPv2.js");
 					await monitorTwitchProvider({
 						account,
 						accountId,

@@ -1,7 +1,7 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { i as SGLANG_PROVIDER_LABEL, n as SGLANG_DEFAULT_BASE_URL, r as SGLANG_MODEL_PLACEHOLDER, t as SGLANG_DEFAULT_API_KEY_ENV_VAR } from "../../defaults-aG6Y7UTl.js";
-import { t as buildSglangProvider } from "../../models-dk9FEiHB.js";
-import "../../api-BhJVTiZj.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { i as SGLANG_PROVIDER_LABEL, n as SGLANG_DEFAULT_BASE_URL, r as SGLANG_MODEL_PLACEHOLDER, t as SGLANG_DEFAULT_API_KEY_ENV_VAR } from "../../defaults-CVqRFGHF.js";
+import { t as buildSglangProvider } from "../../models-8PmlT-fZ.js";
+import "../../api-_EcMqmqT.js";
 //#region extensions/sglang/index.ts
 const PROVIDER_ID = "sglang";
 async function loadProviderSetup() {

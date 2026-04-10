@@ -1,2 +1,2 @@
-import { t as normalizeExplicitDiscordSessionKey } from "../../session-key-normalization-BgtL1OD_.js";
+import { t as normalizeExplicitDiscordSessionKey } from "../../session-key-normalization-DZJKr1cT.js";
 export { normalizeExplicitDiscordSessionKey };

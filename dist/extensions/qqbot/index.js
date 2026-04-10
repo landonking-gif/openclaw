@@ -1,8 +1,8 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { M as getAccessToken, ct as debugError, lt as debugLog, o as sendDocument } from "../../outbound-UcsqJEAJ.js";
-import { a as resolveQQBotAccount, r as listQQBotAccountIds } from "../../config-BVlCcW8A.js";
-import { n as setQQBotRuntime, t as getQQBotRuntime } from "../../runtime-DEaVpQaw.js";
-import { r as qqbotPlugin, t as getFrameworkCommands } from "../../slash-commands-C0nLfWw7.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { M as getAccessToken, ct as debugError, lt as debugLog, o as sendDocument } from "../../outbound-509HPnNn.js";
+import { a as resolveQQBotAccount, r as listQQBotAccountIds } from "../../config-C5Qbss59.js";
+import { n as setQQBotRuntime, t as getQQBotRuntime } from "../../runtime-CraduDJg.js";
+import { r as qqbotPlugin, t as getFrameworkCommands } from "../../slash-commands-AMJtgNNl.js";
 //#region extensions/qqbot/src/tools/channel.ts
 const API_BASE = "https://api.sgroup.qq.com";
 const DEFAULT_TIMEOUT_MS = 3e4;

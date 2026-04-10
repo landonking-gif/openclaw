@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setWhatsAppRuntime, t as whatsappPlugin } from "../../channel-C2R_gQTx.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setWhatsAppRuntime, t as whatsappPlugin } from "../../channel-DNRHYcG8.js";
 //#region extensions/whatsapp/index.ts
 var whatsapp_default = defineChannelPluginEntry({
 	id: "whatsapp",

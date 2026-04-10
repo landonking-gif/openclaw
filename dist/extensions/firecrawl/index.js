@@ -1,7 +1,7 @@
-import { c as jsonResult, d as readNumberParam, h as readStringParam, p as readStringArrayParam } from "../../common-DotKVabV.js";
-import "../../provider-web-search-G71g-qwn.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { n as runFirecrawlScrape, r as runFirecrawlSearch, t as createFirecrawlWebSearchProvider } from "../../firecrawl-search-provider-CTGeMDLL.js";
+import { c as jsonResult, d as readNumberParam, h as readStringParam, p as readStringArrayParam } from "../../common-DbyForkU.js";
+import "../../provider-web-search-CBSQozqM.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { n as runFirecrawlScrape, r as runFirecrawlSearch, t as createFirecrawlWebSearchProvider } from "../../firecrawl-search-provider-DBUqcWC3.js";
 import { Type } from "@sinclair/typebox";
 //#region extensions/firecrawl/src/firecrawl-scrape-tool.ts
 function optionalStringEnum(values, options = {}) {

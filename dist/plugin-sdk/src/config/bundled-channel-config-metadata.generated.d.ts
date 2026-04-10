@@ -11325,9 +11325,27 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
                                     readonly agentId: {
                                         readonly type: "string";
                                     };
+                                    readonly errorPolicy: {
+                                        readonly type: "string";
+                                        readonly enum: readonly ["always", "once", "silent"];
+                                    };
+                                    readonly errorCooldownMs: {
+                                        readonly type: "integer";
+                                        readonly minimum: 0;
+                                        readonly maximum: 9007199254740991;
+                                    };
                                 };
                                 readonly additionalProperties: false;
                             };
+                        };
+                        readonly errorPolicy: {
+                            readonly type: "string";
+                            readonly enum: readonly ["always", "once", "silent"];
+                        };
+                        readonly errorCooldownMs: {
+                            readonly type: "integer";
+                            readonly minimum: 0;
+                            readonly maximum: 9007199254740991;
                         };
                     };
                     readonly additionalProperties: false;
@@ -11523,9 +11541,27 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
                                     readonly agentId: {
                                         readonly type: "string";
                                     };
+                                    readonly errorPolicy: {
+                                        readonly type: "string";
+                                        readonly enum: readonly ["always", "once", "silent"];
+                                    };
+                                    readonly errorCooldownMs: {
+                                        readonly type: "integer";
+                                        readonly minimum: 0;
+                                        readonly maximum: 9007199254740991;
+                                    };
                                 };
                                 readonly additionalProperties: false;
                             };
+                        };
+                        readonly errorPolicy: {
+                            readonly type: "string";
+                            readonly enum: readonly ["always", "once", "silent"];
+                        };
+                        readonly errorCooldownMs: {
+                            readonly type: "integer";
+                            readonly minimum: 0;
+                            readonly maximum: 9007199254740991;
                         };
                         readonly requireTopic: {
                             readonly type: "boolean";
@@ -11852,6 +11888,15 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
             };
             readonly ackReaction: {
                 readonly type: "string";
+            };
+            readonly errorPolicy: {
+                readonly type: "string";
+                readonly enum: readonly ["always", "once", "silent"];
+            };
+            readonly errorCooldownMs: {
+                readonly type: "integer";
+                readonly minimum: 0;
+                readonly maximum: 9007199254740991;
             };
             readonly apiRoot: {
                 readonly type: "string";
@@ -12206,9 +12251,27 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
                                                 readonly agentId: {
                                                     readonly type: "string";
                                                 };
+                                                readonly errorPolicy: {
+                                                    readonly type: "string";
+                                                    readonly enum: readonly ["always", "once", "silent"];
+                                                };
+                                                readonly errorCooldownMs: {
+                                                    readonly type: "integer";
+                                                    readonly minimum: 0;
+                                                    readonly maximum: 9007199254740991;
+                                                };
                                             };
                                             readonly additionalProperties: false;
                                         };
+                                    };
+                                    readonly errorPolicy: {
+                                        readonly type: "string";
+                                        readonly enum: readonly ["always", "once", "silent"];
+                                    };
+                                    readonly errorCooldownMs: {
+                                        readonly type: "integer";
+                                        readonly minimum: 0;
+                                        readonly maximum: 9007199254740991;
                                     };
                                 };
                                 readonly additionalProperties: false;
@@ -12404,9 +12467,27 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
                                                 readonly agentId: {
                                                     readonly type: "string";
                                                 };
+                                                readonly errorPolicy: {
+                                                    readonly type: "string";
+                                                    readonly enum: readonly ["always", "once", "silent"];
+                                                };
+                                                readonly errorCooldownMs: {
+                                                    readonly type: "integer";
+                                                    readonly minimum: 0;
+                                                    readonly maximum: 9007199254740991;
+                                                };
                                             };
                                             readonly additionalProperties: false;
                                         };
+                                    };
+                                    readonly errorPolicy: {
+                                        readonly type: "string";
+                                        readonly enum: readonly ["always", "once", "silent"];
+                                    };
+                                    readonly errorCooldownMs: {
+                                        readonly type: "integer";
+                                        readonly minimum: 0;
+                                        readonly maximum: 9007199254740991;
                                     };
                                     readonly requireTopic: {
                                         readonly type: "boolean";
@@ -12733,6 +12814,15 @@ export declare const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA: readonly [{
                         };
                         readonly ackReaction: {
                             readonly type: "string";
+                        };
+                        readonly errorPolicy: {
+                            readonly type: "string";
+                            readonly enum: readonly ["always", "once", "silent"];
+                        };
+                        readonly errorCooldownMs: {
+                            readonly type: "integer";
+                            readonly minimum: 0;
+                            readonly maximum: 9007199254740991;
                         };
                         readonly apiRoot: {
                             readonly type: "string";

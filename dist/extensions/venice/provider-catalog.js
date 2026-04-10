@@ -1,2 +1,2 @@
-import { t as buildVeniceProvider } from "../../api-4cevfP4s.js";
+import { t as buildVeniceProvider } from "../../api-YjoBwon8.js";
 export { buildVeniceProvider };

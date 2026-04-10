@@ -1,2 +1,2 @@
-import { i as applyKimiCodeProviderConfig, n as KIMI_MODEL_REF, r as applyKimiCodeConfig, t as KIMI_CODING_MODEL_REF } from "../../onboard-Cf070REe.js";
+import { i as applyKimiCodeProviderConfig, n as KIMI_MODEL_REF, r as applyKimiCodeConfig, t as KIMI_CODING_MODEL_REF } from "../../onboard-DzoHF0VF.js";
 export { KIMI_CODING_MODEL_REF, KIMI_MODEL_REF, applyKimiCodeConfig, applyKimiCodeProviderConfig };

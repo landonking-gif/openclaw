@@ -1,6 +1,6 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { i as applyLitellmConfig, r as LITELLM_DEFAULT_MODEL_REF } from "../../onboard-BQ2rtYMb.js";
-import { t as buildLitellmProvider } from "../../provider-catalog-CztEUrje.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { i as applyLitellmConfig, r as LITELLM_DEFAULT_MODEL_REF } from "../../onboard-DmhM0uGl.js";
+import { t as buildLitellmProvider } from "../../provider-catalog-BSBNYqI0.js";
 var litellm_default = defineSingleProviderPluginEntry({
 	id: "litellm",
 	name: "LiteLLM Provider",

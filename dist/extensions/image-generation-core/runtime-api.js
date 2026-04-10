@@ -1,9 +1,9 @@
 import { t as createSubsystemLogger } from "../../subsystem-CJEvHE2o.js";
 import { n as resolveAgentModelPrimaryValue, t as resolveAgentModelFallbackValues } from "../../model-input-DCWZGO1v.js";
-import { n as getProviderEnvVars } from "../../provider-env-vars-CD3WhA3k.js";
-import { c as parseImageGenerationModelRef, i as isFailoverError, r as describeFailoverError } from "../../failover-error-Bt0YiRUD.js";
-import { n as listImageGenerationProviders, t as getImageGenerationProvider } from "../../image-generation-core-BJQH6Pu4.js";
-import "../../api-C2veOjXT.js";
+import { n as getProviderEnvVars } from "../../provider-env-vars-BouozYy1.js";
+import { c as parseImageGenerationModelRef, i as isFailoverError, r as describeFailoverError } from "../../failover-error-DbjRMpo1.js";
+import { n as listImageGenerationProviders, t as getImageGenerationProvider } from "../../image-generation-core-V2YwjVh_.js";
+import "../../api-BDqSAPmz.js";
 //#region extensions/image-generation-core/src/runtime.ts
 const log = createSubsystemLogger("image-generation");
 function resolveImageGenerationCandidates(params) {

@@ -1,5 +1,5 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { t as ircPlugin } from "../../channel-YWoOCmNt.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { t as ircPlugin } from "../../channel-BCoKc8AM.js";
 //#region extensions/irc/setup-entry.ts
 var setup_entry_default = defineSetupPluginEntry(ircPlugin);
 //#endregion

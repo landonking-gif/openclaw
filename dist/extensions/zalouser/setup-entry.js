@@ -1,6 +1,6 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as zalouserSetupAdapter, t as zalouserSetupWizard } from "../../setup-surface-Bq42fAys.js";
-import { t as createZalouserPluginBase } from "../../shared-DsYfXoJM.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { n as zalouserSetupAdapter, t as zalouserSetupWizard } from "../../setup-surface-GAqRVHX1.js";
+import { t as createZalouserPluginBase } from "../../shared-Dq-vMOXr.js";
 //#region extensions/zalouser/src/channel.setup.ts
 const zalouserSetupPlugin = { ...createZalouserPluginBase({
 	setupWizard: zalouserSetupWizard,

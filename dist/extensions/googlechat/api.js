@@ -1,2 +1,2 @@
-import { n as googlechatSetupAdapter, t as googlechatSetupWizard } from "../../setup-surface-cjUkD2Xk.js";
+import { n as googlechatSetupAdapter, t as googlechatSetupWizard } from "../../setup-surface-BcZgarPP.js";
 export { googlechatSetupAdapter, googlechatSetupWizard };

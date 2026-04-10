@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setIrcRuntime, t as ircPlugin } from "../../channel-YWoOCmNt.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setIrcRuntime, t as ircPlugin } from "../../channel-BCoKc8AM.js";
 //#region extensions/irc/index.ts
 var irc_default = defineChannelPluginEntry({
 	id: "irc",

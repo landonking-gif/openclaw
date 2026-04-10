@@ -1,5 +1,5 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { t as msteamsPlugin } from "../../channel-CkILR2KN.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { t as msteamsPlugin } from "../../channel-Cqu5HQzZ.js";
 //#region extensions/msteams/setup-entry.ts
 var setup_entry_default = defineSetupPluginEntry(msteamsPlugin);
 //#endregion

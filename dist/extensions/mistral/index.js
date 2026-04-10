@@ -1,8 +1,8 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { t as buildMistralProvider } from "../../provider-catalog-Cuc-qbe5.js";
-import { n as applyMistralConfig, t as MISTRAL_DEFAULT_MODEL_REF } from "../../onboard-PkFb3ub4.js";
-import { n as applyMistralModelCompat, t as MISTRAL_MODEL_COMPAT_PATCH } from "../../api-BJ8__d4h.js";
-import { t as mistralMediaUnderstandingProvider } from "../../media-understanding-provider-CNOveFrN.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { t as buildMistralProvider } from "../../provider-catalog-B_1UZqts.js";
+import { n as applyMistralConfig, t as MISTRAL_DEFAULT_MODEL_REF } from "../../onboard-C30SyLSm.js";
+import { n as applyMistralModelCompat, t as MISTRAL_MODEL_COMPAT_PATCH } from "../../api-DGsGT4Ez.js";
+import { t as mistralMediaUnderstandingProvider } from "../../media-understanding-provider-BzH0IGlF.js";
 //#region extensions/mistral/index.ts
 const PROVIDER_ID = "mistral";
 const MISTRAL_MODEL_HINTS = [

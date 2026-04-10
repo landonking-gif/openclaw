@@ -1,10 +1,10 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as buildOpenAICodexCliBackend } from "../../cli-backend-BrLjUnZe.js";
-import { t as buildOpenAIImageGenerationProvider } from "../../image-generation-provider-Do42ysCG.js";
-import { n as openaiCodexMediaUnderstandingProvider, r as openaiMediaUnderstandingProvider } from "../../media-understanding-provider-BztTkmn5.js";
-import { t as buildOpenAICodexProviderPlugin } from "../../openai-codex-provider-CX1_eZQN.js";
-import { t as buildOpenAIProvider } from "../../openai-provider-CeVnZVd4.js";
-import { t as buildOpenAISpeechProvider } from "../../speech-provider-DsB727C5.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as buildOpenAICodexCliBackend } from "../../cli-backend-Dtixus31.js";
+import { t as buildOpenAIImageGenerationProvider } from "../../image-generation-provider-VdfSW55L.js";
+import { n as openaiCodexMediaUnderstandingProvider, r as openaiMediaUnderstandingProvider } from "../../media-understanding-provider-DGy0CyJl.js";
+import { t as buildOpenAICodexProviderPlugin } from "../../openai-codex-provider-DHXssTBQ.js";
+import { t as buildOpenAIProvider } from "../../openai-provider-BFw_WMRt.js";
+import { t as buildOpenAISpeechProvider } from "../../speech-provider-BMk_dhkG.js";
 //#region extensions/openai/index.ts
 var openai_default = definePluginEntry({
 	id: "openai",

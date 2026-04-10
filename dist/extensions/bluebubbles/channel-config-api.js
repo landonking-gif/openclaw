@@ -1,2 +1,2 @@
-import { t as BlueBubblesChannelConfigSchema } from "../../config-schema-CCTd_eDc.js";
+import { t as BlueBubblesChannelConfigSchema } from "../../config-schema-JFjixxcC.js";
 export { BlueBubblesChannelConfigSchema };

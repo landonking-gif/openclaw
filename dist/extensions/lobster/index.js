@@ -1,6 +1,6 @@
-import { a as resolveWindowsSpawnProgramCandidate, n as materializeWindowsSpawnProgram, t as applyWindowsSpawnProgramPolicy } from "../../windows-spawn-C667jQDQ.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../runtime-api-D0pq41CU.js";
+import { a as resolveWindowsSpawnProgramCandidate, n as materializeWindowsSpawnProgram, t as applyWindowsSpawnProgramPolicy } from "../../windows-spawn-Cr88dzlh.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../runtime-api-CIN0ZjpW.js";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { Type } from "@sinclair/typebox";

@@ -1,8 +1,8 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { f as ensureModelAllowlistEntry } from "../../provider-onboard-D_L0OG_V.js";
-import { n as buildBytePlusProvider, t as buildBytePlusCodingProvider } from "../../provider-catalog-4tX1JH7m.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { f as ensureModelAllowlistEntry } from "../../provider-onboard-D3dV8G7K.js";
+import { n as buildBytePlusProvider, t as buildBytePlusCodingProvider } from "../../provider-catalog-BZRKWkyl.js";
 //#region extensions/byteplus/index.ts
 const PROVIDER_ID = "byteplus";
 const BYTEPLUS_DEFAULT_MODEL_REF = "byteplus-plan/ark-code-latest";

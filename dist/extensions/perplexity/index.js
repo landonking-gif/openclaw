@@ -1,5 +1,5 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { n as createPerplexityWebSearchProvider } from "../../perplexity-web-search-provider-DuLwBCEk.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { n as createPerplexityWebSearchProvider } from "../../perplexity-web-search-provider-KmaEPpY9.js";
 //#region extensions/perplexity/index.ts
 var perplexity_default = definePluginEntry({
 	id: "perplexity",

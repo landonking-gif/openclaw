@@ -1,2 +1,2 @@
-import { t as resolveSignalAccount } from "../signal-account-u7mQT1OC.js";
+import { t as resolveSignalAccount } from "../signal-account-BQSMHetn.js";
 export { resolveSignalAccount };

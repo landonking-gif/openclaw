@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setSlackRuntime, t as slackPlugin } from "../../channel-CgWo_Rol.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setSlackRuntime, t as slackPlugin } from "../../channel-3A6qw5rF.js";
 //#region extensions/slack/index.ts
 var slack_default = defineChannelPluginEntry({
 	id: "slack",

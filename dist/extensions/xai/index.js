@@ -1,18 +1,18 @@
 import { i as coerceSecretRef, l as normalizeSecretInputString } from "../../types.secrets-DuSPmmWB.js";
-import { m as resolveNonEnvSecretRefApiKeyMarker } from "../../model-auth-markers-CacZUcto.js";
-import { d as resolveProviderWebSearchPluginConfig } from "../../provider-web-search-G71g-qwn.js";
-import "../../secret-input-5Z_M9SDk.js";
-import "../../provider-auth-BtnejrKb.js";
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { r as createToolStreamWrapper } from "../../provider-stream-CJZgrFLB.js";
-import { t as buildXaiProvider } from "../../provider-catalog-BZ1bLMK1.js";
-import { n as applyXaiConfig, t as XAI_DEFAULT_MODEL_REF } from "../../onboard-B_gpmx8i.js";
-import { a as resolveXaiTransport, c as resolveXaiForwardCompatModel, i as resolveXaiModelCompatPatch, o as shouldContributeXaiCompat, r as applyXaiModelCompat, s as isModernXaiModel } from "../../api-Cih7RvUH.js";
-import { t as normalizeXaiModelId } from "../../model-id-BUzYGEXf.js";
-import { t as createCodeExecutionTool } from "../../code-execution-ENdjqXlt.js";
-import { n as createXaiToolCallArgumentDecodingWrapper, r as createXaiToolPayloadCompatibilityWrapper, t as createXaiFastModeWrapper } from "../../stream-BOZLamT7.js";
-import { n as createXaiWebSearchProvider } from "../../web-search-Cs6pAjJy.js";
-import { t as createXSearchTool } from "../../x-search-B8uk40k2.js";
+import { m as resolveNonEnvSecretRefApiKeyMarker } from "../../model-auth-markers-9M6CLgLe.js";
+import { d as resolveProviderWebSearchPluginConfig } from "../../provider-web-search-CBSQozqM.js";
+import "../../secret-input-BQYGV6z8.js";
+import "../../provider-auth-KNPNdQNT.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { r as createToolStreamWrapper } from "../../provider-stream-CE5A9xTm.js";
+import { t as buildXaiProvider } from "../../provider-catalog-QwtdpDhM.js";
+import { n as applyXaiConfig, t as XAI_DEFAULT_MODEL_REF } from "../../onboard-irDCumxE.js";
+import { a as resolveXaiTransport, c as resolveXaiForwardCompatModel, i as resolveXaiModelCompatPatch, o as shouldContributeXaiCompat, r as applyXaiModelCompat, s as isModernXaiModel } from "../../api-BBBiUqK3.js";
+import { t as normalizeXaiModelId } from "../../model-id-DxApoO9y.js";
+import { t as createCodeExecutionTool } from "../../code-execution-B_WRYzqb.js";
+import { n as createXaiToolCallArgumentDecodingWrapper, r as createXaiToolPayloadCompatibilityWrapper, t as createXaiFastModeWrapper } from "../../stream-CcOZBsoN.js";
+import { n as createXaiWebSearchProvider } from "../../web-search-DYuK0tHB.js";
+import { t as createXSearchTool } from "../../x-search-xp_9NnnY.js";
 //#region extensions/xai/index.ts
 const PROVIDER_ID = "xai";
 function readConfiguredOrManagedApiKey(value) {

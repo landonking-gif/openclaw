@@ -1,2 +1,2 @@
-import { n as feishuSetupAdapter, t as feishuSetupWizard } from "../../setup-surface-BTpodMZk.js";
+import { n as feishuSetupAdapter, t as feishuSetupWizard } from "../../setup-surface-DSbNIzVa.js";
 export { feishuSetupAdapter, feishuSetupWizard };

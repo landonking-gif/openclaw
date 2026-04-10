@@ -2,25 +2,25 @@ import { t as formatDocsLink } from "../../links-v2wQeP8P.js";
 import { r as theme } from "../../theme-D-TumEpz.js";
 import { T as parseAgentSessionKey } from "../../session-key-4QR94Oth.js";
 import { v as resolveSessionAgentId } from "../../agent-scope-jbts6oCz.js";
-import { B as parseNonNegativeByteSize } from "../../io-D4TfzS5d.js";
-import { c as jsonResult, d as readNumberParam, h as readStringParam } from "../../common-DotKVabV.js";
-import { n as SILENT_REPLY_TOKEN } from "../../tokens-CKy9ywkv.js";
-import "../../pi-settings-BOg7jMEp.js";
-import { t as resolveMemorySearchConfig } from "../../memory-search-Blud1nyM.js";
-import { n as resolveCronStyleNow } from "../../current-time-CyXda1T5.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as formatHelpExamples } from "../../help-format-BGm-dbvi.js";
-import "../../memory-core-host-runtime-core-DkOVH0ir.js";
-import "../../memory-core-host-runtime-cli-HYYOr8R_.js";
-import { t as resolveMemoryBackendConfig } from "../../backend-config-GHx6Sxa5.js";
-import "../../memory-core-host-runtime-files-lzUtP5eW.js";
-import { a as registerBuiltInMemoryEmbeddingProviders } from "../../manager-CO4z8Vld.js";
-import { n as getMemorySearchManager, t as closeAllMemorySearchManagers } from "../../memory-BYvNXHbC.js";
+import { B as parseNonNegativeByteSize } from "../../io-CHHRUM9X.js";
+import { c as jsonResult, d as readNumberParam, h as readStringParam } from "../../common-DbyForkU.js";
+import { n as SILENT_REPLY_TOKEN } from "../../tokens-DeETngSc.js";
+import "../../pi-settings-UU4t4PkJ.js";
+import { t as resolveMemorySearchConfig } from "../../memory-search-weSJLcII.js";
+import { n as resolveCronStyleNow } from "../../current-time-BaA2JXmx.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as formatHelpExamples } from "../../help-format-CjNbejox.js";
+import "../../memory-core-host-runtime-core-DOBkmM9O.js";
+import "../../memory-core-host-runtime-cli-D94KeVnQ.js";
+import { t as resolveMemoryBackendConfig } from "../../backend-config-Ca6u1eOA.js";
+import "../../memory-core-host-runtime-files-CNgByTsW.js";
+import { a as registerBuiltInMemoryEmbeddingProviders } from "../../manager-DEV1NIbs.js";
+import { n as getMemorySearchManager, t as closeAllMemorySearchManagers } from "../../memory-BYGZ5O2x.js";
 import { Type } from "@sinclair/typebox";
 //#region extensions/memory-core/src/cli.ts
 let memoryCliRuntimePromise = null;
 async function loadMemoryCliRuntime() {
-	memoryCliRuntimePromise ??= import("../../cli.runtime-4f-5Bmqa.js");
+	memoryCliRuntimePromise ??= import("../../cli.runtime-tSmZ_4Nx.js");
 	return await memoryCliRuntimePromise;
 }
 async function runMemoryStatus(opts) {
@@ -232,7 +232,7 @@ function deriveChatTypeFromSessionKey(sessionKey) {
 //#region extensions/memory-core/src/tools.shared.ts
 let memoryToolRuntimePromise = null;
 async function loadMemoryToolRuntime() {
-	memoryToolRuntimePromise ??= import("../../tools.runtime-1hyb27UP.js");
+	memoryToolRuntimePromise ??= import("../../tools.runtime-WKASCmQc.js");
 	return await memoryToolRuntimePromise;
 }
 const MemorySearchSchema = Type.Object({

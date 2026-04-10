@@ -2,7 +2,7 @@ import { Client } from "@buape/carbon";
 import { listNativeCommandSpecsForConfig, listSkillCommandsForAgents } from "openclaw/plugin-sdk/command-auth";
 import { resolveNativeCommandsEnabled, resolveNativeSkillsEnabled } from "openclaw/plugin-sdk/config-runtime";
 import type { OpenClawConfig, ReplyToMode } from "openclaw/plugin-sdk/config-runtime";
-import { resolveOpenProviderRuntimeGroupPolicy, resolveDefaultGroupPolicy } from "openclaw/plugin-sdk/config-runtime";
+import { resolveOpenProviderRuntimeGroupPolicy, resolveDefaultGroupPolicy } from "openclaw/plugin-sdk/runtime-group-policy";
 import { getPluginCommandSpecs } from "openclaw/plugin-sdk/plugin-runtime";
 import { isVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
 import { type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";

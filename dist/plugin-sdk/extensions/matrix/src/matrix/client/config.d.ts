@@ -33,7 +33,7 @@ export declare function resolveValidatedMatrixHomeserverUrl(homeserver: string, 
 }): Promise<string>;
 export declare function resolveMatrixConfig(cfg?: CoreConfig, env?: NodeJS.ProcessEnv): MatrixResolvedConfig;
 export declare function resolveMatrixConfigForAccount(cfg: CoreConfig, accountId: string, env?: NodeJS.ProcessEnv): MatrixResolvedConfig;
-export declare function resolveImplicitMatrixAccountId(cfg: CoreConfig, _env?: NodeJS.ProcessEnv): string | null;
+export declare function resolveImplicitMatrixAccountId(cfg: CoreConfig, env?: NodeJS.ProcessEnv): string | null;
 export declare function resolveMatrixAuthContext(params?: {
     cfg?: CoreConfig;
     env?: NodeJS.ProcessEnv;

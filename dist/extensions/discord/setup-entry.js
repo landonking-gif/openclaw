@@ -1,6 +1,6 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { r as discordSetupAdapter } from "../../setup-core-QtucFPWx.js";
-import { t as createDiscordPluginBase } from "../../shared-64VJr0uj.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { r as discordSetupAdapter } from "../../setup-core-pbKR1fA2.js";
+import { t as createDiscordPluginBase } from "../../shared-i9d7FdhR.js";
 //#region extensions/discord/src/channel.setup.ts
 const discordSetupPlugin = { ...createDiscordPluginBase({ setup: discordSetupAdapter }) };
 //#endregion

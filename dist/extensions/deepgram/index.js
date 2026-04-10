@@ -1,5 +1,5 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as deepgramMediaUnderstandingProvider } from "../../media-understanding-provider-BdVw69At.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as deepgramMediaUnderstandingProvider } from "../../media-understanding-provider-p5fMzjXa.js";
 //#region extensions/deepgram/index.ts
 var deepgram_default = definePluginEntry({
 	id: "deepgram",

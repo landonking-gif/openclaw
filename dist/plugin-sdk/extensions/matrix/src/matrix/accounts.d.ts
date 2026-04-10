@@ -23,4 +23,5 @@ export declare function resolveMatrixAccount(params: {
 export declare function resolveMatrixAccountConfig(params: {
     cfg: CoreConfig;
     accountId?: string | null;
+    env?: NodeJS.ProcessEnv;
 }): MatrixConfig;

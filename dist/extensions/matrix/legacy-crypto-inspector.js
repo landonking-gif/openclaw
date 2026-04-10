@@ -1,4 +1,4 @@
-import { t as ensureMatrixCryptoRuntime } from "../../deps-DRqrirNa.js";
+import { t as ensureMatrixCryptoRuntime } from "../../deps-CeTrTFvm.js";
 import { createRequire } from "node:module";
 import fsSync from "node:fs";
 import path from "node:path";

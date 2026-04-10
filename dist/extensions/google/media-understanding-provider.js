@@ -1,9 +1,9 @@
-import { i as postJsonRequest, r as normalizeBaseUrl, t as assertOkOrThrowHttpError } from "../../shared-ClFmUxRa.js";
-import { n as describeImagesWithModel, t as describeImageWithModel } from "../../image-runtime-xyEt5-6M.js";
-import "../../media-understanding-BMZhmf1k.js";
-import "../../provider-http-CIdcHH-M.js";
-import { n as normalizeGoogleModelId } from "../../model-id-Dv0_B7-l.js";
-import { a as normalizeGoogleApiBaseUrl, c as parseGeminiAuth, t as DEFAULT_GOOGLE_API_BASE_URL } from "../../api-6oe-Gsz-.js";
+import { i as postJsonRequest, r as normalizeBaseUrl, t as assertOkOrThrowHttpError } from "../../shared-IYF680Ql.js";
+import { n as describeImagesWithModel, t as describeImageWithModel } from "../../image-runtime-080_QraJ.js";
+import "../../media-understanding-Dp_ao2k0.js";
+import "../../provider-http-D9aqXWIF.js";
+import { n as normalizeGoogleModelId } from "../../model-id-ByGgmg9S.js";
+import { a as normalizeGoogleApiBaseUrl, c as parseGeminiAuth, t as DEFAULT_GOOGLE_API_BASE_URL } from "../../api-CWnnGNrM.js";
 //#region extensions/google/media-understanding-provider.ts
 const DEFAULT_GOOGLE_AUDIO_BASE_URL = DEFAULT_GOOGLE_API_BASE_URL;
 const DEFAULT_GOOGLE_VIDEO_BASE_URL = DEFAULT_GOOGLE_API_BASE_URL;

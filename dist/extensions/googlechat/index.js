@@ -1,6 +1,6 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setGoogleChatRuntime } from "../../runtime-BJiRtlfW.js";
-import { t as googlechatPlugin } from "../../channel-CohZI622.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setGoogleChatRuntime } from "../../runtime-BKTNsiz5.js";
+import { t as googlechatPlugin } from "../../channel-BFThTuPi.js";
 //#region extensions/googlechat/index.ts
 var googlechat_default = defineChannelPluginEntry({
 	id: "googlechat",

@@ -1,7 +1,7 @@
 import { S as sleep } from "../../utils-ozuUQtXc.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../api-CtkYm4Sn.js";
-import { a as resolveUserPath, c as validateProviderConfig, i as setupTailscaleExposureRoute, n as cleanupTailscaleExposureRoute, o as VoiceCallConfigSchema, r as getTailscaleSelfInfo, s as resolveVoiceCallConfig, t as createVoiceCallRuntime } from "../../runtime-entry-Cn38dPPA.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../api-4lA39o5H.js";
+import { a as resolveUserPath, c as validateProviderConfig, i as setupTailscaleExposureRoute, n as cleanupTailscaleExposureRoute, o as VoiceCallConfigSchema, r as getTailscaleSelfInfo, s as resolveVoiceCallConfig, t as createVoiceCallRuntime } from "../../runtime-entry-5MSy2_FS.js";
 import fsSync from "node:fs";
 import path from "node:path";
 import os from "node:os";

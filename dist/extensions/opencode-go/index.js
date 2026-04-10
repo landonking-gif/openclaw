@@ -1,7 +1,7 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { n as applyOpencodeGoConfig, t as OPENCODE_GO_DEFAULT_MODEL_REF } from "../../onboard--lQZRaRv.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { n as applyOpencodeGoConfig, t as OPENCODE_GO_DEFAULT_MODEL_REF } from "../../onboard-BaYvBERY.js";
 //#region extensions/opencode-go/index.ts
 const PROVIDER_ID = "opencode-go";
 var opencode_go_default = definePluginEntry({

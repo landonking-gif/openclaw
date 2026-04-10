@@ -1,24 +1,24 @@
 import { _ as normalizeAccountId, g as DEFAULT_ACCOUNT_ID } from "../../session-key-4QR94Oth.js";
-import { d as createDefaultChannelRuntimeState, l as createAsyncComputedAccountStatusAdapter } from "../../status-helpers-CtC8UKdv.js";
-import { u as createScopedDmSecurityResolver } from "../../channel-config-helpers-BW7FxcKd.js";
-import { a as createEmptyChannelResult, o as createRawChannelSendResultAdapter } from "../../channel-send-result-BxSrHwD5.js";
-import { t as createAccountStatusSink } from "../../channel-lifecycle.core-SEUOFPzE.js";
-import { l as isNumericTargetId, y as sendPayloadWithChunkedTextAndMedia } from "../../reply-payload-DFX4yBqp.js";
-import { n as createStaticReplyToModeResolver } from "../../threading-helpers-BMw9_-BI.js";
-import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BIzVA7Id.js";
-import { n as isDangerousNameMatchingEnabled } from "../../dangerous-name-matching-G0DZk90K.js";
-import "../../conversation-runtime-jRtqQmHp.js";
-import { i as createPairingPrefixStripper } from "../../channel-pairing-B7N_FHFm.js";
-import { i as coerceStatusIssueAccountId, n as buildPassiveProbedChannelStatusSummary, o as readStatusIssueFields } from "../../extension-shared-DQHeL7JC.js";
-import { t as chunkTextForOutbound } from "../../text-chunking-DgC0ZJrn.js";
-import "../../runtime-api-DbJfH3e4.js";
-import { a as listZaloGroupMembers, b as waitForZaloQrLogin, c as logoutZaloProfile, i as listZaloFriendsMatching, n as getZaloUserInfo, s as listZaloGroupsMatching, t as checkZaloAuthenticated, y as startZaloQrLogin } from "../../zalo-js-CG_KJBjN.js";
-import { i as resolveZalouserAccountSync, n as listZalouserAccountIds, t as getZcaUserInfo } from "../../accounts-BimOfVb6.js";
-import { a as resolveZalouserReactionMessageIds, n as setZalouserRuntime, o as buildZalouserGroupCandidates, s as findZalouserGroupEntry, t as getZalouserRuntime } from "../../runtime-DVKz-47D.js";
-import { n as zalouserSetupAdapter, r as writeQrDataUrlToTempFile, t as zalouserSetupWizard } from "../../setup-surface-Bq42fAys.js";
-import { a as sendReactionZalouser, i as sendMessageZalouser, n as sendImageZalouser, r as sendLinkZalouser } from "../../send-QvVNeQHu.js";
-import { i as resolveZalouserOutboundSessionRoute, n as parseZalouserDirectoryGroupId, r as parseZalouserOutboundTarget, t as normalizeZalouserTarget } from "../../session-route-DwM2fIRS.js";
-import { t as createZalouserPluginBase } from "../../shared-DsYfXoJM.js";
+import { d as createDefaultChannelRuntimeState, l as createAsyncComputedAccountStatusAdapter } from "../../status-helpers-DyX-NNWd.js";
+import { u as createScopedDmSecurityResolver } from "../../channel-config-helpers-XkwmfU3s.js";
+import { a as createEmptyChannelResult, o as createRawChannelSendResultAdapter } from "../../channel-send-result-DX0z68oP.js";
+import { t as createAccountStatusSink } from "../../channel-lifecycle.core-iLGVPbFf.js";
+import { l as isNumericTargetId, y as sendPayloadWithChunkedTextAndMedia } from "../../reply-payload-CJVpH0Ce.js";
+import { n as createStaticReplyToModeResolver } from "../../threading-helpers-B8PM47Il.js";
+import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BD-JWpum.js";
+import { n as isDangerousNameMatchingEnabled } from "../../dangerous-name-matching-Dd3DMhTT.js";
+import "../../conversation-runtime-D6FkTbc9.js";
+import { i as createPairingPrefixStripper } from "../../channel-pairing-DpO_lXyd.js";
+import { i as coerceStatusIssueAccountId, n as buildPassiveProbedChannelStatusSummary, o as readStatusIssueFields } from "../../extension-shared-kKSSjK8x.js";
+import { t as chunkTextForOutbound } from "../../text-chunking-CgfKEqbf.js";
+import "../../runtime-api-DnpBkszK.js";
+import { a as listZaloGroupMembers, b as waitForZaloQrLogin, c as logoutZaloProfile, i as listZaloFriendsMatching, n as getZaloUserInfo, s as listZaloGroupsMatching, t as checkZaloAuthenticated, y as startZaloQrLogin } from "../../zalo-js-DswZaIts.js";
+import { i as resolveZalouserAccountSync, n as listZalouserAccountIds, t as getZcaUserInfo } from "../../accounts-B556k6-x.js";
+import { a as resolveZalouserReactionMessageIds, n as setZalouserRuntime, o as buildZalouserGroupCandidates, s as findZalouserGroupEntry, t as getZalouserRuntime } from "../../runtime-BWzWdmiz.js";
+import { n as zalouserSetupAdapter, r as writeQrDataUrlToTempFile, t as zalouserSetupWizard } from "../../setup-surface-GAqRVHX1.js";
+import { a as sendReactionZalouser, i as sendMessageZalouser, n as sendImageZalouser, r as sendLinkZalouser } from "../../send-LF8d8mDS.js";
+import { i as resolveZalouserOutboundSessionRoute, n as parseZalouserDirectoryGroupId, r as parseZalouserOutboundTarget, t as normalizeZalouserTarget } from "../../session-route-DhCkTf-x.js";
+import { t as createZalouserPluginBase } from "../../shared-Dq-vMOXr.js";
 import { Type } from "@sinclair/typebox";
 //#region extensions/zalouser/src/probe.ts
 async function probeZalouser(profile, timeoutMs) {
@@ -405,7 +405,7 @@ const zalouserPlugin = createChatChannelPlugin({
 					setStatus: ctx.setStatus
 				});
 				ctx.log?.info(`[${account.accountId}] starting zalouser provider${userLabel}`);
-				const { monitorZalouserProvider } = await import("../../monitor-BOxq-wXL.js");
+				const { monitorZalouserProvider } = await import("../../monitor-B2uLbh-d.js");
 				return monitorZalouserProvider({
 					account,
 					config: ctx.cfg,

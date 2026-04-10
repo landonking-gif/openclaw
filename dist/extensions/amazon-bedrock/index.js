@@ -1,9 +1,9 @@
 import { r as streamWithPayloadPatch } from "../../moonshot-thinking-stream-wrappers-Bcn6-E6S.js";
-import { _ as isAnthropicBedrockModel, g as createBedrockNoCacheWrapper } from "../../openai-stream-wrappers-8dDBuYmP.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../provider-stream-CJZgrFLB.js";
-import { a as resolveImplicitBedrockProvider, i as resolveBedrockConfigApiKey, n as mergeImplicitBedrockProvider } from "../../discovery-Cz21KBKE.js";
-import "../../api-BZ_ajoB5.js";
+import { _ as isAnthropicBedrockModel, g as createBedrockNoCacheWrapper } from "../../openai-stream-wrappers-r5jdqNnw.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../provider-stream-CE5A9xTm.js";
+import { a as resolveImplicitBedrockProvider, i as resolveBedrockConfigApiKey, n as mergeImplicitBedrockProvider } from "../../discovery-C2rug2nb.js";
+import "../../api-Drmgpfbx.js";
 //#region extensions/amazon-bedrock/index.ts
 function createGuardrailWrapStreamFn(innerWrapStreamFn, guardrailConfig) {
 	return (ctx) => {

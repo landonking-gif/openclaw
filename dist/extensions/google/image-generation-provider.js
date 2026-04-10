@@ -1,8 +1,8 @@
-import { i as postJsonRequest, r as normalizeBaseUrl, t as assertOkOrThrowHttpError } from "../../shared-ClFmUxRa.js";
-import { t as resolveApiKeyForProvider } from "../../provider-auth-runtime-CO02X2sp.js";
-import "../../provider-http-CIdcHH-M.js";
-import { n as normalizeGoogleModelId } from "../../model-id-Dv0_B7-l.js";
-import { a as normalizeGoogleApiBaseUrl, c as parseGeminiAuth, t as DEFAULT_GOOGLE_API_BASE_URL } from "../../api-6oe-Gsz-.js";
+import { i as postJsonRequest, r as normalizeBaseUrl, t as assertOkOrThrowHttpError } from "../../shared-IYF680Ql.js";
+import { t as resolveApiKeyForProvider } from "../../provider-auth-runtime-BwAhCBEv.js";
+import "../../provider-http-D9aqXWIF.js";
+import { n as normalizeGoogleModelId } from "../../model-id-ByGgmg9S.js";
+import { a as normalizeGoogleApiBaseUrl, c as parseGeminiAuth, t as DEFAULT_GOOGLE_API_BASE_URL } from "../../api-CWnnGNrM.js";
 //#region extensions/google/image-generation-provider.ts
 const DEFAULT_GOOGLE_IMAGE_MODEL = "gemini-3.1-flash-image-preview";
 const DEFAULT_OUTPUT_MIME = "image/png";

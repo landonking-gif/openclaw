@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as registerSlashCommandRoute, r as setMattermostRuntime, t as mattermostPlugin } from "../../channel-D-wzADXW.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as registerSlashCommandRoute, r as setMattermostRuntime, t as mattermostPlugin } from "../../channel-BuHWNvpl.js";
 //#region extensions/mattermost/index.ts
 var mattermost_default = defineChannelPluginEntry({
 	id: "mattermost",

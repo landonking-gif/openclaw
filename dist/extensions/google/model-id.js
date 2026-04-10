@@ -1,2 +1,2 @@
-import { n as normalizeGoogleModelId, t as normalizeAntigravityModelId } from "../../model-id-Dv0_B7-l.js";
+import { n as normalizeGoogleModelId, t as normalizeAntigravityModelId } from "../../model-id-ByGgmg9S.js";
 export { normalizeAntigravityModelId, normalizeGoogleModelId };

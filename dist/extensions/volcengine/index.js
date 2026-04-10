@@ -1,8 +1,8 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { f as ensureModelAllowlistEntry } from "../../provider-onboard-D_L0OG_V.js";
-import { n as buildDoubaoProvider, t as buildDoubaoCodingProvider } from "../../provider-catalog-j2xJ90tt.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { f as ensureModelAllowlistEntry } from "../../provider-onboard-D3dV8G7K.js";
+import { n as buildDoubaoProvider, t as buildDoubaoCodingProvider } from "../../provider-catalog-PJYsovla.js";
 //#region extensions/volcengine/index.ts
 const PROVIDER_ID = "volcengine";
 const VOLCENGINE_DEFAULT_MODEL_REF = "volcengine-plan/ark-code-latest";

@@ -1,12 +1,12 @@
 import "../../defaults-BwiMD7ye.js";
 import "../../provider-model-shared-BXho7Uf2.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { c as isProxyReasoningUnsupported, n as loadOpenRouterModelCapabilities, o as createOpenRouterSystemCacheWrapper, s as createOpenRouterWrapper, t as getOpenRouterModelCapabilities } from "../../provider-stream-CJZgrFLB.js";
-import { t as openrouterMediaUnderstandingProvider } from "../../media-understanding-provider-BeMmtZi-.js";
-import { n as applyOpenrouterConfig, t as OPENROUTER_DEFAULT_MODEL_REF } from "../../onboard-9F4s1JSs.js";
-import { t as buildOpenrouterProvider } from "../../provider-catalog-5NlEoOnt.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { c as isProxyReasoningUnsupported, n as loadOpenRouterModelCapabilities, o as createOpenRouterSystemCacheWrapper, s as createOpenRouterWrapper, t as getOpenRouterModelCapabilities } from "../../provider-stream-CE5A9xTm.js";
+import { t as openrouterMediaUnderstandingProvider } from "../../media-understanding-provider-Ci692vx5.js";
+import { n as applyOpenrouterConfig, t as OPENROUTER_DEFAULT_MODEL_REF } from "../../onboard-VdU4tvmI.js";
+import { t as buildOpenrouterProvider } from "../../provider-catalog-BvQg6oLO.js";
 //#region extensions/openrouter/index.ts
 const PROVIDER_ID = "openrouter";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";

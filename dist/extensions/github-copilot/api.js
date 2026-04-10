@@ -1,2 +1,2 @@
-import { t as githubCopilotLoginCommand } from "../../login-Dfl5c2Ip.js";
+import { t as githubCopilotLoginCommand } from "../../login-Cd_GvSPG.js";
 export { githubCopilotLoginCommand };

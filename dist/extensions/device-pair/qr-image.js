@@ -1,3 +1,3 @@
-import { o as renderQrPngBase64 } from "../../media-runtime-DS9VXOFt.js";
-import "../../qr-image-DGqxrScj.js";
+import { o as renderQrPngBase64 } from "../../media-runtime-XPeY67qa.js";
+import "../../qr-image-B1minrIR.js";
 export { renderQrPngBase64 };

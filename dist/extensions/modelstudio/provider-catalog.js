@@ -1,2 +1,2 @@
-import { t as buildModelStudioProvider } from "../../provider-catalog-hw6xgE_p.js";
+import { t as buildModelStudioProvider } from "../../provider-catalog-Dwe09Gd2.js";
 export { buildModelStudioProvider };

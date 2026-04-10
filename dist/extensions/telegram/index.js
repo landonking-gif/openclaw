@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setTelegramRuntime, t as telegramPlugin } from "../../channel-DnrW2zsi.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setTelegramRuntime, t as telegramPlugin } from "../../channel-HXnpDscR.js";
 //#region extensions/telegram/index.ts
 var telegram_default = defineChannelPluginEntry({
 	id: "telegram",

@@ -2,7 +2,7 @@ import { type ButtonInteraction, type ChannelSelectMenuInteraction, type Compone
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
 import type { DiscordAccountConfig } from "openclaw/plugin-sdk/config-runtime";
 import * as conversationRuntime from "openclaw/plugin-sdk/conversation-runtime";
-import { type DiscordComponentEntry, type DiscordModalEntry } from "../components.js";
+import type { DiscordComponentEntry, DiscordModalEntry } from "../components.js";
 import { type DiscordGuildEntryResolved, resolveDiscordChannelConfigWithFallback, resolveDiscordGuildEntry } from "./allow-list.js";
 import { formatDiscordUserTag } from "./format.js";
 export declare const AGENT_BUTTON_KEY = "agent";

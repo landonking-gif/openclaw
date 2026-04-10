@@ -1,13 +1,13 @@
-import { n as ensureAuthProfileStore } from "../../store-y1lXgzE3.js";
+import { n as ensureAuthProfileStore } from "../../store-CTbjH_aB.js";
 import { i as coerceSecretRef } from "../../types.secrets-DuSPmmWB.js";
-import { n as listProfilesForProvider } from "../../profiles-D9gga32V.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { r as resolveCopilotApiToken, t as DEFAULT_COPILOT_API_BASE_URL } from "../../github-copilot-token-mEAojcRY.js";
-import "../../provider-auth-BtnejrKb.js";
-import { t as githubCopilotLoginCommand } from "../../provider-auth-login-CgniiEoF.js";
-import { n as resolveCopilotForwardCompatModel, t as PROVIDER_ID } from "../../models-DaKHcpyo.js";
-import "../../token-LMxcc4aX.js";
-import { t as fetchCopilotUsage } from "../../usage-BXqg7Wtr.js";
+import { n as listProfilesForProvider } from "../../profiles-f-Mh--It.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { r as resolveCopilotApiToken, t as DEFAULT_COPILOT_API_BASE_URL } from "../../github-copilot-token-BB7sw4mA.js";
+import "../../provider-auth-KNPNdQNT.js";
+import { t as githubCopilotLoginCommand } from "../../provider-auth-login-gSQyHgzX.js";
+import { n as resolveCopilotForwardCompatModel, t as PROVIDER_ID } from "../../models-CuhH7Bo8.js";
+import "../../token-CKJnmQvD.js";
+import { t as fetchCopilotUsage } from "../../usage-DnrEF7Lp.js";
 //#region extensions/github-copilot/index.ts
 const COPILOT_ENV_VARS = [
 	"COPILOT_GITHUB_TOKEN",

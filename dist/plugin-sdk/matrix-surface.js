@@ -1,2 +1,2 @@
-import { n as matrixSessionBindingAdapterChannels, r as resetMatrixThreadBindingsForTests, t as createMatrixThreadBindingManager } from "../matrix-surface-CQ6o8k1Y.js";
+import { n as matrixSessionBindingAdapterChannels, r as resetMatrixThreadBindingsForTests, t as createMatrixThreadBindingManager } from "../matrix-surface-DFkKjfSj.js";
 export { createMatrixThreadBindingManager, matrixSessionBindingAdapterChannels, resetMatrixThreadBindingsForTests };

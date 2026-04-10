@@ -1,6 +1,6 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { t as bluebubblesPlugin } from "../../channel-C-JWOKP2.js";
-import { n as setBlueBubblesRuntime } from "../../runtime-DJTF2IDc.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { t as bluebubblesPlugin } from "../../channel-9Egw69zj.js";
+import { n as setBlueBubblesRuntime } from "../../runtime-A8MY7fOY.js";
 //#region extensions/bluebubbles/index.ts
 var bluebubbles_default = defineChannelPluginEntry({
 	id: "bluebubbles",

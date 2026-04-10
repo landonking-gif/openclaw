@@ -1,3 +1,3 @@
-import { i as SYNTHETIC_DEFAULT_MODEL_REF } from "../../models-OP_KT-xF.js";
-import { n as applySyntheticProviderConfig, t as applySyntheticConfig } from "../../onboard--aIO_uXd.js";
+import { i as SYNTHETIC_DEFAULT_MODEL_REF } from "../../models-BfF0D737.js";
+import { n as applySyntheticProviderConfig, t as applySyntheticConfig } from "../../onboard-Dp2uHFWf.js";
 export { SYNTHETIC_DEFAULT_MODEL_REF, applySyntheticConfig, applySyntheticProviderConfig };

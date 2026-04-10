@@ -1,12 +1,12 @@
 import { a as __require, n as __esmMin, o as __toCommonJS, r as __exportAll, s as __toESM, t as __commonJSMin } from "../../chunk-iyeSoAlh.js";
 import { n as redactSensitiveText } from "../../redact-BDinS1q9.js";
 import { c as registerLogTransport } from "../../logger-BCzP_yik.js";
-import { r as onDiagnosticEvent } from "../../diagnostic-events-DRi9FksF.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { a as diag, i as metrics, n as init_esm$2, o as SpanStatusCode, r as trace, t as esm_exports$2 } from "../../esm-uvlLd5-J.js";
-import { a as require_reader, i as require_rpc, m as require_aspromise, n as require_index_minimal, o as require_writer, r as require_roots, s as require_minimal$1, t as require_minimal, u as require_inquire } from "../../minimal-Bm-E0dSv.js";
-import { t as require_src$29 } from "../../src-CeIdFvWx.js";
-import "../../api-CVBTvXnW.js";
+import { r as onDiagnosticEvent } from "../../diagnostic-events-CclpaXPl.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { a as diag, i as metrics, n as init_esm$2, o as SpanStatusCode, r as trace, t as esm_exports$2 } from "../../esm-BrxKV9Jv.js";
+import { a as require_reader, i as require_rpc, m as require_aspromise, n as require_index_minimal, o as require_writer, r as require_roots, s as require_minimal$1, t as require_minimal, u as require_inquire } from "../../minimal-9fRAaBF5.js";
+import { t as require_src$29 } from "../../src-Si71uT0Q.js";
+import "../../api-DLMtB39o.js";
 import * as zlib$2 from "zlib";
 import { Readable } from "stream";
 import * as fs$6 from "fs";
@@ -18357,19 +18357,19 @@ var require_getMachineId = /* @__PURE__ */ __commonJSMin(((exports) => {
 	async function getMachineId() {
 		if (!getMachineIdImpl) switch (process$1.platform) {
 			case "darwin":
-				getMachineIdImpl = (await import("../../getMachineId-darwin-pZxYQ4Gf.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
+				getMachineIdImpl = (await import("../../getMachineId-darwin-dnjWiPpS.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
 				break;
 			case "linux":
-				getMachineIdImpl = (await import("../../getMachineId-linux-jqOQ2j4o.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
+				getMachineIdImpl = (await import("../../getMachineId-linux-B-gFff5E.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
 				break;
 			case "freebsd":
-				getMachineIdImpl = (await import("../../getMachineId-bsd-D0fxtFIR.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
+				getMachineIdImpl = (await import("../../getMachineId-bsd-BKhxLzOo.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
 				break;
 			case "win32":
-				getMachineIdImpl = (await import("../../getMachineId-win-CaRgyi1X.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
+				getMachineIdImpl = (await import("../../getMachineId-win-BWWaocbc.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
 				break;
 			default:
-				getMachineIdImpl = (await import("../../getMachineId-unsupported-D3FqGxP-.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
+				getMachineIdImpl = (await import("../../getMachineId-unsupported-yLVkpHw8.js").then((m) => /* @__PURE__ */ __toESM(m.default))).getMachineId;
 				break;
 		}
 		return getMachineIdImpl();

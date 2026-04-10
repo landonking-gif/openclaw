@@ -1,5 +1,5 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { t as matrixPlugin } from "../../channel-sPvw-6nf.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { t as matrixPlugin } from "../../channel-Cjbtiwy8.js";
 //#region extensions/matrix/setup-entry.ts
 var setup_entry_default = defineSetupPluginEntry(matrixPlugin);
 //#endregion

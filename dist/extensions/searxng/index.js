@@ -1,5 +1,5 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createSearxngWebSearchProvider } from "../../searxng-search-provider-B-jjiSyy.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createSearxngWebSearchProvider } from "../../searxng-search-provider-DatSuDlB.js";
 //#region extensions/searxng/index.ts
 var searxng_default = definePluginEntry({
 	id: "searxng",

@@ -1,8 +1,8 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { a as createKilocodeWrapper, c as isProxyReasoningUnsupported } from "../../provider-stream-CJZgrFLB.js";
-import { s as KILOCODE_DEFAULT_MODEL_REF } from "../../provider-models-Cp2JA_r9.js";
-import { n as buildKilocodeProviderWithDiscovery } from "../../provider-catalog-CUVpJkox.js";
-import { t as applyKilocodeConfig } from "../../onboard-DgQFHvbW.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { a as createKilocodeWrapper, c as isProxyReasoningUnsupported } from "../../provider-stream-CE5A9xTm.js";
+import { s as KILOCODE_DEFAULT_MODEL_REF } from "../../provider-models-I1X1pEzV.js";
+import { n as buildKilocodeProviderWithDiscovery } from "../../provider-catalog-CgyLK37i.js";
+import { t as applyKilocodeConfig } from "../../onboard-U5RJFTeU.js";
 var kilocode_default = defineSingleProviderPluginEntry({
 	id: "kilocode",
 	name: "Kilo Gateway Provider",

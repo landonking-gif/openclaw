@@ -1,2 +1,2 @@
-import { t as buildMicrosoftSpeechProvider } from "../../speech-provider-CApwvsCq.js";
+import { t as buildMicrosoftSpeechProvider } from "../../speech-provider-Bd1DUBod.js";
 export { buildMicrosoftSpeechProvider };

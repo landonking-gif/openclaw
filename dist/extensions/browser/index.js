@@ -1,5 +1,5 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { a as createBrowserTool, i as registerBrowserCli, n as handleBrowserGatewayRequest, r as createBrowserPluginService } from "../../runtime-api-rcPkleRu.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { a as createBrowserTool, i as registerBrowserCli, n as handleBrowserGatewayRequest, r as createBrowserPluginService } from "../../runtime-api-vIiNEHDg.js";
 //#region extensions/browser/index.ts
 var browser_default = definePluginEntry({
 	id: "browser",

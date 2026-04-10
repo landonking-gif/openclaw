@@ -1,15 +1,15 @@
 import { a as shouldLogVerbose } from "../../globals-DhgSPxVV.js";
-import { t as resolveOutboundSendDep } from "../../send-deps-DrkAylXF.js";
-import { a as createEmptyChannelResult, i as createAttachedChannelResultAdapter } from "../../channel-send-result-BxSrHwD5.js";
-import { b as sendTextMediaPayload, p as resolveSendableOutboundReplyParts } from "../../reply-payload-DFX4yBqp.js";
-import "../../runtime-env-Cv7gkvxy.js";
-import { a as chunkText } from "../../chunk-Dvt-i5un.js";
-import "../../reply-runtime-CZ-vIRHF.js";
-import "../../outbound-runtime-CdBArdFa.js";
-import { r as resolveWhatsAppOutboundTarget } from "../../runtime-api-CFuFc8eL.js";
-import { n as sendPollWhatsApp } from "../../send-Bp5b_vqy.js";
-import { n as setWhatsAppRuntime, t as whatsappPlugin } from "../../channel-C2R_gQTx.js";
-import { a as updateLastRouteInBackground, i as trackBackgroundTask, t as deliverWebReply } from "../../deliver-reply-D0klnfJW.js";
+import { t as resolveOutboundSendDep } from "../../send-deps-BWJXv6mY.js";
+import { a as createEmptyChannelResult, i as createAttachedChannelResultAdapter } from "../../channel-send-result-DX0z68oP.js";
+import { b as sendTextMediaPayload, p as resolveSendableOutboundReplyParts } from "../../reply-payload-CJVpH0Ce.js";
+import "../../runtime-env-qZTXn_g8.js";
+import { a as chunkText } from "../../chunk-DsMUguiY.js";
+import "../../reply-runtime-Ds_SHc8s.js";
+import "../../outbound-runtime-B81rFdEK.js";
+import { r as resolveWhatsAppOutboundTarget } from "../../runtime-api-DRi8kZYv2.js";
+import { n as sendPollWhatsApp } from "../../send-B0wY5mp-.js";
+import { n as setWhatsAppRuntime, t as whatsappPlugin } from "../../channel-DNRHYcG8.js";
+import { a as updateLastRouteInBackground, i as trackBackgroundTask, t as deliverWebReply } from "../../deliver-reply-be0CD13c.js";
 //#region extensions/whatsapp/src/outbound-adapter.ts
 function trimLeadingWhitespace(text) {
 	return text?.trimStart() ?? "";
@@ -46,7 +46,7 @@ const whatsappOutbound = {
 		sendText: async ({ cfg, to, text, accountId, deps, gifPlayback }) => {
 			const normalizedText = trimLeadingWhitespace(text);
 			if (!normalizedText) return createEmptyChannelResult("whatsapp");
-			return await (resolveOutboundSendDep(deps, "whatsapp") ?? (await import("../../send-CdFah5nh.js")).sendMessageWhatsApp)(to, normalizedText, {
+			return await (resolveOutboundSendDep(deps, "whatsapp") ?? (await import("../../send-TVMpv53u.js")).sendMessageWhatsApp)(to, normalizedText, {
 				verbose: false,
 				cfg,
 				accountId: accountId ?? void 0,
@@ -55,7 +55,7 @@ const whatsappOutbound = {
 		},
 		sendMedia: async ({ cfg, to, text, mediaUrl, mediaLocalRoots, mediaReadFile, accountId, deps, gifPlayback }) => {
 			const normalizedText = trimLeadingWhitespace(text);
-			return await (resolveOutboundSendDep(deps, "whatsapp") ?? (await import("../../send-CdFah5nh.js")).sendMessageWhatsApp)(to, normalizedText, {
+			return await (resolveOutboundSendDep(deps, "whatsapp") ?? (await import("../../send-TVMpv53u.js")).sendMessageWhatsApp)(to, normalizedText, {
 				verbose: false,
 				cfg,
 				mediaUrl,

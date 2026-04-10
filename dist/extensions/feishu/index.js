@@ -1,11 +1,11 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { c as listEnabledFeishuAccounts, t as probeFeishu } from "../../probe-CyT3gzP1.js";
-import { A as toolExecutionErrorResult, C as formatMentionAllForText, D as registerFeishuDriveTools, E as isMentionForwardRequest, F as resolveAnyEnabledFeishuToolsConfig, I as resolveFeishuToolAccount, M as getFeishuRuntime, N as setFeishuRuntime, P as createFeishuToolClient, S as formatMentionAllForCard, T as formatMentionForText, a as uploadFileFeishu, b as extractMentionTargets, c as getMessageFeishu, d as sendCardFeishu, h as updateCardFeishu, i as sendMediaFeishu, j as unknownToolActionResult, k as jsonToolResult, n as sendFileFeishu, o as uploadImageFeishu, p as sendMessageFeishu, r as sendImageFeishu, s as editMessageFeishu, v as buildMentionedCardContent, w as formatMentionForCard, x as extractMessageBody, y as buildMentionedMessage } from "../../media-BnfgFElW.js";
-import { n as normalizeFeishuTarget } from "../../targets-BeNrIVh4.js";
-import { t as feishuPlugin } from "../../channel-BmSlYf2D.js";
-import { n as parseFeishuConversationId, t as buildFeishuConversationId } from "../../conversation-id-iPkVbiry.js";
-import { c as registerFeishuChatTools, i as removeReactionFeishu, n as addReactionFeishu, r as listReactionsFeishu, t as FeishuEmoji } from "../../reactions-DtYa2EaL.js";
-import { r as getFeishuThreadBindingManager } from "../../thread-bindings-D1gmTdTW.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { c as listEnabledFeishuAccounts, t as probeFeishu } from "../../probe-C9GHQJPc.js";
+import { A as toolExecutionErrorResult, C as formatMentionAllForText, D as registerFeishuDriveTools, E as isMentionForwardRequest, F as resolveAnyEnabledFeishuToolsConfig, I as resolveFeishuToolAccount, M as getFeishuRuntime, N as setFeishuRuntime, P as createFeishuToolClient, S as formatMentionAllForCard, T as formatMentionForText, a as uploadFileFeishu, b as extractMentionTargets, c as getMessageFeishu, d as sendCardFeishu, h as updateCardFeishu, i as sendMediaFeishu, j as unknownToolActionResult, k as jsonToolResult, n as sendFileFeishu, o as uploadImageFeishu, p as sendMessageFeishu, r as sendImageFeishu, s as editMessageFeishu, v as buildMentionedCardContent, w as formatMentionForCard, x as extractMessageBody, y as buildMentionedMessage } from "../../media-D02RzaEi.js";
+import { n as normalizeFeishuTarget } from "../../targets-AKDx6oqd.js";
+import { t as feishuPlugin } from "../../channel-B5Depc_O.js";
+import { n as parseFeishuConversationId, t as buildFeishuConversationId } from "../../conversation-id-_xhDRW2i.js";
+import { c as registerFeishuChatTools, i as removeReactionFeishu, n as addReactionFeishu, r as listReactionsFeishu, t as FeishuEmoji } from "../../reactions-CQdO5QBf.js";
+import { r as getFeishuThreadBindingManager } from "../../thread-bindings-ed5CVVDm.js";
 import { existsSync } from "node:fs";
 import { basename, isAbsolute, resolve } from "node:path";
 import { homedir } from "node:os";
@@ -2504,7 +2504,7 @@ function registerFeishuWikiTools(api) {
 //#region extensions/feishu/index.ts
 let feishuMonitorPromise = null;
 function loadFeishuMonitorModule() {
-	feishuMonitorPromise ??= import("../../monitor-DV4LdeL5.js");
+	feishuMonitorPromise ??= import("../../monitor-BXyh51n-.js");
 	return feishuMonitorPromise;
 }
 async function monitorFeishuProvider(...args) {

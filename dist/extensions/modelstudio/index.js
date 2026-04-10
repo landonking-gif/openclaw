@@ -1,8 +1,8 @@
-import { t as defineSingleProviderPluginEntry } from "../../provider-entry-Dqynn4v9.js";
-import { a as MODELSTUDIO_DEFAULT_MODEL_REF, u as applyModelStudioNativeStreamingUsageCompat } from "../../models-DUVCkekD.js";
-import { t as buildModelStudioProvider } from "../../provider-catalog-hw6xgE_p.js";
-import "../../api-BkN2td8K.js";
-import { a as applyModelStudioStandardConfig, n as applyModelStudioConfigCn, o as applyModelStudioStandardConfigCn, t as applyModelStudioConfig } from "../../onboard-CUL_cZmt.js";
+import { t as defineSingleProviderPluginEntry } from "../../provider-entry-DiXcMexm.js";
+import { a as MODELSTUDIO_DEFAULT_MODEL_REF, u as applyModelStudioNativeStreamingUsageCompat } from "../../models-CHd_hjXN.js";
+import { t as buildModelStudioProvider } from "../../provider-catalog-Dwe09Gd2.js";
+import "../../api-BO9Yfx1t.js";
+import { a as applyModelStudioStandardConfig, n as applyModelStudioConfigCn, o as applyModelStudioStandardConfigCn, t as applyModelStudioConfig } from "../../onboard-BOz6gVf3.js";
 var modelstudio_default = defineSingleProviderPluginEntry({
 	id: "modelstudio",
 	name: "Model Studio Provider",

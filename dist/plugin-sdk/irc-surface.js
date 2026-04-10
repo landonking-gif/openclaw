@@ -1,2 +1,2 @@
-import { a as resolveIrcAccount, i as resolveDefaultIrcAccountId, n as ircSetupWizard, r as listIrcAccountIds, t as ircSetupAdapter } from "../irc-surface-CD6Cw1RQ.js";
+import { a as resolveIrcAccount, i as resolveDefaultIrcAccountId, n as ircSetupWizard, r as listIrcAccountIds, t as ircSetupAdapter } from "../irc-surface-BoRY-Iig.js";
 export { ircSetupAdapter, ircSetupWizard, listIrcAccountIds, resolveDefaultIrcAccountId, resolveIrcAccount };

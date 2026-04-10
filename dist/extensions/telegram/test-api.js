@@ -1,10 +1,10 @@
-import { r as makeProxyFetch } from "../../proxy-fetch-BCicYs0k.js";
-import { r as listTelegramAccountIds, s as resolveTelegramAccount } from "../../accounts-Dmlv188W.js";
-import { i as telegramOutbound } from "../../status-issues-fy_4U3lj.js";
-import { n as resolveTelegramFetch } from "../../fetch-BwMyJXJV.js";
-import { i as resetTelegramThreadBindingsForTests, l as handleTelegramAction, s as telegramMessageActionRuntime } from "../../monitor-C9czJR2d.js";
-import { _ as sendPollTelegram, g as sendMessageTelegram } from "../../sticker-cache-sfss_wf7.js";
-import { n as setTelegramRuntime, t as telegramPlugin } from "../../channel-DnrW2zsi.js";
+import { r as makeProxyFetch } from "../../proxy-fetch-1zj6mSJo.js";
+import { r as listTelegramAccountIds, s as resolveTelegramAccount } from "../../accounts-B0QkT0Pt.js";
+import { i as telegramOutbound } from "../../status-issues-CjIeayHK.js";
+import { n as resolveTelegramFetch } from "../../fetch-DIL40Dux.js";
+import { i as resetTelegramThreadBindingsForTests, l as handleTelegramAction, s as telegramMessageActionRuntime } from "../../monitor-D7_aX_M4.js";
+import { _ as sendPollTelegram, g as sendMessageTelegram } from "../../sticker-cache-pxzAsj2-.js";
+import { n as setTelegramRuntime, t as telegramPlugin } from "../../channel-HXnpDscR.js";
 //#region extensions/telegram/src/bot-message-context.test-harness.ts
 const baseTelegramMessageContextConfig = {
 	agents: { defaults: {
@@ -64,11 +64,11 @@ let vitestModuleLoader;
 let messageContextMocksInstalled = false;
 async function loadBuildTelegramMessageContext() {
 	await installMessageContextTestMocks();
-	if (!buildTelegramMessageContextLoader) ({buildTelegramMessageContext: buildTelegramMessageContextLoader} = await import("../../bot-message-context-ChZeAUU_.js"));
+	if (!buildTelegramMessageContextLoader) ({buildTelegramMessageContext: buildTelegramMessageContextLoader} = await import("../../bot-message-context-CRGrnnFE.js"));
 	return buildTelegramMessageContextLoader;
 }
 async function loadVitestModule() {
-	vitestModuleLoader ??= import("../../dist-BnvauaMX.js");
+	vitestModuleLoader ??= import("../../dist-Ydae-r7N.js");
 	return await vitestModuleLoader;
 }
 async function installMessageContextTestMocks() {

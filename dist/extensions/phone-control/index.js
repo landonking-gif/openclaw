@@ -1,4 +1,4 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
 import path from "node:path";
 import fs from "node:fs/promises";
 //#region extensions/phone-control/index.ts

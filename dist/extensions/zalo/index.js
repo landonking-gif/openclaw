@@ -1,6 +1,6 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { t as zaloPlugin } from "../../channel-DaDqfk8V.js";
-import { n as setZaloRuntime } from "../../runtime-B8yeGyKW.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { t as zaloPlugin } from "../../channel-CLcL2fqs.js";
+import { n as setZaloRuntime } from "../../runtime-s_uMFQkd.js";
 //#region extensions/zalo/index.ts
 var zalo_default = defineChannelPluginEntry({
 	id: "zalo",

@@ -1,3 +1,3 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../runtime-api-Q8yb7ylJ.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../runtime-api-C213dGTA.js";
 export { definePluginEntry };

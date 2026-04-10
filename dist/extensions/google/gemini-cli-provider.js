@@ -1,7 +1,7 @@
-import { r as fetchGeminiUsage } from "../../provider-usage.fetch-DyHMokmF.js";
-import { t as buildOauthProviderAuthResult } from "../../provider-auth-result-BpugKxNs.js";
-import "../../provider-usage-DnOQDjTs.js";
-import { n as resolveGoogle31ForwardCompatModel, t as isModernGoogleModel } from "../../provider-models-Dljizkk1.js";
+import { r as fetchGeminiUsage } from "../../provider-usage.fetch-CwoUC-GC.js";
+import { t as buildOauthProviderAuthResult } from "../../provider-auth-result-C5eoV95l.js";
+import "../../provider-usage-DriMm4NT.js";
+import { n as resolveGoogle31ForwardCompatModel, t as isModernGoogleModel } from "../../provider-models-BuoKql0y.js";
 //#region extensions/google/gemini-cli-provider.ts
 const PROVIDER_ID = "google-gemini-cli";
 const PROVIDER_LABEL = "Gemini CLI OAuth";

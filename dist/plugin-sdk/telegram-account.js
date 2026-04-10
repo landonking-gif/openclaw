@@ -1,2 +1,2 @@
-import { t as resolveTelegramAccount } from "../telegram-account-ZxGznM-5.js";
+import { t as resolveTelegramAccount } from "../telegram-account-BniUIpXy.js";
 export { resolveTelegramAccount };

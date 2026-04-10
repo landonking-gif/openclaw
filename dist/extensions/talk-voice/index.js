@@ -1,6 +1,6 @@
-import { zt as resolveActiveTalkProviderConfig } from "../../io-D4TfzS5d.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../config-runtime-DmPX4R_k.js";
+import { zt as resolveActiveTalkProviderConfig } from "../../io-CHHRUM9X.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../config-runtime-BpMmx6Pn.js";
 //#region extensions/talk-voice/index.ts
 function mask(s, keep = 6) {
 	const trimmed = s.trim();

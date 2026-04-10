@@ -1,6 +1,6 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { b as setMSTeamsRuntime } from "../../graph-users-D9S5sRYV.js";
-import { t as msteamsPlugin } from "../../channel-CkILR2KN.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { b as setMSTeamsRuntime } from "../../graph-users-DJzu37Kx.js";
+import { t as msteamsPlugin } from "../../channel-Cqu5HQzZ.js";
 //#region extensions/msteams/index.ts
 var msteams_default = defineChannelPluginEntry({
 	id: "msteams",

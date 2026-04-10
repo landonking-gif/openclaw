@@ -1,6 +1,6 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as lineSetupAdapter, t as lineSetupWizard } from "../../setup-surface-DpymoplS.js";
-import { t as lineChannelPluginCommon } from "../../channel-shared-m51_gMlE.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { n as lineSetupAdapter, t as lineSetupWizard } from "../../setup-surface-CR5xmR1o.js";
+import { t as lineChannelPluginCommon } from "../../channel-shared-B7LtStK1.js";
 //#region extensions/line/src/channel.setup.ts
 const lineSetupPlugin = {
 	id: "line",

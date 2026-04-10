@@ -1,13 +1,13 @@
-import { m as createGoogleThinkingPayloadWrapper } from "../../openai-stream-wrappers-8dDBuYmP.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import "../../provider-stream-CJZgrFLB.js";
-import { n as normalizeGoogleModelId } from "../../model-id-Dv0_B7-l.js";
-import { n as GOOGLE_GEMINI_DEFAULT_MODEL, r as applyGoogleGeminiModelDefault, s as normalizeGoogleProviderConfig, u as resolveGoogleGenerativeAiTransport } from "../../api-6oe-Gsz-.js";
-import { t as buildGoogleGeminiCliBackend } from "../../cli-backend-DIHeIBrT.js";
-import { n as resolveGoogle31ForwardCompatModel, t as isModernGoogleModel } from "../../provider-models-Dljizkk1.js";
-import { t as createGeminiWebSearchProvider } from "../../gemini-web-search-provider-D-1lRhR4.js";
+import { m as createGoogleThinkingPayloadWrapper } from "../../openai-stream-wrappers-r5jdqNnw.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import "../../provider-stream-CE5A9xTm.js";
+import { n as normalizeGoogleModelId } from "../../model-id-ByGgmg9S.js";
+import { n as GOOGLE_GEMINI_DEFAULT_MODEL, r as applyGoogleGeminiModelDefault, s as normalizeGoogleProviderConfig, u as resolveGoogleGenerativeAiTransport } from "../../api-CWnnGNrM.js";
+import { t as buildGoogleGeminiCliBackend } from "../../cli-backend-B2Flk3hi.js";
+import { n as resolveGoogle31ForwardCompatModel, t as isModernGoogleModel } from "../../provider-models-BuoKql0y.js";
+import { t as createGeminiWebSearchProvider } from "../../gemini-web-search-provider-BJT761ho.js";
 //#region extensions/google/index.ts
 const GOOGLE_GEMINI_CLI_PROVIDER_ID = "google-gemini-cli";
 const GOOGLE_GEMINI_CLI_PROVIDER_LABEL = "Gemini CLI OAuth";

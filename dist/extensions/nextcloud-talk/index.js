@@ -1,5 +1,5 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setNextcloudTalkRuntime, t as nextcloudTalkPlugin } from "../../channel-BkD8ssA2.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setNextcloudTalkRuntime, t as nextcloudTalkPlugin } from "../../channel-CzvI36sG.js";
 //#region extensions/nextcloud-talk/index.ts
 var nextcloud_talk_default = defineChannelPluginEntry({
 	id: "nextcloud-talk",

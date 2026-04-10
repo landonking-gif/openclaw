@@ -1,6 +1,6 @@
-import { i as parseFeishuTargetId, n as parseFeishuConversationId, r as parseFeishuDirectConversationId, t as buildFeishuConversationId } from "../../conversation-id-iPkVbiry.js";
-import { n as feishuSetupAdapter, r as setFeishuNamedAccountEnabled, t as feishuSetupWizard } from "../../setup-surface-BTpodMZk.js";
-import { n as createFeishuThreadBindingManager, r as getFeishuThreadBindingManager, t as __testing } from "../../thread-bindings-D1gmTdTW.js";
+import { i as parseFeishuTargetId, n as parseFeishuConversationId, r as parseFeishuDirectConversationId, t as buildFeishuConversationId } from "../../conversation-id-_xhDRW2i.js";
+import { n as feishuSetupAdapter, r as setFeishuNamedAccountEnabled, t as feishuSetupWizard } from "../../setup-surface-DSbNIzVa.js";
+import { n as createFeishuThreadBindingManager, r as getFeishuThreadBindingManager, t as __testing } from "../../thread-bindings-ed5CVVDm.js";
 //#region extensions/feishu/api.ts
 const feishuSessionBindingAdapterChannels = ["feishu"];
 //#endregion

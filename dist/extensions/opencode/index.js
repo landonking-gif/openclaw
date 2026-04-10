@@ -1,9 +1,9 @@
 import { n as matchesExactOrPrefix } from "../../provider-model-shared-BXho7Uf2.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { n as applyOpencodeZenConfig } from "../../onboard-BdhCSOnH.js";
-import { t as OPENCODE_ZEN_DEFAULT_MODEL } from "../../api-Byb8d6q6.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { n as applyOpencodeZenConfig } from "../../onboard-B-d6HDyt.js";
+import { t as OPENCODE_ZEN_DEFAULT_MODEL } from "../../api-DH6jiWYE.js";
 //#region extensions/opencode/index.ts
 const PROVIDER_ID = "opencode";
 const MINIMAX_MODERN_MODEL_MATCHERS = ["minimax-m2.7"];

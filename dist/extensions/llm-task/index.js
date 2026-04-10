@@ -1,8 +1,8 @@
 import { n as resolvePreferredOpenClawTmpDir } from "../../tmp-openclaw-dir-Day5KPIY.js";
 import { n as formatXHighModelHint, u as normalizeThinkLevel } from "../../thinking.shared-DCclyaMC.js";
-import { i as supportsXHighThinking } from "../../thinking-DVCoUhWZ.js";
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import "../../api-D0_3vUS9.js";
+import { i as supportsXHighThinking } from "../../thinking-DbOLW6oi.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import "../../api-tiG7Mbii.js";
 import path from "node:path";
 import fs from "node:fs/promises";
 import AjvPkg from "ajv";

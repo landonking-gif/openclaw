@@ -1,6 +1,6 @@
-import { i as defineChannelPluginEntry } from "../../core-BIzVA7Id.js";
-import { n as setMatrixRuntime } from "../../runtime-BHaBGlM4.js";
-import { t as matrixPlugin } from "../../channel-sPvw-6nf.js";
+import { i as defineChannelPluginEntry } from "../../core-BD-JWpum.js";
+import { n as setMatrixRuntime } from "../../runtime-OFIFjf6G.js";
+import { t as matrixPlugin } from "../../channel-Cjbtiwy8.js";
 //#region extensions/matrix/index.ts
 var matrix_default = defineChannelPluginEntry({
 	id: "matrix",
@@ -10,7 +10,7 @@ var matrix_default = defineChannelPluginEntry({
 	setRuntime: setMatrixRuntime,
 	registerCliMetadata(api) {
 		api.registerCli(async ({ program }) => {
-			const { registerMatrixCli } = await import("../../cli-suswQd0y.js");
+			const { registerMatrixCli } = await import("../../cli-x6J7e2mV.js");
 			registerMatrixCli({ program });
 		}, { descriptors: [{
 			name: "matrix",
@@ -19,7 +19,7 @@ var matrix_default = defineChannelPluginEntry({
 		}] });
 	},
 	registerFull(api) {
-		import("../../plugin-entry.runtime-DKybzcmt.js").then(({ ensureMatrixCryptoRuntime }) => ensureMatrixCryptoRuntime({ log: api.logger.info }).catch((err) => {
+		import("../../plugin-entry.runtime-DB4AzKg8.js").then(({ ensureMatrixCryptoRuntime }) => ensureMatrixCryptoRuntime({ log: api.logger.info }).catch((err) => {
 			const message = err instanceof Error ? err.message : String(err);
 			api.logger.warn?.(`matrix: crypto runtime bootstrap failed: ${message}`);
 		})).catch((err) => {
@@ -27,15 +27,15 @@ var matrix_default = defineChannelPluginEntry({
 			api.logger.warn?.(`matrix: failed loading crypto bootstrap runtime: ${message}`);
 		});
 		api.registerGatewayMethod("matrix.verify.recoveryKey", async (ctx) => {
-			const { handleVerifyRecoveryKey } = await import("../../plugin-entry.runtime-DKybzcmt.js");
+			const { handleVerifyRecoveryKey } = await import("../../plugin-entry.runtime-DB4AzKg8.js");
 			await handleVerifyRecoveryKey(ctx);
 		});
 		api.registerGatewayMethod("matrix.verify.bootstrap", async (ctx) => {
-			const { handleVerificationBootstrap } = await import("../../plugin-entry.runtime-DKybzcmt.js");
+			const { handleVerificationBootstrap } = await import("../../plugin-entry.runtime-DB4AzKg8.js");
 			await handleVerificationBootstrap(ctx);
 		});
 		api.registerGatewayMethod("matrix.verify.status", async (ctx) => {
-			const { handleVerificationStatus } = await import("../../plugin-entry.runtime-DKybzcmt.js");
+			const { handleVerificationStatus } = await import("../../plugin-entry.runtime-DB4AzKg8.js");
 			await handleVerificationStatus(ctx);
 		});
 	}

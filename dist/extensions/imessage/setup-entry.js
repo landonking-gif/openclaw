@@ -1,6 +1,6 @@
-import { a as defineSetupPluginEntry } from "../../core-BIzVA7Id.js";
-import { a as imessageSetupAdapter } from "../../setup-core-Bne8CdZ9.js";
-import { r as imessageSetupWizard, t as createIMessagePluginBase } from "../../shared-CpFvGN1V.js";
+import { a as defineSetupPluginEntry } from "../../core-BD-JWpum.js";
+import { a as imessageSetupAdapter } from "../../setup-core-DAZuSoYf.js";
+import { r as imessageSetupWizard, t as createIMessagePluginBase } from "../../shared-vnsRqoom.js";
 //#region extensions/imessage/src/channel.setup.ts
 const imessageSetupPlugin = { ...createIMessagePluginBase({
 	setupWizard: imessageSetupWizard,

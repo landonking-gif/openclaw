@@ -1,3 +1,3 @@
-import { t as detectZaiEndpoint } from "../../provider-zai-endpoint-DVD8OMxs.js";
-import "../../runtime-api-Bi3PyPfj.js";
+import { t as detectZaiEndpoint } from "../../provider-zai-endpoint-BHfpLGn3.js";
+import "../../runtime-api-mMWvF7GE.js";
 export { detectZaiEndpoint };

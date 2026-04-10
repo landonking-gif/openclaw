@@ -1,8 +1,8 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { n as buildFalImageGenerationProvider } from "../../image-generation-provider-B8W6mg9g.js";
-import { n as applyFalConfig, t as FAL_DEFAULT_IMAGE_MODEL_REF } from "../../onboard-CFrEHwzM.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { n as buildFalImageGenerationProvider } from "../../image-generation-provider-2gC2FwkH.js";
+import { n as applyFalConfig, t as FAL_DEFAULT_IMAGE_MODEL_REF } from "../../onboard-DWToEGWy.js";
 //#region extensions/fal/index.ts
 const PROVIDER_ID = "fal";
 var fal_default = definePluginEntry({

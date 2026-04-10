@@ -1,8 +1,8 @@
-import { t as definePluginEntry } from "../../plugin-entry-C2JEeAkR.js";
-import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-Cldn5Ebs.js";
-import "../../provider-auth-api-key-BfAUNnD9.js";
-import { n as applyHuggingfaceConfig, t as HUGGINGFACE_DEFAULT_MODEL_REF } from "../../onboard-C64SSM6H.js";
-import { t as buildHuggingfaceProvider } from "../../provider-catalog-De37QZNG.js";
+import { t as definePluginEntry } from "../../plugin-entry-Bmh88Dqj.js";
+import { t as createProviderApiKeyAuthMethod } from "../../provider-api-key-auth-CXCwiDVx.js";
+import "../../provider-auth-api-key-7T0NM4vL.js";
+import { n as applyHuggingfaceConfig, t as HUGGINGFACE_DEFAULT_MODEL_REF } from "../../onboard-qT6uVoTg.js";
+import { t as buildHuggingfaceProvider } from "../../provider-catalog-BbkBZ2bT.js";
 //#region extensions/huggingface/index.ts
 const PROVIDER_ID = "huggingface";
 var huggingface_default = definePluginEntry({

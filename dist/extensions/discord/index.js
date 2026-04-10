@@ -1,31 +1,32 @@
 import { g as DEFAULT_ACCOUNT_ID } from "../../session-key-4QR94Oth.js";
 import { t as getChatChannelMeta } from "../../chat-meta-vnJDD9J6.js";
-import { t as PAIRING_APPROVED_MESSAGE } from "../../pairing-message-iIqw7Dc5.js";
-import { a as resolveConfiguredFromCredentialStatuses, r as projectCredentialSnapshotFields } from "../../account-snapshot-fields-C34Ifo_y.js";
-import { d as createDefaultChannelRuntimeState, o as buildTokenChannelStatusSummary, u as createComputedAccountStatusAdapter } from "../../status-helpers-CtC8UKdv.js";
-import { u as createScopedDmSecurityResolver } from "../../channel-config-helpers-BW7FxcKd.js";
-import { _ as createOpenProviderConfiguredRouteWarningCollector } from "../../group-policy-warnings-CO0Z-uz1.js";
-import { t as resolveOutboundSendDep } from "../../send-deps-DrkAylXF.js";
-import { t as createPluginRuntimeStore } from "../../runtime-store-BnRt2iWb.js";
-import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BIzVA7Id.js";
-import "../../channel-policy-DoPDTANw.js";
-import { t as createChannelDirectoryAdapter } from "../../directory-runtime-BHJ45McI.js";
-import { t as createRuntimeDirectoryLiveAdapter } from "../../runtime-forwarders-Qd_0mgUu.js";
-import "../../outbound-runtime-CdBArdFa.js";
-import { c as createNestedAllowlistOverrideResolver, o as createAccountScopedAllowlistNameResolver, r as buildLegacyDmAccountAllowlistAdapter } from "../../allowlist-config-edit-CP0S2LHH.js";
-import { n as resolveTargetsWithOptionalToken } from "../../channel-targets-B8L9uT9q.js";
-import { i as createPairingPrefixStripper } from "../../channel-pairing-B7N_FHFm.js";
-import { o as resolveDiscordAccount } from "../../accounts-CKf6hS8T.js";
-import { n as parseDiscordTarget, t as resolveDiscordOutboundSessionRoute } from "../../runtime-api-DrFQma7F.js";
-import { r as discordNativeApprovalAdapter, s as shouldSuppressLocalDiscordExecApprovalPrompt, t as DiscordUiContainer } from "../../ui-Cfagkhqh.js";
-import { pt as fetchChannelPermissionsDiscord } from "../../send-B-eYcn1M.js";
-import { n as collectDiscordAuditChannelIds, t as auditDiscordChannelPermissions } from "../../audit-CYAyzzpu.js";
-import { a as listDiscordDirectoryPeersFromConfig, i as listDiscordDirectoryGroupsFromConfig, n as resolveDiscordGroupRequireMention, r as resolveDiscordGroupToolPolicy, t as collectDiscordStatusIssues } from "../../status-issues-BOyBRAew.js";
-import { n as normalizeDiscordMessagingTarget, r as normalizeDiscordOutboundTarget, t as looksLikeDiscordTargetId } from "../../normalize-DjwbDyFj.js";
-import { t as resolveDiscordUserAllowlist } from "../../resolve-users-kLXcN2ON.js";
-import { r as discordSetupAdapter } from "../../setup-core-QtucFPWx.js";
-import { n as discordConfigAdapter, t as createDiscordPluginBase } from "../../shared-64VJr0uj.js";
-import { n as listThreadBindingsBySessionKey, s as unbindThreadBindingsBySessionKey, t as autoBindSpawnedDiscordSubagent } from "../../thread-bindings-B3RhfCVC.js";
+import { t as PAIRING_APPROVED_MESSAGE } from "../../pairing-message-CjtU5Y8v.js";
+import { a as resolveConfiguredFromCredentialStatuses, r as projectCredentialSnapshotFields } from "../../account-snapshot-fields-DEzGAuKX.js";
+import { d as createDefaultChannelRuntimeState, o as buildTokenChannelStatusSummary, u as createComputedAccountStatusAdapter } from "../../status-helpers-DyX-NNWd.js";
+import { u as createScopedDmSecurityResolver } from "../../channel-config-helpers-XkwmfU3s.js";
+import { _ as createOpenProviderConfiguredRouteWarningCollector } from "../../group-policy-warnings-76l7Zlnx.js";
+import { t as resolveOutboundSendDep } from "../../send-deps-BWJXv6mY.js";
+import { t as createPluginRuntimeStore } from "../../runtime-store-DyL9NwDZ.js";
+import { i as defineChannelPluginEntry, r as createChatChannelPlugin } from "../../core-BD-JWpum.js";
+import "../../channel-policy-XbkOLNBx.js";
+import { t as createChannelDirectoryAdapter } from "../../directory-runtime-D4u4scXG.js";
+import { t as createRuntimeDirectoryLiveAdapter } from "../../runtime-forwarders-BUlK5PT2.js";
+import "../../outbound-runtime-B81rFdEK.js";
+import { c as createNestedAllowlistOverrideResolver, o as createAccountScopedAllowlistNameResolver, r as buildLegacyDmAccountAllowlistAdapter } from "../../allowlist-config-edit-gP6F_9gi.js";
+import { n as resolveTargetsWithOptionalToken } from "../../channel-targets-DYMyFi_R.js";
+import { i as createPairingPrefixStripper } from "../../channel-pairing-DpO_lXyd.js";
+import { o as resolveDiscordAccount } from "../../accounts-ISdL18DD.js";
+import { n as parseDiscordTarget, t as resolveDiscordOutboundSessionRoute } from "../../runtime-api-Bipri5cw.js";
+import { r as discordNativeApprovalAdapter, s as shouldSuppressLocalDiscordExecApprovalPrompt, t as DiscordUiContainer } from "../../ui-B3ZPpryE.js";
+import { D as fetchChannelPermissionsDiscord } from "../../send.components-BIIT6MGt.js";
+import "../../send-BKNBUzxZ.js";
+import { n as collectDiscordAuditChannelIds, t as auditDiscordChannelPermissions } from "../../audit-Dq7EDjOP.js";
+import { a as listDiscordDirectoryPeersFromConfig, i as listDiscordDirectoryGroupsFromConfig, n as resolveDiscordGroupRequireMention, r as resolveDiscordGroupToolPolicy, t as collectDiscordStatusIssues } from "../../status-issues-DBqS8Elp.js";
+import { n as normalizeDiscordMessagingTarget, r as normalizeDiscordOutboundTarget, t as looksLikeDiscordTargetId } from "../../normalize-CrGf0TjS.js";
+import { t as resolveDiscordUserAllowlist } from "../../resolve-users-BHcc-48L.js";
+import { r as discordSetupAdapter } from "../../setup-core-pbKR1fA2.js";
+import { n as discordConfigAdapter, t as createDiscordPluginBase } from "../../shared-i9d7FdhR.js";
+import { n as listThreadBindingsBySessionKey, s as unbindThreadBindingsBySessionKey, t as autoBindSpawnedDiscordSubagent } from "../../thread-bindings-ts1xCUBT.js";
 import { Separator, TextDisplay } from "@buape/carbon";
 //#region extensions/discord/src/runtime.ts
 const { setRuntime: setDiscordRuntime, getRuntime: getDiscordRuntime } = createPluginRuntimeStore("Discord runtime not initialized");
@@ -34,11 +35,11 @@ const { setRuntime: setDiscordRuntime, getRuntime: getDiscordRuntime } = createP
 let discordProviderRuntimePromise;
 let discordProbeRuntimePromise;
 async function loadDiscordProviderRuntime() {
-	discordProviderRuntimePromise ??= import("../../provider.runtime-44_VJoj1.js");
+	discordProviderRuntimePromise ??= import("../../provider.runtime-D9No2er7.js");
 	return await discordProviderRuntimePromise;
 }
 async function loadDiscordProbeRuntime() {
-	discordProbeRuntimePromise ??= import("../../probe.runtime-4wjW0fRR.js");
+	discordProbeRuntimePromise ??= import("../../probe.runtime-WbvIYhTt.js");
 	return await discordProbeRuntimePromise;
 }
 getChatChannelMeta("discord");

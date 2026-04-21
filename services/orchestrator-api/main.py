@@ -5410,14 +5410,37 @@ async def _finalize_chat_exchange(session_id: str, user_message: str, result: di
     response_text = str(result.get("response", ""))
     delegations = result.get("delegations") or []
 
+    try:
+        max_response_chars = max(500, int(os.getenv("ORCH_CHAT_RESPONSE_ACTIVITY_MAX_CHARS", "12000")))
+    except ValueError:
+        max_response_chars = 12000
+    response_truncated = len(response_text) > max_response_chars
+    response_for_activity = response_text[:max_response_chars]
+
     # Store comprehensive memory records for full conversation tracking
     await _store_comprehensive_memory(session_id, user_message, response_text, delegations)
+
+    # Ensure all completion paths (including autopilot/background) persist a recoverable response entry.
+    if response_for_activity.strip():
+        await activity.record(
+            "response",
+            session_id,
+            response_for_activity,
+            {
+                "delegation_count": len(delegations),
+                "response_length": len(response_text),
+                "response_truncated": response_truncated,
+                "source": "finalize_chat_exchange",
+            },
+        )
 
     await notify_ws({
         "event": "chat_response",
         "session_id": session_id,
         "delegations": len(delegations),
         "status": "completed",
+        "response": response_for_activity,
+        "response_truncated": response_truncated,
     })
 
 
@@ -5829,7 +5852,7 @@ async def _run_isolated_desktop_autopilot(session_id: str, user_message: str) ->
                     bool(recovery.get("ok")),
                 )
                 break
-            should_break_for_fallback = "gemini_api_key is required" in last_error.lower()
+            should_break_for_fallback = _is_missing_gemini_key_error(last_error)
             if should_break_for_fallback:
                 break
             if _is_desktop_display_error(last_error):
@@ -13556,17 +13579,31 @@ _GEMINI_VDESKTOP_SESSION = None
 
 def _resolve_gemini_api_key() -> str:
     """Resolve Gemini API key from environment for desktop/screen runtimes."""
+    resolved = ""
     for env_name in ("GEMINI_API_KEY", "GOOGLE_API_KEY"):
         value = (os.getenv(env_name, "") or "").strip()
         if value:
-            return value
-    config_key = _load_openclaw_google_api_key()
-    if config_key:
-        return config_key
-    vision_key = _load_clawvision_gemini_key()
-    if vision_key:
-        return vision_key
-    return ""
+            resolved = value
+            break
+
+    if not resolved:
+        config_key = _load_openclaw_google_api_key()
+        if config_key:
+            resolved = config_key
+
+    if not resolved:
+        vision_key = _load_clawvision_gemini_key()
+        if vision_key:
+            resolved = vision_key
+
+    if resolved:
+        # Keep both env aliases populated so downstream paths read a consistent key.
+        if not (os.getenv("GEMINI_API_KEY", "") or "").strip():
+            os.environ["GEMINI_API_KEY"] = resolved
+        if not (os.getenv("GOOGLE_API_KEY", "") or "").strip():
+            os.environ["GOOGLE_API_KEY"] = resolved
+
+    return resolved
 
 
 def _desktop_exec(
@@ -13688,22 +13725,42 @@ def _ensure_orchestrator_desktop_container(container: str = "orchestrator-deskto
             if start.returncode == 0:
                 return True, "started_existing"
 
+        desktop_image = (os.getenv("ORCH_ISOLATED_DESKTOP_IMAGE", "consol/ubuntu-xfce-vnc:latest") or "").strip()
+        if not desktop_image:
+            desktop_image = "consol/ubuntu-xfce-vnc:latest"
+        vnc_password = (os.getenv("ORCH_ISOLATED_DESKTOP_VNC_PASSWORD", "openclaw") or "openclaw").strip() or "openclaw"
+        vnc_port = (os.getenv("ORCH_ISOLATED_DESKTOP_VNC_PORT", "5901") or "5901").strip() or "5901"
+        web_port = (os.getenv("ORCH_ISOLATED_DESKTOP_WEB_PORT", "6901") or "6901").strip() or "6901"
+
+        run_cmd = [
+            "docker",
+            "run",
+            "-d",
+            "--name",
+            container,
+            "-p",
+            f"{vnc_port}:5901",
+            "-p",
+            f"{web_port}:6901",
+            "-e",
+            f"VNC_PW={vnc_password}",
+            "--shm-size=2g",
+        ]
+
+        extra_mounts = (os.getenv("ORCH_ISOLATED_DESKTOP_MOUNTS", "") or "").strip()
+        if extra_mounts:
+            for raw_mount in extra_mounts.split(","):
+                mount_spec = raw_mount.strip()
+                if mount_spec:
+                    run_cmd.extend(["-v", mount_spec])
+
+        if os.getenv("ORCH_ISOLATED_DESKTOP_SHARE_HOME", "0") == "1":
+            run_cmd.extend(["-v", f"{Path.home()}:/host-home"])
+
+        run_cmd.append(desktop_image)
+
         run = subprocess.run(
-            [
-                "docker",
-                "run",
-                "-d",
-                "--name",
-                container,
-                "-p",
-                "5901:5901",
-                "-p",
-                "6901:6901",
-                "-e",
-                "VNC_PW=openclaw",
-                "--shm-size=2g",
-                "consol/ubuntu-xfce-vnc:latest",
-            ],
+            run_cmd,
             capture_output=True,
             text=True,
             timeout=180,
@@ -13775,6 +13832,20 @@ def _is_desktop_display_error(text: str) -> bool:
         "can't open display",
         "failed creating new xdo instance",
         "xdotool: command not found",
+    ]
+    return any(m in err for m in markers)
+
+
+def _is_missing_gemini_key_error(text: str) -> bool:
+    err = (text or "").lower()
+    markers = [
+        "gemini_api_key required",
+        "gemini_api_key is required",
+        "google_api_key required",
+        "missing gemini api key",
+        "missing api key",
+        "api key required for gemini",
+        "api_key is required",
     ]
     return any(m in err for m in markers)
 

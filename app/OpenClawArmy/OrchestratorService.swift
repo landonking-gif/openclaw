@@ -518,9 +518,7 @@ class OrchestratorService: ObservableObject {
                         self.stopThinkingBackfillLoop()
 
                         if let recovered, !recovered.isEmpty {
-                            self.chatMessages.append(ChatMessage(
-                                id: UUID(), role: .assistant, text: recovered, timestamp: Date()
-                            ))
+                            self.appendAssistantMessageIfNeeded(recovered)
                             self.pulseNeuralActivity()
                             return
                         }
@@ -537,9 +535,8 @@ class OrchestratorService: ObservableObject {
                             }
                         }
 
-                        self.chatMessages.append(ChatMessage(
-                            id: UUID(), role: .assistant, text: text, timestamp: Date()
-                        ))
+                        self.appendAssistantMessageIfNeeded(text)
+                        self.pulseNeuralActivity()
                     }
                 }
                 return
@@ -557,9 +554,7 @@ class OrchestratorService: ObservableObject {
                     }
                 }
 
-                self.chatMessages.append(ChatMessage(
-                    id: UUID(), role: .assistant, text: text, timestamp: Date()
-                ))
+                self.appendAssistantMessageIfNeeded(text)
                 self.pulseNeuralActivity()
             }
 
@@ -576,9 +571,7 @@ class OrchestratorService: ObservableObject {
                         self.isSending = false
                         self.stopThinkingBackfillLoop()
                         if let recovered, !recovered.isEmpty {
-                            self.chatMessages.append(ChatMessage(
-                                id: UUID(), role: .assistant, text: recovered, timestamp: Date()
-                            ))
+                            self.appendAssistantMessageIfNeeded(recovered)
                             self.pulseNeuralActivity()
                         } else {
                             self.chatMessages.append(ChatMessage(
@@ -632,6 +625,21 @@ class OrchestratorService: ObservableObject {
             || normalized.contains("trouble connecting to my reasoning engine")
     }
 
+    private func appendAssistantMessageIfNeeded(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        if let last = chatMessages.last,
+           last.role == .assistant,
+           last.text.trimmingCharacters(in: .whitespacesAndNewlines) == trimmed {
+            return
+        }
+
+        chatMessages.append(ChatMessage(
+            id: UUID(), role: .assistant, text: trimmed, timestamp: Date()
+        ))
+    }
+
     private func recoverChatResponse(
         sessionId: String,
         notBefore: Date,
@@ -677,7 +685,7 @@ class OrchestratorService: ObservableObject {
             switch result {
             case .success(let activity):
                 self.mergeThinkingEntries(activity.entries, expectedSessionId: sessionId)
-                let candidate = activity.entries.reversed().first(where: { entry in
+                let responseCandidate = activity.entries.reversed().first(where: { entry in
                     let type = entry.type?.lowercased() ?? ""
                     let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
                     let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -685,7 +693,23 @@ class OrchestratorService: ObservableObject {
                     guard let tsDate = self.parseActivityTimestamp(entry.ts) else { return false }
                     return tsDate >= notBefore.addingTimeInterval(-1)
                 })
-                completion(candidate?.content?.trimmingCharacters(in: .whitespacesAndNewlines))
+
+                if let responseText = responseCandidate?.content?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !responseText.isEmpty {
+                    completion(responseText)
+                    return
+                }
+
+                let autopilotCandidate = activity.entries.reversed().first(where: { entry in
+                    let type = entry.type?.lowercased() ?? ""
+                    let sameSession = entry.sessionId == nil || entry.sessionId == sessionId
+                    let text = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    guard type == "autopilot_complete" && sameSession && !text.isEmpty else { return false }
+                    guard let tsDate = self.parseActivityTimestamp(entry.ts) else { return false }
+                    return tsDate >= notBefore.addingTimeInterval(-1)
+                })
+
+                completion(autopilotCandidate?.content?.trimmingCharacters(in: .whitespacesAndNewlines))
 
             case .failure:
                 completion(nil)
@@ -853,12 +877,22 @@ class OrchestratorService: ObservableObject {
                             DispatchQueue.main.async {
                                 let sameSession = (entry.sessionId ?? "") == self?.sessionId
 
-                                if sameSession {
-                                    if let self, self.isThinkingEventEntry(entry) {
+                                if sameSession, let self {
+                                    if self.isThinkingEventEntry(entry) {
                                         self.appendThinkingEntryIfNeeded(entry)
                                     }
-                                    if entry.type == "delegation" || entry.type == "llm_tool_calls" {
-                                        self?.pulseNeuralActivity()
+
+                                    let entryType = (entry.type ?? "").lowercased()
+                                    if entryType == "response" {
+                                        let responseText = entry.content?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                                        if !responseText.isEmpty {
+                                            self.isSending = false
+                                            self.stopThinkingBackfillLoop()
+                                            self.appendAssistantMessageIfNeeded(responseText)
+                                            self.pulseNeuralActivity()
+                                        }
+                                    } else if entryType == "delegation" || entryType == "llm_tool_calls" {
+                                        self.pulseNeuralActivity()
                                     }
                                 }
                             }
@@ -921,6 +955,18 @@ class OrchestratorService: ObservableObject {
             )
 
         case "chat_response":
+            let responseText = (payload["response"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !responseText.isEmpty {
+                return ActivityEntry(
+                    ts: ts,
+                    type: "response",
+                    content: responseText,
+                    sessionId: session,
+                    meta: nil,
+                    event: "activity"
+                )
+            }
             return ActivityEntry(
                 ts: ts,
                 type: "chat_action",

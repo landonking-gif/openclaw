@@ -1,0 +1,28 @@
+{
+  "gateway": {
+    "port": 18801,
+    "bind": "loopback",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "providers": [
+    {
+      "type": "nim",
+      "model": "kimi-k2-5",
+      "apiKey": "${NVIDIA_NIM_API_KEY}"
+    }
+  ],
+  "ui": {
+    "assistant": {
+      "name": "beta-manager",
+      "avatar": "beta-manager"
+    }
+  }
+}

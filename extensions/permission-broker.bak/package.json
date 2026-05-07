@@ -1,0 +1,18 @@
+{
+  "name": "@ai-final/permission-broker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hierarchical permission enforcement for ai_final multi-agent orchestration",
+  "type": "module",
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

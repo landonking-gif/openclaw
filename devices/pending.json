@@ -1,0 +1,20 @@
+{
+  "522d784c-b6fe-4eb9-9f4c-35b7e7aaf3bc": {
+    "requestId": "522d784c-b6fe-4eb9-9f4c-35b7e7aaf3bc",
+    "deviceId": "2cf6cc7dff55e3a90c3091f39a27e22af76e59dbd58f6c9c73d1089d6110b9c2",
+    "publicKey": "x_APmoJzdAnKL5sX34jgonsNlwRejIRKZN0ogXhZNcM",
+    "displayName": "Landon’s MacBook Air",
+    "platform": "macOS 26.5.0",
+    "deviceFamily": "Mac",
+    "clientId": "openclaw-macos",
+    "clientMode": "node",
+    "role": "node",
+    "roles": [
+      "node"
+    ],
+    "scopes": [],
+    "silent": false,
+    "isRepair": true,
+    "ts": 1778160243376
+  }
+}

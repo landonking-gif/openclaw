@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "edf2f2a5-e00e-45ae-a576-9de09cca87ab",
+      "name": "busy",
+      "enabled": false,
+      "createdAtMs": 1771998547803,
+      "updatedAtMs": 1772998742663,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 900000,
+        "anchorMs": 1771998547803
+      },
+      "sessionTarget": "main",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "check if you are doing anything, and if you are then continue, but if you are not then formulate a list of the top ten productive things that you could do for me and the program then execute them."
+      },
+      "state": {
+        "lastRunAtMs": 1772997750181,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 21033,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586",
+      "name": "2 hour report",
+      "enabled": true,
+      "createdAtMs": 1771998767243,
+      "updatedAtMs": 1775430853643,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 7200000,
+        "anchorMs": 1771998767243
+      },
+      "sessionTarget": "main",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
+      },
+      "state": {
+        "nextRunAtMs": 1775437981686,
+        "lastRunAtMs": 1775430781686,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 71957,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8",
+      "name": "daily report",
+      "enabled": true,
+      "createdAtMs": 1771998891403,
+      "updatedAtMs": 1775424173929,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 86400000,
+        "anchorMs": 1771998891403
+      },
+      "sessionTarget": "main",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "give me a status update , what you did in the previous day, and what you plan to do in the following day, this should be a message to me via discord."
+      },
+      "state": {
+        "nextRunAtMs": 1775509971486,
+        "lastRunAtMs": 1775423571486,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 602443,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 1,
+        "lastError": "Error: cron: job execution timed out"
+      }
+    },
+    {
+      "id": "15028631-f68e-464d-980d-b71e15ab1c1a",
+      "name": "version save",
+      "enabled": true,
+      "createdAtMs": 1772001720533,
+      "updatedAtMs": 1775428401494,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 300000,
+        "anchorMs": 1772001720533
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "run a sync to GitHub to save version history of this OpenClaw and all other programs and files"
+      },
+      "delivery": {
+        "mode": "announce"
+      },
+      "state": {
+        "nextRunAtMs": 1775433420533,
+        "lastRunAtMs": 1775427798610,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 602884,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 21,
+        "runningAtMs": 1775435865095
+      }
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "ec1777b31391cdad9acddecd06cf9bf8fae978a59706ee76ccae01b24444677b": {
+    "deviceId": "ec1777b31391cdad9acddecd06cf9bf8fae978a59706ee76ccae01b24444677b",
+    "publicKey": "w4SuRC2omT_W80WyyAUGMyI-q-bW_zvygTiNwH7bP4s",
+    "platform": "MacIntel",
+    "clientId": "openclaw-control-ui",
+    "clientMode": "webchat",
+    "role": "operator",
+    "roles": [
+      "operator"
+    ],
+    "scopes": [
+      "operator.admin",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "approvedScopes": [
+      "operator.admin",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "tokens": {
+      "operator": {
+        "token": "kiGCRE3cv_gPKrpGSXz5xrVE03IjM_jUQhVCC9kHPos",
+        "role": "operator",
+        "scopes": [
+          "operator.admin",
+          "operator.approvals",
+          "operator.pairing"
+        ],
+        "createdAtMs": 1771827973846,
+        "lastUsedAtMs": 1771997669474
+      }
+    },
+    "createdAtMs": 1771827973846,
+    "approvedAtMs": 1771827973846
+  },
+  "2cf6cc7dff55e3a90c3091f39a27e22af76e59dbd58f6c9c73d1089d6110b9c2": {
+    "deviceId": "2cf6cc7dff55e3a90c3091f39a27e22af76e59dbd58f6c9c73d1089d6110b9c2",
+    "publicKey": "x_APmoJzdAnKL5sX34jgonsNlwRejIRKZN0ogXhZNcM",
+    "displayName": "Landon’s MacBook Air",
+    "platform": "macOS 26.3.0",
+    "clientId": "openclaw-macos",
+    "clientMode": "ui",
+    "role": "operator",
+    "roles": [
+      "node",
+      "operator"
+    ],
+    "scopes": [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "approvedScopes": [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "tokens": {
+      "node": {
+        "token": "cOPFhK4SrRnEm7xukcn4UWatI7zQthLOE8Bbb9RbAOk",
+        "role": "node",
+        "scopes": [],
+        "createdAtMs": 1772007318282,
+        "lastUsedAtMs": 1772866605479
+      },
+      "operator": {
+        "token": "dRdlddQ0Zyz7QHmSy4BUzhnQSlrPaqd9U4F5UdK0-EA",
+        "role": "operator",
+        "scopes": [
+          "operator.admin",
+          "operator.approvals",
+          "operator.pairing",
+          "operator.read",
+          "operator.write"
+        ],
+        "createdAtMs": 1772031049978,
+        "rotatedAtMs": 1772052594627,
+        "lastUsedAtMs": 1772866605937
+      }
+    },
+    "createdAtMs": 1772007318282,
+    "approvedAtMs": 1772052594626
+  }
+}

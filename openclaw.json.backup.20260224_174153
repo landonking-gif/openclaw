@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.22-2",
+    "lastTouchedAt": "2026-02-24T19:21:35.889Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-02-24T19:21:35.846Z",
+    "lastRunVersion": "2026.2.22-2",
+    "lastRunCommand": "configure",
+    "lastRunMode": "local"
+  },
+  "update": {
+    "channel": "beta"
+  },
+  "auth": {
+    "profiles": {
+      "nvidia:default": {
+        "provider": "nvidia",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1/",
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/moonshotai/kimi-k2.5",
+        "fallbacks": []
+      },
+      "models": {
+        "nvidia/moonshotai/kimi-k2.5": {
+          "alias": "kimi-k2.5"
+        }
+      },
+      "workspace": "/Users/landonking/.openclaw/workspace",
+      "thinkingDefault": "high",
+      "verboseDefault": "full",
+      "blockStreamingChunk": {
+        "breakPreference": "paragraph"
+      },
+      "maxConcurrent": 6,
+      "subagents": {
+        "maxConcurrent": 12
+      }
+    }
+  },
+  "tools": {
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "tavily",
+        "apiKey": "tvly-dev-placeholder",
+        "maxResults": 10
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "elevated": {
+      "enabled": true
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "boot-md": {
+          "enabled": true
+        },
+        "bootstrap-extra-files": {
+          "enabled": true
+        },
+        "command-logger": {
+          "enabled": true,
+          "compact": true
+        },
+        "session-memory": {
+          "enabled": true,
+          "syncInterval": 30
+        },
+        "cost-tracker": {
+          "enabled": true
+        },
+        "auto-save": {
+          "enabled": true,
+          "interval": 60
+        }
+      }
+    }
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "groupPolicy": "open",
+      "streaming": "off",
+      "dmPolicy": "open",
+      "allowFrom": [
+        "*"
+      ],
+      "dm": {
+        "enabled": true
+      },
+      "accounts": {
+        "default": {
+          "token": "MTQ3NDc4ODg0MjM3OTk0MDAxNQ.GwsCeu.ALdBpVggVDzUSHWqqC01XSZWV3NjU7F7CeNP3M",
+          "groupPolicy": "open",
+          "streaming": "off"
+        }
+      }
+    },
+    "imessage": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "groupPolicy": "allowlist"
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "lan",
+    "auth": {
+      "mode": "token",
+      "token": "59d522a75c228901f8df94803379f0a333510b514d6aadd7"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "skills": {
+    "entries": {
+      "agent-media": {
+        "enabled": true
+      },
+      "ai-notes-of-video": {
+        "enabled": true
+      },
+      "codex-sub-agents": {
+        "enabled": true
+      },
+      "gemini": {
+        "enabled": true
+      },
+      "media-orchestrator": {
+        "enabled": true
+      },
+      "nano-banana-pro": {
+        "apiKey": "AIzaSyBERQp-Zw6VexMGl4qR3CAnbeBzSMm6RQA"
+      },
+      "notion": {
+        "apiKey": "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"
+      },
+      "openai-tts": {
+        "enabled": true
+      },
+      "openai-whisper": {
+        "enabled": true
+      },
+      "rag-search": {
+        "enabled": true
+      },
+      "summarize": {
+        "enabled": true
+      },
+      "tavily-search": {
+        "enabled": true
+      },
+      "video-frames": {
+        "enabled": true
+      },
+      "web-search-pro": {
+        "enabled": true
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "discord": {
+        "enabled": true
+      }
+    }
+  }
+}

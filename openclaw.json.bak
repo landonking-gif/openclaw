@@ -1,0 +1,725 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.4.1",
+    "lastTouchedAt": "2026-04-09T03:19:26.356Z"
+  },
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-19T00:36:28.011Z",
+    "lastRunVersion": "2026.2.22-2",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "diagnostics": {
+    "enabled": true,
+    "otel": {
+      "enabled": true,
+      "traces": true,
+      "metrics": true,
+      "logs": true
+    },
+    "cacheTrace": {
+      "enabled": true,
+      "includeMessages": true,
+      "includePrompt": true,
+      "includeSystem": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty",
+    "redactSensitive": "tools"
+  },
+  "update": {
+    "channel": "dev",
+    "checkOnStart": true,
+    "auto": {
+      "enabled": true,
+      "stableDelayHours": 1,
+      "stableJitterHours": 1,
+      "betaCheckIntervalHours": 1
+    }
+  },
+  "browser": {
+    "enabled": true,
+    "evaluateEnabled": true,
+    "headless": true,
+    "noSandbox": true,
+    "attachOnly": false,
+    "ssrfPolicy": {}
+  },
+  "ui": {
+    "assistant": {
+      "name": "king ai",
+      "avatar": "king ai"
+    }
+  },
+  "auth": {
+    "profiles": {
+      "nvidia:default": {
+        "provider": "nvidia",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "replace",
+    "providers": {
+      "nvidia": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1/",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA NIM)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          }
+        ]
+      },
+      "orchestrator": {
+        "baseUrl": "http://127.0.0.1:18830/v1/",
+        "authHeader": false,
+        "models": [
+          {
+            "id": "openclaw",
+            "name": "OpenClaw Army (101 tools)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          },
+          {
+            "id": "openclaw-army",
+            "name": "OpenClaw Army Orchestrator",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 16384
+          }
+        ]
+      }
+    },
+    "bedrockDiscovery": {
+      "enabled": false
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/moonshotai/kimi-k2.5",
+        "fallbacks": [
+          "nvidia/meta/llama-3.3-70b-instruct",
+          "nvidia/nvidia/llama-3.1-nemotron-70b-instruct"
+        ]
+      },
+      "models": {
+        "nvidia/moonshotai/kimi-k2.5": {
+          "alias": "kimi-k2.5"
+        }
+      },
+      "workspace": "/Users/landonking/.openclaw/workspace",
+      "envelopeTimestamp": "on",
+      "envelopeElapsed": "on",
+      "memorySearch": {
+        "enabled": true,
+        "fallback": "none",
+        "store": {
+          "vector": {
+            "enabled": true
+          }
+        },
+        "sync": {
+          "onSessionStart": true,
+          "onSearch": true,
+          "watch": true
+        },
+        "cache": {
+          "enabled": true
+        }
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "thinkingDefault": "high",
+      "verboseDefault": "full",
+      "elevatedDefault": "on",
+      "blockStreamingDefault": "on",
+      "blockStreamingBreak": "text_end",
+      "blockStreamingChunk": {
+        "breakPreference": "paragraph"
+      },
+      "humanDelay": {
+        "mode": "off"
+      },
+      "typingMode": "instant",
+      "heartbeat": {
+        "includeReasoning": false,
+        "suppressToolErrorWarnings": false
+      },
+      "maxConcurrent": 6,
+      "subagents": {
+        "maxConcurrent": 12
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "alpha-manager",
+        "name": "alpha-manager",
+        "workspace": "/Users/landonking/.openclaw/workspace-alpha-manager",
+        "agentDir": "/Users/landonking/.openclaw/agents/alpha-manager"
+      },
+      {
+        "id": "beta-manager",
+        "name": "beta-manager",
+        "workspace": "/Users/landonking/.openclaw/workspace-beta-manager",
+        "agentDir": "/Users/landonking/.openclaw/agents/beta-manager"
+      },
+      {
+        "id": "gamma-manager",
+        "name": "gamma-manager",
+        "workspace": "/Users/landonking/.openclaw/workspace-gamma-manager",
+        "agentDir": "/Users/landonking/.openclaw/agents/gamma-manager"
+      }
+    ]
+  },
+  "tools": {
+    "profile": "full",
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "brave",
+        "maxResults": 10,
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "fetch": {
+        "enabled": true,
+        "maxRedirects": 5,
+        "userAgent": "OpenClaw-Agent/1.0"
+      }
+    },
+    "links": {
+      "enabled": true,
+      "scope": {
+        "default": "allow"
+      }
+    },
+    "sessions": {
+      "visibility": "all"
+    },
+    "loopDetection": {
+      "enabled": true
+    },
+    "message": {
+      "allowCrossContextSend": true,
+      "crossContext": {
+        "allowWithinProvider": true,
+        "allowAcrossProviders": true
+      },
+      "broadcast": {
+        "enabled": true
+      }
+    },
+    "agentToAgent": {
+      "enabled": true
+    },
+    "elevated": {
+      "enabled": true
+    },
+    "exec": {
+      "ask": "off",
+      "notifyOnExitEmptySuccess": false,
+      "applyPatch": {
+        "enabled": true,
+        "workspaceOnly": true
+      }
+    },
+    "fs": {
+      "workspaceOnly": true
+    }
+  },
+  "broadcast": {
+    "strategy": "parallel"
+  },
+  "media": {
+    "preserveFilenames": true
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": true,
+    "nativeSkills": true,
+    "text": true,
+    "bash": true,
+    "config": true,
+    "debug": true,
+    "restart": true,
+    "useAccessGroups": true,
+    "ownerDisplay": "raw"
+  },
+  "approvals": {
+    "exec": {
+      "enabled": true,
+      "mode": "both"
+    }
+  },
+  "session": {
+    "scope": "global",
+    "dmScope": "main",
+    "threadBindings": {
+      "enabled": true
+    }
+  },
+  "cron": {
+    "enabled": true
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "auto-save": {
+          "enabled": true,
+          "interval": 60,
+          "onShutdown": true
+        },
+        "boot-md": {
+          "enabled": false,
+          "priority": 1
+        },
+        "bootstrap-extra-files": {
+          "enabled": true,
+          "priority": 2
+        },
+        "command-logger": {
+          "enabled": true,
+          "compact": true,
+          "logLevel": "info"
+        },
+        "cost-tracker": {
+          "enabled": true,
+          "trackCumulative": true,
+          "trackPerRequest": true
+        },
+        "intent-cache": {
+          "enabled": true,
+          "ttl": 3600
+        },
+        "session-memory": {
+          "enabled": true,
+          "compression": true,
+          "syncInterval": 30
+        }
+      }
+    }
+  },
+  "web": {
+    "enabled": true
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "configWrites": true,
+      "allowBots": true,
+      "groupPolicy": "open",
+      "chunkMode": "length",
+      "blockStreaming": true,
+      "streaming": "partial",
+      "draftChunk": {
+        "breakPreference": "paragraph"
+      },
+      "actions": {
+        "reactions": true,
+        "stickers": true,
+        "emojiUploads": true,
+        "stickerUploads": true,
+        "polls": true,
+        "permissions": true,
+        "messages": true,
+        "threads": true,
+        "pins": true,
+        "search": true,
+        "memberInfo": true,
+        "roleInfo": true,
+        "roles": true,
+        "channelInfo": true,
+        "voiceStatus": true,
+        "events": true,
+        "moderation": true,
+        "channels": true,
+        "presence": true
+      },
+      "replyToMode": "all",
+      "dmPolicy": "open",
+      "allowFrom": [
+        "*"
+      ],
+      "dm": {
+        "enabled": true,
+        "groupEnabled": true
+      },
+      "voice": {
+        "enabled": true,
+        "tts": {
+          "auto": "always",
+          "enabled": true,
+          "mode": "all",
+          "modelOverrides": {
+            "enabled": true,
+            "allowText": true,
+            "allowProvider": true,
+            "allowVoice": true,
+            "allowModelId": true,
+            "allowVoiceSettings": true,
+            "allowNormalization": true,
+            "allowSeed": true
+          },
+          "providers": {
+            "microsoft": {
+              "enabled": true,
+              "saveSubtitles": true
+            }
+          }
+        }
+      },
+      "status": "online",
+      "accounts": {
+        "default": {
+          "markdown": {
+            "tables": "bullets"
+          },
+          "enabled": true,
+          "configWrites": true,
+          "token": "__OPENCLAW_REDACTED__",
+          "allowBots": true,
+          "groupPolicy": "open",
+          "blockStreaming": true,
+          "streaming": "partial",
+          "dm": {
+            "enabled": true,
+            "groupEnabled": true
+          },
+          "heartbeat": {
+            "showOk": false,
+            "showAlerts": false,
+            "useIndicator": false
+          },
+          "slashCommand": {
+            "ephemeral": true
+          },
+          "threadBindings": {
+            "enabled": true,
+            "spawnSubagentSessions": true
+          },
+          "intents": {
+            "presence": true,
+            "guildMembers": true
+          },
+          "voice": {
+            "enabled": true,
+            "tts": {
+              "auto": "always",
+              "enabled": true,
+              "mode": "all",
+              "provider": "edge",
+              "modelOverrides": {
+                "enabled": true,
+                "allowText": true,
+                "allowProvider": true,
+                "allowVoice": true,
+                "allowModelId": true,
+                "allowVoiceSettings": true,
+                "allowNormalization": true,
+                "allowSeed": true
+              },
+              "providers": {
+                "elevenlabs": {
+                  "applyTextNormalization": "on",
+                  "voiceSettings": {
+                    "useSpeakerBoost": true
+                  }
+                }
+              }
+            }
+          },
+          "status": "online"
+        }
+      }
+    },
+    "imessage": {
+      "enabled": false,
+      "dmPolicy": "pairing",
+      "groupPolicy": "allowlist"
+    }
+  },
+  "discovery": {
+    "wideArea": {
+      "enabled": true
+    },
+    "mdns": {}
+  },
+  "canvasHost": {
+    "enabled": true,
+    "liveReload": true
+  },
+  "talk": {
+    "interruptOnSpeech": true
+  },
+  "gateway": {
+    "port": 18800,
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "enabled": true,
+      "allowedOrigins": [
+        "http://localhost:18800",
+        "http://127.0.0.1:18800"
+      ],
+      "allowInsecureAuth": false,
+      "dangerouslyDisableDeviceAuth": false
+    },
+    "auth": {
+      "mode": "token",
+      "token": "0b84a301f5351a8d853e8754b3f9b09342871811d4773cb6"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "remote": {
+      "url": "ws://openclaw.local:18789",
+      "sshTarget": "landonking@openclaw.local"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "memory": {
+    "backend": "builtin",
+    "citations": "auto",
+    "qmd": {
+      "searchMode": "vsearch",
+      "includeDefaultMemory": true,
+      "sessions": {
+        "enabled": true
+      },
+      "update": {
+        "waitForBootSync": true
+      },
+      "scope": {
+        "default": "allow"
+      }
+    }
+  },
+  "skills": {
+    "install": {
+      "preferBrew": false
+    },
+    "entries": {
+      "exa": {
+        "enabled": false,
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "google-workspace": {
+        "enabled": false
+      },
+      "microsoft-graph": {
+        "enabled": false
+      },
+      "nano-banana-pro": {
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "newsapi": {
+        "enabled": false,
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "notion": {
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "nvidia-nim": {},
+      "openai": {
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "serper": {
+        "enabled": false,
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "tavily": {
+        "enabled": false,
+        "apiKey": "__OPENCLAW_REDACTED__"
+      },
+      "github": {
+        "enabled": true,
+        "apiKey": "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"
+      },
+      "gh-issues": {
+        "enabled": true,
+        "apiKey": "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"
+      },
+      "web-search-pro": {}
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "entries": {
+      "bluebubbles": {
+        "enabled": false
+      },
+      "copilot-proxy": {
+        "enabled": true,
+        "config": {}
+      },
+      "device-pair": {
+        "enabled": false
+      },
+      "diagnostics-otel": {
+        "enabled": false
+      },
+      "discord": {
+        "enabled": false
+      },
+      "feishu": {
+        "enabled": false
+      },
+      "google-gemini-cli-auth": {
+        "enabled": true
+      },
+      "googlechat": {
+        "enabled": false
+      },
+      "imessage": {
+        "enabled": false
+      },
+      "irc": {
+        "enabled": false
+      },
+      "line": {
+        "enabled": false
+      },
+      "llm-task": {
+        "enabled": true,
+        "config": {}
+      },
+      "lobster": {
+        "enabled": false
+      },
+      "matrix": {
+        "enabled": false
+      },
+      "mattermost": {
+        "enabled": false
+      },
+      "memory-core": {
+        "enabled": true,
+        "config": {}
+      },
+      "memory-lancedb": {
+        "enabled": true
+      },
+      "minimax-portal-auth": {
+        "enabled": true
+      },
+      "msteams": {
+        "enabled": false
+      },
+      "nextcloud-talk": {
+        "enabled": false
+      },
+      "nostr": {
+        "enabled": false
+      },
+      "open-prose": {
+        "enabled": true,
+        "config": {}
+      },
+      "phone-control": {
+        "enabled": true,
+        "config": {}
+      },
+      "qwen-portal-auth": {
+        "enabled": true
+      },
+      "signal": {
+        "enabled": false
+      },
+      "slack": {
+        "enabled": false
+      },
+      "synology-chat": {
+        "enabled": false
+      },
+      "talk-voice": {
+        "enabled": true,
+        "config": {}
+      },
+      "telegram": {
+        "enabled": false
+      },
+      "thread-ownership": {
+        "enabled": true,
+        "config": {}
+      },
+      "tlon": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "voice-call": {
+        "enabled": false
+      },
+      "whatsapp": {
+        "enabled": false
+      },
+      "zalo": {
+        "enabled": false
+      },
+      "minimax": {
+        "config": {}
+      },
+      "browser": {
+        "enabled": true
+      }
+    }
+  }
+}

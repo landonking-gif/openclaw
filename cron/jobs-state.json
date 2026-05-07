@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "jobs": {
+    "edf2f2a5-e00e-45ae-a576-9de09cca87ab": {
+      "updatedAtMs": 1772998742663,
+      "scheduleIdentity": "{\"version\":1,\"enabled\":false,\"schedule\":{\"kind\":\"every\",\"everyMs\":900000,\"anchorMs\":1771998547803}}",
+      "state": {
+        "lastRunAtMs": 1772997750181,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 21033,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
+      "updatedAtMs": 1778169457692,
+      "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
+      "state": {
+        "nextRunAtMs": 1778176368063,
+        "lastRunAtMs": 1778169168063,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 289629,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0,
+        "consecutiveSkipped": 0
+      }
+    },
+    "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
+      "updatedAtMs": 1778160532205,
+      "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":86400000,\"anchorMs\":1771998891403}}",
+      "state": {
+        "nextRunAtMs": 1778218450104,
+        "lastRunAtMs": 1778132050104,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 28482101,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 2,
+        "consecutiveSkipped": 0,
+        "lastErrorReason": "timeout",
+        "lastError": "cron: job interrupted by gateway restart",
+        "lastDelivered": false,
+        "lastDeliveryError": "cron: job interrupted by gateway restart"
+      }
+    },
+    "15028631-f68e-464d-980d-b71e15ab1c1a": {
+      "updatedAtMs": 1778168701595,
+      "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
+      "state": {
+        "nextRunAtMs": 1778172301595,
+        "lastRunAtMs": 1778165036883,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 3664712,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 14,
+        "consecutiveSkipped": 0,
+        "lastErrorReason": "timeout",
+        "runningAtMs": 1778172301606
+      }
+    }
+  }
+}

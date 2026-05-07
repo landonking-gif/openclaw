@@ -1,0 +1,52 @@
+# Sensitive files
+.env
+auth.json
+auth.lock
+credentials/
+keys/
+*.key
+*.pem
+*.token
+
+# Backups and bundles
+*.bundle
+*.tar.gz
+config-backup-*/
+config-snapshot-*/
+openclaw-config-backup*/
+openclaw-config-backup.git/
+workspace-backup*/
+full-backup-*/
+VisionClaw-backup*/
+openclaw-army-backup*/
+openclaw-workspace-backup*/
+
+# Workspaces (separate repos)
+workspace/
+workspace-*/
+agent-workspace/
+agent-workspaces/
+workspaces/
+
+# Runtime
+logs/
+tmp/
+media/
+browser/
+canvas/
+completions/
+plugin-runtime-deps/
+tasks/
+
+# Large/dynamic
+ipv6-bridge.mjs
+exec-approvals.json
+update-check.json
+channel_directory.json
+.clean_shutdown
+.skills_prompt_snapshot.json
+.update_check
+
+# OS
+.DS_Store
+Thumbs.db

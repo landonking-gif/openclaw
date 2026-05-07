@@ -1,0 +1,85 @@
+{
+  "gateway": {
+    "port": 18805,
+    "bind": "loopback",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "ui": {
+    "assistant": {
+      "name": "coding-3",
+      "avatar": "coding-3"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "nvidia/deepseek-ai/deepseek-r1",
+        "fallbacks": [
+          "nvidia/meta/llama-3.3-70b-instruct",
+          "nvidia/nvidia/llama-3.1-nemotron-70b-instruct"
+        ]
+      },
+      "workspace": "/Users/landonking/.openclaw/agents/coding-3",
+      "memorySearch": {
+        "enabled": true,
+        "fallback": "builtin"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "sessions": {
+      "visibility": "own"
+    },
+    "message": {
+      "allowCrossContextSend": false,
+      "crossContext": {
+        "allowWithinProvider": false,
+        "allowAcrossProviders": false
+      },
+      "broadcast": {
+        "enabled": false
+      }
+    },
+    "elevated": {
+      "enabled": false
+    },
+    "web": {
+      "search": {
+        "enabled": true,
+        "provider": "brave",
+        "maxResults": 10
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "exec": {
+      "ask": "always"
+    }
+  },
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "loadPaths": [
+      "/Users/landonking/.openclaw/extensions"
+    ],
+    "entries": {
+      "permission-broker": {
+        "enabled": true
+      }
+    }
+  }
+}

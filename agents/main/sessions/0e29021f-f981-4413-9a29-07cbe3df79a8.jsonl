@@ -1,0 +1,6 @@
+{"type":"session","version":3,"id":"0e29021f-f981-4413-9a29-07cbe3df79a8","timestamp":"2026-03-07T23:31:05.934Z","cwd":"/Users/landonking/openclaw-army/agents/beta-manager"}
+{"type":"model_change","id":"e6802859","parentId":null,"timestamp":"2026-03-07T23:31:05.959Z","provider":"nvidia","modelId":"deepseek-ai/deepseek-r1"}
+{"type":"thinking_level_change","id":"ab896de9","parentId":"e6802859","timestamp":"2026-03-07T23:31:05.959Z","thinkingLevel":"low"}
+{"type":"custom","customType":"model-snapshot","data":{"timestamp":1772926265976,"provider":"nvidia","modelApi":"openai-completions","modelId":"deepseek-ai/deepseek-r1"},"id":"2930680a","parentId":"ab896de9","timestamp":"2026-03-07T23:31:05.977Z"}
+{"type":"message","id":"db555659","parentId":"2930680a","timestamp":"2026-03-07T23:31:06.041Z","message":{"role":"user","content":[{"type":"text","text":"ping"}],"timestamp":1772926266006}}
+{"type":"message","id":"1041b176","parentId":"db555659","timestamp":"2026-03-07T23:31:06.402Z","message":{"role":"assistant","content":[],"api":"openai-completions","provider":"nvidia","model":"deepseek-ai/deepseek-r1","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"error","timestamp":1772926266019,"errorMessage":"410 status code (no body)"}}

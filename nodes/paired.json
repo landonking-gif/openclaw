@@ -1,0 +1,35 @@
+{
+  "2cf6cc7dff55e3a90c3091f39a27e22af76e59dbd58f6c9c73d1089d6110b9c2": {
+    "nodeId": "2cf6cc7dff55e3a90c3091f39a27e22af76e59dbd58f6c9c73d1089d6110b9c2",
+    "token": "BsiU0kOeLiXZQ2CKkzJ0A4_jVyqz_l4t5seXfAIccTE",
+    "displayName": "Landon’s MacBook Air",
+    "platform": "macOS 26.5.0",
+    "version": "2026.2.25",
+    "deviceFamily": "Mac",
+    "modelIdentifier": "MacBookAir10,1",
+    "caps": [
+      "canvas",
+      "screen",
+      "camera",
+      "location"
+    ],
+    "commands": [
+      "canvas.present",
+      "canvas.hide",
+      "canvas.navigate",
+      "canvas.eval",
+      "canvas.snapshot",
+      "canvas.a2ui.push",
+      "canvas.a2ui.pushJSONL",
+      "canvas.a2ui.reset",
+      "system.notify",
+      "system.which",
+      "system.run",
+      "camera.list",
+      "location.get"
+    ],
+    "createdAtMs": 1778173279665,
+    "approvedAtMs": 1778173279665,
+    "lastConnectedAtMs": 1778198888500
+  }
+}

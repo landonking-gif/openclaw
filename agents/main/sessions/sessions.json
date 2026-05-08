@@ -1,7 +1,7 @@
 {
   "global": {
     "sessionId": "03788635-2fb7-482f-946f-f92f77509fcf",
-    "updatedAt": 1778169456274,
+    "updatedAt": 1778177731944,
     "systemSent": true,
     "abortedLastRun": false,
     "chatType": "direct",
@@ -768,17 +768,17 @@
       "version": 0
     },
     "sessionStartedAt": 1778132939529,
-    "status": "done",
-    "startedAt": 1778169450712,
+    "status": "failed",
+    "startedAt": 1778177593275,
     "providerOverride": "nvidia",
-    "modelOverride": "qwen/qwen3-next-80b-a3b-thinking",
+    "modelOverride": "minimaxai/minimax-m2.7",
     "modelOverrideSource": "auto",
     "modelProvider": "nvidia",
     "model": "qwen/qwen3-next-80b-a3b-thinking",
     "contextTokens": 131072,
     "systemPromptReport": {
       "source": "run",
-      "generatedAt": 1778169434587,
+      "generatedAt": 1778172856447,
       "sessionId": "03788635-2fb7-482f-946f-f92f77509fcf",
       "sessionKey": "global",
       "provider": "nvidia",
@@ -1289,17 +1289,17 @@
       }
     },
     "totalTokensFresh": false,
-    "endedAt": 1778169456023,
-    "runtimeMs": 5311
+    "endedAt": 1778177594658,
+    "runtimeMs": 1383
   },
   "agent:main:cron:15028631-f68e-464d-980d-b71e15ab1c1a": {
     "label": "Cron: version save",
-    "sessionId": "599f1793-6b8d-49a5-983b-d399c957f7fa",
-    "updatedAt": 1778172434846,
-    "sessionStartedAt": 1778172301750,
-    "lastInteractionAt": 1778172301750,
+    "sessionId": "38ffe0f4-30c7-4602-a8a6-654f3b1fa4aa",
+    "updatedAt": 1778198420063,
+    "sessionStartedAt": 1778198370458,
+    "lastInteractionAt": 1778198370458,
     "systemSent": true,
-    "sessionFile": "/Users/landonking/.openclaw/agents/main/sessions/599f1793-6b8d-49a5-983b-d399c957f7fa.jsonl",
+    "sessionFile": "/Users/landonking/.openclaw/agents/main/sessions/38ffe0f4-30c7-4602-a8a6-654f3b1fa4aa.jsonl",
     "skillsSnapshot": {
       "prompt": "⚠️ Skills catalog using compact format (descriptions omitted). Run `openclaw skills check` to audit.\n\n\nThe following skills provide specialized instructions for specific tasks.\nUse the read tool to load a skill's file when the task matches its name.\nWhen a skill file references a relative path, resolve it against the skill directory (parent of SKILL.md / dirname of the path) and use that absolute path in tool commands.\n\n<available_skills>\n  <skill>\n    <name>1password</name>\n    <location>~/node_modules/openclaw/skills/1password/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>acp-router</name>\n    <location>~/node_modules/openclaw/dist/extensions/acpx/skills/acp-router/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>agent-media</name>\n    <location>~/.openclaw/workspace/skills/agent-media/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>apple-notes</name>\n    <location>~/node_modules/openclaw/skills/apple-notes/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>apple-reminders</name>\n    <location>~/node_modules/openclaw/skills/apple-reminders/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>bear-notes</name>\n    <location>~/node_modules/openclaw/skills/bear-notes/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>blogwatcher</name>\n    <location>~/node_modules/openclaw/skills/blogwatcher/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>blucli</name>\n    <location>~/node_modules/openclaw/skills/blucli/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>browser-automation</name>\n    <location>~/node_modules/openclaw/dist/extensions/browser/skills/browser-automation/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>camsnap</name>\n    <location>~/node_modules/openclaw/skills/camsnap/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>clawhub</name>\n    <location>~/node_modules/openclaw/skills/clawhub/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>codex-cli</name>\n    <location>~/.openclaw/workspace/skills/codex-sub-agents/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>Coding</name>\n    <location>~/.openclaw/workspace/skills/coding/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>coding-agent</name>\n    <location>~/node_modules/openclaw/skills/coding-agent/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>deploy-army</name>\n    <location>~/.agents/skills/deploy-army/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>discord-voice</name>\n    <location>~/.openclaw/workspace/skills/discord-voice/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>doc-sync</name>\n    <location>~/.agents/skills/doc-sync/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>eightctl</name>\n    <location>~/.openclaw/workspace/skills/eightctl/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gemini</name>\n    <location>~/.openclaw/workspace/skills/gemini/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gh-issues</name>\n    <location>~/node_modules/openclaw/skills/gh-issues/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gifgrep</name>\n    <location>~/node_modules/openclaw/skills/gifgrep/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>github</name>\n    <location>~/node_modules/openclaw/skills/github/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>gog</name>\n    <location>~/node_modules/openclaw/skills/gog/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>healthcheck</name>\n    <location>~/node_modules/openclaw/skills/healthcheck/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>himalaya</name>\n    <location>~/node_modules/openclaw/skills/himalaya/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>imsg</name>\n    <location>~/node_modules/openclaw/skills/imsg/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>macos-env</name>\n    <location>~/.agents/skills/macos-env/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>mcporter</name>\n    <location>~/node_modules/openclaw/skills/mcporter/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>media-orchestrator</name>\n    <location>~/.openclaw/workspace/skills/media-orchestrator/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>model-usage</name>\n    <location>~/node_modules/openclaw/skills/model-usage/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>nano-pdf</name>\n    <location>~/node_modules/openclaw/skills/nano-pdf/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>nim-model-switcher</name>\n    <location>~/.agents/skills/nim-model-switcher/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>node-connect</name>\n    <location>~/node_modules/openclaw/skills/node-connect/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>notion</name>\n    <location>~/.openclaw/workspace/skills/notion/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>obsidian</name>\n    <location>~/.openclaw/workspace/skills/obsidian/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>openai-whisper</name>\n    <location>~/.openclaw/workspace/skills/openai-whisper/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>openclaw-dev</name>\n    <location>~/.agents/skills/openclaw-dev/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>opencode-delegate</name>\n    <location>~/.agents/skills/opencode-delegate/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>openhue</name>\n    <location>~/node_modules/openclaw/skills/openhue/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>oracle</name>\n    <location>~/node_modules/openclaw/skills/oracle/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>ordercli</name>\n    <location>~/node_modules/openclaw/skills/ordercli/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>peekaboo</name>\n    <location>~/node_modules/openclaw/skills/peekaboo/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>prose</name>\n    <location>~/node_modules/openclaw/dist/extensions/open-prose/skills/prose/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>rust-army</name>\n    <location>~/.agents/skills/rust-army/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>session-logs</name>\n    <location>~/node_modules/openclaw/skills/session-logs/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-create-global</name>\n    <location>~/.agents/skills/skill-create-global/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-creator</name>\n    <location>~/node_modules/openclaw/skills/skill-creator/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-download-global</name>\n    <location>~/.agents/skills/skill-download-global/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>songsee</name>\n    <location>~/node_modules/openclaw/skills/songsee/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>sonoscli</name>\n    <location>~/.openclaw/workspace/skills/sonoscli/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>summarize</name>\n    <location>~/.openclaw/workspace/skills/summarize/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>taskflow</name>\n    <location>~/node_modules/openclaw/skills/taskflow/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>taskflow-inbox-triage</name>\n    <location>~/node_modules/openclaw/skills/taskflow-inbox-triage/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>things-mac</name>\n    <location>~/node_modules/openclaw/skills/things-mac/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>video-frames</name>\n    <location>~/.openclaw/workspace/skills/video-frames/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>wacli</name>\n    <location>~/node_modules/openclaw/skills/wacli/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>weather</name>\n    <location>~/node_modules/openclaw/skills/weather/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>web-search-pro</name>\n    <location>~/.openclaw/workspace/skills/web-search-pro/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>xurl</name>\n    <location>~/node_modules/openclaw/skills/xurl/SKILL.md</location>\n  </skill>\n</available_skills>",
       "skills": [

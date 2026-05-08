@@ -578,13 +578,13 @@
       "model": {
         "primary": "nvidia/z-ai/glm-5.1",
         "fallbacks": [
-          "nvidia/deepseek-ai/deepseek-v4-pro",
-          "nvidia/deepseek-ai/deepseek-v4-flash",
           "nvidia/minimaxai/minimax-m2.7",
           "nvidia/qwen/qwen3-next-80b-a3b-thinking",
           "nvidia/moonshotai/kimi-k2-thinking",
-          "nvidia/mistralai/devstral-2-123b-instruct-2512",
-          "nvidia/meta/llama-3.3-70b-instruct"
+          "nvidia/meta/llama-3.3-70b-instruct",
+          "nvidia/deepseek-ai/deepseek-v4-pro",
+          "nvidia/deepseek-ai/deepseek-v4-flash",
+          "nvidia/mistralai/devstral-2-123b-instruct-2512"
         ]
       },
       "models": {
@@ -975,8 +975,7 @@
       "resetOnExit": false
     },
     "remote": {
-      "transport": "direct",
-      "url": "ws://127.0.0.1:19001",
+      "url": "ws://openclaw.local:18789",
       "sshTarget": "landonking@openclaw.local"
     },
     "http": {

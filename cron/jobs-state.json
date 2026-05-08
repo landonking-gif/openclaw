@@ -14,17 +14,20 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778169457692,
+      "updatedAtMs": 1778178620991,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778176368063,
-        "lastRunAtMs": 1778169168063,
-        "lastRunStatus": "ok",
-        "lastStatus": "ok",
-        "lastDurationMs": 289629,
-        "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 0,
-        "consecutiveSkipped": 0
+        "nextRunAtMs": 1778184427355,
+        "lastRunAtMs": 1778177227355,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 1393636,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 1,
+        "consecutiveSkipped": 0,
+        "lastDelivered": false,
+        "lastDeliveryError": "cron: job interrupted by gateway restart",
+        "runningAtMs": 1778198367555
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
@@ -46,19 +49,21 @@
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778168701595,
+      "updatedAtMs": 1778178620994,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778172301595,
-        "lastRunAtMs": 1778165036883,
+        "nextRunAtMs": 1778180827355,
+        "lastRunAtMs": 1778177227355,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 3664712,
+        "lastDurationMs": 1393639,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 14,
+        "consecutiveErrors": 16,
         "consecutiveSkipped": 0,
         "lastErrorReason": "timeout",
-        "runningAtMs": 1778172301606
+        "lastDelivered": false,
+        "lastDeliveryError": "cron: job interrupted by gateway restart",
+        "runningAtMs": 1778198367555
       }
     }
   }

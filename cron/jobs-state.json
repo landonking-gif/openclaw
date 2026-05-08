@@ -14,20 +14,20 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778178620991,
+      "updatedAtMs": 1778199910960,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778184427355,
-        "lastRunAtMs": 1778177227355,
+        "nextRunAtMs": 1778205567555,
+        "lastRunAtMs": 1778198367555,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 1393636,
+        "lastDurationMs": 1543405,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 1,
+        "consecutiveErrors": 2,
         "consecutiveSkipped": 0,
         "lastDelivered": false,
         "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778198367555
+        "lastError": "cron: job interrupted by gateway restart"
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
@@ -49,21 +49,21 @@
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778178620994,
+      "updatedAtMs": 1778199910963,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778180827355,
-        "lastRunAtMs": 1778177227355,
+        "nextRunAtMs": 1778201967555,
+        "lastRunAtMs": 1778198367555,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 1393639,
+        "lastDurationMs": 1543408,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 16,
+        "consecutiveErrors": 17,
         "consecutiveSkipped": 0,
         "lastErrorReason": "timeout",
         "lastDelivered": false,
         "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778198367555
+        "runningAtMs": 1778201967560
       }
     }
   }

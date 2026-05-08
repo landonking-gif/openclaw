@@ -800,18 +800,7 @@
       "configWrites": true,
       "allowBots": true,
       "groupPolicy": "open",
-      "streaming": {
-        "mode": "partial",
-        "chunkMode": "length",
-        "preview": {
-          "chunk": {
-            "breakPreference": "paragraph"
-          }
-        },
-        "block": {
-          "enabled": true
-        }
-      },
+      "streaming": "partial",
       "actions": {
         "reactions": true,
         "stickers": true,
@@ -877,12 +866,7 @@
           "token": "__OPENCLAW_REDACTED__",
           "allowBots": true,
           "groupPolicy": "open",
-          "streaming": {
-            "mode": "partial",
-            "block": {
-              "enabled": true
-            }
-          },
+          "streaming": "partial",
           "dm": {
             "enabled": true,
             "groupEnabled": true

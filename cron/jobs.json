@@ -36,7 +36,7 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778226767243
+        "nextRunAtMs": 1778233967243
       }
     },
     {
@@ -79,16 +79,8 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778225520539,
-        "lastRunAtMs": 1778225220539,
-        "lastRunStatus": "error",
-        "lastStatus": "error",
-        "lastDurationMs": 364,
-        "lastError": "Error: Unable to resolve bundled plugin public surface image-generation-core/runtime-api.js",
-        "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 1
-      },
-      "updatedAtMs": 1778225220903
+        "nextRunAtMs": 1778229420533
+      }
     }
   ]
 }

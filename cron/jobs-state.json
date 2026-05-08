@@ -14,16 +14,16 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778199910960,
+      "updatedAtMs": 1778205716111,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778205567555,
-        "lastRunAtMs": 1778198367555,
+        "nextRunAtMs": 1778212767560,
+        "lastRunAtMs": 1778205567560,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 1543405,
+        "lastDurationMs": 148551,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 2,
+        "consecutiveErrors": 3,
         "consecutiveSkipped": 0,
         "lastDelivered": false,
         "lastDeliveryError": "cron: job interrupted by gateway restart",
@@ -49,21 +49,20 @@
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778199910963,
+      "updatedAtMs": 1778207033257,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778201967555,
-        "lastRunAtMs": 1778198367555,
+        "nextRunAtMs": 1778210531618,
+        "lastRunAtMs": 1778206931618,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 1543408,
+        "lastDurationMs": 101639,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 17,
+        "consecutiveErrors": 19,
         "consecutiveSkipped": 0,
-        "lastErrorReason": "timeout",
         "lastDelivered": false,
         "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778201967560
+        "runningAtMs": 1778210531628
       }
     }
   }

@@ -79,16 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778221320537,
-        "lastRunAtMs": 1778221020537,
+        "nextRunAtMs": 1778225520539,
+        "lastRunAtMs": 1778225220539,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 240,
+        "lastDurationMs": 364,
         "lastError": "Error: Unable to resolve bundled plugin public surface image-generation-core/runtime-api.js",
         "lastDeliveryStatus": "unknown",
         "consecutiveErrors": 1
       },
-      "updatedAtMs": 1778221020777
+      "updatedAtMs": 1778225220903
     }
   ]
 }

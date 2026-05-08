@@ -14,50 +14,46 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778212843745,
+      "updatedAtMs": 1778219989683,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778219967615,
-        "lastRunAtMs": 1778212767615,
+        "nextRunAtMs": 1778227167629,
+        "lastRunAtMs": 1778219967629,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 76130,
+        "lastDurationMs": 22054,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0,
         "consecutiveSkipped": 0
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
-      "updatedAtMs": 1778160532205,
+      "updatedAtMs": 1778218472065,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":86400000,\"anchorMs\":1771998891403}}",
       "state": {
-        "nextRunAtMs": 1778218450104,
-        "lastRunAtMs": 1778132050104,
-        "lastRunStatus": "error",
-        "lastStatus": "error",
-        "lastDurationMs": 28482101,
-        "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 2,
-        "consecutiveSkipped": 0,
-        "lastErrorReason": "timeout",
-        "lastError": "cron: job interrupted by gateway restart",
-        "lastDelivered": false,
-        "lastDeliveryError": "cron: job interrupted by gateway restart"
+        "nextRunAtMs": 1778304850118,
+        "lastRunAtMs": 1778218450118,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 21947,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0,
+        "consecutiveSkipped": 0
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778210961112,
+      "updatedAtMs": 1778217142760,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778214561112,
-        "lastRunAtMs": 1778210531634,
+        "nextRunAtMs": 1778220742760,
+        "lastRunAtMs": 1778215313027,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 429478,
+        "lastDurationMs": 1829733,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 20,
+        "consecutiveErrors": 21,
         "consecutiveSkipped": 0,
-        "lastError": "Channel is required (no configured channels detected). Set delivery.channel explicitly or use a main session with a previous channel."
+        "runningAtMs": 1778220742768
       }
     }
   }

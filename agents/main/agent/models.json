@@ -2,7 +2,7 @@
   "providers": {
     "nvidia": {
       "baseUrl": "https://integrate.api.nvidia.com/v1/",
-      "api": "openai-completions",
+      "authHeader": true,
       "models": [
         {
           "id": "deepseek-ai/deepseek-v4-pro",
@@ -101,13 +101,7 @@
           "maxTokens": 16384
         }
       ],
-      "apiKey": "NVIDIA_API_KEY",
-      "authHeader": true
-    },
-    "openai-codex": {
-      "baseUrl": "https://chatgpt.com/backend-api",
-      "api": "openai-codex-responses",
-      "models": []
+      "apiKey": "NVIDIA_API_KEY"
     }
   }
 }

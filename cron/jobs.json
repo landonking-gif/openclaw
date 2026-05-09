@@ -36,7 +36,7 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778327567243
+        "nextRunAtMs": 1778334767243
       }
     },
     {
@@ -79,7 +79,7 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778326920533
+        "nextRunAtMs": 1778330820533
       }
     }
   ]

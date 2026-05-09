@@ -14,52 +14,46 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778292471350,
+      "updatedAtMs": 1778302632019,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778299575260,
-        "lastRunAtMs": 1778292375260,
-        "lastRunStatus": "error",
-        "lastStatus": "error",
-        "lastDurationMs": 96090,
-        "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 3,
-        "consecutiveSkipped": 0,
-        "lastDelivered": false,
-        "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778301421808
+        "nextRunAtMs": 1778309752794,
+        "lastRunAtMs": 1778302552794,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 79225,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0,
+        "consecutiveSkipped": 0
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
-      "updatedAtMs": 1778218472065,
+      "updatedAtMs": 1778304879057,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":86400000,\"anchorMs\":1771998891403}}",
       "state": {
-        "nextRunAtMs": 1778304850118,
-        "lastRunAtMs": 1778218450118,
+        "nextRunAtMs": 1778391250135,
+        "lastRunAtMs": 1778304850135,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 21947,
+        "lastDurationMs": 28922,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0,
         "consecutiveSkipped": 0
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778292578496,
+      "updatedAtMs": 1778302552794,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778296071353,
-        "lastRunAtMs": 1778292471353,
+        "nextRunAtMs": 1778306152794,
+        "lastRunAtMs": 1778301421853,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 107143,
+        "lastDurationMs": 1130941,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 34,
+        "consecutiveErrors": 35,
         "consecutiveSkipped": 0,
-        "lastErrorReason": "timeout",
-        "lastDelivered": false,
-        "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778301421808
+        "runningAtMs": 1778306152797
       }
     }
   }

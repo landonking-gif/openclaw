@@ -50,3 +50,7 @@ channel_directory.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Session trajectories (may contain tokens/secrets)
+*.trajectory.jsonl
+*.trajectory-path.json

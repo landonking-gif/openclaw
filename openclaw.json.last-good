@@ -909,7 +909,8 @@
           "discovery": {
             "enabled": false
           }
-        }
+        },
+        "enabled": false
       },
       "bluebubbles": {
         "enabled": false
@@ -975,9 +976,6 @@
       },
       "minimax": {
         "config": {}
-      },
-      "minimax-portal-auth": {
-        "enabled": true
       },
       "msteams": {
         "enabled": false

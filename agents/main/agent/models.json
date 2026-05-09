@@ -389,22 +389,6 @@
           "maxTokens": 16384
         },
         {
-          "id": "minimaxai/minimax-m2.7",
-          "name": "MiniMax M2.7 (NVIDIA NIM)",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 131072,
-          "maxTokens": 16384
-        },
-        {
           "id": "google/gemma-3-27b-it",
           "name": "Gemma 3 27B Vision (NVIDIA NIM)",
           "reasoning": false,
@@ -445,6 +429,22 @@
           "input": [
             "text",
             "image"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 131072,
+          "maxTokens": 16384
+        },
+        {
+          "id": "minimaxai/minimax-m2.7",
+          "name": "MiniMax M2.7 (NVIDIA NIM)",
+          "reasoning": true,
+          "input": [
+            "text"
           ],
           "cost": {
             "input": 0,

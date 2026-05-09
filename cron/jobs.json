@@ -36,7 +36,7 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778356367243
+        "nextRunAtMs": 1778370767243
       }
     },
     {
@@ -79,16 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778355120533,
-        "lastRunAtMs": 1778354220600,
+        "nextRunAtMs": 1778366024594,
+        "lastRunAtMs": 1778365020610,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 600552,
+        "lastDurationMs": 103984,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 2,
-        "runningAtMs": 1778355120549
+        "consecutiveErrors": 4,
+        "lastError": "Channel is required (no configured channels detected). Set delivery.channel explicitly or use a main session with a previous channel."
       },
-      "updatedAtMs": 1778354821152
+      "updatedAtMs": 1778365124594
     }
   ]
 }

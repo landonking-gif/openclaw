@@ -14,17 +14,19 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778346610198,
+      "updatedAtMs": 1778363668262,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778353779422,
-        "lastRunAtMs": 1778346579422,
-        "lastRunStatus": "ok",
-        "lastStatus": "ok",
-        "lastDurationMs": 30776,
+        "nextRunAtMs": 1778370111180,
+        "lastRunAtMs": 1778362911180,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 757082,
         "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 0,
-        "consecutiveSkipped": 0
+        "consecutiveErrors": 1,
+        "consecutiveSkipped": 0,
+        "lastError": "cron: job execution timed out",
+        "lastErrorReason": "timeout"
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
@@ -42,20 +44,20 @@
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778350651124,
+      "updatedAtMs": 1778362911157,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778353777332,
-        "lastRunAtMs": 1778350177332,
+        "nextRunAtMs": 1778364066022,
+        "lastRunAtMs": 1778360466022,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 473792,
+        "lastDurationMs": 2445135,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 15,
+        "consecutiveErrors": 17,
         "consecutiveSkipped": 0,
         "lastDelivered": false,
         "lastDeliveryError": "cron: job interrupted by gateway restart",
-        "runningAtMs": 1778353777508
+        "runningAtMs": 1778364066073
       }
     }
   }

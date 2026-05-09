@@ -1,0 +1,29 @@
+{
+  "gateway": {
+    "port": 18700,
+    "bind": "loopback",
+    "mode": "local",
+    "auth": {
+      "token": "a2cd61cd89af862a04e7c1954eb2b9aa56d8ddd79634b10f"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
+    },
+    "controlUi": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info"
+  },
+  "ui": {
+    "assistant": {
+      "name": "main",
+      "avatar": "main"
+    }
+  }
+}

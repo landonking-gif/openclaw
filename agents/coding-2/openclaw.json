@@ -6,6 +6,16 @@
       "enabled": true,
       "allowInsecureAuth": true,
       "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "token": "27b399f706233cc901ef3be031429e984c52eeb65de064f1"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
     }
   },
   "logging": {

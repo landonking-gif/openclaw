@@ -6,6 +6,16 @@
       "enabled": true,
       "allowInsecureAuth": true,
       "dangerouslyDisableDeviceAuth": true
+    },
+    "auth": {
+      "token": "56bfbdaa8211738028a0085923c7b8d673ac58f0f5d69370"
+    },
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
     }
   },
   "logging": {
@@ -16,7 +26,7 @@
     {
       "type": "nim",
       "model": "kimi-k2-5",
-      "apiKey": "${NVIDIA_NIM_API_KEY}"
+      "apiKey": "${NVIDIA_API_KEY}"
     }
   ],
   "ui": {

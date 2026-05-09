@@ -36,7 +36,7 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778349167243
+        "nextRunAtMs": 1778356367243
       }
     },
     {
@@ -79,16 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778347022348,
-        "lastRunAtMs": 1778343421775,
+        "nextRunAtMs": 1778355120533,
+        "lastRunAtMs": 1778354220600,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 573,
+        "lastDurationMs": 600552,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 9,
-        "lastError": "FailoverError: No API key found for provider \"anthropic\". Auth store: /Users/landonking/.openclaw-main/agents/main/agent/auth-profiles.json (agentDir: /Users/landonking/.openclaw-main/agents/main/agent). Configure auth for this agent (openclaw --profile main agents add <id>) or copy auth-profiles.json from the main agentDir."
+        "consecutiveErrors": 2,
+        "runningAtMs": 1778355120549
       },
-      "updatedAtMs": 1778343422348
+      "updatedAtMs": 1778354821152
     }
   ]
 }

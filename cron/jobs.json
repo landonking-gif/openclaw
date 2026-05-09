@@ -35,7 +35,9 @@
         "kind": "systemEvent",
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
-      "state": {}
+      "state": {
+        "nextRunAtMs": 1778356367243
+      }
     },
     {
       "id": "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8",
@@ -53,7 +55,9 @@
         "kind": "systemEvent",
         "text": "give me a status update , what you did in the previous day, and what you plan to do in the following day, this should be a message to me via discord."
       },
-      "state": {}
+      "state": {
+        "nextRunAtMs": 1778392491403
+      }
     },
     {
       "id": "15028631-f68e-464d-980d-b71e15ab1c1a",
@@ -74,7 +78,17 @@
       "delivery": {
         "mode": "announce"
       },
-      "state": {}
+      "state": {
+        "nextRunAtMs": 1778355120533,
+        "lastRunAtMs": 1778354220600,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 600552,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 2,
+        "runningAtMs": 1778355120549
+      },
+      "updatedAtMs": 1778354821152
     }
   ]
 }

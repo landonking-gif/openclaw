@@ -1,0 +1,6 @@
+{"type":"session","version":3,"id":"f6277d69-2c20-46ee-a468-7d50c42ded2a","timestamp":"2026-05-09T17:53:52.930Z","cwd":"/Users/landonking/openclaw-army/agents/alpha-manager"}
+{"type":"model_change","id":"a4bce0c3","parentId":null,"timestamp":"2026-05-09T17:53:52.965Z","provider":"nvidia","modelId":"z-ai/glm-5.1"}
+{"type":"thinking_level_change","id":"d84dd754","parentId":"a4bce0c3","timestamp":"2026-05-09T17:53:52.965Z","thinkingLevel":"off"}
+{"type":"custom","customType":"model-snapshot","data":{"timestamp":1778349232968,"provider":"nvidia","modelApi":"openai-completions","modelId":"z-ai/glm-5.1"},"id":"59550f00","parentId":"d84dd754","timestamp":"2026-05-09T17:53:52.968Z"}
+{"type":"message","id":"1da2b9cb","parentId":"59550f00","timestamp":"2026-05-09T17:53:53.020Z","message":{"role":"user","content":[{"type":"text","text":"Hello!"}],"timestamp":1778349232978}}
+{"type":"message","id":"bf43e1f1","parentId":"1da2b9cb","timestamp":"2026-05-09T17:54:22.496Z","message":{"role":"assistant","content":[{"type":"text","text":"Hey Landon! 👋 What can I help you with today?"}],"api":"openai-completions","provider":"nvidia","model":"z-ai/glm-5.1","usage":{"input":22568,"output":15,"cacheRead":0,"cacheWrite":0,"totalTokens":22583,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1778349233019}}

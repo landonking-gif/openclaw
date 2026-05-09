@@ -22,5 +22,8 @@
   "voiceReplies": {},
   "office": {},
   "standup": {},
-  "taskBoard": {}
+  "taskBoard": {},
+  "adapter": "hermes",
+  "url": "ws://localhost:18789",
+  "token": ""
 }

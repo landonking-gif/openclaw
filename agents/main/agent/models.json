@@ -454,129 +454,30 @@
           },
           "contextWindow": 131072,
           "maxTokens": 16384
+        },
+        {
+          "id": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+          "name": "NVIDIA Mistral NeMo Minitron 8B Instruct",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 8192,
+          "maxTokens": 2048
         }
       ],
       "apiKey": "NVIDIA_API_KEY",
       "authHeader": true
     },
-    "codex": {
-      "baseUrl": "https://chatgpt.com/backend-api",
-      "apiKey": "codex-app-server",
-      "auth": "token",
-      "api": "openai-codex-responses",
-      "models": [
-        {
-          "id": "gpt-5.5",
-          "name": "gpt-5.5",
-          "api": "openai-codex-responses",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "compat": {
-            "supportsReasoningEffort": true,
-            "supportsUsageInStreaming": true
-          }
-        },
-        {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4-Mini",
-          "api": "openai-codex-responses",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "compat": {
-            "supportsReasoningEffort": true,
-            "supportsUsageInStreaming": true
-          }
-        },
-        {
-          "id": "gpt-5.2",
-          "name": "gpt-5.2",
-          "api": "openai-codex-responses",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "compat": {
-            "supportsReasoningEffort": true,
-            "supportsUsageInStreaming": true
-          }
-        }
-      ]
-    },
-    "google": {
-      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
-      "apiKey": "GEMINI_API_KEY",
+    "github-copilot": {
+      "baseUrl": "https://api.individual.githubcopilot.com",
       "models": []
-    },
-    "orchestrator": {
-      "baseUrl": "http://127.0.0.1:18830/v1/",
-      "authHeader": false,
-      "models": [
-        {
-          "id": "openclaw",
-          "name": "OpenClaw Army (101 tools)",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 131072,
-          "maxTokens": 16384
-        },
-        {
-          "id": "openclaw-army",
-          "name": "OpenClaw Army Orchestrator",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "contextWindow": 131072,
-          "maxTokens": 16384
-        }
-      ]
     }
   }
 }

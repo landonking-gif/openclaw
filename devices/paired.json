@@ -42,8 +42,8 @@
     "platform": "macOS 26.5.0",
     "deviceFamily": "Mac",
     "clientId": "openclaw-macos",
-    "clientMode": "node",
-    "role": "node",
+    "clientMode": "ui",
+    "role": "operator",
     "roles": [
       "node",
       "operator"
@@ -68,7 +68,7 @@
         "role": "node",
         "scopes": [],
         "createdAtMs": 1772007318282,
-        "lastUsedAtMs": 1778301079208
+        "lastUsedAtMs": 1778349206344
       },
       "operator": {
         "token": "HcTpgIfhpearRy1puHWGRSHRqq76OZ7O6bFSZm5WTRc",
@@ -82,7 +82,7 @@
         ],
         "createdAtMs": 1772031049978,
         "rotatedAtMs": 1778173265447,
-        "lastUsedAtMs": 1778301079205
+        "lastUsedAtMs": 1778349206347
       }
     },
     "createdAtMs": 1772007318282,

@@ -3698,57 +3698,6 @@
     "providerOverride": "anthropic",
     "modelOverride": "claude-opus-4-6"
   },
-  "agent:main:cron:15028631-f68e-464d-980d-b71e15ab1c1a:run:eddce8ac-1178-42a3-b88e-44220a13ef59": {
-    "label": "Cron: version save",
-    "sessionId": "eddce8ac-1178-42a3-b88e-44220a13ef59",
-    "updatedAt": 1778215920564,
-    "sessionStartedAt": 1778215313059,
-    "lastInteractionAt": 1778215313059,
-    "systemSent": true,
-    "sessionFile": "/Users/landonking/.openclaw/agents/main/sessions/6eea32eb-9b07-4bf7-9eae-8249e63a81bf.jsonl",
-    "skillsSnapshot": {
-      "prompt": "Remote macOS node available (Landon’s MacBook Air). Run macOS-only skills via exec host=node on that node.\n\n\nThe following skills provide specialized instructions for specific tasks.\nUse the read tool to load a skill's file when the task matches its description.\nWhen a skill file references a relative path, resolve it against the skill directory (parent of SKILL.md / dirname of the path) and use that absolute path in tool commands.\n\n<available_skills>\n  <skill>\n    <name>canvas</name>\n    <description>Display HTML content on connected OpenClaw nodes (Mac app, iOS, Android). Use when: presenting web content, visualizations, dashboards, or interactive demos on remote nodes. NOT for: running background servers, network-exposed content, or untrusted HTML.</description>\n    <location>~/openclaw-army/skills/canvas/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>weather-reporter</name>\n    <description>Fetch current weather data for any city using the wttr.in free API. Use when: user asks about current weather, temperature, or conditions for a specific city. NOT for: forecasts, historical data, or severe weather alerts. No API key needed.</description>\n    <location>~/openclaw-army/skills/weather-reporter/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>deploy-army</name>\n    <description>Deploy and manage the 16-agent OpenClaw hierarchy (King AI + Alpha/Beta/Gamma managers + 12 workers + 6 services). Use when starting, stopping, restarting, or debugging the multi-agent deployment.</description>\n    <location>~/.agents/skills/deploy-army/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>doc-sync</name>\n    <description>Auto-update in-code and Obsidian documentation at session end. Full-sync doc sections to match current codebase state, then append a session summary to the Obsidian daily-logs. Invoke at compression time, session end, or when the user says &quot;update docs&quot; / &quot;sync docs&quot; / &quot;sync&quot;.</description>\n    <location>~/.agents/skills/doc-sync/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>macos-env</name>\n    <description>macOS development environment reference for this machine. Use when setting up paths, checking installed tools, managing services (PostgreSQL, Redis), or debugging launchd/gateway processes.</description>\n    <location>~/.agents/skills/macos-env/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>nim-model-switcher</name>\n    <description>Switch the active NVIDIA NIM model for this agent at runtime. Use when: asked to use a different model, switch model provider, select a better model for a task, or change thinking/reasoning behavior. Also use proactively when task complexity suggests a different model (e.g., use reasoning model for complex logic, code model for programming, light model for simple tasks).</description>\n    <location>~/.agents/skills/nim-model-switcher/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>openclaw-dev</name>\n    <description>Development workflow for the OpenClaw codebase (openclaw-army). Use when building, testing, linting, typechecking, or refactoring the TypeScript monorepo. Covers pnpm workspace commands, test conventions, architecture boundaries, and commit rules.</description>\n    <location>~/.agents/skills/openclaw-dev/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>opencode-delegate</name>\n    <description>Delegate coding tasks to OpenCode for full-featured implementation, refactoring, multi-file editing, and iterative coding sessions. Use when: (1) building new features or apps, (2) refactoring across multiple files, (3) tasks requiring file exploration and context awareness, (4) multi-turn iterative coding with session continuity, (5) structured JSON output is needed from a coding agent, (6) asked to &apos;use opencode&apos;, &apos;run in opencode&apos;, &apos;delegate to opencode&apos;, &apos;opencode this&apos;. Also use proactively when task complexity benefits from opencode&apos;s file awareness and session management. NOT for: simple one-liner fixes (just edit directly), read-only queries (use read/grep), tasks in ~/.openclaw or agent state directories (never spawn opencode there).</description>\n    <location>~/.agents/skills/opencode-delegate/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>rust-army</name>\n    <description>Work with the Rust workspace inside openclaw-army (rust/). Covers Cargo crates, build commands, and the crate layout for the OpenClaw Rust port.</description>\n    <location>~/.agents/skills/rust-army/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-create-global</name>\n    <description>Create a new OpenClaw skill and install it to the shared global skills directory so all agents can use it. Use when: asked to create a skill, author a skill, or build a new capability for the agent collective. NOT for: trivial one-liner edits (just edit the file directly). Triggers on phrases like &apos;create a skill&apos;, &apos;build a skill&apos;, &apos;author a new skill&apos;, &apos;add a capability via skill&apos;.</description>\n    <location>~/.agents/skills/skill-create-global/SKILL.md</location>\n  </skill>\n  <skill>\n    <name>skill-download-global</name>\n    <description>Download a new OpenClaw skill from ClawHub registry or a direct URL and install it to the shared global skills directory. Use when: asked to install a skill, fetch a capability, add a new tool via skill, or search for a skill from the registry. Triggers on phrases like &apos;install a skill&apos;, &apos;download skill&apos;, &apos;add this skill&apos;, &apos;search for a skill&apos;.</description>\n    <location>~/.agents/skills/skill-download-global/SKILL.md</location>\n  </skill>\n</available_skills>",
-      "skills": [
-        {
-          "name": "canvas"
-        },
-        {
-          "name": "weather-reporter"
-        },
-        {
-          "name": "deploy-army"
-        },
-        {
-          "name": "doc-sync"
-        },
-        {
-          "name": "macos-env"
-        },
-        {
-          "name": "nim-model-switcher"
-        },
-        {
-          "name": "openclaw-dev"
-        },
-        {
-          "name": "opencode-delegate",
-          "requiredEnv": []
-        },
-        {
-          "name": "rust-army"
-        },
-        {
-          "name": "skill-create-global"
-        },
-        {
-          "name": "skill-download-global"
-        }
-      ],
-      "version": 1778213419032
-    },
-    "modelProvider": "nvidia",
-    "model": "deepseek-ai/deepseek-v4-pro"
-  },
   "agent:main:cron:15028631-f68e-464d-980d-b71e15ab1c1a:run:6bd8cefa-acd1-4d08-b55a-29326afecf8a": {
     "label": "Cron: version save",
     "sessionId": "6bd8cefa-acd1-4d08-b55a-29326afecf8a",
@@ -32383,7 +32332,7 @@
   },
   "agent:main:main": {
     "sessionId": "e07e3304-8091-4143-a1e4-7d4e4e84aaf4",
-    "updatedAt": 1778301864649,
+    "updatedAt": 1778302298162,
     "systemSent": true,
     "abortedLastRun": false,
     "chatType": "direct",
@@ -32393,7 +32342,7 @@
     "lastTo": "heartbeat",
     "origin": {
       "label": "heartbeat",
-      "provider": "cron-event",
+      "provider": "heartbeat",
       "from": "heartbeat",
       "to": "heartbeat"
     },
@@ -32644,7 +32593,7 @@
     "contextTokens": 131072,
     "systemPromptReport": {
       "source": "run",
-      "generatedAt": 1778301828337,
+      "generatedAt": 1778302288788,
       "sessionId": "e07e3304-8091-4143-a1e4-7d4e4e84aaf4",
       "sessionKey": "agent:main:main",
       "provider": "nvidia",
@@ -32657,9 +32606,9 @@
         "sandboxed": false
       },
       "systemPrompt": {
-        "chars": 45968,
-        "projectContextChars": 13736,
-        "nonProjectContextChars": 32232
+        "chars": 49627,
+        "projectContextChars": 17461,
+        "nonProjectContextChars": 32166
       },
       "injectedWorkspaceFiles": [
         {
@@ -32674,8 +32623,8 @@
           "name": "SOUL.md",
           "path": "/Users/landonking/openclaw-army/agents/gamma-manager/SOUL.md",
           "missing": false,
-          "rawChars": 1664,
-          "injectedChars": 1664,
+          "rawChars": 3368,
+          "injectedChars": 3368,
           "truncated": false
         },
         {
@@ -32698,8 +32647,8 @@
           "name": "USER.md",
           "path": "/Users/landonking/openclaw-army/agents/gamma-manager/USER.md",
           "missing": false,
-          "rawChars": 474,
-          "injectedChars": 474,
+          "rawChars": 1108,
+          "injectedChars": 1108,
           "truncated": false
         },
         {
@@ -32713,9 +32662,17 @@
         {
           "name": "BOOTSTRAP.md",
           "path": "/Users/landonking/openclaw-army/agents/gamma-manager/BOOTSTRAP.md",
+          "missing": true,
+          "rawChars": 0,
+          "injectedChars": 88,
+          "truncated": false
+        },
+        {
+          "name": "MEMORY.md",
+          "path": "/Users/landonking/openclaw-army/agents/gamma-manager/MEMORY.md",
           "missing": false,
-          "rawChars": 1449,
-          "injectedChars": 1449,
+          "rawChars": 2681,
+          "injectedChars": 2681,
           "truncated": false
         }
       ],
@@ -33111,11 +33068,11 @@
         ]
       }
     },
-    "inputTokens": 17050,
-    "outputTokens": 73,
+    "inputTokens": 17769,
+    "outputTokens": 6,
     "cacheRead": 0,
     "cacheWrite": 0,
-    "totalTokens": 17050,
+    "totalTokens": 17769,
     "totalTokensFresh": true
   },
   "agent:main:cron:15028631-f68e-464d-980d-b71e15ab1c1a:run:8fda4d0a-02dd-4b99-b48a-c50d11c2c8dd": {

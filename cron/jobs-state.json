@@ -14,17 +14,20 @@
       }
     },
     "a3c500ff-5cc2-45b9-a46d-f91f3bc2d586": {
-      "updatedAtMs": 1778234392583,
+      "updatedAtMs": 1778292471350,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":7200000,\"anchorMs\":1771998767243}}",
       "state": {
-        "nextRunAtMs": 1778241567650,
-        "lastRunAtMs": 1778234367650,
-        "lastRunStatus": "ok",
-        "lastStatus": "ok",
-        "lastDurationMs": 24933,
-        "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 0,
-        "consecutiveSkipped": 0
+        "nextRunAtMs": 1778299575260,
+        "lastRunAtMs": 1778292375260,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 96090,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 3,
+        "consecutiveSkipped": 0,
+        "lastDelivered": false,
+        "lastDeliveryError": "cron: job interrupted by gateway restart",
+        "runningAtMs": 1778301421808
       }
     },
     "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8": {
@@ -42,18 +45,21 @@
       }
     },
     "15028631-f68e-464d-980d-b71e15ab1c1a": {
-      "updatedAtMs": 1778233299099,
+      "updatedAtMs": 1778292578496,
       "scheduleIdentity": "{\"version\":1,\"enabled\":true,\"schedule\":{\"kind\":\"every\",\"everyMs\":300000,\"anchorMs\":1772001720533}}",
       "state": {
-        "nextRunAtMs": 1778236899099,
-        "lastRunAtMs": 1778232824247,
+        "nextRunAtMs": 1778296071353,
+        "lastRunAtMs": 1778292471353,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 474852,
+        "lastDurationMs": 107143,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 25,
+        "consecutiveErrors": 34,
         "consecutiveSkipped": 0,
-        "runningAtMs": 1778236899101
+        "lastErrorReason": "timeout",
+        "lastDelivered": false,
+        "lastDeliveryError": "cron: job interrupted by gateway restart",
+        "runningAtMs": 1778301421808
       }
     }
   }

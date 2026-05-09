@@ -36,15 +36,8 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778140367261,
-        "lastRunAtMs": 1778133167261,
-        "lastRunStatus": "ok",
-        "lastStatus": "ok",
-        "lastDurationMs": 1059,
-        "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 0
-      },
-      "updatedAtMs": 1778133168320
+        "nextRunAtMs": 1778305967243
+      }
     },
     {
       "id": "0f921a3e-73f4-4e5d-9538-ccbdfd0ee4a8",
@@ -63,15 +56,8 @@
         "text": "give me a status update , what you did in the previous day, and what you plan to do in the following day, this should be a message to me via discord."
       },
       "state": {
-        "nextRunAtMs": 1778219691635,
-        "lastRunAtMs": 1778133291635,
-        "lastRunStatus": "ok",
-        "lastStatus": "ok",
-        "lastDurationMs": 6678,
-        "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 0
-      },
-      "updatedAtMs": 1778133298313
+        "nextRunAtMs": 1778306091403
+      }
     },
     {
       "id": "15028631-f68e-464d-980d-b71e15ab1c1a",
@@ -93,16 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778134027345,
-        "lastRunAtMs": 1778133124772,
+        "nextRunAtMs": 1778302020606,
+        "lastRunAtMs": 1778301720606,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 2573,
+        "lastDurationMs": 107149,
         "lastDeliveryStatus": "unknown",
-        "consecutiveErrors": 4,
-        "lastError": "FailoverError: HTTP 404: 404 page not found"
+        "consecutiveErrors": 2,
+        "runningAtMs": 1778302020620
       },
-      "updatedAtMs": 1778133127345
+      "updatedAtMs": 1778301827755
     }
   ]
 }

@@ -43,7 +43,7 @@
     "deviceFamily": "Mac",
     "clientId": "openclaw-macos",
     "clientMode": "node",
-    "role": "operator",
+    "role": "node",
     "roles": [
       "node",
       "operator"
@@ -68,7 +68,7 @@
         "role": "node",
         "scopes": [],
         "createdAtMs": 1772007318282,
-        "lastUsedAtMs": 1778203838334
+        "lastUsedAtMs": 1778301079208
       },
       "operator": {
         "token": "HcTpgIfhpearRy1puHWGRSHRqq76OZ7O6bFSZm5WTRc",
@@ -82,10 +82,51 @@
         ],
         "createdAtMs": 1772031049978,
         "rotatedAtMs": 1778173265447,
-        "lastUsedAtMs": 1778208126100
+        "lastUsedAtMs": 1778301079205
       }
     },
     "createdAtMs": 1772007318282,
     "approvedAtMs": 1778173265447
+  },
+  "60a6927469c12b8287ef00c3f476402a3c8b7ef9bba499f407b896b04f16ae8c": {
+    "deviceId": "60a6927469c12b8287ef00c3f476402a3c8b7ef9bba499f407b896b04f16ae8c",
+    "publicKey": "8puaCq74Zu-D2D3Bimonw5sWJhey3eBU4ziqPq6kazw",
+    "platform": "MacIntel",
+    "clientId": "openclaw-control-ui",
+    "clientMode": "webchat",
+    "role": "operator",
+    "roles": [
+      "operator"
+    ],
+    "scopes": [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "approvedScopes": [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "tokens": {
+      "operator": {
+        "token": "YzAPtA4eqfILnxks5dCt7QhUPN7gLmfDB1Q5gMQFpBs",
+        "role": "operator",
+        "scopes": [
+          "operator.admin",
+          "operator.approvals",
+          "operator.pairing",
+          "operator.read",
+          "operator.write"
+        ],
+        "createdAtMs": 1778295746349
+      }
+    },
+    "createdAtMs": 1778295746349,
+    "approvedAtMs": 1778295746349
   }
 }

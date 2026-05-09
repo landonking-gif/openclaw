@@ -36,7 +36,7 @@
         "text": "give me a current status update swell as what you are doing, what you have done in the two previous hours, and what you plan to do in the next two hours, this should be delivered in the form of a discord message to me."
       },
       "state": {
-        "nextRunAtMs": 1778241167243
+        "nextRunAtMs": 1778305967243
       }
     },
     {
@@ -79,8 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778237220533
-      }
+        "nextRunAtMs": 1778302020606,
+        "lastRunAtMs": 1778301720606,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 107149,
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 2,
+        "runningAtMs": 1778302020620
+      },
+      "updatedAtMs": 1778301827755
     }
   ]
 }

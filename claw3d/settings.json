@@ -1,5 +1,26 @@
 {
-  "adapter": "hermes",
-  "url": "ws://localhost:18789",
-  "token": ""
+  "version": 1,
+  "gateway": {
+    "url": "ws://localhost:18800",
+    "token": "ok keep working. the only unacceptable thing is to do nothing at all. you must continuesly improve , fix , or build things.",
+    "adapterType": "openclaw",
+    "profiles": {
+      "openclaw": {
+        "url": "ws://localhost:18800",
+        "token": "ok keep working. the only unacceptable thing is to do nothing at all. you must continuesly improve , fix , or build things."
+      },
+      "hermes": {
+        "url": "ws://localhost:18789",
+        "token": ""
+      }
+    }
+  },
+  "focused": {},
+  "avatars": {},
+  "deskAssignments": {},
+  "analytics": {},
+  "voiceReplies": {},
+  "office": {},
+  "standup": {},
+  "taskBoard": {}
 }

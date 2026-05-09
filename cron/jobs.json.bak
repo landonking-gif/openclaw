@@ -79,16 +79,16 @@
         "mode": "announce"
       },
       "state": {
-        "nextRunAtMs": 1778315520542,
-        "lastRunAtMs": 1778315220542,
+        "nextRunAtMs": 1778319420538,
+        "lastRunAtMs": 1778319120538,
         "lastRunStatus": "error",
         "lastStatus": "error",
-        "lastDurationMs": 516,
+        "lastDurationMs": 522,
         "lastError": "FailoverError: No API key found for provider \"anthropic\". Auth store: /Users/landonking/.openclaw/agents/main/agent/auth-profiles.json (agentDir: /Users/landonking/.openclaw/agents/main/agent). Configure auth for this agent (openclaw agents add <id>) or copy auth-profiles.json from the main agentDir.",
         "lastDeliveryStatus": "unknown",
         "consecutiveErrors": 2
       },
-      "updatedAtMs": 1778315221058
+      "updatedAtMs": 1778319121060
     }
   ]
 }
